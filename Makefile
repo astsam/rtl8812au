@@ -44,7 +44,6 @@ CONFIG_POWER_SAVING = y
 CONFIG_USB_AUTOSUSPEND = n
 CONFIG_HW_PWRP_DETECTION = n
 CONFIG_WIFI_TEST = n
-CONFIG_BT_COEXIST = n
 CONFIG_INTEL_WIDI = n
 CONFIG_WAPI_SUPPORT = n
 CONFIG_EFUSE_CONFIG_FILE = n
@@ -210,22 +209,6 @@ _OUTSRC_FILES := hal/phydm/phydm_debug.o	\
 
 EXTRA_CFLAGS += -I$(src)/platform
 _PLATFORM_FILES := platform/platform_ops.o
-
-ifeq ($(CONFIG_BT_COEXIST), y)
-EXTRA_CFLAGS += -I$(src)/hal/btc
-_OUTSRC_FILES += hal/btc/HalBtc8192e1Ant.o \
-				hal/btc/HalBtc8192e2Ant.o \
-				hal/btc/HalBtc8723b1Ant.o \
-				hal/btc/HalBtc8723b2Ant.o \
-				hal/btc/HalBtc8812a1Ant.o \
-				hal/btc/HalBtc8812a2Ant.o \
-				hal/btc/HalBtc8821a1Ant.o \
-				hal/btc/HalBtc8821a2Ant.o \
-				hal/btc/HalBtc8821aCsr2Ant.o \
-				hal/btc/HalBtc8703b1Ant.o \
-				hal/btc/HalBtc8703b2Ant.o 
-endif
-
 
 ########### HAL_RTL8188E #################################
 ifeq ($(CONFIG_RTL8188E), y)
@@ -745,10 +728,6 @@ endif
 
 ifeq ($(CONFIG_WIFI_TEST), y)
 EXTRA_CFLAGS += -DCONFIG_WIFI_TEST
-endif
-
-ifeq ($(CONFIG_BT_COEXIST), y)
-EXTRA_CFLAGS += -DCONFIG_BT_COEXIST
 endif
 
 ifeq ($(CONFIG_INTEL_WIDI), y)
