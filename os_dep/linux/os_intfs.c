@@ -410,10 +410,6 @@ int rtw_fwoffload = 0; /* 0 default disable , 2 for enable */
 module_param(rtw_fwoffload, int, 0644);
 MODULE_PARM_DESC(rtw_fwoffload, "for FW offload control");
 
-#if defined(CONFIG_CALIBRATE_TX_POWER_TO_MAX)//eFuse: Regulatory selection=0
-int rtw_tx_pwr_lmt_enable = 0;
-int rtw_tx_pwr_by_rate = 1;
-#else //eFuse: Regulatory selection=2
 #ifdef CONFIG_PCI_HCI
 int rtw_tx_pwr_lmt_enable = 2; // 2- Depend on efuse
 int rtw_tx_pwr_by_rate = 2;// 2- Depend on efuse
@@ -421,7 +417,6 @@ int rtw_tx_pwr_by_rate = 2;// 2- Depend on efuse
 int rtw_tx_pwr_lmt_enable = 0;
 int rtw_tx_pwr_by_rate = 0;
 #endif 
-#endif
 
 module_param(rtw_tx_pwr_lmt_enable, int, 0644);
 MODULE_PARM_DESC(rtw_tx_pwr_lmt_enable,"0:Disable, 1:Enable, 2: Depend on efuse");
