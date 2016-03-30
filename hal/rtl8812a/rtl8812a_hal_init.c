@@ -523,15 +523,6 @@ exit:
 	return ret;
 }
 
-#ifdef CONFIG_FILE_FWIMG
-extern char *rtw_fw_file_path;
-u8	FwBuffer8812[FW_SIZE_8812];
-#ifdef CONFIG_MP_INCLUDED
-extern char *rtw_fw_mp_bt_file_path;
-#endif // CONFIG_MP_INCLUDED
-u8 FwBuffer[FW_SIZE_8812];
-#endif //CONFIG_FILE_FWIMG
-
 s32
 FirmwareDownload8812(
 	IN	PADAPTER			Adapter,
@@ -559,14 +550,6 @@ FirmwareDownload8812(
 		goto exit;
 	}
 
-	#ifdef CONFIG_FILE_FWIMG
-	if(rtw_is_file_readable(rtw_fw_file_path) == _TRUE)
-	{
-		DBG_871X("%s accquire FW from file:%s\n", __FUNCTION__, rtw_fw_file_path);
-		pFirmware->eFWSource = FW_SOURCE_IMG_FILE;
-	}
-	else
-	#endif //CONFIG_FILE_FWIMG
 	{
 		DBG_871X("%s fw source from Header\n", __FUNCTION__);
 		pFirmware->eFWSource = FW_SOURCE_HEADER_FILE;
@@ -575,11 +558,6 @@ FirmwareDownload8812(
 	switch(pFirmware->eFWSource)
 	{
 		case FW_SOURCE_IMG_FILE:
-			#ifdef CONFIG_FILE_FWIMG
-			rtStatus = rtw_retrieve_from_file(rtw_fw_file_path, FwBuffer8812, FW_SIZE_8812);
-			pFirmware->ulFwLength = rtStatus>=0?rtStatus:0;
-			pFirmware->szFwBuffer = FwBuffer8812;
-			#endif //CONFIG_FILE_FWIMG
 			break;
 		case FW_SOURCE_HEADER_FILE:
 			#if defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
