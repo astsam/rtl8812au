@@ -169,7 +169,6 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 #endif
 
 #undef _dbgdump
-#undef _seqdump
 
 #ifndef _RTL871X_DEBUG_C_
 	extern u32 GlobalDebugLevel;
@@ -178,16 +177,12 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 
 #if defined(PLATFORM_WINDOWS) && defined(PLATFORM_OS_XP)
 	#define _dbgdump DbgPrint
-	#define _seqdump(sel, fmt, arg...) _dbgdump(fmt, ##arg)
 #elif defined(PLATFORM_WINDOWS) && defined(PLATFORM_OS_CE)
 	#define _dbgdump rtl871x_cedbg
-	#define _seqdump(sel, fmt, arg...) _dbgdump(fmt, ##arg)
 #elif defined PLATFORM_LINUX
 	#define _dbgdump printk
-	#define _seqdump seq_printf
 #elif defined PLATFORM_FREEBSD
 	#define _dbgdump printf
-	#define _seqdump(sel, fmt, arg...) _dbgdump(fmt, ##arg)
 #endif
 
 #define DRIVER_PREFIX "RTL871X: "
@@ -220,31 +215,19 @@ extern void rtl871x_cedbg(const char *fmt, ...);
 		}\
 	}while(0)
 
-#if defined(_seqdump)
 #define RTW_DBGDUMP 0 /* 'stream' for _dbgdump */
 
 /* dump message to selected 'stream' */
 #define DBG_871X_SEL(sel, fmt, arg...) \
 	do {\
-		if (sel == RTW_DBGDUMP)\
-			_DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
-		else {\
-			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/; \
-		} \
+		_DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
 	}while(0)
 
 /* dump message to selected 'stream' with driver-defined prefix */
 #define DBG_871X_SEL_NL(sel, fmt, arg...) \
 	do {\
-		if (sel == RTW_DBGDUMP)\
-			DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
-		else {\
-			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/; \
-		} \
+		DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
 	}while(0)
-
-#endif /* defined(_seqdump) */
-
 #endif /* defined(_dbgdump) */
 
 #ifdef CONFIG_DEBUG
