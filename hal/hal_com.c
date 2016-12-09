@@ -410,7 +410,7 @@ u8	HwRateToMRate(u8 rate)
 		case DESC_RATEVHTSS4MCS9:	ret_rate = MGN_VHT4SS_MCS9;		break;				
 		
 		default:							
-			DBG_871X("HwRateToMRate(): Non supported Rate [%x]!!!\n",rate );
+//			DBG_871X("HwRateToMRate(): Non supported Rate [%x]!!!\n",rate );
 			break;
 	}
 
