@@ -4530,6 +4530,43 @@ static int	cfg80211_rtw_change_bss(struct wiphy *wiphy, struct net_device *ndev,
 	
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+/* TODO: 80 and 160 MHz bandwidth */
+static int	cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy, struct cfg80211_chan_def *chandef)
+{
+	int chan_target = (u8) ieee80211_frequency_to_channel(chandef->chan->center_freq);
+	int chan_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
+	int chan_width = CHANNEL_WIDTH_20;
+	enum nl80211_channel_type channel_type = cfg80211_get_chandef_type(chandef);
+
+	_adapter *padapter = wiphy_to_adapter(wiphy);
+
+	switch (channel_type) {
+	case NL80211_CHAN_NO_HT:
+	case NL80211_CHAN_HT20:
+		chan_width = CHANNEL_WIDTH_20;
+		chan_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
+		break;
+	case NL80211_CHAN_HT40MINUS:
+		chan_width = CHANNEL_WIDTH_40;
+		chan_offset = HAL_PRIME_CHNL_OFFSET_UPPER;
+		break;
+	case NL80211_CHAN_HT40PLUS:
+		chan_width = CHANNEL_WIDTH_40;
+		chan_offset = HAL_PRIME_CHNL_OFFSET_LOWER;
+		break;
+	default:
+		chan_width = CHANNEL_WIDTH_20;
+		chan_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
+		break;
+	}
+
+	set_channel_bwmode(padapter, chan_target, chan_offset, chan_width);
+	DBG_871X("%s : %d %d", __func__, chan_target, chan_width);
+	return 0;
+}
+#endif
+
 static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,35))
 	, struct net_device *ndev
@@ -6473,7 +6510,9 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	.set_pmksa = cfg80211_rtw_set_pmksa,
 	.del_pmksa = cfg80211_rtw_del_pmksa,
 	.flush_pmksa = cfg80211_rtw_flush_pmksa,
-	
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
+	.set_monitor_channel = cfg80211_rtw_set_monitor_channel,
+#endif	
 #ifdef CONFIG_AP_MODE
 	.add_virtual_intf = cfg80211_rtw_add_virtual_intf,
 	.del_virtual_intf = cfg80211_rtw_del_virtual_intf,
