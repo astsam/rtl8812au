@@ -4531,29 +4531,34 @@ static int	cfg80211_rtw_change_bss(struct wiphy *wiphy, struct net_device *ndev,
 }
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,11,0))
-/* TODO: 80 and 160 MHz bandwidth */
+/* TODO: 160 MHz bandwidth */
 static int	cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy, struct cfg80211_chan_def *chandef)
 {
 	int chan_target = (u8) ieee80211_frequency_to_channel(chandef->chan->center_freq);
 	int chan_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 	int chan_width = CHANNEL_WIDTH_20;
-	enum nl80211_channel_type channel_type = cfg80211_get_chandef_type(chandef);
 
 	_adapter *padapter = wiphy_to_adapter(wiphy);
 
-	switch (channel_type) {
-	case NL80211_CHAN_NO_HT:
-	case NL80211_CHAN_HT20:
+	switch (chandef->width) {
+	case NL80211_CHAN_WIDTH_20_NOHT:
+	case NL80211_CHAN_WIDTH_20:
 		chan_width = CHANNEL_WIDTH_20;
 		chan_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
 		break;
-	case NL80211_CHAN_HT40MINUS:
+	case NL80211_CHAN_WIDTH_40:
 		chan_width = CHANNEL_WIDTH_40;
-		chan_offset = HAL_PRIME_CHNL_OFFSET_UPPER;
+		if (chandef->center_freq1 > chandef->chan->center_freq)
+			chan_offset = HAL_PRIME_CHNL_OFFSET_LOWER;
+		else
+			chan_offset = HAL_PRIME_CHNL_OFFSET_UPPER;
 		break;
-	case NL80211_CHAN_HT40PLUS:
-		chan_width = CHANNEL_WIDTH_40;
-		chan_offset = HAL_PRIME_CHNL_OFFSET_LOWER;
+	case NL80211_CHAN_WIDTH_80:
+		chan_width = CHANNEL_WIDTH_80;
+		if (chandef->center_freq1 > chandef->chan->center_freq)
+			chan_offset = HAL_PRIME_CHNL_OFFSET_LOWER;
+		else
+			chan_offset = HAL_PRIME_CHNL_OFFSET_UPPER;
 		break;
 	default:
 		chan_width = CHANNEL_WIDTH_20;
@@ -4562,7 +4567,7 @@ static int	cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy, struct cfg80211
 	}
 
 	set_channel_bwmode(padapter, chan_target, chan_offset, chan_width);
-	DBG_871X("%s : %d %d", __func__, chan_target, chan_width);
+	DBG_871X("%s : %d %d %d\n", __func__, chan_target, chan_offset, chan_width);
 	return 0;
 }
 #endif
@@ -4604,6 +4609,7 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 
 	set_channel_bwmode(padapter, chan_target, chan_offset, chan_width);
 
+	DBG_871X("%s : %d\n", __func__, chan_target);
 	return 0;
 }
 
@@ -6329,12 +6335,30 @@ static void rtw_cfg80211_init_ht_capab(_adapter *padapter, struct ieee80211_sta_
 	
 }
 
+static void rtw_cfg80211_create_vht_cap(struct ieee80211_sta_vht_cap *vht_cap)
+{
+	u16 mcs_map;
+	int i;
+
+	vht_cap->vht_supported = 1;
+	vht_cap->cap = IEEE80211_VHT_CAP_RXLDPC;
+
+	mcs_map = 0;
+	for (i = 0; i < 8; i++) {
+		mcs_map |= IEEE80211_VHT_MCS_SUPPORT_0_9 << (i*2);
+	}
+
+	vht_cap->vht_mcs.rx_mcs_map = cpu_to_le16(mcs_map);
+	vht_cap->vht_mcs.tx_mcs_map = cpu_to_le16(mcs_map);
+}
+
 void rtw_cfg80211_init_wiphy(_adapter *padapter)
 {
 	u8 rf_type;
 	struct ieee80211_supported_band *bands;
 	struct wireless_dev *pwdev = padapter->rtw_wdev;
 	struct wiphy *wiphy = pwdev->wiphy;
+	struct ieee80211_sta_vht_cap *vht_cap;
 	
 	rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
 
@@ -6348,8 +6372,10 @@ void rtw_cfg80211_init_wiphy(_adapter *padapter)
 #ifdef CONFIG_IEEE80211_BAND_5GHZ
 	if (IsSupported5G(padapter->registrypriv.wireless_mode)) {	
 		bands = wiphy->bands[IEEE80211_BAND_5GHZ];
-		if(bands)
+		if(bands) {
 			rtw_cfg80211_init_ht_capab(padapter, &bands->ht_cap, IEEE80211_BAND_5GHZ, rf_type);
+			rtw_cfg80211_create_vht_cap(&bands->vht_cap);
+		}
 	}
 #endif
 	/* init regulary domain */
