@@ -1360,7 +1360,7 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 		pPhyInfo->RecvSignalPower = rx_pwr_all;
 #endif
 		/*(3) Get Signal Quality (EVM)*/
-		if (pPktinfo->bPacketMatchBSSID) {
+		/*if (pPktinfo->bPacketMatchBSSID)*/ {
 			u1Byte	SQ, SQ_rpt;
 
 			if ((pDM_Odm->SupportPlatform == ODM_WIN) &&
@@ -1500,7 +1500,7 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 			else
 				Max_spatial_stream = 1;
 
-			if (pPktinfo->bPacketMatchBSSID) {
+			/*if (pPktinfo->bPacketMatchBSSID)*/ {
 				/*DbgPrint("pPktinfo->DataRate = %d\n", pPktinfo->DataRate);*/
 
 				for (i = 0; i < Max_spatial_stream; i++) {
@@ -1994,7 +1994,8 @@ ODM_PhyStatusQuery(
 }
 	
 // For future use.
-VOIDODM_MacStatusQuery(
+VOID
+ODM_MacStatusQuery(
 	IN OUT	PDM_ODM_T					pDM_Odm,
 	IN 		pu1Byte						pMacStatus,
 	IN		u1Byte						MacID,	
