@@ -150,6 +150,11 @@ ifeq ($(CONFIG_PCI_HCI), y)
 HCI_NAME = pci
 endif
 
+ifeq ($(DEBUG), 1)
+EXTRA_CFLAGS += -DDBG=1 -DCONFIG_DEBUG
+else
+EXTRA_CFLAGS += -DDBG=0
+endif
 
 _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/os_intfs.o \
