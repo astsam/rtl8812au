@@ -292,7 +292,7 @@ VOID _InitRDGSetting_8192E(PADAPTER Adapter);
 void _InitID_8192E(IN  PADAPTER Adapter);
 VOID _InitNetworkType_8192E(IN  PADAPTER Adapter);
 VOID _InitWMACSetting_8192E(IN PADAPTER Adapter);
-VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter);
+VOID _InitAdaptiveCtrl_8192E(IN  PADAPTER Adapter);
 VOID _InitRateFallback_8192E(IN  PADAPTER Adapter);
 VOID _InitEDCA_8192E( IN  PADAPTER Adapter);
 VOID _InitRetryFunction_8192E(	IN  PADAPTER Adapter);
@@ -323,7 +323,6 @@ GetHalDefVar8192E(
 	);
 
 void rtl8192e_set_hal_ops(struct hal_ops *pHalFunc);
-void init_hal_spec_8192e(_adapter *adapter);
 void rtl8192e_init_default_value(_adapter * padapter);
 // register
 void SetBcnCtrlReg(PADAPTER padapter, u8 SetBits, u8 ClearBits);

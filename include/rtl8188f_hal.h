@@ -270,7 +270,6 @@ void rtl8188f_c2h_packet_handler(PADAPTER padapter, u8 *pbuf, u16 length);
 void rtl8188f_set_pll_ref_clk_sel(_adapter *adapter, u8 sel);
 
 void rtl8188f_set_hal_ops(struct hal_ops *pHalFunc);
-void init_hal_spec_8188f(_adapter *adapter);
 void SetHwReg8188F(PADAPTER padapter, u8 variable, u8 *val);
 void GetHwReg8188F(PADAPTER padapter, u8 variable, u8 *val);
 #ifdef CONFIG_C2H_PACKET_EN

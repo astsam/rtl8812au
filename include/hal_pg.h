@@ -200,6 +200,16 @@
 #define EEPROM_TRX_ANTENNA_OPTION_8814		0xC9
 #define	EEPROM_RFE_OPTION_8814				0xCA
 
+/*Extra Info for 8814A Initial Gain Fine Tune  suggested by Willis, JIRA: MP123*/
+#define	EEPROM_IG_OFFSET_4_AB_2G_8814A				0x120
+#define	EEPROM_IG_OFFSET_4_CD_2G_8814A				0x121
+#define	EEPROM_IG_OFFSET_4_AB_5GL_8814A				0x122
+#define	EEPROM_IG_OFFSET_4_CD_5GL_8814A				0x123
+#define	EEPROM_IG_OFFSET_4_AB_5GM_8814A				0x124
+#define	EEPROM_IG_OFFSET_4_CD_5GM_8814A				0x125
+#define	EEPROM_IG_OFFSET_4_AB_5GH_8814A				0x126
+#define	EEPROM_IG_OFFSET_4_CD_5GH_8814A				0x127
+
 //====================================================
 //			EEPROM/Efuse PG Offset for 8821AE/8821AU/8821AS
 //====================================================

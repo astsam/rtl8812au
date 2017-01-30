@@ -690,24 +690,8 @@ phydm_trans_h2c_id(
 				}
 				
 			#elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
-				#if((RTL8812A_SUPPORT==1) ||(RTL8821A_SUPPORT==1))
-					platform_h2c_id = H2C_8812_RSSI_REPORT;
-				#elif((RTL8814A_SUPPORT == 1) || (RTL8822B_SUPPORT == 1))
-					platform_h2c_id = H2C_RSSI_SETTING;
-				#elif(RTL8192E_SUPPORT==1)
-					platform_h2c_id =H2C_8192E_RSSI_REPORT;
-				#elif(RTL8723B_SUPPORT==1)
-					platform_h2c_id =H2C_8723B_RSSI_SETTING;
-				#elif(RTL8188E_SUPPORT==1)
-					platform_h2c_id =H2C_RSSI_REPORT;
-				#elif(RTL8723A_SUPPORT==1)
-					platform_h2c_id =RSSI_SETTING_EID;
-				#elif(RTL8192D_SUPPORT==1)
-					platform_h2c_id =H2C_RSSI_REPORT;
-				#elif(RTL8192C_SUPPORT==1)
-					platform_h2c_id =RSSI_SETTING_EID;
-				#endif
-				
+				platform_h2c_id = H2C_RSSI_SETTING;
+
 			#elif(DM_ODM_SUPPORT_TYPE & ODM_AP)
 				#if ((RTL8881A_SUPPORT == 1) || (RTL8192E_SUPPORT == 1) || (RTL8814A_SUPPORT == 1) || (RTL8822B_SUPPORT == 1))
 					if (pDM_Odm->SupportICType == ODM_RTL8881A || pDM_Odm->SupportICType == ODM_RTL8192E || pDM_Odm->SupportICType == ODM_RTL8814A || (pDM_Odm->SupportICType == ODM_RTL8822B)) 
@@ -771,7 +755,7 @@ phydm_trans_h2c_id(
 			#elif(DM_ODM_SUPPORT_TYPE & ODM_CE)
 				#if((RTL8812A_SUPPORT==1) ||(RTL8821A_SUPPORT==1))
 					platform_h2c_id = H2C_8812_RA_PARA_ADJUST;
-				#elif(RTL8814A_SUPPORT == 1)
+				#elif ((RTL8814A_SUPPORT == 1) || (RTL8822B_SUPPORT == 1))
 					platform_h2c_id = H2C_RA_PARA_ADJUST;
 				#elif(RTL8192E_SUPPORT==1)
 					platform_h2c_id =H2C_8192E_RA_PARA_ADJUST;

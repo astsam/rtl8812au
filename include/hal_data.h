@@ -233,7 +233,10 @@ typedef struct hal_com_data
 	u32				ReceiveConfig;
 	BOOLEAN			bSwChnl;
 	BOOLEAN			bSetChnlBW;
+	BOOLEAN			bSWToBW40M;
+	BOOLEAN			bSWToBW80M;
 	BOOLEAN			bChnlBWInitialized;
+	u32				BackUp_BB_REG_4_2nd_CCA[3];
 #ifdef CONFIG_AUTO_CHNL_SEL_NHM
 	struct auto_chan_sel acs;
 #endif
@@ -371,12 +374,6 @@ typedef struct hal_com_data
 						[TX_PWR_BY_RATE_NUM_RF]
 						[MAX_BASE_NUM_IN_PHY_REG_PG_5G];
 
-	u8	txpwr_by_rate_loaded:1;
-	u8	txpwr_by_rate_from_file:1;
-	u8	txpwr_limit_loaded:1;
-	u8	txpwr_limit_from_file:1;
-
-	u8				TxPwrShadow[MAX_RF_PATH][DESC_RATEMAX];
 	// For power group
 	/*
 	u8	PwrGroupHT20[RF_PATH_MAX_92C_88E][CHANNEL_MAX_NUMBER];
@@ -615,6 +612,12 @@ typedef struct hal_com_data
 	BOOLEAN				bCCKinCH14;
 	BB_INIT_REGISTER	RegForRecover[5];
 
+#if defined(CONFIG_PCI_HCI) && defined(RTL8814AE_SW_BCN)
+	BOOLEAN bCorrectBCN;
+#endif
+
+	u32 RxGainOffset[4]; /*{2G, 5G_Low, 5G_Middle, G_High}*/
+	u8 BackUp_IG_REG_4_Chnl_Section[4]; /*{A,B,C,D}*/
 } HAL_DATA_COMMON, *PHAL_DATA_COMMON;
 
 

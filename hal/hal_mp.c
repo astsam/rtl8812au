@@ -246,7 +246,6 @@ void hal_mpt_SetChannel(PADAPTER pAdapter)
 	struct mp_priv	*pmp = &pAdapter->mppriv;
 	u8		channel = pmp->channel;
 	u8		bandwidth = pmp->bandwidth;
-	u8		rate = pmp->rateidx;
 
 	hal_mpt_SwitchRfSetting(pAdapter);
 	
@@ -487,8 +486,8 @@ void hal_mpt_SetDataRate(PADAPTER pAdapter)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 	PMPT_CONTEXT		pMptCtx = &(pAdapter->mppriv.MptCtx);
 	u32 DataRate;
-	
-	DataRate = MptToMgntRate(pAdapter->mppriv.rateidx);
+
+	DataRate = MptToMgntRate(pMptCtx->MptRateIndex);
 	
 	hal_mpt_SwitchRfSetting(pAdapter);
 
@@ -556,8 +555,7 @@ VOID mpt_SetRFPath_8814A(PADAPTER	pAdapter)
 	PMPT_CONTEXT	pMptCtx = &pAdapter->mppriv.MptCtx;
 	R_ANTENNA_SELECT_OFDM	*p_ofdm_tx;	/* OFDM Tx register */
 	R_ANTENNA_SELECT_CCK	*p_cck_txrx;
-
-	u8	ForcedDataRate = HwRateToMRate(pAdapter->mppriv.rateidx);
+	u8	ForcedDataRate = MptToMgntRate(pMptCtx->MptRateIndex);
 	u8	HtStbcCap = pAdapter->registrypriv.stbc_cap;
 	/*/PRT_HIGH_THROUGHPUT		pHTInfo = GET_HT_INFO(pMgntInfo);*/
 	/*/PRT_VERY_HIGH_THROUGHPUT	pVHTInfo = GET_VHT_INFO(pMgntInfo);*/
@@ -566,7 +564,7 @@ VOID mpt_SetRFPath_8814A(PADAPTER	pAdapter)
 	u32	ulAntennaRx = pHalData->AntennaRxPath;
 	u8	NssforRate = MgntQuery_NssTxRate(ForcedDataRate);
 
-	if (NssforRate == RF_2TX) {	
+	if ((NssforRate == RF_2TX) || ((NssforRate == RF_1TX) && IS_HT_RATE(ForcedDataRate)) || ((NssforRate == RF_1TX) && IS_VHT_RATE(ForcedDataRate))) {
 		DBG_871X("===> SetAntenna 2T ForcedDataRate %d NssforRate %d AntennaTx %d\n", ForcedDataRate, NssforRate, ulAntennaTx);
 
 		switch (ulAntennaTx) {
@@ -608,7 +606,7 @@ VOID mpt_SetRFPath_8814A(PADAPTER	pAdapter)
 	} else { /*/if(NssforRate == RF_1TX)*/
 		DBG_871X("===> SetAntenna 1T ForcedDataRate %d NssforRate %d AntennaTx %d\n", ForcedDataRate, NssforRate, ulAntennaTx);
 		switch (ulAntennaTx) {
-		case ANTENNA_B:
+		case ANTENNA_BCD:				pMptCtx->MptRfPath = ODM_RF_PATH_BCD;				/*pHalData->ValidTxPath = 0x0e;*/				PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, 0xf0000000, 0x7);				PHY_SetBBReg(pAdapter, rTxAnt_1Nsts_Jaguar2, 0x000f00000, 0xe);					PHY_SetBBReg(pAdapter, rTxPath_Jaguar, 0xf0, 0xe);				break;		case ANTENNA_BC:				pMptCtx->MptRfPath = ODM_RF_PATH_BC;				/*pHalData->ValidTxPath = 0x06;*/				PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, 0xf0000000, 0x6);				PHY_SetBBReg(pAdapter, rTxAnt_1Nsts_Jaguar2, 0x000f00000, 0x6);					PHY_SetBBReg(pAdapter, rTxPath_Jaguar, 0xf0, 0x6);				break;		case ANTENNA_B:
 				pMptCtx->MptRfPath = ODM_RF_PATH_B;
 				/*pHalData->ValidTxPath = 0x02;*/
 				PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, 0xf0000000, 0x4);			/*/ 0xa07[7:4] = 4'b0100*/
@@ -1621,10 +1619,13 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 
 void hal_mpt_SetCarrierSuppressionTx(PADAPTER pAdapter, u8 bStart)
 {
+	u8 Rate;
 	pAdapter->mppriv.MptCtx.bCarrierSuppression = bStart;
+
+	Rate = HwRateToMPTRate(pAdapter->mppriv.rateidx);
 	if (bStart) {/* Start Carrier Suppression.*/
 		RT_TRACE(_module_mp_, _drv_alert_, ("SetCarrierSuppressionTx: test start\n"));
-		if (pAdapter->mppriv.rateidx <= MPT_RATE_11M) {
+		if (Rate <= MPT_RATE_11M) {
 			/*/ 1. if CCK block on?*/
 			if (!read_bbreg(pAdapter, rFPGA0_RFMOD, bCCKEn))
 				write_bbreg(pAdapter, rFPGA0_RFMOD, bCCKEn, bEnable);/*set CCK block on*/
@@ -1649,7 +1650,7 @@ void hal_mpt_SetCarrierSuppressionTx(PADAPTER pAdapter, u8 bStart)
 	} else {/* Stop Carrier Suppression.*/	
 		RT_TRACE(_module_mp_, _drv_alert_, ("SetCarrierSuppressionTx: test stop\n"));
 
-		if (pAdapter->mppriv.rateidx <= MPT_RATE_11M) {
+		if (Rate <= MPT_RATE_11M) {
 			write_bbreg(pAdapter, rCCK0_System, bCCKBBMode, 0x0);    /*normal mode*/
 			write_bbreg(pAdapter, rCCK0_System, bCCKScramble, 0x1);  /*turn on scramble setting*/
 
@@ -1784,16 +1785,377 @@ void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart)
 
 void hal_mpt_SetContinuousTx(PADAPTER pAdapter, u8 bStart)
 {
+	u8 Rate;
 	RT_TRACE(_module_mp_, _drv_info_,
 		 ("SetContinuousTx: rate:%d\n", pAdapter->mppriv.rateidx));
 
+	Rate = HwRateToMPTRate(pAdapter->mppriv.rateidx);
 	pAdapter->mppriv.MptCtx.bStartContTx = bStart;
 
-	if (pAdapter->mppriv.rateidx <= MPT_RATE_11M)
+	if (Rate <= MPT_RATE_11M)
 		hal_mpt_SetCCKContinuousTx(pAdapter, bStart);
-	else if (pAdapter->mppriv.rateidx >= MPT_RATE_6M) 
+	else if (Rate >= MPT_RATE_6M) 
 		hal_mpt_SetOFDMContinuousTx(pAdapter, bStart);
 }
+
+u32 hal_mpt_query_phytxok(PADAPTER	pAdapter)
+{
+	PMPT_CONTEXT pMptCtx = &(pAdapter->mppriv.MptCtx);
+	RT_PMAC_TX_INFO PMacTxInfo = pMptCtx->PMacTxInfo;
+	u16 count = 0;
+
+	if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE))
+		count = PHY_QueryBBReg(pAdapter, 0xF50, bMaskLWord); /* [15:0]*/
+	else
+		count = PHY_QueryBBReg(pAdapter, 0xF50, bMaskHWord); /* [31:16]*/
+
+	if (count > 50000) {
+		rtw_reset_phy_trx_ok_counters(pAdapter);
+		pAdapter->mppriv.tx.sended += count;
+		count = 0;
+	}
+
+	return pAdapter->mppriv.tx.sended + count;
+
+}
+
+#if	defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8821B) || defined(CONFIG_RTL8822B)
+/* for HW TX mode */
+static	VOID mpt_StopCckContTx(
+	PADAPTER	pAdapter
+	)
+{
+	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
+	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.MptCtx);
+	u1Byte			u1bReg;
+
+	pMptCtx->bCckContTx = FALSE;
+	pMptCtx->bOfdmContTx = FALSE;
+
+	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKBBMode, 0x0);	/*normal mode*/
+	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 0x1);	/*turn on scramble setting*/
+
+	if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_JAGUAR2(pAdapter)) {
+		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);			/* 0xa15[1:0] = 2b00*/
+		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);		/* 0xc08[16] = 0*/
+		
+		PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 0);
+		PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 0);
+	}
+
+	/*BB Reset*/
+	PHY_SetBBReg(pAdapter, rPMAC_Reset, bBBResetB, 0x0);
+	PHY_SetBBReg(pAdapter, rPMAC_Reset, bBBResetB, 0x1);
+
+	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000100);
+	PHY_SetBBReg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000100);
+
+}	/* mpt_StopCckContTx */
+
+
+static	VOID mpt_StopOfdmContTx(
+	PADAPTER	pAdapter
+	)
+{
+	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
+	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.MptCtx);
+	u1Byte			u1bReg;
+	u4Byte			data;
+
+	pMptCtx->bCckContTx = FALSE;
+	pMptCtx->bOfdmContTx = FALSE;
+
+	if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_JAGUAR2(pAdapter))
+		PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ALL_OFF);
+	else
+		PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
+
+	rtw_mdelay_os(10);
+
+	if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_JAGUAR2(pAdapter)) {
+		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x0);			/* 0xa15[1:0] = 0*/
+		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x0);		/* 0xc08[16] = 0*/
+	}
+
+	/*BB Reset*/
+	PHY_SetBBReg(pAdapter, rPMAC_Reset, bBBResetB, 0x0);
+	PHY_SetBBReg(pAdapter, rPMAC_Reset, bBBResetB, 0x1);
+
+	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000100);
+	PHY_SetBBReg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000100);
+}	/* mpt_StopOfdmContTx */
+
+
+static	VOID mpt_StartCckContTx(
+	PADAPTER		pAdapter
+	)
+{
+	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
+	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.MptCtx);
+	u4Byte			cckrate;
+
+	/* 1. if CCK block on */
+	if (!PHY_QueryBBReg(pAdapter, rFPGA0_RFMOD, bCCKEn))
+		PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bCCKEn, 1);/*set CCK block on*/
+
+	/*Turn Off All Test Mode*/
+	if (IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(pAdapter))
+		PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ALL_OFF);
+	else
+		PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ALL_OFF);
+
+	cckrate  = pAdapter->mppriv.rateidx;
+
+	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKTxRate, cckrate);
+
+	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKBBMode, 0x2);	/*transmit mode*/
+	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 0x1);	/*turn on scramble setting*/
+
+	if (!IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(pAdapter)) {
+		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);			/* 0xa15[1:0] = 11 force cck rxiq = 0*/
+		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/* 0xc08[16] = 1 force ofdm rxiq = ofdm txiq*/
+		PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter2, BIT14, 1);
+		PHY_SetBBReg(pAdapter, 0x0B34, BIT14, 1);
+	}
+
+	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000500);
+	PHY_SetBBReg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000500);
+
+	pMptCtx->bCckContTx = TRUE;
+	pMptCtx->bOfdmContTx = FALSE;
+	
+}	/* mpt_StartCckContTx */
+
+
+static	VOID mpt_StartOfdmContTx(
+	PADAPTER		pAdapter
+	)
+{
+	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
+	PMPT_CONTEXT	pMptCtx = &(pAdapter->mppriv.MptCtx);
+
+	/* 1. if OFDM block on?*/
+	if (!PHY_QueryBBReg(pAdapter, rFPGA0_RFMOD, bOFDMEn))
+		PHY_SetBBReg(pAdapter, rFPGA0_RFMOD, bOFDMEn, 1);/*set OFDM block on*/
+
+	/* 2. set CCK test mode off, set to CCK normal mode*/
+	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKBBMode, 0);
+
+	/* 3. turn on scramble setting*/
+	PHY_SetBBReg(pAdapter, rCCK0_System, bCCKScramble, 1);
+
+	if (!IS_HARDWARE_TYPE_JAGUAR(pAdapter) && !IS_HARDWARE_TYPE_JAGUAR2(pAdapter)) {
+		PHY_SetBBReg(pAdapter, 0xa14, 0x300, 0x3);			/* 0xa15[1:0] = 2b'11*/
+		PHY_SetBBReg(pAdapter, rOFDM0_TRMuxPar, 0x10000, 0x1);		/* 0xc08[16] = 1*/
+	}
+
+	/* 4. Turn On Continue Tx and turn off the other test modes.*/
+	if (IS_HARDWARE_TYPE_JAGUAR(pAdapter) || IS_HARDWARE_TYPE_JAGUAR2(pAdapter))
+		PHY_SetBBReg(pAdapter, 0x914, BIT18|BIT17|BIT16, OFDM_ContinuousTx);
+	else
+		PHY_SetBBReg(pAdapter, rOFDM1_LSTF, BIT30|BIT29|BIT28, OFDM_ContinuousTx);
+	
+	PHY_SetBBReg(pAdapter, rFPGA0_XA_HSSIParameter1, bMaskDWord, 0x01000500);
+	PHY_SetBBReg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000500);
+
+	pMptCtx->bCckContTx = FALSE;
+	pMptCtx->bOfdmContTx = TRUE;
+}	/* mpt_StartOfdmContTx */
+
+
+VOID mpt_ProSetPMacTx(PADAPTER	Adapter)
+{
+	PMPT_CONTEXT	pMptCtx		=	&(Adapter->mppriv.MptCtx);
+	RT_PMAC_TX_INFO	PMacTxInfo	=	pMptCtx->PMacTxInfo;
+	u32			u4bTmp;
+
+	DbgPrint("SGI %d bSPreamble %d bSTBC %d bLDPC %d NDP_sound %d\n", PMacTxInfo.bSGI, PMacTxInfo.bSPreamble, PMacTxInfo.bSTBC, PMacTxInfo.bLDPC, PMacTxInfo.NDP_sound);
+	DbgPrint("TXSC %d BandWidth %d PacketPeriod %d PacketCount %d PacketLength %d PacketPattern %d\n", PMacTxInfo.TX_SC, PMacTxInfo.BandWidth, PMacTxInfo.PacketPeriod, PMacTxInfo.PacketCount, PMacTxInfo.PacketLength, PMacTxInfo.PacketPattern);
+#if 0
+	PRINT_DATA("LSIG ", PMacTxInfo.LSIG, 3);
+	PRINT_DATA("HT_SIG", PMacTxInfo.HT_SIG, 6);
+	PRINT_DATA("VHT_SIG_A", PMacTxInfo.VHT_SIG_A, 6);
+	PRINT_DATA("VHT_SIG_B", PMacTxInfo.VHT_SIG_B, 4);
+	DbgPrint("VHT_SIG_B_CRC %x\n", PMacTxInfo.VHT_SIG_B_CRC);
+	PRINT_DATA("VHT_Delimiter", PMacTxInfo.VHT_Delimiter, 4);
+
+	PRINT_DATA("Src Address", Adapter->mac_addr, 6);
+	PRINT_DATA("Dest Address", PMacTxInfo.MacAddress, 6);
+#endif
+
+	if (PMacTxInfo.bEnPMacTx == FALSE) {
+		if (PMacTxInfo.Mode == CONTINUOUS_TX) {
+			PHY_SetBBReg(Adapter, 0xb04, 0xf, 2);			/*	TX Stop*/
+			if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE))
+				mpt_StopCckContTx(Adapter);
+			else
+				mpt_StopOfdmContTx(Adapter);
+		} else if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE)) {
+			u4bTmp = PHY_QueryBBReg(Adapter, 0xf50, bMaskLWord);
+			PHY_SetBBReg(Adapter, 0xb1c, bMaskLWord, u4bTmp+50);
+			PHY_SetBBReg(Adapter, 0xb04, 0xf, 2);		/*TX Stop*/
+		} else
+			PHY_SetBBReg(Adapter, 0xb04, 0xf, 2);		/*	TX Stop*/
+
+		if (PMacTxInfo.Mode == OFDM_Single_Tone_TX) {
+			/* Stop HW TX -> Stop Continuous TX -> Stop RF Setting*/
+			if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE))
+				mpt_StopCckContTx(Adapter);
+			else
+				mpt_StopOfdmContTx(Adapter);
+
+			mpt_SetSingleTone_8814A(Adapter, FALSE, TRUE);
+		}
+
+		return;
+	}
+
+	if (PMacTxInfo.Mode == CONTINUOUS_TX) {
+		PMacTxInfo.PacketCount = 1;
+
+		if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE))
+			mpt_StartCckContTx(Adapter);
+		else
+			mpt_StartOfdmContTx(Adapter);
+	} else if (PMacTxInfo.Mode == OFDM_Single_Tone_TX) {
+		/* Continuous TX -> HW TX -> RF Setting */
+		PMacTxInfo.PacketCount = 1;
+
+		if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE))
+			mpt_StartCckContTx(Adapter);
+		else
+			mpt_StartOfdmContTx(Adapter);
+	} else if (PMacTxInfo.Mode == PACKETS_TX) {
+		if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE) && PMacTxInfo.PacketCount == 0)
+			PMacTxInfo.PacketCount = 0xffff;
+	}
+
+	if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE)) {
+		/* 0xb1c[0:15] TX packet count 0xb1C[31:16]	SFD*/
+		u4bTmp = PMacTxInfo.PacketCount|(PMacTxInfo.SFD << 16);
+		PHY_SetBBReg(Adapter, 0xb1c, bMaskDWord, u4bTmp);
+		/* 0xb40 7:0 SIGNAL	15:8 SERVICE	31:16 LENGTH*/
+		u4bTmp = PMacTxInfo.SignalField|(PMacTxInfo.ServiceField << 8)|(PMacTxInfo.LENGTH << 16);
+		PHY_SetBBReg(Adapter, 0xb40, bMaskDWord, u4bTmp);
+		u4bTmp = PMacTxInfo.CRC16[0] | (PMacTxInfo.CRC16[1] << 8);
+		PHY_SetBBReg(Adapter, 0xb44, bMaskLWord, u4bTmp);
+
+		if (PMacTxInfo.bSPreamble)
+			PHY_SetBBReg(Adapter, 0xb0c, BIT27, 0);	
+		else
+			PHY_SetBBReg(Adapter, 0xb0c, BIT27, 1);	
+	} else {
+		PHY_SetBBReg(Adapter, 0xb18, 0xfffff, PMacTxInfo.PacketCount);
+
+		u4bTmp = PMacTxInfo.LSIG[0]|((PMacTxInfo.LSIG[1]) << 8)|((PMacTxInfo.LSIG[2]) << 16)|((PMacTxInfo.PacketPattern) << 24);
+		PHY_SetBBReg(Adapter, 0xb08, bMaskDWord, u4bTmp);	/*	Set 0xb08[23:0] = LSIG, 0xb08[31:24] =  Data init octet*/
+
+		if (PMacTxInfo.PacketPattern == 0x12)
+			u4bTmp = 0x3000000;
+		else
+			u4bTmp = 0;
+	}
+
+	if (IS_MPT_HT_RATE(PMacTxInfo.TX_RATE)) {
+		u4bTmp |= PMacTxInfo.HT_SIG[0]|((PMacTxInfo.HT_SIG[1]) << 8)|((PMacTxInfo.HT_SIG[2]) << 16);
+		PHY_SetBBReg(Adapter, 0xb0c, bMaskDWord, u4bTmp);
+		u4bTmp = PMacTxInfo.HT_SIG[3]|((PMacTxInfo.HT_SIG[4]) << 8)|((PMacTxInfo.HT_SIG[5]) << 16);
+		PHY_SetBBReg(Adapter, 0xb10, 0xffffff, u4bTmp);
+	} else if (IS_MPT_VHT_RATE(PMacTxInfo.TX_RATE)) {
+		u4bTmp |= PMacTxInfo.VHT_SIG_A[0]|((PMacTxInfo.VHT_SIG_A[1]) << 8)|((PMacTxInfo.VHT_SIG_A[2]) << 16);
+		PHY_SetBBReg(Adapter, 0xb0c, bMaskDWord, u4bTmp);
+		u4bTmp = PMacTxInfo.VHT_SIG_A[3]|((PMacTxInfo.VHT_SIG_A[4]) << 8)|((PMacTxInfo.VHT_SIG_A[5]) << 16);
+		PHY_SetBBReg(Adapter, 0xb10, 0xffffff, u4bTmp);
+
+		_rtw_memcpy(&u4bTmp, PMacTxInfo.VHT_SIG_B, 4);
+		PHY_SetBBReg(Adapter, 0xb14, bMaskDWord, u4bTmp);
+	}
+
+	if (IS_MPT_VHT_RATE(PMacTxInfo.TX_RATE)) {
+		u4bTmp = (PMacTxInfo.VHT_SIG_B_CRC << 24)|PMacTxInfo.PacketPeriod;	/* for TX interval */
+		PHY_SetBBReg(Adapter, 0xb20, bMaskDWord, u4bTmp);
+
+		_rtw_memcpy(&u4bTmp, PMacTxInfo.VHT_Delimiter, 4);
+		PHY_SetBBReg(Adapter, 0xb24, bMaskDWord, u4bTmp);
+
+		/* 0xb28 - 0xb34 24 byte Probe Request MAC Header*/
+		/*& Duration & Frame control*/
+		PHY_SetBBReg(Adapter, 0xb28, bMaskDWord, 0x00000040);
+
+		/* Address1 [0:3]*/
+		u4bTmp = PMacTxInfo.MacAddress[0]|(PMacTxInfo.MacAddress[1] << 8)|(PMacTxInfo.MacAddress[2] << 16)|(PMacTxInfo.MacAddress[3] << 24);
+		PHY_SetBBReg(Adapter, 0xb2C, bMaskDWord, u4bTmp);
+
+		/* Address3 [3:0]*/
+		PHY_SetBBReg(Adapter, 0xb38, bMaskDWord, u4bTmp);
+
+		/* Address2[0:1] & Address1 [5:4]*/
+		u4bTmp = PMacTxInfo.MacAddress[4]|(PMacTxInfo.MacAddress[5] << 8)|(Adapter->mac_addr[0] << 16)|(Adapter->mac_addr[1] << 24);
+		PHY_SetBBReg(Adapter, 0xb30, bMaskDWord, u4bTmp);
+
+		/* Address2 [5:2]*/
+		u4bTmp = Adapter->mac_addr[2]|(Adapter->mac_addr[3] << 8)|(Adapter->mac_addr[4] << 16)|(Adapter->mac_addr[5] << 24);
+		PHY_SetBBReg(Adapter, 0xb34, bMaskDWord, u4bTmp);
+
+		/* Sequence Control & Address3 [5:4]*/
+		/*u4bTmp = PMacTxInfo.MacAddress[4]|(PMacTxInfo.MacAddress[5] << 8) ;*/
+		/*PHY_SetBBReg(Adapter, 0xb38, bMaskDWord, u4bTmp);*/
+	} else {
+		PHY_SetBBReg(Adapter, 0xb20, bMaskDWord, PMacTxInfo.PacketPeriod);	/* for TX interval*/
+		/* & Duration & Frame control */
+		PHY_SetBBReg(Adapter, 0xb24, bMaskDWord, 0x00000040);
+
+		/* 0xb24 - 0xb38 24 byte Probe Request MAC Header*/
+		/* Address1 [0:3]*/
+		u4bTmp = PMacTxInfo.MacAddress[0]|(PMacTxInfo.MacAddress[1] << 8)|(PMacTxInfo.MacAddress[2] << 16)|(PMacTxInfo.MacAddress[3] << 24);
+		PHY_SetBBReg(Adapter, 0xb28, bMaskDWord, u4bTmp);
+
+		/* Address3 [3:0]*/
+		PHY_SetBBReg(Adapter, 0xb34, bMaskDWord, u4bTmp);
+
+		/* Address2[0:1] & Address1 [5:4]*/
+		u4bTmp = PMacTxInfo.MacAddress[4]|(PMacTxInfo.MacAddress[5] << 8)|(Adapter->mac_addr[0] << 16)|(Adapter->mac_addr[1] << 24);
+		PHY_SetBBReg(Adapter, 0xb2c, bMaskDWord, u4bTmp);
+
+		/* Address2 [5:2] */
+		u4bTmp = Adapter->mac_addr[2]|(Adapter->mac_addr[3] << 8)|(Adapter->mac_addr[4] << 16)|(Adapter->mac_addr[5] << 24);
+		PHY_SetBBReg(Adapter, 0xb30, bMaskDWord, u4bTmp);
+
+		/* Sequence Control & Address3 [5:4]*/
+		u4bTmp = PMacTxInfo.MacAddress[4] | (PMacTxInfo.MacAddress[5] << 8);
+		PHY_SetBBReg(Adapter, 0xb38, bMaskDWord, u4bTmp);
+	}
+
+	PHY_SetBBReg(Adapter, 0xb48, bMaskByte3, PMacTxInfo.TX_RATE_HEX);
+
+	/* 0xb4c 3:0 TXSC	5:4	BW	7:6 m_STBC	8 NDP_Sound*/
+	u4bTmp = (PMacTxInfo.TX_SC)|((PMacTxInfo.BandWidth) << 4)|((PMacTxInfo.m_STBC - 1) << 6)|((PMacTxInfo.NDP_sound) << 8);
+	PHY_SetBBReg(Adapter, 0xb4c, 0x1ff, u4bTmp);
+
+	if (IS_HARDWARE_TYPE_8814A(Adapter) || IS_HARDWARE_TYPE_8822B(Adapter)) {
+		u4Byte offset = 0xb44;
+
+		if (IS_MPT_OFDM_RATE(PMacTxInfo.TX_RATE))
+			PHY_SetBBReg(Adapter, offset, 0xc0000000, 0);
+		else if (IS_MPT_HT_RATE(PMacTxInfo.TX_RATE))
+			PHY_SetBBReg(Adapter, offset, 0xc0000000, 1);
+		else if (IS_MPT_VHT_RATE(PMacTxInfo.TX_RATE))
+			PHY_SetBBReg(Adapter, offset, 0xc0000000, 2);
+	}
+
+	PHY_SetBBReg(Adapter, 0xb00, BIT8, 1);		/*	Turn on PMAC*/
+/*	//PHY_SetBBReg(Adapter, 0xb04, 0xf, 2);				//TX Stop*/
+	if (IS_MPT_CCK_RATE(PMacTxInfo.TX_RATE)) {
+		PHY_SetBBReg(Adapter, 0xb04, 0xf, 8);		/*TX CCK ON*/	
+		PHY_SetBBReg(Adapter, 0xA84, BIT31, 0);
+	} else
+		PHY_SetBBReg(Adapter, 0xb04, 0xf, 4);		/*	TX Ofdm ON	*/
+
+	if (PMacTxInfo.Mode == OFDM_Single_Tone_TX)
+		mpt_SetSingleTone_8814A(Adapter, TRUE, TRUE);
+
+}
+#endif /* CONFIG_MP_VHT_HW_TX_MODE */
 
 #endif /* CONFIG_MP_INCLUDE*/
 

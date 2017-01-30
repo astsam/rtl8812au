@@ -3947,7 +3947,7 @@ unsigned int rtw_restructure_ht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, ui
 	HT_CAP_AMPDU_DENSITY best_ampdu_density;
 	unsigned char *p, *pframe;
 	struct rtw_ieee80211_ht_cap ht_capie;
-	u8	cbw40_enable = 0, stbc_rx_enable = 0, rf_type = 0, operation_bw = 0, rf_num = 0;
+	u8	cbw40_enable = 0, rf_type = 0, operation_bw = 0, rf_num = 0, rx_stbc_nss = 0;
 	struct registry_priv *pregistrypriv = &padapter->registrypriv;
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct ht_priv		*phtpriv = &pmlmepriv->htpriv;
@@ -4032,7 +4032,10 @@ unsigned int rtw_restructure_ht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, ui
 			((channel <= 14) && (pregistrypriv->rx_stbc == 0x1)) ||		/* enable for 2.4GHz */
 			((channel > 14) && (pregistrypriv->rx_stbc == 0x2)) ||		/* enable for 5GHz */
 			(pregistrypriv->wifi_spec == 1)) {
-			stbc_rx_enable = 1;
+			/* HAL_DEF_RX_STBC means STBC RX spatial stream, todo: VHT 4 streams */
+			rtw_hal_get_def_var(padapter, HAL_DEF_RX_STBC, (u8 *)(&rx_stbc_nss));
+			SET_HT_CAP_ELE_RX_STBC(&ht_capie, rx_stbc_nss);
+			DBG_871X("[HT] Declare supporting RX STBC = %d\n", rx_stbc_nss);
 		}
 	}
 
@@ -4045,22 +4048,11 @@ unsigned int rtw_restructure_ht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, ui
 	switch(rf_type)
 	{
 	case RF_1T1R:
-		
-		if (stbc_rx_enable) {
-			ht_capie.cap_info |= IEEE80211_HT_CAP_RX_STBC_1R;//RX STBC One spatial stream
-			DBG_871X("[HT] Declare supporting RX STBC_1R\n");
-		}
-
-	                set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_1R);			
+		set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_1R);			
 			break;
 
 	case RF_2T2R:
 	case RF_1T2R:
-		if (stbc_rx_enable) {
-			ht_capie.cap_info |= IEEE80211_HT_CAP_RX_STBC_1R;/* RX STBC one spatial stream */
-			DBG_871X("[HT] Declare supporting RX STBC_1R\n");
-		}
-
 		#ifdef CONFIG_DISABLE_MCS13TO15
 		if(((cbw40_enable == 1) && (operation_bw == CHANNEL_WIDTH_40)) && (pregistrypriv->wifi_spec!=1))
 				set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_2R_13TO15_OFF);	
@@ -4071,17 +4063,9 @@ unsigned int rtw_restructure_ht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, ui
 		#endif //CONFIG_DISABLE_MCS13TO15
 		break;
 	case RF_3T3R:
-		if (stbc_rx_enable) {
-			ht_capie.cap_info |= IEEE80211_HT_CAP_RX_STBC_1R;/* RX STBC one spatial stream */
-			DBG_871X("[HT] Declare supporting RX STBC_1R\n");
-		}
 		set_mcs_rate_by_mask(ht_capie.supp_mcs_set, MCS_RATE_3R);
 		break;
 	default:
-		if (stbc_rx_enable) {
-			ht_capie.cap_info |= IEEE80211_HT_CAP_RX_STBC_1R;/* RX STBC one spatial stream */
-			DBG_871X("[HT] Declare supporting RX STBC_1R\n");
-		}
 		DBG_871X("[warning] rf_type %d is not expected\n", rf_type);
 	}
 

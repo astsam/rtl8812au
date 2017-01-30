@@ -120,47 +120,6 @@ u8 GLBtcWiFiInIPS;
 u8 GLBtcWiFiInLPS;
 u8 GLBtcBtCoexAliveRegistered;
 
-/*
- * BT control H2C/C2H
- */
-/* EXT_EID */
-typedef enum _bt_ext_eid {
-	C2H_WIFI_FW_ACTIVE_RSP	= 0,
-	C2H_TRIG_BY_BT_FW
-} BT_EXT_EID;
-
-/* C2H_STATUS */
-typedef enum _bt_c2h_status {
-	BT_STATUS_OK		= 0,
-	BT_STATUS_MAILBOX_FAIL
-} BT_C2H_STATUS;
-
-/* C2H BT OP CODES */
-typedef enum _bt_op_code {
-	BT_OP_GET_BT_VERSION	= 0,
-	BT_OP_WRITE_REG_ADDR	= 12,
-	BT_OP_WRITE_REG_VALUE,
-	BT_OP_READ_REG		= 17
-} BT_OP_CODE;
-
-#define BTC_MPOPER_TIMEOUT	50	/* unit: ms */
-
-#define C2H_MAX_SIZE		16
-u8 GLBtcBtMpOperSeq;
-_mutex GLBtcBtMpOperLock;
-_timer GLBtcBtMpOperTimer;
-_sema GLBtcBtMpRptSema;
-u8 GLBtcBtMpRptSeq;
-u8 GLBtcBtMpRptStatus;
-u8 GLBtcBtMpRptRsp[C2H_MAX_SIZE];
-u8 GLBtcBtMpRptRspSize;
-u8 GLBtcBtMpRptWait;
-u8 GLBtcBtMpRptWiFiOK;
-u8 GLBtcBtMpRptBTOK;
-
-/*
- * Debug
- */
 u32 GLBtcDbgType[COMP_MAX];
 u8 GLBtcDbgBuf[BT_TMP_BUF_SIZE];
 
@@ -548,116 +507,42 @@ u32 halbtcoutsrc_GetWifiLinkStatus(PBTC_COEXIST pBtCoexist)
 	return retVal;
 }
 
-static u8 _is_btfwver_valid(PBTC_COEXIST pBtCoexist, u16 btfwver)
-{
-	if (!btfwver)
-		return _FALSE;
-
-	if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter))
-		if (btfwver == 0x8723)
-			return _FALSE;
-
-	return _TRUE;
-}
-
-static void _btmpoper_timer_hdl(void *p)
-{
-	if (GLBtcBtMpRptWait) {
-		GLBtcBtMpRptWait = 0;
-		_rtw_up_sema(&GLBtcBtMpRptSema);
-	}
-}
-
-/*
- * !IMPORTANT!
- *	Before call this function, caller should acquire "GLBtcBtMpOperLock"!
- *	Othrewise there will be racing problem and something may go wrong.
- */
-static u8 _btmpoper_cmd(PBTC_COEXIST pBtCoexist, u8 opcode, u8 opcodever, u8 *cmd, u8 size)
-{
-	PADAPTER padapter;
-	u8 buf[H2C_BTMP_OPER_LEN] = {0};
-	u8 buflen;
-	u8 seq;
-	s32 ret = _FAIL;
-
-
-	if (!cmd && size)
-		size = 0;
-	if ((size + 2) > H2C_BTMP_OPER_LEN)
-		return _FAIL;
-	buflen = size + 2;
-
-	seq = GLBtcBtMpOperSeq & 0xF;
-	GLBtcBtMpOperSeq++;
-
-	buf[0] = (opcodever & 0xF) | (seq << 4);
-	buf[1] = opcode;
-	if (cmd && size)
-		_rtw_memcpy(buf+2, cmd, size);
-
-	GLBtcBtMpRptWait = 1;
-	GLBtcBtMpRptWiFiOK = 0;
-	GLBtcBtMpRptBTOK = 0;
-	padapter = pBtCoexist->Adapter;
-	_set_timer(&GLBtcBtMpOperTimer, BTC_MPOPER_TIMEOUT);
-	ret = rtw_hal_fill_h2c_cmd(padapter, H2C_BT_MP_OPER, buflen, buf);
-	if (ret == _FAIL)
-		goto exit;
-
-	_rtw_down_sema(&GLBtcBtMpRptSema);
-	/* GLBtcBtMpRptWait should be 0 here*/
-
-	if (!GLBtcBtMpRptBTOK) {
-		DBG_871X("%s: Didn't get BT response!\n", __FUNCTION__);
-		ret = _FAIL;
-		goto exit;
-	}
-
-	if (seq != GLBtcBtMpRptSeq) {
-		DBG_871X("%s: Sequence number not match!(%d!=%d)!\n",
-			__FUNCTION__, seq, GLBtcBtMpRptSeq);
-		ret = _FAIL;
-		goto exit;
-	}
-
-	ret = _SUCCESS;
-exit:
-	return ret;
-}
-
 u32 halbtcoutsrc_GetBtPatchVer(PBTC_COEXIST pBtCoexist)
 {
-	if (_is_btfwver_valid(pBtCoexist, pBtCoexist->btInfo.btRealFwVer) == _TRUE)
-		goto exit;
+	u16 btRealFwVer = 0x0;
+	u8 btFwVer = 0x0;
+	u8 cnt = 0;
 
-	if (halbtcoutsrc_IsHwMailboxExist(pBtCoexist) == _TRUE) {
-		_irqL irqL;
-		u8 ret;
-
-
-		_enter_critical_mutex(&GLBtcBtMpOperLock, &irqL);
-
-		ret = _btmpoper_cmd(pBtCoexist, BT_OP_GET_BT_VERSION, 0, NULL, 0);
-		if (_SUCCESS == ret) {
-			pBtCoexist->btInfo.btRealFwVer = le16_to_cpu(*(u16 *)GLBtcBtMpRptRsp);
-			pBtCoexist->btInfo.btFwVer = *(GLBtcBtMpRptRsp+2);
-		}
-		pBtCoexist->btInfo.getBtFwVerCnt++;
-
-		_exit_critical_mutex(&GLBtcBtMpOperLock, &irqL);
-	} else {
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
-		u1Byte dataLen = 2;
-		u1Byte buf[4] = {0};
-
-		buf[0] = 0x0;	/* OP_Code */
-		buf[1] = 0x0;	/* OP_Code_Length */
-		BT_SendEventExtBtCoexControl(pBtCoexist->Adapter, _FALSE, dataLen, &buf[0]);
-#endif /* !CONFIG_BT_COEXIST_SOCKET_TRX */
+	if (!pBtCoexist->btInfo.btRealFwVer && cnt<=5)
+	{
+#if 0
+		if (halbtcoutsrc_IsHwMailboxExist(pBtCoexist))
+		{	// mailbox exists, through mailbox
+			if (NDBG_GetBtFwVersion(pBtCoexist->Adapter, &btRealFwVer, &btFwVer))
+			{
+				pBtCoexist->btInfo.btRealFwVer = btRealFwVer;
+				pBtCoexist->btInfo.btFwVer = btFwVer;
+			}
+			else
+			{
+				pBtCoexist->btInfo.btRealFwVer = 0x0;
+				pBtCoexist->btInfo.btFwVer = 0x0;
+			}
+		}
+		else	// no mailbox, query bt patch version through stack.
+#endif
+		// query bt patch version through socket.
+		{
+			u1Byte	dataLen=2;
+			u1Byte	buf[4] = {0};
+			buf[0] = 0x0;	// OP_Code
+			buf[1] = 0x0;	// OP_Code_Length
+			BT_SendEventExtBtCoexControl(pBtCoexist->Adapter, _FALSE, dataLen, &buf[0]);
+		}
+		cnt++;
 	}
-
-exit:
+#endif //CONFIG_BT_COEXIST_SOCKET_TRX
 	return pBtCoexist->btInfo.btRealFwVer;
 }
 
@@ -1554,30 +1439,33 @@ u32 halbtcoutsrc_GetRfReg(void *pBtcContext, u8 eRFPath, u32 RegAddr, u32 BitMas
 void halbtcoutsrc_SetBtReg(void *pBtcContext, u8 RegType, u32 RegAddr, u32 Data)
 {
 	PBTC_COEXIST pBtCoexist;
-
+	PADAPTER padapter;
+	u8 CmdBuffer1[4] = {0};
+	u8 CmdBuffer2[4] = {0};
+	u8* AddrToSet = (u8*)&RegAddr;
+	u8* ValueToSet = (u8*)&Data;	
+	u8 OperVer = 0;
+	u8 ReqNum = 0;
 
 	pBtCoexist = (PBTC_COEXIST)pBtcContext;
+	padapter = pBtCoexist->Adapter;
 
-	if (halbtcoutsrc_IsHwMailboxExist(pBtCoexist) == _TRUE) {
-		u8 buf[3] = {0};
-		_irqL irqL;
-		u8 ret;
+	if (IS_HARDWARE_TYPE_8723B(padapter))
+	{
+		CmdBuffer1[0] |= (OperVer & 0x0f);						/* Set OperVer */
+		CmdBuffer1[0] |= ((ReqNum << 4) & 0xf0);				/* Set ReqNum */
+		CmdBuffer1[1] = 0x0d; 									/* Set OpCode to BT_LO_OP_WRITE_REG_VALUE */
+		CmdBuffer1[2] = ValueToSet[0]; 							/* Set WriteRegValue */
+		rtw_hal_fill_h2c_cmd(padapter, 0x67, 4, &(CmdBuffer1[0]));
 
-		_enter_critical_mutex(&GLBtcBtMpOperLock, &irqL);
+		rtw_msleep_os(200);
+		ReqNum++;
 
-		Data = cpu_to_le32(Data);
-		ret = _btmpoper_cmd(pBtCoexist, BT_OP_WRITE_REG_VALUE, 0, (u8 *)&Data, 3);
-		if (_FAIL == ret)
-			goto out;
-
-		buf[0] = RegType;
-		*(u16 *)(buf+1) = cpu_to_le16((u16)RegAddr);
-		ret = _btmpoper_cmd(pBtCoexist, BT_OP_WRITE_REG_ADDR, 0, buf, 3);
-		if (_FAIL == ret)
-			goto out;
-
-out:
-		_exit_critical_mutex(&GLBtcBtMpOperLock, &irqL);
+		CmdBuffer2[0] |= (OperVer & 0x0f);						/* Set OperVer */
+		CmdBuffer2[0] |= ((ReqNum << 4) & 0xf0);				/* Set ReqNum */
+		CmdBuffer2[1] = 0x0c; 									/* Set OpCode of BT_LO_OP_WRITE_REG_ADDR */
+		CmdBuffer2[3] = AddrToSet[0];							/* Set WriteRegAddr */
+		rtw_hal_fill_h2c_cmd(padapter, 0x67, 4, &(CmdBuffer2[0]));
 	}
 }
 
@@ -1602,32 +1490,8 @@ u8 halbtcoutsrc_SetBtAntDetection(void *pBtcContext, u8 txTime, u8 btChnl)
 
 u32 halbtcoutsrc_GetBtReg(void *pBtcContext, u8 RegType, u32 RegAddr)
 {
-	PBTC_COEXIST pBtCoexist;
-	u32 data = 0;
-
-
-	pBtCoexist = (PBTC_COEXIST)pBtcContext;
-
-	if (halbtcoutsrc_IsHwMailboxExist(pBtCoexist) == _TRUE) {
-		u8 buf[3] = {0};
-		_irqL irqL;
-		u8 ret;
-
-		buf[0] = RegType;
-		*(u16 *)(buf+1) = cpu_to_le16((u16)RegAddr);
-
-		_enter_critical_mutex(&GLBtcBtMpOperLock, &irqL);
-
-		ret = _btmpoper_cmd(pBtCoexist, BT_OP_READ_REG, 0, buf, 3);
-		if (_FAIL == ret)
-			goto out;
-		data = le16_to_cpu(*(u16 *)GLBtcBtMpRptRsp);
-out:
-		_exit_critical_mutex(&GLBtcBtMpOperLock, &irqL);
-
-	}
-
-	return data;
+	/* To be implemented. Always return 0 temporarily */
+	return 0;
 }
 
 void halbtcoutsrc_FillH2cCmd(void *pBtcContext, u8 elementId, u32 cmdLen, u8 *pCmdBuffer)
@@ -1760,19 +1624,6 @@ u8 EXhalbtcoutsrc_InitlizeVariables(void *padapter)
 	GLBtcWiFiInLPS = _FALSE;
 
 	GLBtcBtCoexAliveRegistered = _FALSE;
-
-	/* BT Control H2C/C2H*/
-	GLBtcBtMpOperSeq = 0;
-	_rtw_mutex_init(&GLBtcBtMpOperLock);
-	_init_timer(&GLBtcBtMpOperTimer, ((PADAPTER)padapter)->pnetdev, _btmpoper_timer_hdl, pBtCoexist);
-	_rtw_init_sema(&GLBtcBtMpRptSema, 0);
-	GLBtcBtMpRptSeq = 0;
-	GLBtcBtMpRptStatus = 0;
-	_rtw_memset(GLBtcBtMpRptRsp, 0, C2H_MAX_SIZE);
-	GLBtcBtMpRptRspSize = 0;
-	GLBtcBtMpRptWait = 0;
-	GLBtcBtMpRptWiFiOK = 0;
-	GLBtcBtMpRptBTOK = 0;
 
 	return _TRUE;
 }
@@ -3088,45 +2939,6 @@ void hal_btcoex_BtInfoNotify(PADAPTER padapter, u8 length, u8 *tmpBuf)
 	EXhalbtcoutsrc_BtInfoNotify(&GLBtCoexist, tmpBuf, length);
 }
 
-void hal_btcoex_BtMpRptNotify(PADAPTER padapter, u8 length, u8 *tmpBuf)
-{
-	u8 extid, status, len, seq;
-
-
-	if (!GLBtcBtMpRptWait)
-		return;
-
-	if ((length < 3) || (!tmpBuf))
-		return;
-
-	extid = tmpBuf[0];
-	/* not response from BT FW then exit*/
-	switch (extid) {
-	case C2H_WIFI_FW_ACTIVE_RSP:
-		GLBtcBtMpRptWiFiOK = 1;
-		return;
-
-	case C2H_TRIG_BY_BT_FW:
-		_cancel_timer_ex(&GLBtcBtMpOperTimer);
-		GLBtcBtMpRptWait = 0;
-		GLBtcBtMpRptBTOK = 1;
-		break;
-
-	default:
-		return;
-	}
-
-	status = tmpBuf[1] & 0xF;
-	len = tmpBuf[1] >> 4;
-	seq = tmpBuf[2] >> 4;
-
-	GLBtcBtMpRptSeq = seq;
-	GLBtcBtMpRptStatus = status;
-	_rtw_memcpy(GLBtcBtMpRptRsp, tmpBuf+3, len);
-	GLBtcBtMpRptRspSize = len;
-	_rtw_up_sema(&GLBtcBtMpRptSema);
-}
-
 void hal_btcoex_SuspendNotify(PADAPTER padapter, u8 state)
 {
 	if (state == 1)
@@ -3585,11 +3397,11 @@ hal_btcoex_AntIsolationConfig_ParaFile(
 	_rtw_memset(pHalData->para_file_buf , 0 , MAX_PARA_FILE_BUF_LEN);
 
 
-	rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
+	rtw_merge_string(rtw_phy_para_file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 
-	if (rtw_is_file_readable(file_path) == _TRUE)
+	if (rtw_is_file_readable(rtw_phy_para_file_path) == _TRUE)
 	{
-		rlen = rtw_retrieve_from_file(file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
+		rlen = rtw_retrieve_from_file(rtw_phy_para_file_path, pHalData->para_file_buf, MAX_PARA_FILE_BUF_LEN);
 		if (rlen > 0)
 		{
 			rtStatus = _SUCCESS;
@@ -3607,20 +3419,5 @@ hal_btcoex_AntIsolationConfig_ParaFile(
 	return rtStatus;
 }
 #endif // CONFIG_LOAD_PHY_PARA_FROM_FILE
-
-u16 hal_btcoex_btreg_read(PADAPTER padapter, u8 type, u16 addr)
-{
-	u16 val = 0;
-
-
-	val = (u16)halbtcoutsrc_GetBtReg(&GLBtCoexist, type, addr);
-
-	return val;
-}
-
-void hal_btcoex_btreg_write(PADAPTER padapter, u8 type, u16 addr, u16 val)
-{
-	halbtcoutsrc_SetBtReg(&GLBtCoexist, type, addr, val);
-}
 #endif // CONFIG_BT_COEXIST
 

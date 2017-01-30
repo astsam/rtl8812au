@@ -345,8 +345,6 @@ u8 SetHalDefVar8812A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 u8 GetHalDefVar8812A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 s32 c2h_id_filter_ccx_8812a(u8 *buf);
 void rtl8812_set_hal_ops(struct hal_ops *pHalFunc);
-void init_hal_spec_8812a(_adapter *adapter);
-void init_hal_spec_8821a(_adapter *adapter);
 
 // register
 void SetBcnCtrlReg(PADAPTER padapter, u8 SetBits, u8 ClearBits);

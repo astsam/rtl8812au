@@ -271,7 +271,7 @@ struct registry_priv
 	u8	antdiv_cfg;
 	u8	antdiv_type;
 	
-	u8	switch_usb3;
+	u8	switch_usb_mode;
 
 	u8	usbss_enable;//0:disable,1:enable
 	u8	hwpdn_mode;//0:disable,1:enable,2:decide by EFUSE config
@@ -313,13 +313,6 @@ struct registry_priv
 	u8	RegEnableTxPowerByRate;
 	u8	RegPowerBase;
 	u8	RegPwrTblSel;
-
-	u8 target_tx_pwr_valid;
-	s8 target_tx_pwr_2g[RF_PATH_MAX][RATE_SECTION_NUM];
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	s8 target_tx_pwr_5g[RF_PATH_MAX][RATE_SECTION_NUM - 1];
-#endif
-
 	s8	TxBBSwing_2G;
 	s8	TxBBSwing_5G;
 	u8	AmplifierType_2G;
@@ -354,8 +347,10 @@ struct registry_priv
 	u8 acs_mode;
 	u8 acs_auto_scan;
 #endif
-
-	u8 Regfwoffload;
+	u32		reg_rxgain_offset_2g;
+	u32		reg_rxgain_offset_5gl;
+	u32		reg_rxgain_offset_5gm;
+	u32		reg_rxgain_offset_5gh;
 };
 
 //For registry parameters

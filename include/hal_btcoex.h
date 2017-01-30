@@ -57,7 +57,6 @@ void hal_btcoex_MediaStatusNotify(PADAPTER padapter, u8 mediaStatus);
 void hal_btcoex_SpecialPacketNotify(PADAPTER padapter, u8 pktType);
 void hal_btcoex_IQKNotify(PADAPTER padapter, u8 state);
 void hal_btcoex_BtInfoNotify(PADAPTER padapter, u8 length, u8 *tmpBuf);
-void hal_btcoex_BtMpRptNotify(PADAPTER padapter, u8 length, u8 *tmpBuf);
 void hal_btcoex_SuspendNotify(PADAPTER padapter, u8 state);
 void hal_btcoex_HaltNotify(PADAPTER padapter);
 void hal_btcoex_SwitchBtTRxMask(PADAPTER padapter);
@@ -90,7 +89,5 @@ void hal_btcoex_SetAntIsolationType(PADAPTER padapter, u8 anttype);
 int hal_btcoex_AntIsolationConfig_ParaFile(IN PADAPTER	Adapter,IN char* pFileName);
 int hal_btcoex_ParseAntIsolationConfigFile(PADAPTER Adapter, char*	buffer);
 #endif // CONFIG_LOAD_PHY_PARA_FROM_FILE
-u16 hal_btcoex_btreg_read(PADAPTER padapter, u8 type, u16 addr);
-void hal_btcoex_btreg_write(PADAPTER padapter, u8 type, u16 addr, u16 val);
 #endif // !__HAL_BTCOEX_H__
 

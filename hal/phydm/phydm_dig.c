@@ -1567,8 +1567,7 @@ odm_FalseAlarmCounterStatistics(
 		
 		/* read OFDM FA counter */
 		FalseAlmCnt->Cnt_Ofdm_fail = ODM_GetBBReg(pDM_Odm, ODM_REG_OFDM_FA_11AC, bMaskLWord);
-		FalseAlmCnt->Cnt_SB_Search_fail = ODM_GetBBReg(pDM_Odm, ODM_REG_OFDM_FA_TYPE2_11AC, bMaskLWord);
-		FalseAlmCnt->Cnt_Ofdm_fail = FalseAlmCnt->Cnt_Ofdm_fail + FalseAlmCnt->Cnt_SB_Search_fail;
+		
 
 		/* Read CCK FA counter */
 		FalseAlmCnt->Cnt_Cck_fail = ODM_GetBBReg(pDM_Odm, ODM_REG_CCK_FA_11AC, bMaskLWord);

@@ -27,7 +27,7 @@
 //#define CONFIG_GTK_OL_DBG
 
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-char	file_path[PATH_LENGTH_MAX];
+char	rtw_phy_para_file_path[PATH_LENGTH_MAX];
 #endif
 
 void dump_chip_info(HAL_VERSION	ChipVersion)
@@ -6030,6 +6030,17 @@ void SetHalODMVar(
 			}
 		}		
 		break;
+	case HAL_ODM_RX_Dframe_INFO: {
+		void *sel;
+
+		sel = pValue1;
+
+		/*_RTW_PRINT_SEL(sel , "HAL_ODM_RX_Dframe_INFO\n");*/
+#ifdef DBG_RX_DFRAME_RAW_DATA
+		rtw_dump_rx_dframe_info(Adapter, sel);
+#endif
+	}
+		break;
 
 #ifdef CONFIG_AUTO_CHNL_SEL_NHM
 		case HAL_ODM_AUTO_CHNL_SEL:
@@ -6111,7 +6122,12 @@ void GetHalODMVar(
 		}
 		break;
 #endif
-		
+	case HAL_ODM_INITIAL_GAIN:
+		{
+			pDIG_T pDM_DigTable = &podmpriv->DM_DigTable;
+			*((u8 *)pValue1) = pDM_DigTable->CurIGValue;
+		}
+		break;
 	default:
 		break;
 	}
@@ -6533,33 +6549,156 @@ void rtw_dump_raw_rssi_info(_adapter *padapter)
 		}
 	}	
 }
+#endif
 
-void rtw_store_phy_info(_adapter *padapter, union recv_frame *prframe)	
+#ifdef DBG_RX_DFRAME_RAW_DATA
+void rtw_dump_rx_dframe_info(_adapter *padapter, void *sel)
 {
-	u8 isCCKrate,rf_path;
+	_irqL irqL;
+	u8 isCCKrate, rf_path;
+	struct recv_priv *precvpriv = &(padapter->recvpriv);
 	PHAL_DATA_TYPE	pHalData =  GET_HAL_DATA(padapter);
-	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
+	struct sta_priv *pstapriv = &padapter->stapriv;
+	struct sta_info *psta;
+	struct sta_recv_dframe_info *psta_dframe_info;
+	int i;
+	_list	*plist, *phead;
+	char *BW;
+	u8 bc_addr[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	u8 null_addr[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-	PODM_PHY_INFO_T pPhyInfo  = (PODM_PHY_INFO_T)(&pattrib->phy_info);
-	struct rx_raw_rssi *psample_pkt_rssi = &padapter->recvpriv.raw_rssi_info;
-	
-	psample_pkt_rssi->data_rate = pattrib->data_rate;
-	isCCKrate = (pattrib->data_rate <= DESC_RATE11M)?TRUE :FALSE;
-	
-	psample_pkt_rssi->pwdball = pPhyInfo->RxPWDBAll;
-	psample_pkt_rssi->pwr_all = pPhyInfo->RecvSignalPower;
+	if (precvpriv->store_law_data_flag) {
 
-	for(rf_path = 0;rf_path<pHalData->NumTotalRFPath;rf_path++)
-	{		
-		psample_pkt_rssi->mimo_signal_strength[rf_path] = pPhyInfo->RxMIMOSignalStrength[rf_path];
-		psample_pkt_rssi->mimo_signal_quality[rf_path] = pPhyInfo->RxMIMOSignalQuality[rf_path];
-		if(!isCCKrate){
-			psample_pkt_rssi->ofdm_pwr[rf_path] = pPhyInfo->RxPwr[rf_path];
-			psample_pkt_rssi->ofdm_snr[rf_path] = pPhyInfo->RxSNR[rf_path];		
+		_enter_critical_bh(&pstapriv->sta_hash_lock, &irqL);
+
+		for (i = 0; i < NUM_STA; i++) {
+			phead = &(pstapriv->sta_hash[i]);
+			plist = get_next(phead);
+
+			while ((rtw_end_of_queue_search(phead, plist)) == _FALSE) {
+
+				psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
+				plist = get_next(plist);
+
+				if (psta) {
+					psta_dframe_info = &psta->sta_dframe_info;
+					if ((_rtw_memcmp(psta->hwaddr, bc_addr, 6)  !=   _TRUE)
+					&& (_rtw_memcmp(psta->hwaddr, null_addr, 6)  !=  _TRUE)
+					&& (_rtw_memcmp(psta->hwaddr, adapter_mac_addr(padapter), 6)  !=  _TRUE)) {
+
+
+						isCCKrate = (psta_dframe_info->sta_data_rate <= DESC_RATE11M)?TRUE : FALSE;
+
+						switch (psta_dframe_info->sta_bw_mode) {
+
+						case CHANNEL_WIDTH_20:
+							BW = "20M";
+							break;
+
+						case CHANNEL_WIDTH_40:
+							BW = "40M";
+							break;
+
+						case CHANNEL_WIDTH_80:
+							BW = "80M";
+							break;
+
+						case CHANNEL_WIDTH_160:
+							BW = "160M";
+							break;
+
+						default:
+							BW = "";
+							break;
+						}
+
+						DBG_871X_SEL_NL(sel, "==============================\n");
+						DBG_871X_SEL(sel, "macaddr =" MAC_FMT "\n", MAC_ARG(psta->hwaddr));
+						DBG_871X_SEL(sel, "BW=%s, sgi =%d\n", BW, psta_dframe_info->sta_sgi);
+						DBG_871X_SEL(sel, "RxRate = %s\n", HDATA_RATE(psta_dframe_info->sta_data_rate));
+
+						for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
+
+							if (!isCCKrate) {
+
+								DBG_871X_SEL(sel , "RF_PATH_%d RSSI:%d(dBM)", rf_path, psta_dframe_info->sta_RxPwr[rf_path]);
+								DBG_871X_SEL(sel , ",rx_ofdm_snr:%d(dB)\n", psta_dframe_info->sta_ofdm_snr[rf_path]);
+
+							} else
+
+								DBG_871X_SEL(sel , "RF_PATH_%d RSSI:%d(dBM)\n", rf_path, (psta_dframe_info->sta_mimo_signal_strength[rf_path])-100);
+						}
+					}
+				}
+			}
 		}
+		_exit_critical_bh(&pstapriv->sta_hash_lock, &irqL);
 	}
 }
 #endif
+void rtw_store_phy_info(_adapter *padapter, union recv_frame *prframe)	
+{
+	u8 isCCKrate, rf_path , dframe_type;
+	u8 *ptr;
+	u8	bc_addr[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+#ifdef DBG_RX_DFRAME_RAW_DATA
+	struct sta_recv_dframe_info *psta_dframe_info;
+#endif
+	struct recv_priv *precvpriv = &(padapter->recvpriv);
+	PHAL_DATA_TYPE	pHalData =  GET_HAL_DATA(padapter);
+	struct rx_pkt_attrib *pattrib = &prframe->u.hdr.attrib;
+	struct sta_info *psta = prframe->u.hdr.psta;
+	PODM_PHY_INFO_T pPhyInfo  = (PODM_PHY_INFO_T)(&pattrib->phy_info);
+	struct rx_raw_rssi *psample_pkt_rssi = &padapter->recvpriv.raw_rssi_info;
+	psample_pkt_rssi->data_rate = pattrib->data_rate;
+	ptr = prframe->u.hdr.rx_data;
+	dframe_type = GetFrameType(ptr);
+	/*RTW_INFO("=>%s\n", __FUNCTION__);*/
+
+
+	if (precvpriv->store_law_data_flag) {
+		isCCKrate = (pattrib->data_rate <= DESC_RATE11M)?TRUE :FALSE;
+
+		psample_pkt_rssi->pwdball = pPhyInfo->RxPWDBAll;
+		psample_pkt_rssi->pwr_all = pPhyInfo->RecvSignalPower;
+
+		for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
+			psample_pkt_rssi->mimo_signal_strength[rf_path] = pPhyInfo->RxMIMOSignalStrength[rf_path];
+			psample_pkt_rssi->mimo_signal_quality[rf_path] = pPhyInfo->RxMIMOSignalQuality[rf_path];
+			if(!isCCKrate){
+				psample_pkt_rssi->ofdm_pwr[rf_path] = pPhyInfo->RxPwr[rf_path];
+				psample_pkt_rssi->ofdm_snr[rf_path] = pPhyInfo->RxSNR[rf_path];		
+			}
+		}
+#ifdef DBG_RX_DFRAME_RAW_DATA
+		if (dframe_type == WIFI_DATA_TYPE  || dframe_type == WIFI_QOS_DATA_TYPE) {
+
+			/*RTW_INFO("=>%s WIFI_DATA_TYPE or WIFI_QOS_DATA_TYPE\n", __FUNCTION__);*/
+			if (psta) {
+				psta_dframe_info = &psta->sta_dframe_info;
+				/*RTW_INFO("=>%s psta->hwaddr="MAC_FMT" !\n", __FUNCTION__, MAC_ARG(psta->hwaddr));*/
+				if (_rtw_memcmp(psta->hwaddr, bc_addr, ETH_ALEN)  !=  _TRUE) {
+
+					psta_dframe_info->sta_data_rate = pattrib->data_rate;
+					psta_dframe_info->sta_sgi = pattrib->sgi;
+					psta_dframe_info->sta_bw_mode = pattrib->bw;
+					for (rf_path = 0; rf_path < pHalData->NumTotalRFPath; rf_path++) {
+
+						psta_dframe_info->sta_mimo_signal_strength[rf_path] = (pPhyInfo->RxMIMOSignalStrength[rf_path]);/*Percentage to dbm*/
+
+						if (!isCCKrate) {
+							psta_dframe_info->sta_ofdm_snr[rf_path] = pPhyInfo->RxSNR[rf_path];
+							psta_dframe_info->sta_RxPwr[rf_path] = pPhyInfo->RxPwr[rf_path];
+						}
+					}
+				}
+			}
+		}
+#endif
+	}
+
+}
+
 
 int check_phy_efuse_tx_power_info_valid(PADAPTER padapter) {
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(padapter);
@@ -7398,13 +7537,19 @@ void rtw_dump_phy_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 	
 }
 
-void rtw_reset_phy_rx_counters(_adapter* padapter)
+void rtw_reset_phy_trx_ok_counters(_adapter *padapter)
+{
+	if (IS_HARDWARE_TYPE_JAGUAR(padapter) || IS_HARDWARE_TYPE_JAGUAR2(padapter)) {
+		PHY_SetBBReg(padapter, 0xB58, BIT0, 0x1);
+		PHY_SetBBReg(padapter, 0xB58, BIT0, 0x0);
+	}
+}
+void rtw_reset_phy_rx_counters(_adapter *padapter)
 {
 	//reset phy counter
 	if (IS_HARDWARE_TYPE_JAGUAR(padapter) || IS_HARDWARE_TYPE_JAGUAR2(padapter))
 	{
-		PHY_SetBBReg(padapter, 0xB58, BIT0, 0x1);
-		PHY_SetBBReg(padapter, 0xB58, BIT0, 0x0);
+		rtw_reset_phy_trx_ok_counters(padapter);
 
 		PHY_SetBBReg(padapter, 0x9A4, BIT17, 0x1);//reset  OFDA FA counter
 		PHY_SetBBReg(padapter, 0x9A4, BIT17, 0x0);
@@ -7450,12 +7595,11 @@ void rtw_dump_phy_rxcnts_preprocess(_adapter* padapter,u8 rx_cnt_mode)
 {
 	u8 initialgain;
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
-	DM_ODM_T *odm = &(hal_data->odmpriv);
-	DIG_T	*pDigTable = &odm->DM_DigTable;
 	
 	if((!(padapter->dump_rx_cnt_mode& DUMP_PHY_RX_COUNTER)) && (rx_cnt_mode & DUMP_PHY_RX_COUNTER))
 	{
-		initialgain = pDigTable->CurIGValue;
+		/*initialgain = pDigTable->CurIGValue;*/
+		rtw_hal_get_odm_var(padapter, HAL_ODM_INITIAL_GAIN, &initialgain, NULL);
 		DBG_871X("%s CurIGValue:0x%02x\n",__FUNCTION__,initialgain);
 		rtw_hal_set_odm_var(padapter, HAL_ODM_INITIAL_GAIN, &initialgain, _FALSE);
 		/*disable dynamic functions, such as high power, DIG*/
@@ -7527,6 +7671,38 @@ void rtw_get_noise(_adapter* padapter)
 		#endif
 	}
 #endif		
+
+}
+u8 rtw_get_current_tx_sgi(_adapter *padapter, u8 macid)
+{
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
+	pRA_T			pRA_Table = &pDM_Odm->DM_RA_Table;
+	u8 curr_tx_sgi = 0;
+
+#if defined(CONFIG_RTL8188E)
+	curr_tx_sgi = ODM_RA_GetDecisionRate_8188E(pDM_Odm, macid);
+#else
+	curr_tx_sgi = ((pRA_Table->link_tx_rate[macid]) & 0x80) >> 7;
+#endif
+
+	return curr_tx_sgi;
+
+}
+u8 rtw_get_current_tx_rate(_adapter *padapter, u8 macid)
+{
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
+	pRA_T			pRA_Table = &pDM_Odm->DM_RA_Table;
+	u8 rate_id = 0;
+
+#if (RATE_ADAPTIVE_SUPPORT == 1)
+	rate_id = ODM_RA_GetDecisionRate_8188E(pDM_Odm, macid);
+#else
+	rate_id = (pRA_Table->link_tx_rate[macid]) & 0x7f;
+#endif
+
+	return rate_id;
 
 }
 
@@ -7686,64 +7862,6 @@ void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap)
 	}
 }
 
-int hal_spec_init(_adapter *adapter)
-{
-	u8 interface_type = 0;
-	int ret = _SUCCESS;
-
-	interface_type = rtw_get_intf_type(adapter);
-
-	switch (rtw_get_chip_type(adapter)) {
-#ifdef CONFIG_RTL8723B
-	case RTL8723B:
-		init_hal_spec_8723b(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8703B
-	case RTL8703B:
-		init_hal_spec_8703b(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8188E
-	case RTL8188E:
-		init_hal_spec_8188e(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8188F
-	case RTL8188F:
-		init_hal_spec_8188f(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8812A
-	case RTL8812:
-		init_hal_spec_8812a(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8821A
-	case RTL8821:
-		init_hal_spec_8821a(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8192E
-	case RTL8192E:
-		init_hal_spec_8192e(adapter);
-		break;
-#endif
-#ifdef CONFIG_RTL8814A
-	case RTL8814A:
-		init_hal_spec_8814a(adapter);
-		break;
-#endif
-	default:
-		DBG_871X_LEVEL(_drv_err_, "%s: unknown chip_type:%u\n"
-			, __func__, rtw_get_chip_type(adapter));
-		ret = _FAIL;
-		break;
-	}
-
-	return ret;
-}
-
 static const char * const _band_cap_str[] = {
 	/* BIT0 */"2G",
 	/* BIT1 */"5G",
@@ -7806,11 +7924,6 @@ inline bool hal_chk_band_cap(_adapter *adapter, u8 cap)
 inline bool hal_chk_bw_cap(_adapter *adapter, u8 cap)
 {
 	return (GET_HAL_SPEC(adapter)->bw_cap & cap);
-}
-
-inline bool hal_chk_wl_func(_adapter *adapter, u8 func)
-{
-	return (GET_HAL_SPEC(adapter)->wl_func & func);
 }
 
 inline bool hal_is_band_support(_adapter *adapter, u8 band)

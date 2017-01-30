@@ -1076,6 +1076,143 @@ odm_RSSIMonitorCheckMP(
 #endif	// #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 }
 
+#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+/*H2C_RSSI_REPORT*/
+s8 phydm_rssi_report(PDM_ODM_T pDM_Odm, u8 mac_id)
+{
+	PADAPTER Adapter = pDM_Odm->Adapter;
+	struct dvobj_priv *pdvobjpriv = adapter_to_dvobj(Adapter);
+	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
+	u8 H2C_Parameter[4] = {0};
+	u8 UL_DL_STATE = 0, STBC_TX = 0, TxBF_EN = 0;
+	u8 cmdlen = 4, first_connect = _FALSE;
+	u64	curTxOkCnt = 0, curRxOkCnt = 0;
+	PSTA_INFO_T pEntry = pDM_Odm->pODM_StaInfo[mac_id];
+	
+	if (!IS_STA_VALID(pEntry))
+		return _FAIL;
+
+	if (mac_id != pEntry->mac_id) {
+		DBG_871X("%s mac_id:%u:%u invalid\n", __func__, mac_id, pEntry->mac_id);
+		rtw_warn_on(1);
+		return _FAIL;
+	}	
+	
+	if (IS_MCAST(pEntry->hwaddr))  /*if(psta->mac_id ==1)*/
+		return _FAIL;
+
+	if (pEntry->rssi_stat.UndecoratedSmoothedPWDB == (-1)) {
+		DBG_871X("%s mac_id:%u, mac:"MAC_FMT", rssi == -1\n", __func__, pEntry->mac_id, MAC_ARG(pEntry->hwaddr));
+		return _FAIL;
+	}
+
+	curTxOkCnt = pdvobjpriv->traffic_stat.cur_tx_bytes;
+	curRxOkCnt = pdvobjpriv->traffic_stat.cur_rx_bytes;
+	if (curRxOkCnt > (curTxOkCnt * 6))
+		UL_DL_STATE = 1;
+	else
+		UL_DL_STATE = 0;
+	
+	#ifdef CONFIG_BEAMFORMING
+	{
+		#if (BEAMFORMING_SUPPORT == 1)
+		BEAMFORMING_CAP Beamform_cap = phydm_Beamforming_GetEntryBeamCapByMacId(pDM_Odm, pEntry->mac_id);
+		#else/*for drv beamforming*/
+		BEAMFORMING_CAP Beamform_cap = beamforming_get_entry_beam_cap_by_mac_id(&Adapter->mlmepriv, pEntry->mac_id);
+		#endif
+
+		if (Beamform_cap & (BEAMFORMER_CAP_HT_EXPLICIT | BEAMFORMER_CAP_VHT_SU))
+			TxBF_EN = 1;
+		else
+			TxBF_EN = 0;
+	}
+	#endif /*#ifdef CONFIG_BEAMFORMING*/
+		
+	if (TxBF_EN)
+		STBC_TX = 0;
+	else {
+		#ifdef CONFIG_80211AC_VHT
+		if (IsSupportedVHT(pEntry->wireless_mode))
+			STBC_TX = TEST_FLAG(pEntry->vhtpriv.stbc_cap, STBC_VHT_ENABLE_TX);
+		else
+		#endif
+			STBC_TX = TEST_FLAG(pEntry->htpriv.stbc_cap, STBC_HT_ENABLE_TX);
+	}
+		
+	H2C_Parameter[0] = (u8)(pEntry->mac_id & 0xFF);
+	H2C_Parameter[2] = pEntry->rssi_stat.UndecoratedSmoothedPWDB & 0x7F;
+		
+	if (UL_DL_STATE)
+		H2C_Parameter[3] |= RAINFO_BE_RX_STATE;
+		
+	if (TxBF_EN)
+		H2C_Parameter[3] |= RAINFO_BF_STATE;
+	if (STBC_TX)
+		H2C_Parameter[3] |= RAINFO_STBC_STATE;
+	if (pDM_Odm->NoisyDecision)
+		H2C_Parameter[3] |= RAINFO_NOISY_STATE;
+		
+	if (pEntry->ra_rpt_linked == _FALSE) {
+		H2C_Parameter[3] |= RAINFO_INIT_RSSI_RATE_STATE;
+		pEntry->ra_rpt_linked = _TRUE;
+		first_connect = _TRUE;
+	}
+		
+	#if 1
+	if (first_connect) {
+		DBG_871X("%s mac_id:%u, mac:"MAC_FMT", rssi:%d\n", __func__,
+			pEntry->mac_id, MAC_ARG(pEntry->hwaddr), pEntry->rssi_stat.UndecoratedSmoothedPWDB);
+			
+		DBG_871X("%s RAINFO - TP:%s, TxBF:%s, STBC:%s, Noisy:%s, Firstcont:%s\n", __func__,
+			(UL_DL_STATE) ? "DL" : "UL", (TxBF_EN) ? "EN" : "DIS", (STBC_TX) ? "EN" : "DIS",
+			(pDM_Odm->NoisyDecision) ? "True" : "False", (first_connect) ? "True" : "False");
+	}
+	#endif
+		
+	if (pHalData->fw_ractrl == _TRUE) {
+		#if (RTL8188E_SUPPORT == 1)
+		if (pDM_Odm->SupportICType == ODM_RTL8188E)
+			cmdlen = 3;
+		#endif
+		ODM_FillH2CCmd(pDM_Odm, ODM_H2C_RSSI_REPORT, cmdlen, H2C_Parameter);
+	} else {
+		#if ((RTL8188E_SUPPORT == 1) && (RATE_ADAPTIVE_SUPPORT == 1))
+		if (pDM_Odm->SupportICType == ODM_RTL8188E)
+			ODM_RA_SetRSSI_8188E(pDM_Odm, (u8)(pEntry->mac_id & 0xFF), pEntry->rssi_stat.UndecoratedSmoothedPWDB & 0x7F);
+		#endif
+	}
+	return _SUCCESS;
+}
+
+void phydm_ra_rssi_rpt_wk_hdl(PVOID pContext)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pContext;
+	int i;
+	u8 mac_id = 0xFF;
+	PSTA_INFO_T	pEntry = NULL;	
+	
+	for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
+		pEntry = pDM_Odm->pODM_StaInfo[i];
+		if (IS_STA_VALID(pEntry)) {
+			if (IS_MCAST(pEntry->hwaddr))  /*if(psta->mac_id ==1)*/
+				continue;
+			if (pEntry->ra_rpt_linked == _FALSE) {
+				mac_id = i;
+				break;
+			}
+		}
+	}
+	if (mac_id != 0xFF)
+		phydm_rssi_report(pDM_Odm, mac_id);
+}
+void phydm_ra_rssi_rpt_wk(PVOID pContext)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pContext;
+	
+	rtw_run_in_thread_cmd(pDM_Odm->Adapter, phydm_ra_rssi_rpt_wk_hdl, pDM_Odm);
+}
+#endif
+
 VOID
 odm_RSSIMonitorCheckCE(
 	IN		PVOID		pDM_VOID
@@ -1083,158 +1220,36 @@ odm_RSSIMonitorCheckCE(
 {
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	PADAPTER	Adapter = pDM_Odm->Adapter;
+	PADAPTER		Adapter = pDM_Odm->Adapter;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);	
-	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(Adapter);
+	PSTA_INFO_T           pEntry;
 	int	i;
 	int	tmpEntryMaxPWDB = 0, tmpEntryMinPWDB = 0xff;
-	u8 	sta_cnt = 0;
-	u32	UL_DL_STATE = 0, STBC_TX = 0, TxBF_EN = 0 ,NoiseState = 0;
-	u32	PWDB_rssi[NUM_STA] = {0}; //[0~15]:MACID, [16~31]:PWDB_rssi
-	BOOLEAN			FirstConnect = FALSE;
-	pRA_T			pRA_Table = &pDM_Odm->DM_RA_Table;
-
-	if (pDM_Odm->bLinked != _TRUE)
-		return;
-
-#if((RTL8812A_SUPPORT==1)||(RTL8821A_SUPPORT==1))
-	if ((pDM_Odm->SupportICType == ODM_RTL8812) || (pDM_Odm->SupportICType == ODM_RTL8821)) {
-		u64	curTxOkCnt = pdvobjpriv->traffic_stat.cur_tx_bytes;
-		u64	curRxOkCnt = pdvobjpriv->traffic_stat.cur_rx_bytes;
-
-		if (curRxOkCnt > (curTxOkCnt * 6))
-			UL_DL_STATE = 1;
-		else
-			UL_DL_STATE = 0;
-	}
-#endif
-
-	FirstConnect = (pDM_Odm->bLinked) && (pRA_Table->firstconnect == FALSE);
-	pRA_Table->firstconnect = pDM_Odm->bLinked;
-
-	if ( pDM_Odm->NoisyDecision ){
-		NoiseState = 1;             /* BIT2*/
-		//ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD,( "[RSSIMonitorCheckMP] Send H2C to FW\n"));
-	}
-	else
-		NoiseState = 0;
+	u8	sta_cnt = 0;
 	
+	if (pDM_Odm->bLinked != _TRUE)
+		return;	
 
-	//if(check_fwstate(&Adapter->mlmepriv, WIFI_AP_STATE|WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE) == _TRUE)
-	{
-		struct sta_info *psta;
+	for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
+		pEntry = pDM_Odm->pODM_StaInfo[i];
+		if (IS_STA_VALID(pEntry)) {
+			if (IS_MCAST(pEntry->hwaddr))  /*if(psta->mac_id ==1)*/
+				continue;
 
-		for (i = 0; i < ODM_ASSOCIATE_ENTRY_NUM; i++) {
-			if (IS_STA_VALID(psta = pDM_Odm->pODM_StaInfo[i])) {
-				if (IS_MCAST(psta->hwaddr))  //if(psta->mac_id ==1)
-					continue;
+			if (pEntry->rssi_stat.UndecoratedSmoothedPWDB == (-1))
+				continue;
 
-				if (psta->rssi_stat.UndecoratedSmoothedPWDB == (-1))
-					continue;
+			if (pEntry->rssi_stat.UndecoratedSmoothedPWDB < tmpEntryMinPWDB)
+				tmpEntryMinPWDB = pEntry->rssi_stat.UndecoratedSmoothedPWDB;
 
-				if (psta->rssi_stat.UndecoratedSmoothedPWDB < tmpEntryMinPWDB)
-					tmpEntryMinPWDB = psta->rssi_stat.UndecoratedSmoothedPWDB;
+			if (pEntry->rssi_stat.UndecoratedSmoothedPWDB > tmpEntryMaxPWDB)
+				tmpEntryMaxPWDB = pEntry->rssi_stat.UndecoratedSmoothedPWDB;
 
-				if (psta->rssi_stat.UndecoratedSmoothedPWDB > tmpEntryMaxPWDB)
-					tmpEntryMaxPWDB = psta->rssi_stat.UndecoratedSmoothedPWDB;
-
-#if 0
-				DBG_871X("%s mac_id:%u, mac:"MAC_FMT", rssi:%d\n", __func__,
-						 psta->mac_id, MAC_ARG(psta->hwaddr), psta->rssi_stat.UndecoratedSmoothedPWDB);
-#endif
-
-				if (psta->rssi_stat.UndecoratedSmoothedPWDB != (-1)) {
-
-					/*if (pDM_Odm->SupportICType == ODM_RTL8192E || pDM_Odm->SupportICType == ODM_RTL8812) */
-					{
-#ifdef CONFIG_BEAMFORMING
-				#if (BEAMFORMING_SUPPORT == 1)
-						BEAMFORMING_CAP Beamform_cap = phydm_Beamforming_GetEntryBeamCapByMacId(pDM_Odm, psta->mac_id);
-				#else/*for drv beamforming*/
-						BEAMFORMING_CAP Beamform_cap = beamforming_get_entry_beam_cap_by_mac_id(&Adapter->mlmepriv, psta->mac_id);
-				#endif
-						if (Beamform_cap & (BEAMFORMER_CAP_HT_EXPLICIT | BEAMFORMER_CAP_VHT_SU))
-							TxBF_EN = 1;
-						else
-							TxBF_EN = 0;
-#endif /*#ifdef CONFIG_BEAMFORMING*/
-
-						if (TxBF_EN)
-							STBC_TX = 0;
-						else
-						{
-#ifdef CONFIG_80211AC_VHT
-							if (IsSupportedVHT(psta->wireless_mode))
-								STBC_TX = TEST_FLAG(psta->vhtpriv.stbc_cap, STBC_VHT_ENABLE_TX);
-							else
-#endif
-								STBC_TX = TEST_FLAG(psta->htpriv.stbc_cap, STBC_HT_ENABLE_TX);
-						}
-					}
-
-
-					if ((pDM_Odm->SupportICType == ODM_RTL8192E) 
-						|| (pDM_Odm->SupportICType == ODM_RTL8812) || (pDM_Odm->SupportICType == ODM_RTL8821)
-						|| (pDM_Odm->SupportICType == ODM_RTL8814A)
-						|| (pDM_Odm->SupportICType == ODM_RTL8822B)
-
-					) {
-						PWDB_rssi[sta_cnt++] = (((u8)(psta->mac_id & 0xFF)) | ((psta->rssi_stat.UndecoratedSmoothedPWDB & 0x7F) << 16) | (STBC_TX << 25) | (NoiseState<<26) | (FirstConnect << 29) | (TxBF_EN << 30));
-					}
-					else
-						PWDB_rssi[sta_cnt++] = (psta->mac_id | (psta->rssi_stat.UndecoratedSmoothedPWDB << 16) | (NoiseState<<26));
-					
-				}
-			}
-		}
-
-		//printk("%s==> sta_cnt(%d)\n",__FUNCTION__,sta_cnt);
-
-		for (i = 0; i < sta_cnt; i++) {
-			if (PWDB_rssi[i] != (0)) {
-				if (pHalData->fw_ractrl == _TRUE) { // Report every sta's RSSI to FW
-#if((RTL8812A_SUPPORT==1)||(RTL8821A_SUPPORT==1))
-					if ((pDM_Odm->SupportICType == ODM_RTL8812) || (pDM_Odm->SupportICType == ODM_RTL8821)) {
-						PWDB_rssi[i] |= (UL_DL_STATE << 24);
-						rtl8812_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
-					}
-#endif
-#if(RTL8192E_SUPPORT==1)
-					if (pDM_Odm->SupportICType == ODM_RTL8192E)
-						rtl8192e_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
-#endif
-#if(RTL8723B_SUPPORT==1)
-					if (pDM_Odm->SupportICType == ODM_RTL8723B)
-						rtl8723b_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
-#endif
-
-#if(RTL8188E_SUPPORT==1)
-					if (pDM_Odm->SupportICType == ODM_RTL8188E)
-						rtl8188e_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
-#endif
-
-#if (RTL8814A_SUPPORT == 1)
-					if (pDM_Odm->SupportICType == ODM_RTL8814A)
-						rtl8814_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
-#endif
-#if (RTL8188F_SUPPORT == 1)
-					if (pDM_Odm->SupportICType == ODM_RTL8188F) {
-						rtl8188f_set_rssi_cmd(Adapter, (u8 *)(&PWDB_rssi[i]));
-					}
-#endif
-				} else {
-#if((RTL8188E_SUPPORT==1)&&(RATE_ADAPTIVE_SUPPORT == 1))
-					if (pDM_Odm->SupportICType == ODM_RTL8188E) {
-						ODM_RA_SetRSSI_8188E(
-							&(pHalData->odmpriv), (PWDB_rssi[i] & 0xFF), (u8)((PWDB_rssi[i] >> 16) & 0xFF));
-					}
-#endif
-				}
-			}
+			if (phydm_rssi_report(pDM_Odm, i))
+				sta_cnt++;
 		}
 	}
-
-
+	/*DBG_871X("%s==> sta_cnt(%d)\n", __func__, sta_cnt);*/
 
 	if (tmpEntryMaxPWDB != 0)	// If associated entry is found
 		pHalData->EntryMaxUndecoratedSmoothedPWDB = tmpEntryMaxPWDB;
@@ -2039,10 +2054,7 @@ ODM_UpdateInitRate(
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("Get C2H Command! Rate=0x%x\n", Rate));
 
-	if (pDM_Odm->SupportICType == ODM_RTL8821  || pDM_Odm->SupportICType == ODM_RTL8812  ||
-		pDM_Odm->SupportICType == ODM_RTL8723B || pDM_Odm->SupportICType == ODM_RTL8192E || pDM_Odm->SupportICType == ODM_RTL8188E
-		|| pDM_Odm->SupportICType == ODM_RTL8703B) {
-		pDM_Odm->TxRate = Rate;
+	pDM_Odm->TxRate = Rate;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 #if DEV_BUS_TYPE == RT_PCI_INTERFACE
 #if USE_WORKITEM
@@ -2078,8 +2090,7 @@ ODM_UpdateInitRate(
 		PlatformScheduleWorkItem(&pDM_Odm->RaRptWorkitem);
 #endif
 #endif
-	} else
-		return;
+
 }
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)

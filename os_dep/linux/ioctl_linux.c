@@ -1365,7 +1365,6 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 {
 	int ret = 0;
 	u32 wep_key_idx, wep_key_len,wep_total_len;
-	NDIS_802_11_WEP	 *pwep = NULL;	
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv 	*pmlmepriv = &padapter->mlmepriv;		
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
@@ -1415,77 +1414,38 @@ _func_enter_;
 		RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_err_,("wpa_set_encryption, crypt.alg = WEP\n"));
 		DBG_871X("wpa_set_encryption, crypt.alg = WEP\n");
 
-		padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
-		padapter->securitypriv.dot11PrivacyAlgrthm=_WEP40_;
-		padapter->securitypriv.dot118021XGrpPrivacy=_WEP40_;
-
 		wep_key_idx = param->u.crypt.idx;
 		wep_key_len = param->u.crypt.key_len;
 
-		RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_info_,("(1)wep_key_idx=%d\n", wep_key_idx));
-		DBG_871X("(1)wep_key_idx=%d\n", wep_key_idx);
-
-		if (wep_key_idx > WEP_KEYS)
-			return -EINVAL;
-
-		RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_info_,("(2)wep_key_idx=%d\n", wep_key_idx));
-
-		if (wep_key_len > 0) 
+		if ((wep_key_idx > WEP_KEYS) || (wep_key_len <= 0))
 		{
-		 	wep_key_len = wep_key_len <= 5 ? 5 : 13;
-			wep_total_len = wep_key_len + FIELD_OFFSET(NDIS_802_11_WEP, KeyMaterial);
-		 	pwep =(NDIS_802_11_WEP	 *) rtw_malloc(wep_total_len);
-			if(pwep == NULL){
-				RT_TRACE(_module_rtl871x_ioctl_os_c,_drv_err_,(" wpa_set_encryption: pwep allocate fail !!!\n"));
-				goto exit;
-			}
-
-		 	_rtw_memset(pwep, 0, wep_total_len);
-
-		 	pwep->KeyLength = wep_key_len;
-			pwep->Length = wep_total_len;
-
-			if(wep_key_len==13)
-			{
-				padapter->securitypriv.dot11PrivacyAlgrthm=_WEP104_;
-				padapter->securitypriv.dot118021XGrpPrivacy=_WEP104_;
-			}
-		}
-		else {		
 			ret = -EINVAL;
 			goto exit;
 		}
 
-		pwep->KeyIndex = wep_key_idx;
-		pwep->KeyIndex |= 0x80000000;
+		if (psecuritypriv->bWepDefaultKeyIdxSet == 0) {
+			/* wep default key has not been set, so use this key index as default key.*/
 
-		_rtw_memcpy(pwep->KeyMaterial,  param->u.crypt.key, pwep->KeyLength);
+			wep_key_len = wep_key_len <= 5 ? 5 : 13;
 
-		if(param->u.crypt.set_tx)
-		{
-			DBG_871X("wep, set_tx=1\n");
+			psecuritypriv->ndisencryptstatus = Ndis802_11Encryption1Enabled;
+			psecuritypriv->dot11PrivacyAlgrthm = _WEP40_;
+			psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
 
-			if(rtw_set_802_11_add_wep(padapter, pwep) == (u8)_FAIL)
+			if (wep_key_len == 13)
 			{
-				ret = -EOPNOTSUPP ;
+				psecuritypriv->dot11PrivacyAlgrthm = _WEP104_;
+				psecuritypriv->dot118021XGrpPrivacy = _WEP104_;
 			}
+
+			psecuritypriv->dot11PrivacyKeyIndex = wep_key_idx;
 		}
-		else
-		{
-			DBG_871X("wep, set_tx=0\n");
 			
-			//don't update "psecuritypriv->dot11PrivacyAlgrthm" and 
-			//"psecuritypriv->dot11PrivacyKeyIndex=keyid", but can rtw_set_key to fw/cam
+		_rtw_memcpy(&(psecuritypriv->dot11DefKey[wep_key_idx].skey[0]), param->u.crypt.key, wep_key_len);
 			
-			if (wep_key_idx >= WEP_KEYS) {
-				ret = -EOPNOTSUPP ;
-				goto exit;
-			}				
-			
-		      _rtw_memcpy(&(psecuritypriv->dot11DefKey[wep_key_idx].skey[0]), pwep->KeyMaterial, pwep->KeyLength);
-			psecuritypriv->dot11DefKeylen[wep_key_idx]=pwep->KeyLength;	
-			rtw_set_key(padapter, psecuritypriv, wep_key_idx, 0, _TRUE);
-		}
+		psecuritypriv->dot11DefKeylen[wep_key_idx] = wep_key_len;
+
+		psecuritypriv->key_mask |= BIT(wep_key_idx);
 
 		goto exit;		
 	}
@@ -1671,10 +1631,6 @@ _func_enter_;
 #endif
 
 exit:
-	
-	if (pwep) {
-		rtw_mfree((u8 *)pwep, wep_total_len);		
-	}	
 	
 _func_exit_;
 
@@ -1956,7 +1912,6 @@ static int rtw_wx_set_freq(struct net_device *dev,
 {	
 
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 	struct	mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
 	struct wlan_network  *cur_network = &(pmlmepriv->cur_network);
 	int exp = 1, freq = 0, div = 0;
@@ -1964,17 +1919,11 @@ static int rtw_wx_set_freq(struct net_device *dev,
 	_func_enter_;
 
 	RT_TRACE(_module_rtl871x_mlme_c_, _drv_notice_, ("+rtw_wx_set_freq\n"));
-	//DBG_871X("%s: wrqu->freq.m =%d \n", __func__, wrqu->freq.m);
 
 	if (wrqu->freq.m <= 1000) {
 		if (wrqu->freq.flags == IW_FREQ_AUTO) {
-			if (rtw_ch_set_search_ch(padapter->mlmeextpriv.channel_set, wrqu->freq.m) > 0){
-				padapter->mlmeextpriv.cur_channel = wrqu->freq.m;
-				DBG_871X("%s: channel is auto, set to channel %d\n", __func__, wrqu->freq.m);
-			} else {
-				padapter->mlmeextpriv.cur_channel = 1;
-				DBG_871X("%s: channel is auto, Channel Plan don't match just set to channel 1\n", __func__);
-			}
+			padapter->mlmeextpriv.cur_channel = 1;
+			DBG_871X("%s: channel is auto, set to channel 1\n", __func__);
 		} else {
 			padapter->mlmeextpriv.cur_channel = wrqu->freq.m;
 			DBG_871X("%s: set to channel %d\n", __func__, padapter->mlmeextpriv.cur_channel);
@@ -1986,7 +1935,6 @@ static int rtw_wx_set_freq(struct net_device *dev,
 		}
 
 		freq = wrqu->freq.m;
-		
 		while (!(freq%10)) {
 			freq /= 10;
 			exp *= 10;
@@ -2006,12 +1954,6 @@ static int rtw_wx_set_freq(struct net_device *dev,
 		padapter->mlmeextpriv.cur_channel = rtw_freq2ch(freq);
 		DBG_871X("%s: set to channel %d\n", __func__, padapter->mlmeextpriv.cur_channel);
 	}
-	
-	set_channel_bwmode(padapter, padapter->mlmeextpriv.cur_channel, HAL_PRIME_CHNL_OFFSET_DONT_CARE, CHANNEL_WIDTH_20);
-	//_rtw_memcpy(pmlmepriv->cur_network.network.MacAddress, hal_data->EEPROMMACAddr, ETH_ALEN);
-	if (check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) == _TRUE)
-		rtw_indicate_connect(padapter);
-	//rtw_indicate_wx_assoc_event(padapter);
 
 	_func_exit_;
 	
@@ -2026,7 +1968,7 @@ static int rtw_wx_get_freq(struct net_device *dev,
 	struct	mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
 	WLAN_BSSID_EX  *pcur_bss = &pmlmepriv->cur_network.network;
 	
-	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE && check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) != _TRUE)
+	if(check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE)
 	{
 		//wrqu->freq.m = ieee80211_wlan_frequencies[pcur_bss->Configuration.DSConfig-1] * 100000;
 		wrqu->freq.m = rtw_ch2freq(pcur_bss->Configuration.DSConfig) * 100000;
@@ -2151,11 +2093,11 @@ static int rtw_wx_get_mode(struct net_device *dev, struct iw_request_info *a,
 	else if(check_fwstate(pmlmepriv, WIFI_AP_STATE) == _TRUE)
 	{
 		wrqu->mode = IW_MODE_MASTER;
-	} else if(check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) == _TRUE)
-		wrqu->mode = IW_MODE_MONITOR;
+	}
 	else
+	{
 		wrqu->mode = IW_MODE_AUTO;
-
+	}
 
 	_func_exit_;
 	
@@ -7828,12 +7770,6 @@ static int rtw_dbg_port(struct net_device *dev,
 					}
 					break;
 #endif
-				case 0x18:
-					{
-						printk("===>  Switch USB Mode %d \n",extra_arg);
-						rtw_hal_set_hwreg(padapter, HW_VAR_USB_MODE, (u8 *)&extra_arg);
-					}
-					break;
 #ifdef CONFIG_80211N_HT			
 				case 0x19:
 					{
@@ -9848,6 +9784,149 @@ static int rtw_pm_set(struct net_device *dev,
 	return ret;
 }
 
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+
+int rtw_vendor_ie_get(struct net_device *dev, struct iw_request_info *info, union iwreq_data *wrqu, char *extra)
+{
+	int ret = 0, vendor_ie_num = 0 , j , len = 0 , cmdlen;
+	char *pstring;
+	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	struct iw_point *p;
+	u8 *ptmp;
+	u32 vendor_ie_mask = 0;
+
+	p = &wrqu->data;
+	cmdlen = p->length;
+	if (0 == cmdlen)
+		return -EINVAL;
+
+	ptmp = (u8 *)rtw_malloc(cmdlen);
+	if (NULL == ptmp)
+		return -ENOMEM;
+
+	if (copy_from_user(ptmp, p->pointer, cmdlen)) {
+		ret = -EFAULT;
+		goto exit;
+	}
+	ret = sscanf(ptmp , "%d", &vendor_ie_num);
+	if (vendor_ie_num > WLAN_MAX_VENDOR_IE_NUM - 1) {
+		ret = -EFAULT;
+		goto exit;
+	}
+	vendor_ie_mask = pmlmepriv->vendor_ie_mask[vendor_ie_num];
+	pstring = extra;
+	pstring += sprintf(pstring , "\nVendor IE num %d , Mask:%x " , vendor_ie_num , vendor_ie_mask);
+
+	if (vendor_ie_mask & WIFI_BEACON_VENDOR_IE_BIT)
+		pstring += sprintf(pstring , "[Beacon]");
+	if (vendor_ie_mask & WIFI_PROBEREQ_VENDOR_IE_BIT)
+		pstring += sprintf(pstring , "[Probe Req]");
+	if (vendor_ie_mask & WIFI_PROBERESP_VENDOR_IE_BIT)
+		pstring += sprintf(pstring , "[Probe Resp]");
+	if (vendor_ie_mask & WIFI_ASSOCREQ_VENDOR_IE_BIT)
+		pstring += sprintf(pstring , "[Assoc Req]");
+	if (vendor_ie_mask & WIFI_ASSOCRESP_VENDOR_IE_BIT)
+		pstring += sprintf(pstring , "[Assoc Resp]");
+
+	pstring += sprintf(pstring , "\nVendor IE:\n");
+	for (j = 0 ; j < pmlmepriv->vendor_ielen[vendor_ie_num]  ; j++)
+		pstring += sprintf(pstring , "%02x" , pmlmepriv->vendor_ie[vendor_ie_num][j]);
+
+	wrqu->data.length = pstring - extra;
+
+exit:
+	rtw_mfree(ptmp, cmdlen);
+
+	return 0;
+}
+
+int rtw_vendor_ie_set(struct net_device *dev, struct iw_request_info *info, union iwreq_data *wrqu, char *extra)
+{
+	int ret = 0, i , len = 0 , totoal_ie_len = 0 , total_ie_len_byte = 0;
+	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	u32 vendor_ie_mask = 0;
+	u32 vendor_ie_num = 0;
+	u32 id, elen;
+
+	ret = sscanf(extra, "%d,%x,%*s", &vendor_ie_num , &vendor_ie_mask);
+	if (strrchr(extra , ','))
+		extra = strrchr(extra , ',') + 1;
+	else
+		return -EINVAL;
+	totoal_ie_len = strlen(extra);
+	DBG_871X("[%s] vendor_ie_num = %d , vendor_ie_mask = %x , vendor_ie = %s , len = %d\n", __func__ , vendor_ie_num , vendor_ie_mask , extra  , totoal_ie_len);
+
+	if (vendor_ie_num  > WLAN_MAX_VENDOR_IE_NUM - 1) {
+		DBG_871X("[%s] only support %d vendor ie\n", __func__ , WLAN_MAX_VENDOR_IE_NUM);
+		return -EFAULT;
+	}
+
+	if (totoal_ie_len > WLAN_MAX_VENDOR_IE_LEN) {
+		DBG_871X("[%s] Fail , not support ie length extend %d\n", __func__ , WLAN_MAX_VENDOR_IE_LEN);
+		return -EFAULT;
+	}
+
+	if (vendor_ie_mask == 0) {
+		DBG_871X("[%s] Clear vendor_ie_num %d group\n", __func__ , vendor_ie_num);
+		goto _clear_path;
+	}
+
+	if (totoal_ie_len % 2 != 0) {
+		DBG_871X("[%s]  Fail , IE length = %zu is odd\n" , __func__ , strlen(extra));
+		return -EFAULT;
+	}
+
+	if (totoal_ie_len > 0) {
+		for (i = 0  ; i < strlen(extra) ; i += 2) {
+			pmlmepriv->vendor_ie[vendor_ie_num][len] = key_2char2num(extra[i] , extra[i + 1]);
+			if (len == 0) {
+				id = pmlmepriv->vendor_ie[vendor_ie_num][len];
+				if (id != WLAN_EID_VENDOR_SPECIFIC) {
+					DBG_871X("[%s] Fail , VENDOR SPECIFIC IE ID \"%x\" was not correct\n", __func__ , id);
+					goto _clear_path;
+				}
+			} else if (len == 1) {
+				total_ie_len_byte = (totoal_ie_len / 2) - 2;
+				elen = pmlmepriv->vendor_ie[vendor_ie_num][len];
+				if (elen != total_ie_len_byte) {
+					DBG_871X("[%s] Fail , Input IE length = \"%d\"(hex:%x) bytes , not match input total IE context length \"%d\" bytes\n", __func__ , elen , elen ,
+						 total_ie_len_byte);
+					goto _clear_path;
+				}
+			}
+			len++;
+		}
+		pmlmepriv->vendor_ielen[vendor_ie_num] = len;
+	} else
+		pmlmepriv->vendor_ielen[vendor_ie_num] = 0;
+
+
+
+	if (vendor_ie_mask & WIFI_BEACON_VENDOR_IE_BIT)
+		DBG_871X("[%s] Beacon append vendor ie\n", __func__);
+	if (vendor_ie_mask & WIFI_PROBEREQ_VENDOR_IE_BIT)
+		DBG_871X("[%s] Probe Req append vendor ie\n", __func__);
+	if (vendor_ie_mask & WIFI_PROBERESP_VENDOR_IE_BIT)
+		DBG_871X("[%s] Probe Resp  append vendor ie\n", __func__);
+	if (vendor_ie_mask & WIFI_ASSOCREQ_VENDOR_IE_BIT)
+		DBG_871X("[%s] Assoc Req append vendor ie\n", __func__);
+	if (vendor_ie_mask & WIFI_ASSOCRESP_VENDOR_IE_BIT)
+		DBG_871X("[%s] Assoc Resp append vendor ie\n", __func__);
+
+	pmlmepriv->vendor_ie_mask[vendor_ie_num] = vendor_ie_mask;
+
+	return ret;
+
+_clear_path:
+	_rtw_memset(pmlmepriv->vendor_ie[vendor_ie_num] , 0 , sizeof(u32) * WLAN_MAX_VENDOR_IE_LEN);
+	pmlmepriv->vendor_ielen[vendor_ie_num] = 0;
+	pmlmepriv->vendor_ie_mask[vendor_ie_num] = 0;
+	return -EFAULT;
+}
+#endif
+
 static int rtw_mp_efuse_get(struct net_device *dev,
 			struct iw_request_info *info,
 			union iwreq_data *wdata, char *extra)
@@ -11362,6 +11441,14 @@ static int rtw_mp_set(struct net_device *dev,
 			rtw_ap_wowlan_ctrl(dev, info, wdata, extra);
 	break;
 #endif
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	case VENDOR_IE_SET:
+		DBG_871X("set case VENDOR_IE_SET\n");
+		rtw_vendor_ie_set(dev , info , wdata , extra);
+		break;
+#endif
+	default:
+		return -EIO;
 	}
 
 	  
@@ -11536,6 +11623,14 @@ static int rtw_mp_get(struct net_device *dev,
 		rtw_mp_sd_iwrite(dev, info, wrqu, extra);
 		break;
 #endif
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	case VENDOR_IE_GET:
+		DBG_871X("get case VENDOR_IE_GET\n");
+		rtw_vendor_ie_get(dev , info , wdata , extra);
+		break;
+#endif
+	default:
+		return -EIO;
 	}
 
 	rtw_msleep_os(10); //delay 5ms for sending pkt before exit adb shell operation
@@ -13297,6 +13392,10 @@ static const struct iw_priv_args rtw_private_args[] = {
 	{ SIOCIWFIRSTPRIV + 0x0E, IW_PRIV_TYPE_CHAR | 1024, 0 , ""},  //set 
 	{ SIOCIWFIRSTPRIV + 0x0F, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK , ""},//get
 /* --- sub-ioctls definitions --- */   
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	{ VENDOR_IE_SET, IW_PRIV_TYPE_CHAR | 1024 , 0 , "vendor_ie_set" },
+	{ VENDOR_IE_GET, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "vendor_ie_get" },
+#endif
 		{ MP_START , IW_PRIV_TYPE_CHAR | 1024, 0, "mp_start" }, //set
 		{ MP_PHYPARA, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_phypara" },//get
 		{ MP_STOP , IW_PRIV_TYPE_CHAR | 1024, 0, "mp_stop" }, //set
@@ -13559,12 +13658,6 @@ static int _rtw_ioctl_wext_private(struct net_device *dev, union iwreq_data *wrq
 	input[input_len - 1] = '\0';
 	ptr = input;
 	len = input_len;
-
-	if (ptr == NULL) {
-		err = -EOPNOTSUPP;
-		goto exit;
-	}
-
 	sscanf(ptr, "%16s", cmdname);
 	cmdlen = strlen(cmdname);
 	DBG_871X("%s: cmd=%s\n", __func__, cmdname);

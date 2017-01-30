@@ -95,6 +95,12 @@ _func_enter_;
 	precvpriv->pre_rtp_rxseq = 0;
 	precvpriv->cur_rtp_rxseq = 0;
 
+#ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
+	precvpriv->store_law_data_flag = 1;
+#else
+	precvpriv->store_law_data_flag = 0;
+#endif
+
 	rtw_os_recv_resource_init(precvpriv, padapter);
 
 	precvpriv->pallocated_frame_buf = rtw_zvmalloc(NR_RECVFRAME * sizeof(union recv_frame) + RXFRAME_ALIGN_SZ);
@@ -4816,9 +4822,7 @@ void rx_process_phy_info(_adapter *padapter, union recv_frame *rframe)
 	
 	/* Check EVM */
 	rx_process_link_qual(padapter, rframe);
-	#ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
 	rtw_store_phy_info( padapter, rframe);
-	#endif
 }
 
 void rx_query_phy_status(
@@ -4913,10 +4917,8 @@ void rx_query_phy_status(
 				rx_process_phy_info(padapter, precvframe);
 			}
 		} else if (pkt_info.bPacketToSelf || pkt_info.bPacketBeacon) {
-			if (check_fwstate(&padapter->mlmepriv, WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE) == _TRUE) {
 				if (psta)
 					precvframe->u.hdr.psta = psta;
-			}
 			rx_process_phy_info(padapter, precvframe);
 		}
 	}

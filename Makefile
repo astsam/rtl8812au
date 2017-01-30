@@ -14,7 +14,7 @@ EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
 #EXTRA_CFLAGS += -Wno-uninitialized
-#EXTRA_CFLAGS += -Wno-error=date-time	# Fix compile error on gcc 4.9 and later
+EXTRA_CFLAGS += -Wno-error=date-time	# Fix compile error on gcc 4.9 and later
 
 EXTRA_CFLAGS += -I$(src)/include
 EXTRA_CFLAGS += -I$(src)/hal/phydm
@@ -26,11 +26,11 @@ CONFIG_AUTOCFG_CP = n
 ########################## WIFI IC ############################
 CONFIG_MULTIDRV = n
 CONFIG_RTL8188E = n
-CONFIG_RTL8812A = y
-CONFIG_RTL8821A = y
+CONFIG_RTL8812A = n
+CONFIG_RTL8821A = n
 CONFIG_RTL8192E = n
 CONFIG_RTL8723B = n
-CONFIG_RTL8814A = n
+CONFIG_RTL8814A = y
 CONFIG_RTL8723C = n
 CONFIG_RTL8188F = n
 ######################### Interface ###########################
@@ -61,7 +61,8 @@ CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
 CONFIG_ANTENNA_DIVERSITY = n
 CONFIG_TDLS = n
-CONFIG_WIFI_MONITOR = y
+CONFIG_WIFI_MONITOR = n
+CONFIG_APPEND_VENDOR_IE_ENABLE = n
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n
 CONFIG_GPIO_WAKEUP = n
@@ -72,6 +73,8 @@ CONFIG_PNO_SET_DEBUG = n
 CONFIG_AP_WOWLAN = n
 ######### Notify SDIO Host Keep Power During Syspend ##########
 CONFIG_RTW_SDIO_PM_KEEP_POWER = y
+###################### MP HW TX MODE FOR VHT #######################
+CONFIG_MP_VHT_HW_TX_MODE = n
 ###################### Platform Related #######################
 CONFIG_PLATFORM_I386_PC = y
 CONFIG_PLATFORM_ANDROID_X86 = n
@@ -95,6 +98,7 @@ CONFIG_PLATFORM_TEGRA4_DALMORE = n
 CONFIG_PLATFORM_ARM_TCC8900 = n
 CONFIG_PLATFORM_ARM_TCC8920 = n
 CONFIG_PLATFORM_ARM_TCC8920_JB42 = n
+CONFIG_PLATFORM_ARM_TCC8930_JB42 = n
 CONFIG_PLATFORM_ARM_RK2818 = n
 CONFIG_PLATFORM_ARM_RK3066 = n
 CONFIG_PLATFORM_ARM_RK3188 = n
@@ -461,7 +465,6 @@ _OUTSRC_FILES += hal/phydm/rtl8821a/halhwimg8821a_fw.o\
 		
 endif
 
-
 endif
 
 ########### HAL_RTL8723B #################################
@@ -524,7 +527,10 @@ endif
 
 ########### HAL_RTL8814A #################################
 ifeq ($(CONFIG_RTL8814A), y)
-
+## ADD NEW VHT MP HW TX MODE ##
+#EXTRA_CFLAGS += -DCONFIG_MP_VHT_HW_TX_MODE
+#CONFIG_MP_VHT_HW_TX_MODE = y
+##########################################
 RTL871X = rtl8814a
 ifeq ($(CONFIG_USB_HCI), y)
 MODULE_NAME = 8814au
@@ -889,6 +895,21 @@ endif
 
 ifeq ($(CONFIG_WIFI_MONITOR), y)
 EXTRA_CFLAGS += -DCONFIG_WIFI_MONITOR
+endif
+
+ifeq ($(CONFIG_MP_VHT_HW_TX_MODE), y)
+EXTRA_CFLAGS += -DCONFIG_MP_VHT_HW_TX_MODE
+ifeq ($(CONFIG_PLATFORM_I386_PC), y)
+## For I386 X86 ToolChain use Hardware FLOATING
+EXTRA_CFLAGS += -mhard-float
+else
+## For ARM ToolChain use Hardware FLOATING
+EXTRA_CFLAGS += -mfloat-abi=hard
+endif
+endif
+
+ifeq ($(CONFIG_APPEND_VENDOR_IE_ENABLE), y)
+EXTRA_CFLAGS += -DCONFIG_APPEND_VENDOR_IE_ENABLE
 endif
 
 EXTRA_CFLAGS += -DDM_ODM_SUPPORT_TYPE=0x04
@@ -1584,6 +1605,18 @@ KSRC := /Custom/Novatek/TCL/linux-3.8_header
 #KSRC := $(KERNELDIR)
 endif
 
+ifeq ($(CONFIG_PLATFORM_ARM_TCC8930_JB42), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+# default setting for Android 4.1, 4.2
+EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+EXTRA_CFLAGS += -DCONFIG_P2P_IPS
+ARCH := arm
+CROSS_COMPILE := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_build/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
+KSRC := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_build/kernel
+MODULE_NAME := wlan
+endif 
+
 ifeq ($(CONFIG_MULTIDRV), y)
 
 ifeq ($(CONFIG_SDIO_HCI), y)
@@ -1653,15 +1686,12 @@ $(MODULE_NAME)-$(CONFIG_MP_INCLUDED) += core/rtw_mp.o \
 ifeq ($(CONFIG_RTL8723B), y)
 $(MODULE_NAME)-$(CONFIG_MP_INCLUDED)+= core/rtw_bt_mp.o
 endif
-ifeq ($(CONFIG_RTL8821A), y)
-$(MODULE_NAME)-$(CONFIG_MP_INCLUDED)+= core/rtw_bt_mp.o
-endif
 
-obj-$(CONFIG_RTL8812AU_8821AU) := $(MODULE_NAME).o
+obj-$(CONFIG_RTL8814AU) := $(MODULE_NAME).o
 
 else
 
-export CONFIG_RTL8812AU_8821AU = m
+export CONFIG_RTL8814AU = m
 
 all: modules
 

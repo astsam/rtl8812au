@@ -434,6 +434,8 @@ ODM_Get_Rate_Bitmap(
 	IN	u4Byte 		ra_mask,
 	IN	u1Byte 		rssi_level
 );
+void phydm_ra_rssi_rpt_wk(PVOID pContext);
+
 #endif/*#elif (DM_ODM_SUPPORT_TYPE == ODM_CE)*/
 
 #endif/*#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN| ODM_CE))*/

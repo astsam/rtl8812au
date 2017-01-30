@@ -152,6 +152,7 @@ static RT_CHANNEL_PLAN_2G RTW_ChannelPlan2G[] = {
 	/* 5, RTW_RD_2G_ETSI2 */		{{10, 11, 12, 13}, 4},
 	/* 6, RTW_RD_2G_GLOBAL */	{{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14}, 14},
 	/* 7, RTW_RD_2G_MKK2 */		{{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, 13},
+	/* 8, RTW_RD_2G_FCC2 */		{{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}, 13},
 };
 
 static RT_CHANNEL_PLAN_5G RTW_ChannelPlan5G[] = {
@@ -242,7 +243,7 @@ static RT_CHANNEL_PLAN_MAP	RTW_ChannelPlanMap[] = {
 	{RTW_RD_2G_MKK1,	RTW_RD_5G_MKK1,		TXPWR_LMT_MKK},		/* 0x27, RTW_CHPLAN_MKK1_MKK1 */
 	{RTW_RD_2G_WORLD,	RTW_RD_5G_KCC1,		TXPWR_LMT_ETSI},	/* 0x28, RTW_CHPLAN_WORLD_KCC1 */
 	{RTW_RD_2G_WORLD,	RTW_RD_5G_FCC2,		TXPWR_LMT_FCC},		/* 0x29, RTW_CHPLAN_WORLD_FCC2 */
-	{RTW_RD_2G_NULL,	RTW_RD_5G_NULL,		TXPWR_LMT_WW},		/* 0x2A, */
+	{RTW_RD_2G_FCC2,	RTW_RD_5G_NULL,		TXPWR_LMT_FCC},		/* 0x2A, RTW_CHPLAN_FCC2_NULL */
 	{RTW_RD_2G_NULL,	RTW_RD_5G_NULL,		TXPWR_LMT_WW},		/* 0x2B, */
 	{RTW_RD_2G_NULL,	RTW_RD_5G_NULL,		TXPWR_LMT_WW},		/* 0x2C, */
 	{RTW_RD_2G_NULL,	RTW_RD_5G_NULL,		TXPWR_LMT_WW},		/* 0x2D, */
@@ -290,6 +291,7 @@ static RT_CHANNEL_PLAN_MAP	RTW_ChannelPlanMap[] = {
 	{RTW_RD_2G_FCC1,	RTW_RD_5G_FCC10,	TXPWR_LMT_FCC},		/* 0x57, RTW_CHPLAN_FCC1_FCC10 */
 	{RTW_RD_2G_MKK2,	RTW_RD_5G_MKK4,		TXPWR_LMT_MKK},		/* 0x58, RTW_CHPLAN_MKK2_MKK4 */
 	{RTW_RD_2G_WORLD,	RTW_RD_5G_ETSI14,	TXPWR_LMT_ETSI},	/* 0x59, RTW_CHPLAN_WORLD_ETSI14 */
+	{RTW_RD_2G_FCC1,	RTW_RD_5G_FCC5,		TXPWR_LMT_FCC},		/* 0x60, RTW_CHPLAN_FCC1_FCC5 */
 };
 
 static RT_CHANNEL_PLAN_MAP RTW_CHANNEL_PLAN_MAP_REALTEK_DEFINE = {
@@ -7306,75 +7308,6 @@ void update_mgnt_tx_rate(_adapter *padapter, u8 rate)
 	//DBG_871X("%s(): rate = %x\n",__FUNCTION__, rate);
 }
 
-
-void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	u8	wireless_mode;
-	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-	struct xmit_priv 		*pxmitpriv = &padapter->xmitpriv;
-	struct sta_info		*psta = NULL;
-	struct sta_priv		*pstapriv = &padapter->stapriv;
-	struct sta_info *pbcmc_sta = NULL;
-	psta = rtw_get_stainfo(pstapriv, pattrib->ra);
-	pbcmc_sta = rtw_get_bcmc_stainfo(padapter);
-
-	pattrib->hdrlen = 24;
-	pattrib->nr_frags = 1;
-	pattrib->priority = 7;
-
-	if (pbcmc_sta)
-		pattrib->mac_id = pbcmc_sta->mac_id;
-	else {
-		pattrib->mac_id = 0;
-		DBG_871X("mgmt use mac_id 0 will affect RA\n");
-	}
-	pattrib->qsel = QSLT_MGNT;
-
-	pattrib->pktlen = 0;
-
-	if (pmlmeext->tx_rate == IEEE80211_CCK_RATE_1MB)
-		wireless_mode = WIRELESS_11B;
-	else
-		wireless_mode = WIRELESS_11G;
-
-	pattrib->raid = rtw_get_mgntframe_raid(padapter, wireless_mode);
-	#ifdef CONFIG_80211AC_VHT
-		if (pHalData->rf_type == RF_1T1R)
-			pattrib->raid = RATEID_IDX_VHT_1SS;
-		else if (pHalData->rf_type == RF_2T2R || pHalData->rf_type == RF_2T4R)
-			pattrib->raid = RATEID_IDX_VHT_2SS;
-		else if (pHalData->rf_type == RF_3T3R)
-			pattrib->raid = RATEID_IDX_VHT_3SS;
-		else
-			pattrib->raid = RATEID_IDX_BGN_40M_1SS;
-	#endif
-
-	#ifdef CONFIG_80211AC_VHT
-		pattrib->rate = MGN_VHT1SS_MCS9;
-	#else	
-		pattrib->rate = MGN_MCS7;
-	#endif
-
-	pattrib->encrypt = _NO_PRIVACY_;
-	pattrib->bswenc = _FALSE;	
-
-	pattrib->qos_en = _FALSE;
-	pattrib->ht_en = 1;
-	pattrib->bwmode = CHANNEL_WIDTH_20;
-	pattrib->ch_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
-	pattrib->sgi = _FALSE;
-
-	pattrib->seqnum = pmlmeext->mgnt_seq;
-
-	pattrib->retry_ctrl = _TRUE;
-
-	pattrib->mbssid = 0;
-	pattrib->hw_ssn_sel = pxmitpriv->hw_ssn_seq_no;
-
-}
-
-
 void update_mgntframe_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 {
 	u8	wireless_mode;
@@ -7562,6 +7495,25 @@ int update_hidden_ssid(u8 *ies, u32 ies_len, u8 hidden_ssid_mode)
 
 	return len_diff;
 }
+
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+u32 rtw_build_vendor_ie(_adapter *padapter , unsigned char *pframe , u8 mgmt_frame_tyte)
+{
+	int vendor_ie_num = 0;
+	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
+	u32 len = 0;
+
+	for (vendor_ie_num = 0 ; vendor_ie_num < WLAN_MAX_VENDOR_IE_NUM ; vendor_ie_num++) {
+		if (pmlmepriv->vendor_ielen[vendor_ie_num] > 0 && pmlmepriv->vendor_ie_mask[vendor_ie_num] & mgmt_frame_tyte) {
+			_rtw_memcpy(pframe , pmlmepriv->vendor_ie[vendor_ie_num] , pmlmepriv->vendor_ielen[vendor_ie_num]);
+			pframe +=  pmlmepriv->vendor_ielen[vendor_ie_num];
+			len += pmlmepriv->vendor_ielen[vendor_ie_num];
+		}
+	}
+
+	return len;
+}
+#endif
 
 void issue_beacon(_adapter *padapter, int timeout_ms)
 {
@@ -7805,6 +7757,9 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 		}
 #endif //CONFIG_P2P
 
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+		pattrib->pktlen += rtw_build_vendor_ie(padapter , pframe , WIFI_BEACON_VENDOR_IE_BIT);
+#endif
 		goto _issue_bcn;
 
 	}
@@ -8032,8 +7987,10 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 				pattrib->pktlen += ssid_ielen_diff;
 			}
 		}
-	}	
-	else		
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+		pattrib->pktlen += rtw_build_vendor_ie(padapter , pframe , WIFI_PROBERESP_VENDOR_IE_BIT);
+#endif
+	} else
 #endif		
 	{
 	
@@ -8273,6 +8230,9 @@ int _issue_probereq(_adapter *padapter, NDIS_802_11_SSID *pssid, u8 *da, u8 ch, 
 			//pmlmepriv->wps_probe_req_ie_len = 0 ;//reset to zero
 		}
 	}
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	pattrib->pktlen += rtw_build_vendor_ie(padapter , pframe , WIFI_PROBEREQ_VENDOR_IE_BIT);
+#endif
 
 	pattrib->last_txcmdsz = pattrib->pktlen;
 
@@ -8722,7 +8682,9 @@ void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *p
 	}
 #endif //CONFIG_WFD
 #endif //CONFIG_P2P
-
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	pattrib->pktlen += rtw_build_vendor_ie(padapter , pframe , WIFI_ASSOCRESP_VENDOR_IE_BIT);
+#endif
 	pattrib->last_txcmdsz = pattrib->pktlen;
 	
 	dump_mgntframe(padapter, pmgntframe);
@@ -9183,8 +9145,10 @@ void issue_assocreq(_adapter *padapter)
 		pframe += pmlmepriv->wfd_assoc_req_ie_len;		
 	}
 #endif //CONFIG_IOCTL_CFG80211
-#endif //CONFIG_WFD	
-
+#endif //CONFIG_WFD
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	pattrib->pktlen += rtw_build_vendor_ie(padapter , pframe , WIFI_ASSOCREQ_VENDOR_IE_BIT);
+#endif
 	pattrib->last_txcmdsz = pattrib->pktlen;
 	dump_mgntframe(padapter, pmgntframe);
 
@@ -10510,6 +10474,9 @@ unsigned int send_beacon(_adapter *padapter)
 	u8	bxmitok = _FALSE;
 	int	issue=0;
 	int poll = 0;
+#if defined(CONFIG_PCI_HCI) && defined(RTL8814AE_SW_BCN)
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+#endif
 //#ifdef CONFIG_CONCURRENT_MODE
 	//struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	//struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
@@ -10526,6 +10493,12 @@ unsigned int send_beacon(_adapter *padapter)
 	rtw_hal_set_hwreg(padapter, HW_VAR_DL_BCN_SEL, NULL);
 
 	issue_beacon(padapter, 0);
+
+#ifdef RTL8814AE_SW_BCN
+	if (pHalData->bCorrectBCN != 0)
+		DBG_871X("%s, line%d, Warnning, pHalData->bCorrectBCN != 0\n", __func__, __LINE__);
+	pHalData->bCorrectBCN = 1;
+#endif
 
 	return _SUCCESS;
 #endif
@@ -11987,6 +11960,7 @@ void mlmeext_joinbss_event_callback(_adapter *padapter, int join_res)
 #ifdef CONFIG_ARP_KEEP_ALIVE
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 #endif
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
 
 	if(join_res < 0)
 	{
@@ -12050,6 +12024,11 @@ void mlmeext_joinbss_event_callback(_adapter *padapter, int join_res)
 			the subsequent data frames can be sent out normally */
 		rtw_hal_macid_wakeup(padapter, psta->mac_id);
 	}
+
+#ifndef CONFIG_IOCTL_CFG80211
+	if (is_wep_enc(psecuritypriv->dot11PrivacyAlgrthm))
+		rtw_sec_restore_wep_key(padapter);
+#endif /* CONFIG_IOCTL_CFG80211 */
 
 	if (rtw_port_switch_chk(padapter) == _TRUE)
 		rtw_hal_set_hwreg(padapter, HW_VAR_PORT_SWITCH, NULL);
@@ -14289,6 +14268,8 @@ u8 setkey_hdl(_adapter *padapter, u8 *pbuf)
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	unsigned char null_addr[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	struct set_stakey_parm	sta_pparm;
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
 	u8 *addr;
 	bool used;
 
@@ -14338,6 +14319,16 @@ u8 setkey_hdl(_adapter *padapter, u8 *pbuf)
 	if (cam_id >=0 && cam_id <=3)
 		rtw_hal_set_hwreg(padapter, HW_VAR_SEC_DK_CFG, (u8*)_TRUE);
 	#endif
+	/* 8814au should set both broadcast and unicast CAM entry for WEP key in STA mode */
+	if (_rtw_camctl_chk_cap(padapter, SEC_CAP_CHK_BMC) && is_wep_enc(psecuritypriv->dot11PrivacyAlgrthm)) {
+		struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
+
+		sta_pparm.algorithm = pparm->algorithm;
+		sta_pparm.keyid = pparm->keyid;
+		_rtw_memcpy(sta_pparm.key, pparm->key, 16);
+		_rtw_memcpy(sta_pparm.addr, get_bssid(pmlmepriv), ETH_ALEN);
+		set_stakey_hdl(padapter, (u8 *) &sta_pparm);
+	}
 
 enable_mc:
 	//allow multicast packets to driver

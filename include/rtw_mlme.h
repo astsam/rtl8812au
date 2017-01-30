@@ -501,7 +501,9 @@ struct mlme_priv {
 
 	u8	*nic_hdl;
 
+	#ifdef SUPPLICANT_RTK_VERSION_LOWER_THAN_JB42
 	u8	not_indic_disco;
+	#endif
 	_list		*pscanned;
 	_queue	free_bss_pool;
 	_queue	scanned_queue;
@@ -727,6 +729,12 @@ struct mlme_priv {
 
 //	u8 	NumOfBcnInfoChkFail;
 //	u32	timeBcnInfoChkStart;
+
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	u32 vendor_ie_mask[WLAN_MAX_VENDOR_IE_NUM];
+	u8 vendor_ie[WLAN_MAX_VENDOR_IE_NUM][WLAN_MAX_VENDOR_IE_LEN];
+	u32 vendor_ielen[WLAN_MAX_VENDOR_IE_NUM];
+#endif
 };
 
 #define mlme_set_scan_to_timer(mlme, ms) \

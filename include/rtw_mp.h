@@ -140,6 +140,45 @@ struct mp_tx
 #define ULONG u32
 #define PULONG u32*
 
+typedef struct _RT_PMAC_PKT_INFO {
+	UCHAR			MCS;
+	UCHAR			Nss;
+	UCHAR			Nsts;
+	UINT			N_sym;
+	UCHAR			SIGA2B3;
+} RT_PMAC_PKT_INFO, *PRT_PMAC_PKT_INFO;
+
+typedef struct _RT_PMAC_TX_INFO {
+	u8			bEnPMacTx:1;		/* 0: Disable PMac 1: Enable PMac */
+	u8			Mode:3;				/* 0: Packet TX 3:Continuous TX */
+	u8			Ntx:4;				/* 0-7 */
+	u8			TX_RATE;			/* MPT_RATE_E */
+	u8			TX_RATE_HEX;
+	u8			TX_SC;
+	u8			bSGI:1;
+	u8			bSPreamble:1;
+	u8			bSTBC:1;
+	u8			bLDPC:1;
+	u8			NDP_sound:1;
+	u8			BandWidth:3;		/* 0: 20 1:40 2:80Mhz */
+	u8			m_STBC;			/* bSTBC + 1 */
+	u8			PacketPeriod;
+	UINT		PacketCount;
+	UINT		PacketLength;
+	u8			PacketPattern;
+	u32			SFD;
+	u8			SignalField;
+	u8			ServiceField;
+	u8			LENGTH;
+	u8			CRC16[2];
+	u8			LSIG[3];
+	u8			HT_SIG[6];
+	u8			VHT_SIG_A[6];
+	u8			VHT_SIG_B[4];
+	u8			VHT_SIG_B_CRC;
+	u8			VHT_Delimiter[4];
+	u8			MacAddress[6];
+} RT_PMAC_TX_INFO, *PRT_PMAC_TX_INFO;
 
 
 typedef VOID (*MPT_WORK_ITEM_HANDLER)(IN PVOID Adapter);
@@ -244,7 +283,12 @@ typedef struct _MPT_CONTEXT
     u1Byte          btInBuf[100];
 	ULONG			mptOutLen;
     u1Byte          mptOutBuf[100];
-    
+	RT_PMAC_TX_INFO	PMacTxInfo;
+	RT_PMAC_PKT_INFO	PMacPktInfo;
+	u8 HWTxmode;
+
+	BOOLEAN			bldpc;
+	BOOLEAN			bstbc;
 }MPT_CONTEXT, *PMPT_CONTEXT;
 //#endif
 
@@ -318,6 +362,10 @@ enum {
 	EFUSE_FILE,
 	MP_TX,
 	MP_RX,
+#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
+	VENDOR_IE_SET ,
+	VENDOR_IE_GET ,
+#endif
 #ifdef CONFIG_WOWLAN
 	MP_WOW_ENABLE,
 	MP_WOW_SET_PATTERN,
@@ -349,6 +397,7 @@ struct mp_priv
 	u8 TID;
 	u32 tx_pktcount;
 	u32 pktInterval;
+	u32 pktLength;
 	struct mp_tx tx;
 
 	//Rx Section
@@ -495,6 +544,16 @@ typedef enum _MP_MODE_ {
 	MP_PACKET_RX
 } MP_MODE;
 
+typedef enum _TEST_MODE {
+	TEST_NONE                 ,
+	PACKETS_TX                ,
+	PACKETS_RX                ,
+	CONTINUOUS_TX             ,
+	OFDM_Single_Tone_TX       ,
+	CCK_Carrier_Suppression_TX
+} TEST_MODE;
+
+
 typedef enum _MPT_BANDWIDTH {
 	MPT_BW_20MHZ = 0,
 	MPT_BW_40MHZ_DUPLICATE = 1,
@@ -519,7 +578,7 @@ extern u8 mpdatarate[NumRates];
 typedef enum _MPT_RATE_INDEX
 {
 	/* CCK rate. */
-	MPT_RATE_1M =0 ,	/* 0 */
+	MPT_RATE_1M = 1 ,	/* 0 */
 	MPT_RATE_2M,
 	MPT_RATE_55M,
 	MPT_RATE_11M,	/* 3 */
@@ -568,7 +627,7 @@ typedef enum _MPT_RATE_INDEX
 	MPT_RATE_MCS30, // #42
 	MPT_RATE_MCS31, // #43
 	/* VHT rate. Total: 20*/
-	MPT_RATE_VHT1SS_MCS0,//  #44
+	MPT_RATE_VHT1SS_MCS0 = 100,/*  #44*/
 	MPT_RATE_VHT1SS_MCS1, // #
 	MPT_RATE_VHT1SS_MCS2,
 	MPT_RATE_VHT1SS_MCS3,
@@ -612,6 +671,27 @@ typedef enum _MPT_RATE_INDEX
 }MPT_RATE_E, *PMPT_RATE_E;
 
 #define MAX_TX_PWR_INDEX_N_MODE 64	// 0x3F
+
+#define MPT_IS_CCK_RATE(_value)		(MPT_RATE_1M <= _value && _value <= MPT_RATE_11M)
+#define MPT_IS_OFDM_RATE(_value)	(MPT_RATE_6M <= _value && _value <= MPT_RATE_54M)
+#define MPT_IS_HT_RATE(_value)		(MPT_RATE_MCS0 <= _value && _value <= MPT_RATE_MCS31)
+#define MPT_IS_HT_1S_RATE(_value)	(MPT_RATE_MCS0 <= _value && _value <= MPT_RATE_MCS7)
+#define MPT_IS_HT_2S_RATE(_value)	(MPT_RATE_MCS8 <= _value && _value <= MPT_RATE_MCS15)
+#define MPT_IS_HT_3S_RATE(_value)	(MPT_RATE_MCS16 <= _value && _value <= MPT_RATE_MCS23)
+#define MPT_IS_HT_4S_RATE(_value)	(MPT_RATE_MCS24 <= _value && _value <= MPT_RATE_MCS31)
+
+#define MPT_IS_VHT_RATE(_value)		(MPT_RATE_VHT1SS_MCS0 <= _value && _value <= MPT_RATE_VHT4SS_MCS9)
+#define MPT_IS_VHT_1S_RATE(_value)	(MPT_RATE_VHT1SS_MCS0 <= _value && _value <= MPT_RATE_VHT1SS_MCS9)
+#define MPT_IS_VHT_2S_RATE(_value)	(MPT_RATE_VHT2SS_MCS0 <= _value && _value <= MPT_RATE_VHT2SS_MCS9)
+#define MPT_IS_VHT_3S_RATE(_value)	(MPT_RATE_VHT3SS_MCS0 <= _value && _value <= MPT_RATE_VHT3SS_MCS9)
+#define MPT_IS_VHT_4S_RATE(_value)	(MPT_RATE_VHT4SS_MCS0 <= _value && _value <= MPT_RATE_VHT4SS_MCS9)
+
+#define MPT_IS_2SS_RATE(_rate) ((MPT_RATE_MCS8 <= _rate && _rate <= MPT_RATE_MCS15) ||\
+							(MPT_RATE_VHT2SS_MCS0 <= _rate && _rate <= MPT_RATE_VHT2SS_MCS9))
+#define MPT_IS_3SS_RATE(_rate) ((MPT_RATE_MCS16 <= _rate && _rate <= MPT_RATE_MCS23) ||\
+							(MPT_RATE_VHT3SS_MCS0 <= _rate && _rate <= MPT_RATE_VHT3SS_MCS9))
+#define MPT_IS_4SS_RATE(_rate) ((MPT_RATE_MCS24 <= _rate && _rate <= MPT_RATE_MCS31) ||\
+							(MPT_RATE_VHT4SS_MCS0 <= _rate && _rate <= MPT_RATE_VHT4SS_MCS9))
 
 typedef enum _POWER_MODE_ {
 	POWER_LOW = 0,
@@ -672,6 +752,10 @@ typedef enum	_MPT_TXPWR_DEF{
 
 #endif //CONFIG_RF_GAIN_OFFSET
 
+#define IS_MPT_HT_RATE(_rate)			(_rate >= MPT_RATE_MCS0 && _rate <= MPT_RATE_MCS31)
+#define IS_MPT_VHT_RATE(_rate)			(_rate >= MPT_RATE_VHT1SS_MCS0 && _rate <= MPT_RATE_VHT4SS_MCS9)
+#define IS_MPT_CCK_RATE(_rate)			(_rate >= MPT_RATE_1M && _rate <= MPT_RATE_11M)
+#define IS_MPT_OFDM_RATE(_rate)			(_rate >= MPT_RATE_6M && _rate <= MPT_RATE_54M)
 //=======================================================================
 //extern struct mp_xmit_frame *alloc_mp_xmitframe(struct mp_priv *pmp_priv);
 //extern int free_mp_xmitframe(struct xmit_priv *pxmitpriv, struct mp_xmit_frame *pmp_xmitframe);
@@ -738,6 +822,7 @@ void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart);
 void hal_mpt_SetCarrierSuppressionTx(PADAPTER pAdapter, u8 bStart);
 void hal_mpt_SetCCKContinuousTx(PADAPTER pAdapter, u8 bStart);
 void hal_mpt_SetOFDMContinuousTx(PADAPTER pAdapter, u8 bStart);
+VOID mpt_ProSetPMacTx(PADAPTER	Adapter);
 
 void MP_PHY_SetRFPathSwitch(PADAPTER pAdapter , BOOLEAN bMain);
 ULONG mpt_ProQueryCalTxPower(PADAPTER	pAdapter, u8 RfPath);
@@ -745,6 +830,44 @@ void MPT_PwrCtlDM(PADAPTER padapter, u32 bstart);
 u8 MptToMgntRate(u32	MptRateIdx);
 u8 rtw_mpRateParseFunc(PADAPTER pAdapter, u8 *targetStr);
 u32 mp_join(PADAPTER padapter, u8 mode);
+u32 hal_mpt_query_phytxok(PADAPTER	pAdapter);
+
+void
+PMAC_Get_Pkt_Param(
+	PRT_PMAC_TX_INFO	pPMacTxInfo,
+	PRT_PMAC_PKT_INFO	pPMacPktInfo
+	);
+void
+CCK_generator(
+	PRT_PMAC_TX_INFO	pPMacTxInfo,
+	PRT_PMAC_PKT_INFO	pPMacPktInfo
+	);
+void
+PMAC_Nsym_generator(
+	PRT_PMAC_TX_INFO	pPMacTxInfo,
+	PRT_PMAC_PKT_INFO	pPMacPktInfo
+	);
+void
+L_SIG_generator(
+	UINT	N_SYM,		/* Max: 750*/
+	PRT_PMAC_TX_INFO	pPMacTxInfo,
+	PRT_PMAC_PKT_INFO	pPMacPktInfo
+	);
+
+void HT_SIG_generator(
+	PRT_PMAC_TX_INFO	pPMacTxInfo,
+	PRT_PMAC_PKT_INFO	pPMacPktInfo);
+
+void VHT_SIG_A_generator(
+	PRT_PMAC_TX_INFO	pPMacTxInfo,
+	PRT_PMAC_PKT_INFO	pPMacPktInfo);
+
+void VHT_SIG_B_generator(
+	PRT_PMAC_TX_INFO	pPMacTxInfo);
+
+void VHT_Delimiter_generator(
+	PRT_PMAC_TX_INFO	pPMacTxInfo);
+
 
 int rtw_mp_write_reg(struct net_device *dev,
 			struct iw_request_info *info,
@@ -855,6 +978,7 @@ int rtw_mp_tx(struct net_device *dev,
 int rtw_mp_rx(struct net_device *dev,
 			struct iw_request_info *info,
 			union iwreq_data *wrqu, char *extra);
+u8 HwRateToMPTRate(u8 rate);
 
 #endif //_RTW_MP_H_
 

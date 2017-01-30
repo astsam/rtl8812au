@@ -123,56 +123,74 @@
 #define DESC_RATEVHTSS4MCS7		0x51
 #define DESC_RATEVHTSS4MCS8		0x52
 #define DESC_RATEVHTSS4MCS9		0x53
-#define DESC_RATEMAX			0x54
+
 #define HDATA_RATE(rate)\
-(rate==DESC_RATE1M)?"CCK_1M":\
-(rate==DESC_RATE2M)?"CCK_2M":\
-(rate==DESC_RATE5_5M)?"CCK5_5M":\
-(rate==DESC_RATE11M)?"CCK_11M":\
-(rate==DESC_RATE6M)?"OFDM_6M":\
-(rate==DESC_RATE9M)?"OFDM_9M":\
-(rate==DESC_RATE12M)?"OFDM_12M":\
-(rate==DESC_RATE18M)?"OFDM_18M":\
-(rate==DESC_RATE24M)?"OFDM_24M":\
-(rate==DESC_RATE36M)?"OFDM_36M":\
-(rate==DESC_RATE48M)?"OFDM_48M":\
-(rate==DESC_RATE54M)?"OFDM_54M":\
-(rate==DESC_RATEMCS0)?"MCS0":\
-(rate==DESC_RATEMCS1)?"MCS1":\
-(rate==DESC_RATEMCS2)?"MCS2":\
-(rate==DESC_RATEMCS3)?"MCS3":\
-(rate==DESC_RATEMCS4)?"MCS4":\
-(rate==DESC_RATEMCS5)?"MCS5":\
-(rate==DESC_RATEMCS6)?"MCS6":\
-(rate==DESC_RATEMCS7)?"MCS7":\
-(rate==DESC_RATEMCS8)?"MCS8":\
-(rate==DESC_RATEMCS9)?"MCS9":\
-(rate==DESC_RATEMCS10)?"MCS10":\
-(rate==DESC_RATEMCS11)?"MCS11":\
-(rate==DESC_RATEMCS12)?"MCS12":\
-(rate==DESC_RATEMCS13)?"MCS13":\
-(rate==DESC_RATEMCS14)?"MCS14":\
-(rate==DESC_RATEMCS15)?"MCS15":\
-(rate==DESC_RATEVHTSS1MCS0)?"VHTSS1MCS0":\
-(rate==DESC_RATEVHTSS1MCS1)?"VHTSS1MCS1":\
-(rate==DESC_RATEVHTSS1MCS2)?"VHTSS1MCS2":\
-(rate==DESC_RATEVHTSS1MCS3)?"VHTSS1MCS3":\
-(rate==DESC_RATEVHTSS1MCS4)?"VHTSS1MCS4":\
-(rate==DESC_RATEVHTSS1MCS5)?"VHTSS1MCS5":\
-(rate==DESC_RATEVHTSS1MCS6)?"VHTSS1MCS6":\
-(rate==DESC_RATEVHTSS1MCS7)?"VHTSS1MCS7":\
-(rate==DESC_RATEVHTSS1MCS8)?"VHTSS1MCS8":\
-(rate==DESC_RATEVHTSS1MCS9)?"VHTSS1MCS9":\
-(rate==DESC_RATEVHTSS2MCS0)?"VHTSS2MCS0":\
-(rate==DESC_RATEVHTSS2MCS1)?"VHTSS2MCS1":\
-(rate==DESC_RATEVHTSS2MCS2)?"VHTSS2MCS2":\
-(rate==DESC_RATEVHTSS2MCS3)?"VHTSS2MCS3":\
-(rate==DESC_RATEVHTSS2MCS4)?"VHTSS2MCS4":\
-(rate==DESC_RATEVHTSS2MCS5)?"VHTSS2MCS5":\
-(rate==DESC_RATEVHTSS2MCS6)?"VHTSS2MCS6":\
-(rate==DESC_RATEVHTSS2MCS7)?"VHTSS2MCS7":\
-(rate==DESC_RATEVHTSS2MCS8)?"VHTSS2MCS8":\
-(rate==DESC_RATEVHTSS2MCS9)?"VHTSS2MCS9":"UNKNOW"
+(rate == DESC_RATE1M)?"CCK_1M" :\
+(rate == DESC_RATE2M)?"CCK_2M" :\
+(rate == DESC_RATE5_5M)?"CCK5_5M" :\
+(rate == DESC_RATE11M)?"CCK_11M" :\
+(rate == DESC_RATE6M)?"OFDM_6M" :\
+(rate == DESC_RATE9M)?"OFDM_9M" :\
+(rate == DESC_RATE12M)?"OFDM_12M" :\
+(rate == DESC_RATE18M)?"OFDM_18M" :\
+(rate == DESC_RATE24M)?"OFDM_24M" :\
+(rate == DESC_RATE36M)?"OFDM_36M" :\
+(rate == DESC_RATE48M)?"OFDM_48M" :\
+(rate == DESC_RATE54M)?"OFDM_54M" :\
+(rate == DESC_RATEMCS0)?"MCS0" :\
+(rate == DESC_RATEMCS1)?"MCS1" :\
+(rate == DESC_RATEMCS2)?"MCS2" :\
+(rate == DESC_RATEMCS3)?"MCS3" :\
+(rate == DESC_RATEMCS4)?"MCS4" :\
+(rate == DESC_RATEMCS5)?"MCS5" :\
+(rate == DESC_RATEMCS6)?"MCS6" :\
+(rate == DESC_RATEMCS7)?"MCS7" :\
+(rate == DESC_RATEMCS8)?"MCS8" :\
+(rate == DESC_RATEMCS9)?"MCS9" :\
+(rate == DESC_RATEMCS10)?"MCS10" :\
+(rate == DESC_RATEMCS11)?"MCS11" :\
+(rate == DESC_RATEMCS12)?"MCS12" :\
+(rate == DESC_RATEMCS13)?"MCS13" :\
+(rate == DESC_RATEMCS14)?"MCS14" :\
+(rate == DESC_RATEMCS15)?"MCS15" :\
+(rate == DESC_RATEMCS16)?"MCS16" :\
+(rate == DESC_RATEMCS17)?"MCS17" :\
+(rate == DESC_RATEMCS18)?"MCS18" :\
+(rate == DESC_RATEMCS19)?"MCS19" :\
+(rate == DESC_RATEMCS20)?"MCS20" :\
+(rate == DESC_RATEMCS21)?"MCS21" :\
+(rate == DESC_RATEMCS22)?"MCS22" :\
+(rate == DESC_RATEMCS23)?"MCS23" :\
+(rate == DESC_RATEVHTSS1MCS0)?"VHTSS1MCS0" :\
+(rate == DESC_RATEVHTSS1MCS1)?"VHTSS1MCS1" :\
+(rate == DESC_RATEVHTSS1MCS2)?"VHTSS1MCS2" :\
+(rate == DESC_RATEVHTSS1MCS3)?"VHTSS1MCS3" :\
+(rate == DESC_RATEVHTSS1MCS4)?"VHTSS1MCS4" :\
+(rate == DESC_RATEVHTSS1MCS5)?"VHTSS1MCS5" :\
+(rate == DESC_RATEVHTSS1MCS6)?"VHTSS1MCS6" :\
+(rate == DESC_RATEVHTSS1MCS7)?"VHTSS1MCS7" :\
+(rate == DESC_RATEVHTSS1MCS8)?"VHTSS1MCS8" :\
+(rate == DESC_RATEVHTSS1MCS9)?"VHTSS1MCS9" :\
+(rate == DESC_RATEVHTSS2MCS0)?"VHTSS2MCS0" :\
+(rate == DESC_RATEVHTSS2MCS1)?"VHTSS2MCS1" :\
+(rate == DESC_RATEVHTSS2MCS2)?"VHTSS2MCS2" :\
+(rate == DESC_RATEVHTSS2MCS3)?"VHTSS2MCS3" :\
+(rate == DESC_RATEVHTSS2MCS4)?"VHTSS2MCS4" :\
+(rate == DESC_RATEVHTSS2MCS5)?"VHTSS2MCS5" :\
+(rate == DESC_RATEVHTSS2MCS6)?"VHTSS2MCS6" :\
+(rate == DESC_RATEVHTSS2MCS7)?"VHTSS2MCS7" :\
+(rate == DESC_RATEVHTSS2MCS8)?"VHTSS2MCS8" :\
+(rate == DESC_RATEVHTSS2MCS9)?"VHTSS2MCS9" :\
+(rate == DESC_RATEVHTSS3MCS0)?"VHTSS3MCS0" :\
+(rate == DESC_RATEVHTSS3MCS1)?"VHTSS3MCS1" :\
+(rate == DESC_RATEVHTSS3MCS2)?"VHTSS3MCS2" :\
+(rate == DESC_RATEVHTSS3MCS3)?"VHTSS3MCS3" :\
+(rate == DESC_RATEVHTSS3MCS4)?"VHTSS3MCS4" :\
+(rate == DESC_RATEVHTSS3MCS5)?"VHTSS3MCS5" :\
+(rate == DESC_RATEVHTSS3MCS6)?"VHTSS3MCS6" :\
+(rate == DESC_RATEVHTSS3MCS7)?"VHTSS3MCS7" :\
+(rate == DESC_RATEVHTSS3MCS8)?"VHTSS3MCS8" :\
+(rate == DESC_RATEVHTSS3MCS9)?"VHTSS3MCS9" : "UNKNOWN"
 
 
 enum{
@@ -228,6 +246,7 @@ void rtw_dump_mac_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_count
 void rtw_dump_phy_rx_counters(_adapter* padapter,struct dbg_rx_counter *rx_counter);
 void rtw_reset_mac_rx_counters(_adapter* padapter);
 void rtw_reset_phy_rx_counters(_adapter* padapter);
+void rtw_reset_phy_trx_ok_counters(_adapter *padapter);
 
 #ifdef DBG_RX_COUNTER_DUMP
 #define DUMP_DRV_RX_COUNTER	BIT0
@@ -261,7 +280,6 @@ void rtw_hal_config_rftype(PADAPTER  padapter);
 #define WL_FUNC_FTM			BIT3
 #define WL_FUNC_BIT_NUM		4
 
-int hal_spec_init(_adapter *adapter);
 void dump_hal_spec(void *sel, _adapter *adapter);
 
 bool hal_chk_band_cap(_adapter *adapter, u8 cap);
@@ -269,27 +287,6 @@ bool hal_chk_bw_cap(_adapter *adapter, u8 cap);
 bool hal_is_band_support(_adapter *adapter, u8 band);
 bool hal_is_bw_support(_adapter *adapter, u8 bw);
 u8 hal_largest_bw(_adapter *adapter, u8 in_bw);
-
-bool hal_chk_wl_func(_adapter *adapter, u8 func);
-#ifdef CONFIG_P2P
-#define HAL_HAS_WL_FUNC_P2P(adapter) hal_chk_wl_func((adapter), WL_FUNC_P2P)
-#else
-#define HAL_HAS_WL_FUNC_P2P(adapter) 0
-#endif
-
-#ifdef CONFIG_WFD
-#define HAL_HAS_WL_FUNC_MIRACAST(adapter) hal_chk_wl_func((adapter), WL_FUNC_MIRACAST)
-#else
-#define HAL_HAS_WL_FUNC_MIRACAST(adapter) 0
-#endif
-
-#ifdef CONFIG_TDLS
-#define HAL_HAS_WL_FUNC_TDLS(adapter) hal_chk_wl_func((adapter), WL_FUNC_TDLS)
-#else
-#define HAL_HAS_WL_FUNC_TDLS(adapter) 0
-#endif
-
-#define HAL_HAS_WL_FUNC_FTM(adapter) hal_chk_wl_func((adapter), WL_FUNC_FTM)
 
 u8	//return the final channel plan decision
 hal_com_config_channel_plan(
@@ -412,10 +409,13 @@ isAllSpaceOrTab(
 void linked_info_dump(_adapter *padapter,u8 benable);
 #ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
 void rtw_get_raw_rssi_info(void *sel, _adapter *padapter);
-void rtw_store_phy_info(_adapter *padapter, union recv_frame *prframe);
 void rtw_dump_raw_rssi_info(_adapter *padapter);
 #endif
 
+#ifdef DBG_RX_DFRAME_RAW_DATA
+	void rtw_dump_rx_dframe_info(_adapter *padapter, void *sel);
+#endif
+void rtw_store_phy_info(_adapter *padapter, union recv_frame *prframe);
 #define		HWSET_MAX_SIZE			512
 #ifdef CONFIG_EFUSE_CONFIG_FILE
 #define		EFUSE_FILE_COLUMN_NUM		16
@@ -455,6 +455,8 @@ struct noise_info
 #endif
 
 void rtw_get_noise(_adapter* padapter);
+u8 rtw_get_current_tx_rate(_adapter *padapter, u8 macid);
+u8 rtw_get_current_tx_sgi(_adapter *padapter, u8 macid);
 
 void rtw_hal_set_fw_rsvd_page(_adapter* adapter, bool finished);
 
@@ -507,7 +509,7 @@ u32 rtw_phydm_ability_ops(_adapter *adapter, HAL_PHYDM_OPS ops, u32 ability);
 	rtw_phydm_ability_ops(adapter, HAL_PHYDM_ABILITY_RESTORE, 0)
 
 #define rtw_phydm_ability_set(adapter, ability)	\
-	rtw_phydm_ability_ops(adapter, HAL_PHYDM_ABILITY_SET, 0)
+	rtw_phydm_ability_ops(adapter, HAL_PHYDM_ABILITY_SET, ability)
 
 static inline u32 rtw_phydm_ability_get(_adapter *adapter)
 {
@@ -516,8 +518,8 @@ static inline u32 rtw_phydm_ability_get(_adapter *adapter)
 
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 extern char *rtw_phy_file_path;
-extern char file_path[PATH_LENGTH_MAX];
-#define GetLineFromBuffer(buffer)   strsep(&buffer, "\r\n")
+extern char rtw_phy_para_file_path[PATH_LENGTH_MAX];
+#define GetLineFromBuffer(buffer)   strsep(&buffer, "\n")
 #endif
 
 #ifdef CONFIG_FW_C2H_DEBUG

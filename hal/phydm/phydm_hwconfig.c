@@ -1875,7 +1875,10 @@ odm_Process_RSSIForDM(
 						UndecoratedSmoothedPWDB = 0;
 				}
 			}
-
+			#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+			if (pEntry->rssi_stat.UndecoratedSmoothedPWDB == -1)
+				phydm_ra_rssi_rpt_wk(pDM_Odm);
+			#endif
 			pEntry->rssi_stat.UndecoratedSmoothedCCK = UndecoratedSmoothedCCK;
 			pEntry->rssi_stat.UndecoratedSmoothedOFDM = UndecoratedSmoothedOFDM;
 			pEntry->rssi_stat.UndecoratedSmoothedPWDB = UndecoratedSmoothedPWDB;
@@ -3296,6 +3299,11 @@ phydm_Process_RSSIForDM_Jaguar2(
 			UndecoratedSmoothedPWDB = pPhyInfo->RxPWDBAll;
 		else
 			UndecoratedSmoothedPWDB = (RSSI_Ave + ((UndecoratedSmoothedPWDB<<4) - UndecoratedSmoothedPWDB))>>4;
+
+		#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+		if (pEntry->rssi_stat.UndecoratedSmoothedPWDB == -1)
+			phydm_ra_rssi_rpt_wk(pDM_Odm);
+		#endif
 
 		pEntry->rssi_stat.UndecoratedSmoothedPWDB = (s4Byte)UndecoratedSmoothedPWDB;
 	}

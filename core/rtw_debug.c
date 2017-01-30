@@ -129,7 +129,11 @@ void dump_drv_cfg(void *sel)
 	#ifdef CONFIG_GPIO_WAKEUP
 	DBG_871X_SEL_NL(sel, "CONFIG_GPIO_WAKEUP - WAKEUP_GPIO_IDX:%d\n", WAKEUP_GPIO_IDX);
 	#endif
-#endif	
+#endif
+
+#ifdef CONFIG_TDLS
+	DBG_871X_SEL_NL(sel, "CONFIG_TDLS\n");
+#endif
 
 #ifdef CONFIG_USB_HCI
 	#ifdef CONFIG_SUPPORT_USB_INT	

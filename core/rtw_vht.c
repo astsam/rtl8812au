@@ -606,7 +606,7 @@ u32	rtw_build_vht_op_mode_notify_ie(_adapter *padapter, u8 *pbuf, u8 bw)
 
 u32	rtw_build_vht_cap_ie(_adapter *padapter, u8 *pbuf)
 {
-	u8	bw, rf_type, rf_num;
+	u8	bw, rf_type, rf_num, rx_stbc_nss = 0;
 	u16	HighestRate;
 	u8	*pcap, *pcap_mcs;
 	u32	len = 0;
@@ -651,13 +651,9 @@ u32	rtw_build_vht_cap_ie(_adapter *padapter, u8 *pbuf)
 	// B8 B9 B10 Rx STBC
 	if(TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX))
 	{
-		rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
-		if ((rf_type == RF_2T2R) || (rf_type == RF_1T2R)) 
-			rf_num = 1;		
-		else if (rf_type == RF_1T1R) 
-			rf_num = 1;		
+		rtw_hal_get_def_var(padapter, HAL_DEF_RX_STBC, (u8 *)(&rx_stbc_nss));
 		
-		SET_VHT_CAPABILITY_ELE_RX_STBC(pcap, rf_num);
+		SET_VHT_CAPABILITY_ELE_RX_STBC(pcap, rx_stbc_nss);
 	}
 
 	// B11 SU Beamformer Capable

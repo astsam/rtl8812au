@@ -293,7 +293,6 @@ void Hal_ReadRFGainOffset(PADAPTER pAdapter,u8* hwinfo,BOOLEAN AutoLoadFail);
 void rtl8188e_init_default_value(_adapter *adapter);
 
 void rtl8188e_set_hal_ops(struct hal_ops *pHalFunc);
-void init_hal_spec_8188e(_adapter *adapter);
 
 // register
 void SetBcnCtrlReg(PADAPTER padapter, u8 SetBits, u8 ClearBits);

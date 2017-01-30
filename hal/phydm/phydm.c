@@ -309,6 +309,7 @@ odm_CommonInfoSelfInit(
 	pDM_Odm->number_active_client = 0;
 	pDM_Odm->pre_number_active_client = 0;
 	phydm_hook_dummy_member(pDM_Odm);
+	pDM_Odm->nbi_set_result = 0;
 	
 }
 
@@ -545,7 +546,10 @@ ODM_DMReset(
 	IN		PDM_ODM_T		pDM_Odm
 	)
 {
-	ODM_AntDivReset(pDM_Odm);
+	pDIG_T pDM_DigTable = &pDM_Odm->DM_DigTable;
+	
+	ODM_AntDivReset(pDM_Odm);	
+	phydm_setEDCCAThresholdAPI(pDM_Odm, pDM_DigTable->CurIGValue);
 }
 
 
@@ -2234,6 +2238,260 @@ phydm_NoisyDetection(
 	("[NoisyDetection] Total_CCA_Cnt=%d, Total_FA_Cnt=%d, NoisyDecision_Smooth=%d, Score=%d, Score_Smooth=%d, pDM_Odm->NoisyDecision=%d\n",
 	Total_CCA_Cnt, Total_FA_Cnt, pDM_Odm->NoisyDecision_Smooth, Score, Score_Smooth, pDM_Odm->NoisyDecision));
 	
+}
+
+VOID
+phydm_set_nbi_reg(
+	IN		PVOID		pDM_VOID,
+	IN		u4Byte		channel,
+	IN		u4Byte		tone_idx_tmp,
+	IN		u4Byte		bw
+)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
+	u4Byte	nbi_table_128[NBI_TABLE_SIZE_128] = {25, 55, 85, 115, 135, 155, 185, 205, 225, 245,		/*1~10*/		/*tone_idx X 10*/
+												265, 285, 305, 335, 355, 375, 395, 415, 435, 455,	/*11~20*/
+												485, 505, 525, 555, 585, 615, 635};				/*21~27*/
+	
+	u4Byte	nbi_table_256[NBI_TABLE_SIZE_256] = { 25,   55,   85, 115, 135, 155, 175, 195, 225, 245,	/*1~10*/
+												265, 285, 305, 325, 345, 365, 385, 405, 425, 445,	/*11~20*/
+												465, 485, 505, 525, 545, 565, 585, 605, 625, 645,	/*21~30*/
+												665, 695, 715, 735, 755, 775, 795, 815, 835, 855,	/*31~40*/
+												875, 895, 915, 935, 955, 975, 995, 1015, 1035, 1055,	/*41~50*/
+												1085, 1105, 1125, 1145, 1175, 1195, 1225, 1255, 1275};	/*51~59*/
+
+	u4Byte	reg_idx = 0;
+	u4Byte	i;
+	u1Byte	nbi_table_idx = NBI_128_FFT_TYPE;
+
+	if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
+		
+		nbi_table_idx = NBI_128_FFT_TYPE;
+	} else if (pDM_Odm->SupportICType & ODM_IC_11AC_1_SERIES) {
+	
+		nbi_table_idx = NBI_256_FFT_TYPE;
+	} else if (pDM_Odm->SupportICType & ODM_IC_11AC_2_SERIES) {
+	
+		if (bw == 80)
+			nbi_table_idx = NBI_256_FFT_TYPE;
+		else /*20M, 40M*/
+			nbi_table_idx = NBI_128_FFT_TYPE;
+	}
+
+	if (nbi_table_idx == NBI_128_FFT_TYPE) {
+		
+		for (i = 0; i < NBI_TABLE_SIZE_128; i++) {
+			if (tone_idx_tmp < nbi_table_128[i]) {
+				reg_idx = i+1;
+				break;
+			}
+		}
+		
+	} else if (nbi_table_idx == NBI_256_FFT_TYPE) {
+
+		for (i = 0; i < NBI_TABLE_SIZE_256; i++) {
+			if (tone_idx_tmp < nbi_table_256[i]) {
+				reg_idx = i+1;
+				break;
+			}
+		}	
+	}
+
+	if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
+		ODM_SetBBReg(pDM_Odm, 0xc40, 0x1f000000, reg_idx);
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("Set tone idx:  Reg0xC40[28:24] = ((0x%x))\n", reg_idx));
+		/**/
+	} else {
+		ODM_SetBBReg(pDM_Odm, 0x87c, 0xfc000, reg_idx);
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("Set tone idx: Reg0x87C[19:14] = ((0x%x))\n", reg_idx));
+		/**/
+	}
+}
+
+
+VOID
+phydm_nbi_enable(
+	IN		PVOID		pDM_VOID,
+	IN		u4Byte		enable
+)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
+	u4Byte		reg_value = 0;
+
+	if (enable == NBI_ENABLE)
+		reg_value = 1;
+	else if (enable == NBI_DISABLE)
+		reg_value = 0;
+	
+	if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
+
+		ODM_SetBBReg(pDM_Odm, 0xc40, BIT9, reg_value);
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("Enable NBI Reg0xC40[9] = ((0x%x))\n", reg_value));
+		
+	} else if (pDM_Odm->SupportICType & ODM_IC_11AC_SERIES) {
+
+		ODM_SetBBReg(pDM_Odm, 0x87c, BIT13, reg_value);
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("Enable NBI Reg0x87C[13] = ((0x%x))\n", reg_value));
+	}
+}
+
+u1Byte
+phydm_nbi_setting(
+	IN		PVOID		pDM_VOID,
+	IN		u4Byte		enable,
+	IN		u4Byte		channel,
+	IN		u4Byte		bw,
+	IN		u4Byte		f_interference,
+	IN		u4Byte		Second_ch
+)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
+	u4Byte		fc, fc_offset;	
+	u4Byte		bw_up, bw_low;	
+	u4Byte		int_distance;
+	u4Byte		tone_idx_tmp;
+	u4Byte		i;
+	u4Byte		start_ch_per_40m[NUM_START_CH_40M] = {36, 44, 52, 60, 100, 108, 116, 124, 132, 140, 149, 157, 165, 173};
+	u4Byte		start_ch_per_80m[NUM_START_CH_80M] = {36, 52, 100, 116, 132, 149, 165}; 
+	pu4Byte		p_start_ch = &(start_ch_per_40m[0]);
+	u4Byte		num_start_channel = NUM_START_CH_40M;
+	u4Byte		channel_offset = 0;
+	
+
+	phydm_nbi_enable(pDM_Odm, enable);
+
+	if (enable == NBI_DISABLE) {
+		
+		return	NBI_SET_SUCCESS;
+		/**/
+	}
+
+
+		
+	/*2.4G*/
+	if (channel <= 14 && channel > 0) {
+
+		if (bw == 80) {
+			phydm_nbi_enable(pDM_Odm, NBI_DISABLE);
+			return	NBI_SET_ERROR;
+		}
+
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("[Set NBI] CH = ((%d)), BW = ((%d)), f_intf = ((%d)), Scnd_CH = ((%s))\n", 
+		channel, bw, f_interference, ((bw == 20) ? "Don't care" : (Second_ch == PHYDM_ABOVE) ? "H" : "L")));
+		
+		fc = 2412 + (channel - 1)*5;
+
+		if (bw == 40 && (Second_ch == PHYDM_ABOVE)) {
+			
+			if (channel >= 10) {
+				ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("CH = ((%d)), Scnd_CH = ((%d)) Error Setting\n", channel, Second_ch));
+				phydm_nbi_enable(pDM_Odm, NBI_DISABLE);
+				return	NBI_SET_ERROR;
+			}
+			fc += 10;
+		} else if (bw == 40 && (Second_ch == PHYDM_BELOW)) {
+		
+			if (channel <= 2) {
+				ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("CH = ((%d)), Scnd_CH = ((%d)) Error Setting\n", channel, Second_ch));
+				phydm_nbi_enable(pDM_Odm, NBI_DISABLE);
+				return	NBI_SET_ERROR;
+			}
+			fc -= 10;
+		}
+	}
+	/*5G*/
+	else if (channel >= 36 && channel <= 177) {
+
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("[Set NBI] CH = ((%d)), BW = ((%d)), f_intf = ((%d))\n", 
+		channel, bw, f_interference));
+
+		if (bw != 20) {
+			
+			if (bw == 40) {
+				num_start_channel = NUM_START_CH_40M;
+				p_start_ch = &(start_ch_per_40m[0]);
+				channel_offset = CH_OFFSET_40M;
+			} else if (bw == 80) {
+				num_start_channel = NUM_START_CH_80M;
+				p_start_ch = &(start_ch_per_80m[0]);
+				channel_offset = CH_OFFSET_80M;
+			}
+
+			for (i = 0; i < num_start_channel; i++) {
+				
+				if (channel < p_start_ch[i+1]) {
+					channel = p_start_ch[i] + channel_offset;
+					break;
+				}
+			}
+			ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("Mod_CH = ((%d))\n", channel));
+		}
+		
+		fc = 5180 + (channel-36)*5;
+		
+	} else {
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("CH = ((%d)) Error Setting\n", channel));
+		phydm_nbi_enable(pDM_Odm, NBI_DISABLE);
+		return	NBI_SET_ERROR;
+	}
+
+	bw_up = fc + bw/2;
+	bw_low = fc - bw/2;
+
+	ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("[f_l, fc, fh] = [ %d, %d, %d ], f_int = ((%d))\n", bw_low, fc, bw_up, f_interference));
+
+	if ((f_interference >= bw_low) && (f_interference <= bw_up)) {
+
+		int_distance = (fc >= f_interference) ? (fc - f_interference) : (f_interference - fc);
+		tone_idx_tmp = (int_distance<<5);  /* =10*(int_distance /0.3125) */
+		ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("int_distance = ((%d MHz)) Mhz, tone_idx_tmp = ((%d.%d))\n", int_distance, (tone_idx_tmp/10), (tone_idx_tmp%10)));
+		phydm_set_nbi_reg(pDM_Odm, channel, tone_idx_tmp, bw);
+		return	NBI_SET_SUCCESS;
+
+	} else {
+		phydm_nbi_enable(pDM_Odm, NBI_DISABLE);
+		return	NBI_SET_NO_NEED;
+	}
+}
+
+VOID
+phydm_nbi_debug(
+	IN		PVOID		pDM_VOID,
+	IN		u4Byte		*const dm_value,
+	IN		u4Byte		*_used,
+	OUT		char			*output,
+	IN		u4Byte		*_out_len
+	)
+{
+	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
+	u4Byte			used = *_used;
+	u4Byte			out_len = *_out_len;
+	u4Byte			channel =  dm_value[1];
+	u4Byte			bw =  dm_value[2];
+	u4Byte			f_interference =  dm_value[3];
+	u4Byte			Second_ch =  dm_value[4];
+	u1Byte			set_result = 0;
+
+	if (dm_value[0] == 100) {
+		
+		PHYDM_SNPRINTF((output+used, out_len-used, "[HELP]  EN(on=1, off=2)   CH   BW(20/40/80)  f_intf(Mhz)    Scnd_CH(L=1, H=2)\n"));
+		return;
+		
+	} else if (dm_value[0] == NBI_ENABLE) {
+	
+		PHYDM_SNPRINTF((output+used, out_len-used, "[Enable NBI] CH = ((%d)), BW = ((%d)), f_intf = ((%d)), Scnd_CH = ((%s))\n", channel, bw, f_interference, (channel > 14)?"Don't care":((Second_ch == PHYDM_ABOVE) ? "H" : "L")));
+		set_result = phydm_nbi_setting(pDM_Odm,	NBI_ENABLE, channel, bw, f_interference, Second_ch);
+		
+	} else if (dm_value[0] == NBI_DISABLE) {
+	
+		PHYDM_SNPRINTF((output+used, out_len-used, "[Disable NBI]\n"));
+		set_result = phydm_nbi_setting(pDM_Odm, NBI_DISABLE, channel, bw, f_interference, Second_ch);
+		
+	} else {
+	
+		set_result = NBI_SET_ERROR;
+	}
+	PHYDM_SNPRINTF((output+used, out_len-used, "[NBI set result: %s]\n", (set_result == NBI_SET_SUCCESS) ? "Success" : ((set_result == NBI_SET_NO_NEED) ? "No need" : "Error")));
 }
 
 

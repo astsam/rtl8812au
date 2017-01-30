@@ -1351,7 +1351,8 @@ enum PHYDM_CMD_ID {
 	PHYDM_API,
 	PHYDM_TRX_PATH,
 	PHYDM_LA_MODE,
-	PHYDM_DUMP_REG
+	PHYDM_DUMP_REG,
+	PHYDM_NBI_EN
 };
 
 struct _PHYDM_COMMAND phy_dm_ary[] = {
@@ -1367,7 +1368,8 @@ struct _PHYDM_COMMAND phy_dm_ary[] = {
 	{"api", PHYDM_API},
 	{"trxpath", PHYDM_TRX_PATH},
 	{"lamode", PHYDM_LA_MODE},
-	{"dumpreg", PHYDM_DUMP_REG}
+	{"dumpreg", PHYDM_DUMP_REG},
+	{"nbi", PHYDM_NBI_EN}
 };
 
 VOID
@@ -1669,6 +1671,24 @@ phydm_cmd_parser(
 			phydm_DumpAllReg(pDM_Odm);
 	}
 		break;
+	case PHYDM_NBI_EN:
+		
+		for (i = 0; i < 5; i++) {
+			if (input[i + 1]) {
+				PHYDM_SSCANF(input[i + 1], DCMD_DECIMAL, &var1[i]);
+				input_idx++;
+			}
+		}
+
+		if (input_idx >= 1) {
+			
+			phydm_nbi_debug(pDM_Odm, (u4Byte *)var1, &used, output, &out_len);
+			/**/
+		}
+
+
+		break;
+
 	default:
 		PHYDM_SNPRINTF((output + used, out_len - used, "SET, unknown command!\n"));
 		break;

@@ -431,6 +431,7 @@ _func_enter_;
 #endif
 		/* init for the sequence number of received management frame */
 		psta->RxMgmtFrameSeqNum = 0xffff;
+		psta->ra_rpt_linked = _FALSE;
 
 		//alloc mac id for non-bc/mc station,
 		rtw_alloc_macid(pstapriv->padapter, psta);

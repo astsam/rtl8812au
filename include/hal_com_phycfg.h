@@ -74,6 +74,13 @@ typedef struct _BB_REGISTER_DEFINITION{
 
 
 //----------------------------------------------------------------------
+s32
+phy_TxPwrIdxToDbm(
+	IN	PADAPTER		Adapter,
+	IN	WIRELESS_MODE	WirelessMode,
+	IN	u8				TxPwrIdx	
+	);
+
 u8
 PHY_GetTxPowerByRateBase(
 	IN	PADAPTER		Adapter,
@@ -83,14 +90,12 @@ PHY_GetTxPowerByRateBase(
 	IN	RATE_SECTION	RateSection
 	);
 
-#ifdef TX_POWER_BY_RATE_OLD
 u8
 PHY_GetRateSectionIndexOfTxPowerByRate(
 	IN	PADAPTER	pAdapter,
 	IN	u32			RegAddr,
 	IN	u32			BitMask
 	);
-#endif /* TX_POWER_BY_RATE_OLD */
 
 VOID
 PHY_GetRateValuesOfTxPowerByRate(
@@ -114,15 +119,6 @@ PHY_SetTxPowerIndexByRateSection(
 	IN	u8				RFPath,	
 	IN	u8				Channel,
 	IN	u8				RateSection
-	);
-
-s8
-_PHY_GetTxPowerByRate(
-	IN	PADAPTER	pAdapter,
-	IN	u8			Band,
-	IN	u8			RFPath,
-	IN	u8			TxNum,
-	IN	u8			RateIndex
 	);
 
 s8
@@ -237,20 +233,9 @@ PHY_SetTxPowerIndex(
 	IN	u8				Rate
 	);
 
-bool phy_is_tx_power_limit_needed(_adapter *adapter);
-bool phy_is_tx_power_by_rate_needed(_adapter *adapter);
-int phy_load_tx_power_by_rate(_adapter *adapter, const char *hal_file_name, u8 force);
-int phy_load_tx_power_limit(_adapter *adapter, const char *hal_file_name, u8 force);
-void phy_load_tx_power_ext_info(_adapter *adapter, u8 chk_file, u8 force);
-void phy_reload_tx_power_ext_info(_adapter *adapter);
-void phy_reload_default_tx_power_ext_info(_adapter *adapter);
-
-void dump_tx_power_ext_info(void *sel, _adapter *adapter);
-void dump_target_tx_power(void *sel, _adapter *adapter);
+void dump_tx_power_by_rate_base(void *sel, _adapter *adapter);
 void dump_tx_power_by_rate(void *sel, _adapter *adapter);
 void dump_tx_power_limit(void *sel, _adapter *adapter);
-
-int rtw_is_phy_file_readable(const char *hal_file_name);
 
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 #define MAX_PARA_FILE_BUF_LEN	25600
@@ -267,7 +252,7 @@ int phy_ConfigMACWithParaFile(IN PADAPTER	Adapter, IN char*	pFileName);
 
 int phy_ConfigBBWithParaFile(IN PADAPTER	Adapter, IN char*	pFileName, IN u32	ConfigType);
 
-int phy_ConfigBBWithPgParaFile(IN PADAPTER	Adapter, IN const char *pFileName);
+int phy_ConfigBBWithPgParaFile(IN PADAPTER	Adapter, IN char*	pFileName);
 
 int phy_ConfigBBWithMpParaFile(IN PADAPTER	Adapter, IN char*	pFileName);
 
@@ -275,11 +260,11 @@ int PHY_ConfigRFWithParaFile(IN	PADAPTER	Adapter, IN char*	pFileName, IN u8	eRFP
 
 int PHY_ConfigRFWithTxPwrTrackParaFile(IN PADAPTER	Adapter, IN char*	pFileName);
 
-int PHY_ConfigRFWithPowerLimitTableParaFile(IN PADAPTER	Adapter, IN const char *pFileName);
+int PHY_ConfigRFWithPowerLimitTableParaFile(IN PADAPTER	Adapter, IN char*	pFileName);
 
-void phy_free_filebuf_mask(_adapter *padapter, u8 mask);
 void phy_free_filebuf(_adapter *padapter);
-#endif /* CONFIG_LOAD_PHY_PARA_FROM_FILE */
+#endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 
-#endif /* __HAL_COMMON_H__ */
+
+#endif //__HAL_COMMON_H__
 

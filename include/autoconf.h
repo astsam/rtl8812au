@@ -26,8 +26,8 @@
  * Public  General Config
  */
 #define AUTOCONF_INCLUDED
-#define RTL871X_MODULE_NAME "8821AU"
-#define DRV_NAME "rtl8821au"
+#define RTL871X_MODULE_NAME "8814AU"
+#define DRV_NAME "rtl8814au"
 
 
 #define CONFIG_USB_HCI	1
@@ -36,7 +36,7 @@
 #define PLATFORM_LINUX	1
 
 
-//#define CONFIG_IOCTL_CFG80211 1
+#define CONFIG_IOCTL_CFG80211 1
 
 #ifdef CONFIG_IOCTL_CFG80211
 	//#define RTW_USE_CFG80211_STA_EVENT /* Indecate new sta asoc through cfg80211_new_sta */
@@ -44,6 +44,7 @@
 	//#define CONFIG_DEBUG_CFG80211 
 	//#define CONFIG_DRV_ISSUE_PROV_REQ // IOT FOR S2
 	#define CONFIG_SET_SCAN_DENY_TIMER
+	/*#define SUPPLICANT_RTK_VERSION_LOWER_THAN_JB42*/ /* wpa_supplicant realtek version <= jb42 will be defined this */
 #endif
 
 /*
@@ -54,7 +55,7 @@
 #define CONFIG_EMBEDDED_FWIMG	1
 //#define CONFIG_FILE_FWIMG
 
-#define CONFIG_XMIT_ACK
+//#define CONFIG_XMIT_ACK
 #ifdef CONFIG_XMIT_ACK
 	#define CONFIG_ACTIVE_KEEP_ALIVE_CHECK
 #endif
@@ -64,18 +65,16 @@
 #ifdef CONFIG_80211N_HT
 	#define CONFIG_80211AC_VHT 1
 	#define CONFIG_BEAMFORMING
-
+	
 	#ifdef CONFIG_BEAMFORMING
-		#define CONFIG_BEAMFORMER_FW_NDPA
 		#define CONFIG_PHYDM_BEAMFORMING
-		#ifdef CONFIG_PHYDM_BEAMFORMING	
-		#define BEAMFORMING_SUPPORT		1	/*for phydm beamforming*/
-		#define SUPPORT_MU_BF				0
+		#ifdef CONFIG_PHYDM_BEAMFORMING		
+		#define BEAMFORMING_SUPPORT			1	/*for phydm beamforming*/
+		#define SUPPORT_MU_BF					0
 		#else
-		#define BEAMFORMING_SUPPORT		0	/*for driver beamforming*/
+		#define BEAMFORMING_SUPPORT			0	/*for driver beamforming*/
 		#endif
 	#endif
-
 #endif
 
 #define CONFIG_RECV_REORDERING_CTRL	1
@@ -83,6 +82,8 @@
 //#define CONFIG_TCP_CSUM_OFFLOAD_RX	1
 
 //#define CONFIG_DRVEXT_MODULE	1
+
+#define CONFIG_RF_GAIN_OFFSET
 
 #define CONFIG_DFS	1
 
@@ -94,7 +95,7 @@
 //#ifndef CONFIG_MP_INCLUDED
 	#define CONFIG_IPS	1
 	#ifdef CONFIG_IPS
-	//#define CONFIG_IPS_LEVEL_2	1 //enable this to set default IPS mode to IPS_LEVEL_2
+	//#define CONFIG_IPS_LEVEL_2	1 //enable this to set default IPS mode to IPS_LEVEL_2	
 	#define CONFIG_IPS_CHECK_IN_WD // Do IPS Check in WatchDog.	
 	#endif
 	//#define SUPPORT_HW_RFOFF_DETECTED	1
@@ -124,9 +125,8 @@
 		//#define DBG_RUNTIME_PORT_SWITCH
 		#define CONFIG_SCAN_BACKOP
 		//#ifdef CONFIG_RTL8812A
-		//#define CONFIG_TSF_RESET_OFFLOAD 1		// For 2 PORT TSF SYNC.
+		//	#define CONFIG_TSF_RESET_OFFLOAD 1		// For 2 PORT TSF SYNC.
 		//#endif
-		//#define CONFIG_MULTI_VIR_IFACES //besides primary&secondary interfaces, extend to support more interfaces
 	#endif
 
 //#else 	//#ifndef CONFIG_MP_INCLUDED
@@ -149,14 +149,13 @@
 		#define CONFIG_HOSTAPD_MLME	1
 	#endif			
 	#define CONFIG_FIND_BEST_CHANNEL	1
-	//#define	CONFIG_AUTO_AP_MODE
 #endif
 
 #define CONFIG_P2P	1
 #ifdef CONFIG_P2P
 	//The CONFIG_WFD is for supporting the Wi-Fi display
 	#define CONFIG_WFD
-
+	
 	#define CONFIG_P2P_REMOVE_GROUP_INFO
 
 	//#define CONFIG_DBG_P2P
@@ -176,19 +175,9 @@
 //	#endif
 //	#define CONFIG_TDLS_AUTOSETUP
 	#define CONFIG_TDLS_AUTOCHECKALIVE
-	#define CONFIG_TDLS_CH_SW		
+	#define CONFIG_TDLS_CH_SW		/* Enable "CONFIG_TDLS_CH_SW" by default, however limit it to only work in wifi logo test mode but not in normal mode currently */
 #endif
 
-#ifdef CONFIG_BT_COEXIST
-	// for ODM and outsrc BT-Coex
-	#define BT_30_SUPPORT 1
-
-	#ifndef CONFIG_LPS
-		#define CONFIG_LPS	// download reserved page to FW
-	#endif
-#else // !CONFIG_BT_COEXIST
-	#define BT_30_SUPPORT 0
-#endif // !CONFIG_BT_COEXIST
 
 #define CONFIG_SKB_COPY	1//for amsdu
 
@@ -219,16 +208,6 @@
 #define CONFIG_TX_MCAST2UNI		/*Support IP multicast->unicast*/
 //#define CONFIG_CHECK_AC_LIFETIME 1	// Check packet lifetime of 4 ACs.
 
-#ifdef CONFIG_WOWLAN
-	//#define CONFIG_GTK_OL
-	#define CONFIG_ARP_KEEP_ALIVE
-#endif // CONFIG_WOWLAN
-
-#ifdef CONFIG_GPIO_WAKEUP
-	#ifndef WAKEUP_GPIO_IDX
-		#define WAKEUP_GPIO_IDX	1	// WIFI Chip Side
-	#endif // !WAKEUP_GPIO_IDX
-#endif // CONFIG_GPIO_WAKEUP
 
 /* 
  * Interface  Related Config 
@@ -268,6 +247,16 @@
 
 //#define CONFIG_USB_SUPPORT_ASYNC_VDN_REQ 1
 
+#ifdef CONFIG_WOWLAN
+	//#define CONFIG_GTK_OL
+	#define CONFIG_ARP_KEEP_ALIVE
+#endif // CONFIG_WOWLAN
+
+#ifdef CONFIG_GPIO_WAKEUP
+	#ifndef WAKEUP_GPIO_IDX
+#define WAKEUP_GPIO_IDX	1	//WIFI Chip Side
+	#endif // !WAKEUP_GPIO_IDX
+#endif // CONFIG_GPIO_WAKEUP
 
 /*
  * HAL  Related Config
@@ -317,7 +306,6 @@
 #endif//CONFIG_PLATFORM_MN10300
 
 
-
 #if defined(CONFIG_PLATFORM_ACTIONS_ATM702X)
 	#ifdef CONFIG_USB_TX_AGGREGATION	
 		#undef CONFIG_USB_TX_AGGREGATION
@@ -327,12 +315,19 @@
 	#endif
 	#ifndef CONFIG_USE_USB_BUFFER_ALLOC_RX
 		#define CONFIG_USE_USB_BUFFER_ALLOC_RX
-		#ifdef CONFIG_PREALLOC_RECV_SKB
-			#undef CONFIG_PREALLOC_RECV_SKB
-		#endif
 	#endif
 #endif
 
+#ifdef CONFIG_BT_COEXIST
+	// for ODM and outsrc BT-Coex
+	#define BT_30_SUPPORT 1
+	#define CONFIG_BT_COEXIST_SOCKET_TRX
+	#ifndef CONFIG_LPS
+		#define CONFIG_LPS	// download reserved page to FW
+	#endif
+#else // !CONFIG_BT_COEXIST
+	#define BT_30_SUPPORT 0
+#endif // !CONFIG_BT_COEXIST
 
 
 
@@ -383,5 +378,5 @@
 //#define DBG_HAL_INIT_PROFILING
 
 //#define DBG_MEMORY_LEAK	1
-/*#define DBG_UDP_PKT_LOSE_11AC */
-
+//#define CONFIG_FW_C2H_DEBUG 
+/*#define	DBG_RX_DFRAME_RAW_DATA*/

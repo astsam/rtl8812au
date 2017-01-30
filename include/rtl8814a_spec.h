@@ -78,7 +78,8 @@
 #define REG_HIMR1_8814A					0x00B8
 #define REG_HISR1_8814A					0x00BC
 #define REG_SYS_CFG1_8814A				0x00F0
-#define REG_SYS_CFG2_8814A				0x00FC 
+#define REG_SYS_CFG2_8814A				0x00FC
+#define REG_SYS_CFG3_8814A				0x1000
 
 //-----------------------------------------------------
 //
@@ -372,6 +373,7 @@
 #define REG_TIMER1_8814A					0x0588
 #define REG_BCN_PREDL_ITV_8814A			0x058F	//Pre download beacon interval
 #define REG_ACMHWCTRL_8814A				0x05C0
+#define REG_P2P_RST_8814A				0x05F0
 
 //-----------------------------------------------------
 //

@@ -111,7 +111,7 @@ int rtw_ht_enable = 1;
 // 0x21 means enable 2.4G 40MHz & 5G 80MHz
 int rtw_bw_mode = 0x21;
 int rtw_ampdu_enable = 1;//for enable tx_ampdu ,// 0: disable, 0x1:enable (but wifi_spec should be 0), 0x2: force enable (don't care wifi_spec)
-int rtw_rx_stbc = 1;// 0: disable, bit(0):enable 2.4g, bit(1):enable 5g, default is set to enable 2.4GHZ for IOT issue with bufflao's AP at 5GHZ
+int rtw_rx_stbc = 3;// 0: disable, bit(0):enable 2.4g, bit(1):enable 5g, default is set to enable 2.4GHZ for IOT issue with bufflao's AP at 5GHZ
 int rtw_ampdu_amsdu = 0;// 0: disabled, 1:enabled, 2:auto . There is an IOT issu with DLINK DIR-629 when the flag turn on
 // Short GI support Bit Map
 // BIT0 - 20MHz, 0: non-support, 1: support
@@ -120,9 +120,9 @@ int rtw_ampdu_amsdu = 0;// 0: disabled, 1:enabled, 2:auto . There is an IOT issu
 // BIT3 - 160MHz, 0: non-support, 1: support
 int rtw_short_gi = 0xf;
 // BIT0: Enable VHT LDPC Rx, BIT1: Enable VHT LDPC Tx, BIT4: Enable HT LDPC Rx, BIT5: Enable HT LDPC Tx
-int rtw_ldpc_cap = 0x00;
+int rtw_ldpc_cap = 0x33;
 // BIT0: Enable VHT STBC Rx, BIT1: Enable VHT STBC Tx, BIT4: Enable HT STBC Rx, BIT5: Enable HT STBC Tx
-int rtw_stbc_cap = 0x13;
+int rtw_stbc_cap = 0x33;
 // BIT0: Enable VHT Beamformer, BIT1: Enable VHT Beamformee, BIT4: Enable HT Beamformer, BIT5: Enable HT Beamformee
 int rtw_beamform_cap = 0x2;
 int rtw_bfer_rf_number = 0; /*BeamformerCapRfNum Rf path number, 0 for auto, others for manual*/
@@ -169,7 +169,8 @@ int rtw_AcceptAddbaReq = _TRUE;// 0:Reject AP's Add BA req, 1:Accept AP's Add BA
 int rtw_antdiv_cfg = 2; // 0:OFF , 1:ON, 2:decide by Efuse config
 int rtw_antdiv_type = 0 ; //0:decide by efuse  1: for 88EE, 1Tx and 1RxCG are diversity.(2 Ant with SPDT), 2:  for 88EE, 1Tx and 2Rx are diversity.( 2 Ant, Tx and RxCG are both on aux port, RxCS is on main port ), 3: for 88EE, 1Tx and 1RxCG are fixed.(1Ant, Tx and RxCG are both on aux port)
 
-int rtw_switch_usb3 = _FALSE; /* _FALSE: doesn't switch, _TRUE: switch from usb2.0 to usb 3.0 */
+/* 0: doesn't switch, 1: switch from usb2.0 to usb 3.0 2: switch from usb3.0 to usb 2.0 */
+int rtw_switch_usb_mode = 0;
 
 #ifdef CONFIG_USB_AUTOSUSPEND
 int rtw_enusbss = 1;//0:disable,1:enable
@@ -280,7 +281,7 @@ module_param(rtw_wifi_spec, int, 0644);
 module_param(rtw_antdiv_cfg, int, 0644);
 module_param(rtw_antdiv_type, int, 0644);
 
-module_param(rtw_switch_usb3, int, 0644);
+module_param(rtw_switch_usb_mode, int, 0644);
 
 module_param(rtw_enusbss, int, 0644);
 module_param(rtw_hwpdn_mode, int, 0644);
@@ -402,13 +403,26 @@ uint rtw_kfree = 0;
 module_param(rtw_kfree, uint, 0644);
 MODULE_PARM_DESC(rtw_kfree, "default kfree config value:0");
 
+uint rtw_rxgain_offset_2g = 0;
+module_param(rtw_rxgain_offset_2g, uint, 0644);
+MODULE_PARM_DESC(rtw_rxgain_offset_2g, "default RF Gain 2G Offset value:0");
+
+uint rtw_rxgain_offset_5gl = 0;
+module_param(rtw_rxgain_offset_5gl, uint, 0644);
+MODULE_PARM_DESC(rtw_rxgain_offset_5gl, "default RF Gain 5GL Offset value:0");
+
+uint rtw_rxgain_offset_5gm = 0;
+module_param(rtw_rxgain_offset_5gm, uint, 0644);
+MODULE_PARM_DESC(rtw_rxgain_offset_5gm, "default RF Gain 5GM Offset value:0");
+
+uint rtw_rxgain_offset_5gh = 0;
+module_param(rtw_rxgain_offset_5gh, uint, 0644);
+MODULE_PARM_DESC(rtw_rxgain_offset_5gm, "default RF Gain 5GL Offset value:0");
+
+
 uint rtw_pll_ref_clk_sel = CONFIG_RTW_PLL_REF_CLK_SEL;
 module_param(rtw_pll_ref_clk_sel, uint, 0644);
 MODULE_PARM_DESC(rtw_pll_ref_clk_sel, "force pll_ref_clk_sel, 0xF:use autoload value");
-
-int rtw_fwoffload = 0; /* 0 default disable , 2 for enable */
-module_param(rtw_fwoffload, int, 0644);
-MODULE_PARM_DESC(rtw_fwoffload, "for FW offload control");
 
 #if defined(CONFIG_CALIBRATE_TX_POWER_BY_REGULATORY) //eFuse: Regulatory selection=1
 int rtw_tx_pwr_lmt_enable = 1;
@@ -431,48 +445,6 @@ MODULE_PARM_DESC(rtw_tx_pwr_lmt_enable,"0:Disable, 1:Enable, 2: Depend on efuse"
 
 module_param(rtw_tx_pwr_by_rate, int, 0644);
 MODULE_PARM_DESC(rtw_tx_pwr_by_rate,"0:Disable, 1:Enable, 2: Depend on efuse");
-
-static int rtw_target_tx_pwr_2g_a[RATE_SECTION_NUM] = CONFIG_RTW_TARGET_TX_PWR_2G_A;
-static int rtw_target_tx_pwr_2g_a_num = 0;
-module_param_array(rtw_target_tx_pwr_2g_a, int, &rtw_target_tx_pwr_2g_a_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_2g_a, "2.4G target tx power (unit:dBm) of RF path A for each rate section, should match the real calibrate power, -1: undefined");
-
-static int rtw_target_tx_pwr_2g_b[RATE_SECTION_NUM] = CONFIG_RTW_TARGET_TX_PWR_2G_B;
-static int rtw_target_tx_pwr_2g_b_num = 0;
-module_param_array(rtw_target_tx_pwr_2g_b, int, &rtw_target_tx_pwr_2g_b_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_2g_b, "2.4G target tx power (unit:dBm) of RF path B for each rate section, should match the real calibrate power, -1: undefined");
-
-static int rtw_target_tx_pwr_2g_c[RATE_SECTION_NUM] = CONFIG_RTW_TARGET_TX_PWR_2G_C;
-static int rtw_target_tx_pwr_2g_c_num = 0;
-module_param_array(rtw_target_tx_pwr_2g_c, int, &rtw_target_tx_pwr_2g_c_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_2g_c, "2.4G target tx power (unit:dBm) of RF path C for each rate section, should match the real calibrate power, -1: undefined");
-
-static int rtw_target_tx_pwr_2g_d[RATE_SECTION_NUM] = CONFIG_RTW_TARGET_TX_PWR_2G_D;
-static int rtw_target_tx_pwr_2g_d_num = 0;
-module_param_array(rtw_target_tx_pwr_2g_d, int, &rtw_target_tx_pwr_2g_d_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_2g_d, "2.4G target tx power (unit:dBm) of RF path D for each rate section, should match the real calibrate power, -1: undefined");
-
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-static int rtw_target_tx_pwr_5g_a[RATE_SECTION_NUM - 1] = CONFIG_RTW_TARGET_TX_PWR_5G_A;
-static int rtw_target_tx_pwr_5g_a_num = 0;
-module_param_array(rtw_target_tx_pwr_5g_a, int, &rtw_target_tx_pwr_5g_a_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_5g_a, "5G target tx power (unit:dBm) of RF path A for each rate section, should match the real calibrate power, -1: undefined");
-
-static int rtw_target_tx_pwr_5g_b[RATE_SECTION_NUM - 1] = CONFIG_RTW_TARGET_TX_PWR_5G_B;
-static int rtw_target_tx_pwr_5g_b_num = 0;
-module_param_array(rtw_target_tx_pwr_5g_b, int, &rtw_target_tx_pwr_5g_b_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_5g_b, "5G target tx power (unit:dBm) of RF path B for each rate section, should match the real calibrate power, -1: undefined");
-
-static int rtw_target_tx_pwr_5g_c[RATE_SECTION_NUM - 1] = CONFIG_RTW_TARGET_TX_PWR_5G_C;
-static int rtw_target_tx_pwr_5g_c_num = 0;
-module_param_array(rtw_target_tx_pwr_5g_c, int, &rtw_target_tx_pwr_5g_c_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_5g_c, "5G target tx power (unit:dBm) of RF path C for each rate section, should match the real calibrate power, -1: undefined");
-
-static int rtw_target_tx_pwr_5g_d[RATE_SECTION_NUM - 1] = CONFIG_RTW_TARGET_TX_PWR_5G_D;
-static int rtw_target_tx_pwr_5g_d_num = 0;
-module_param_array(rtw_target_tx_pwr_5g_d, int, &rtw_target_tx_pwr_5g_d_num, 0644);
-MODULE_PARM_DESC(rtw_target_tx_pwr_5g_d, "5G target tx power (unit:dBm) of RF path D for each rate section, should match the real calibrate power, -1: undefined");
-#endif /* CONFIG_IEEE80211_BAND_5GHZ */
 
 #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 char *rtw_phy_file_path = REALTEK_CONFIG_PATH;
@@ -500,42 +472,6 @@ static int netdev_close (struct net_device *pnetdev);
 #ifdef CONFIG_PLATFORM_INTEL_BYT
 extern int rtw_sdio_set_power(int on);
 #endif //CONFIG_PLATFORM_INTEL_BYT
-
-void rtw_regsty_load_target_tx_power(struct registry_priv *regsty)
-{
-	int path, rs;
-	int *target_tx_pwr;
-
-	for (path = RF_PATH_A; path < RF_PATH_MAX; path++) {
-		if (path == RF_PATH_A)
-			target_tx_pwr = rtw_target_tx_pwr_2g_a;
-		else if (path == RF_PATH_B)
-			target_tx_pwr = rtw_target_tx_pwr_2g_b;
-		else if (path == RF_PATH_C)
-			target_tx_pwr = rtw_target_tx_pwr_2g_c;
-		else if (path == RF_PATH_D)
-			target_tx_pwr = rtw_target_tx_pwr_2g_d;
-
-		for (rs = CCK; rs < RATE_SECTION_NUM; rs++)
-			regsty->target_tx_pwr_2g[path][rs] = target_tx_pwr[rs];
-	}
-
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	for (path = RF_PATH_A; path < RF_PATH_MAX; path++) {
-		if (path == RF_PATH_A)
-			target_tx_pwr = rtw_target_tx_pwr_5g_a;
-		else if (path == RF_PATH_B)
-			target_tx_pwr = rtw_target_tx_pwr_5g_b;
-		else if (path == RF_PATH_C)
-			target_tx_pwr = rtw_target_tx_pwr_5g_c;
-		else if (path == RF_PATH_D)
-			target_tx_pwr = rtw_target_tx_pwr_5g_d;
-
-		for (rs = OFDM; rs < RATE_SECTION_NUM; rs++)
-			regsty->target_tx_pwr_5g[path][rs - 1] = target_tx_pwr[rs - 1];
-	}
-#endif /* CONFIG_IEEE80211_BAND_5GHZ */
-}
 
 uint loadparam(_adapter *padapter)
 {
@@ -647,7 +583,7 @@ _func_enter_;
 	registry_par->antdiv_cfg = (u8)rtw_antdiv_cfg;
 	registry_par->antdiv_type = (u8)rtw_antdiv_type;
 	
-	registry_par->switch_usb3 = (u8)rtw_switch_usb3;
+	registry_par->switch_usb_mode = (u8)rtw_switch_usb_mode;
 
 #ifdef CONFIG_AUTOSUSPEND
 	registry_par->usbss_enable = (u8)rtw_enusbss;//0:disable,1:enable
@@ -698,8 +634,6 @@ _func_enter_;
 	registry_par->RegEnableTxPowerLimit = (u8)rtw_tx_pwr_lmt_enable;
 	registry_par->RegEnableTxPowerByRate = (u8)rtw_tx_pwr_by_rate;
 
-	rtw_regsty_load_target_tx_power(registry_par);
-
 	registry_par->RegPowerBase = 14;
 	registry_par->TxBBSwing_2G = (s8)rtw_TxBBSwing_2G;
 	registry_par->TxBBSwing_5G = (s8)rtw_TxBBSwing_5G;
@@ -729,10 +663,11 @@ _func_enter_;
 	registry_par->acs_mode = (u8)rtw_acs_mode;
 	registry_par->acs_auto_scan = (u8)rtw_acs_auto_scan;
 #endif
-
-	registry_par->Regfwoffload= (u8)rtw_fwoffload;
+	registry_par->reg_rxgain_offset_2g = (u32) rtw_rxgain_offset_2g;
+	registry_par->reg_rxgain_offset_5gl = (u32) rtw_rxgain_offset_5gl;
+	registry_par->reg_rxgain_offset_5gm = (u32) rtw_rxgain_offset_5gm;
+	registry_par->reg_rxgain_offset_5gh = (u32) rtw_rxgain_offset_5gh;
 _func_exit_;
-
 	return status;
 }
 
@@ -1698,8 +1633,9 @@ _func_enter_;
 #endif
 
 	rtw_hal_dm_init(padapter);
+#ifdef CONFIG_SW_LED
 	rtw_hal_sw_led_init(padapter);
-
+#endif
 #ifdef DBG_CONFIG_ERROR_DETECT
 	rtw_hal_sreset_init(padapter);
 #endif
@@ -2094,7 +2030,6 @@ void rtw_drv_stop_vir_if(_adapter *padapter)
 
 	pnetdev = padapter->pnetdev;
 
-	rtw_cancel_all_timer(padapter);
 
 	if (padapter->bup == _TRUE)
 	{
@@ -2112,6 +2047,9 @@ void rtw_drv_stop_vir_if(_adapter *padapter)
 
 		padapter->bup = _FALSE;
 	}
+
+	/* cancel timer after thread stop */
+	rtw_cancel_all_timer(padapter);
 }
 
 void rtw_drv_free_vir_if(_adapter *padapter)
@@ -2437,7 +2375,6 @@ void rtw_drv_if2_stop(_adapter *if2)
 	if (padapter == NULL)
 		return;
 
-	rtw_cancel_all_timer(padapter);
 
 	if (padapter->bup == _TRUE) {
 		#ifdef CONFIG_XMIT_ACK
@@ -2454,6 +2391,9 @@ void rtw_drv_if2_stop(_adapter *if2)
 
 		padapter->bup = _FALSE;
 	}
+
+	/* cancel timer after thread stop */
+	rtw_cancel_all_timer(padapter);
 }
 #endif //end of CONFIG_CONCURRENT_MODE
 
@@ -3118,14 +3058,27 @@ static int route_dump(u32 *gw_addr ,int* gw_index)
 
 	msg.msg_name = &nladdr;
 	msg.msg_namelen = sizeof(nladdr);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
+	/* referece:sock_xmit in kernel code
+	 * WRITE for sock_sendmsg, READ for sock_recvmsg
+	 * third parameter for msg_iovlen
+	 * last parameter for iov_len
+	 */
+	iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
+#else
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
+#endif
 	msg.msg_control = NULL;
 	msg.msg_controllen = 0;
 	msg.msg_flags = MSG_DONTWAIT;
 
 	oldfs = get_fs(); set_fs(KERNEL_DS);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+	err = sock_sendmsg(sock, &msg);
+#else
 	err = sock_sendmsg(sock, &msg, sizeof(req));
+#endif
 	set_fs(oldfs);
 
 	if (err < 0)
@@ -3147,6 +3100,10 @@ restart:
 
 		iov.iov_base = pg;
 		iov.iov_len = PAGE_SIZE;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
+		iov_iter_init(&msg.msg_iter, READ, &iov, 1, PAGE_SIZE);
+#endif
 
 		oldfs = get_fs(); set_fs(KERNEL_DS);
 		err = sock_recvmsg(sock, &msg, PAGE_SIZE, MSG_DONTWAIT);
@@ -3216,14 +3173,22 @@ done:
 
 		msg.msg_name = &nladdr;
 		msg.msg_namelen = sizeof(nladdr);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
+		iov_iter_init(&msg.msg_iter, WRITE, &iov, 1, sizeof(req));
+#else
 		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
+#endif
 		msg.msg_control = NULL;
 		msg.msg_controllen = 0;
 		msg.msg_flags=MSG_DONTWAIT;
 
 		oldfs = get_fs(); set_fs(KERNEL_DS);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+		err = sock_sendmsg(sock, &msg);
+#else
 		err = sock_sendmsg(sock, &msg, sizeof(req));
+#endif
 		set_fs(oldfs);
 
 		if (err > 0)
@@ -3397,7 +3362,9 @@ void rtw_dev_unload(PADAPTER padapter)
 		RT_TRACE(_module_hci_intfs_c_, _drv_notice_, ("%s: bup==_FALSE\n",__FUNCTION__));
 		DBG_871X("%s: bup==_FALSE\n",__FUNCTION__);
 	}
-	
+
+	/* cancel timer after thread stop */
+	rtw_cancel_all_timer(padapter);
 	RT_TRACE(_module_hci_intfs_c_, _drv_notice_, ("-%s\n",__FUNCTION__));
 }
 
@@ -4056,10 +4023,15 @@ _func_enter_;
 	}
 
 	if (pwrpriv->wowlan_wake_reason == RX_PNOWakeUp) {
-#ifdef CONFIG_IOCTL_CFG80211	
-		cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0,
-				GFP_ATOMIC);
+#ifdef CONFIG_IOCTL_CFG80211
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0))
+			u8 locally_generated = 1;
+
+			cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0, locally_generated, GFP_ATOMIC);
+#else
+			cfg80211_disconnected(padapter->pnetdev, 0, NULL, 0, GFP_ATOMIC);
 #endif
+#endif /* CONFIG_IOCTL_CFG80211 */
 		rtw_lock_ext_suspend_timeout(10000);
 	}
 
@@ -4076,14 +4048,15 @@ _func_enter_;
 	pwrpriv->wowlan_mode =_FALSE;
 
 	// Power On LED
-	rtw_hal_sw_led_init(padapter);
+#ifdef CONFIG_SW_LED
+
 	if(pwrpriv->wowlan_wake_reason == Rx_DisAssoc ||
 		pwrpriv->wowlan_wake_reason == Rx_DeAuth ||
 		pwrpriv->wowlan_wake_reason == FWDecisionDisconnect)
 		rtw_led_control(padapter, LED_CTL_NO_LINK);
 	else
 		rtw_led_control(padapter, LED_CTL_LINK);
-
+#endif
 	//clean driver side wake up reason.
 	pwrpriv->wowlan_wake_reason = 0;
 
@@ -4220,8 +4193,10 @@ _func_enter_;
 	pwrpriv->wowlan_wake_reason = 0;
 
 	// Power On LED
-	rtw_hal_sw_led_init(padapter);
+#ifdef CONFIG_SW_LED
+
 	rtw_led_control(padapter, LED_CTL_LINK);
+#endif
 exit:
 	DBG_871X("<== "FUNC_ADPT_FMT" exit....\n", FUNC_ADPT_ARG(padapter));
 _func_exit_;

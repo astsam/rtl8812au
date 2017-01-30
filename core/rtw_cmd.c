@@ -706,6 +706,9 @@ post_process:
 
 	}
 
+	/* to avoid enqueue cmd after free all cmd_obj  */
+	ATOMIC_SET(&(pcmdpriv->cmdthd_running), _FALSE);
+
 	// free all cmd_obj resources
 	do{
 		pcmd = rtw_dequeue_cmd(pcmdpriv);
@@ -728,7 +731,6 @@ post_process:
 	}while(1);
 
 	_rtw_up_sema(&pcmdpriv->terminate_cmdthread_sema);
-	ATOMIC_SET(&(pcmdpriv->cmdthd_running), _FALSE);
 
 _func_exit_;
 

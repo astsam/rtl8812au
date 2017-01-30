@@ -35,6 +35,7 @@
 #define rCCAonSec_Jaguar		0x838
 #define rPwed_TH_Jaguar			0x830
 #define rL1_Weight_Jaguar		0x840
+#define	r_L1_SBD_start_time		0x844
 
 // BW and sideband setting
 #define rBWIndication_Jaguar		0x834

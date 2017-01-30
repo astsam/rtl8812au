@@ -112,6 +112,18 @@ struct TDLS_PeerKey {
 } ;
 #endif //CONFIG_TDLS
 
+#ifdef DBG_RX_DFRAME_RAW_DATA
+struct sta_recv_dframe_info {
+
+	u8 sta_data_rate;
+	u8 sta_sgi;
+	u8 sta_bw_mode;
+	s8 sta_mimo_signal_strength[4];
+	s8 sta_RxPwr[4];
+	u8 sta_ofdm_snr[4];
+};
+#endif
+
 struct sta_info {
 
 	_lock	lock;
@@ -125,6 +137,9 @@ struct sta_info {
 	struct sta_xmit_priv sta_xmitpriv;
 	struct sta_recv_priv sta_recvpriv;
 	
+#ifdef DBG_RX_DFRAME_RAW_DATA
+	struct sta_recv_dframe_info  sta_dframe_info;
+#endif
 	_queue sleep_q;
 	unsigned int sleepq_len;
 	
@@ -134,6 +149,7 @@ struct sta_info {
 	uint qos_option;
 	u8	hwaddr[ETH_ALEN];
 	u16 hwseq;
+	u8	ra_rpt_linked;
 
 	uint	ieee8021x_blocked;	//0: allowed, 1:blocked 
 	uint	dot118021XPrivacy; //aes, tkip...

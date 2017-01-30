@@ -192,20 +192,6 @@ void rtw_btcoex_BtInfoNotify(PADAPTER padapter, u8 length, u8 *tmpBuf)
 	hal_btcoex_BtInfoNotify(padapter, length, tmpBuf);
 }
 
-void rtw_btcoex_BtMpRptNotify(PADAPTER padapter, u8 length, u8 *tmpBuf)
-{
-	PHAL_DATA_TYPE	pHalData;
-
-	pHalData = GET_HAL_DATA(padapter);
-	if (_FALSE == pHalData->EEPROMBluetoothCoexist)
-		return;
-
-	if (padapter->registrypriv.mp_mode == 1)
-		return;
-
-	hal_btcoex_BtMpRptNotify(padapter, length, tmpBuf);
-}
-
 void rtw_btcoex_SuspendNotify(PADAPTER padapter, u8 state)
 {
 	PHAL_DATA_TYPE	pHalData;
@@ -455,16 +441,6 @@ void rtw_btcoex_LPS_Leave(PADAPTER padapter)
 		LPS_RF_ON_check(padapter, 100);
 		pwrpriv->bpower_saving = _FALSE;
 	}
-}
-
-u16 rtw_btcoex_btreg_read(PADAPTER padapter, u8 type, u16 addr)
-{
-	return hal_btcoex_btreg_read(padapter, type, addr);
-}
-
-void rtw_btcoex_btreg_write(PADAPTER padapter, u8 type, u16 addr, u16 val)
-{
-	hal_btcoex_btreg_write(padapter, type, addr, val);
 }
 
 
@@ -1441,14 +1417,28 @@ u8 rtw_btcoex_sendmsgbysocket(_adapter *padapter, u8 *msg, u8 msg_size, bool for
 	iov.iov_len	 = msg_size; 
 	udpmsg.msg_name	 = &pcoex_info->bt_sockaddr; 
 	udpmsg.msg_namelen	= sizeof(struct sockaddr_in); 
-	udpmsg.msg_iov	 = &iov; 
-	udpmsg.msg_iovlen	= 1; 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
+    /* referece:sock_xmit in kernel code
+	 * WRITE for sock_sendmsg, READ for sock_recvmsg
+	 * third parameter for msg_iovlen
+	 * last parameter for iov_len
+	 */
+	iov_iter_init(&udpmsg.msg_iter, WRITE, &iov, 1, msg_size);
+#else
+	udpmsg.msg_iov	 = &iov;
+	udpmsg.msg_iovlen	= 1;
+#endif
 	udpmsg.msg_control	= NULL; 
 	udpmsg.msg_controllen = 0; 
 	udpmsg.msg_flags	= MSG_DONTWAIT | MSG_NOSIGNAL; 
 	oldfs = get_fs(); 
-	set_fs(KERNEL_DS); 
-	error = sock_sendmsg(pcoex_info->udpsock, &udpmsg, msg_size); 
+	set_fs(KERNEL_DS);
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+	error = sock_sendmsg(pcoex_info->udpsock, &udpmsg);
+#else
+	error = sock_sendmsg(pcoex_info->udpsock, &udpmsg, msg_size);
+#endif
 	set_fs(oldfs); 
 	if (error < 0) {
 		DBG_871X("Error when sendimg msg, error:%d\n", error); 

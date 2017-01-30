@@ -18,7 +18,6 @@
  *
  ******************************************************************************/
 
-#include <linux/ctype.h>	/* tolower() */
 #include <drv_types.h>
 #include <hal_data.h>
 #include "rtw_proc.h"
@@ -400,6 +399,125 @@ static ssize_t proc_set_gpio(struct file *file, const char __user *buffer, size_
 		return count;
 }
 #endif
+static ssize_t proc_set_rx_info_msg(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
+{
+
+	struct net_device *dev = data;
+	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
+	struct recv_priv *precvpriv = &(padapter->recvpriv);
+	char tmp[32] = {0};
+	int phy_info_flag = 0;
+
+	if (!padapter)
+		return -EFAULT;
+
+	if (count < 1) {
+		DBG_871X("argument size is less than 1\n");
+		return -EFAULT;
+	}
+
+	if (count > sizeof(tmp)) {
+		rtw_warn_on(1);
+		return -EFAULT;
+	}
+
+	if (buffer && !copy_from_user(tmp, buffer, count)) {
+		int num = sscanf(tmp, "%d", &phy_info_flag);
+
+		precvpriv->store_law_data_flag = (BOOLEAN) phy_info_flag;
+
+		/*RTW_INFO("precvpriv->store_law_data_flag = %d\n",( BOOLEAN )(precvpriv->store_law_data_flag));*/
+	}
+	return count;
+}
+static int proc_get_rx_info_msg(struct seq_file *m, void *v)
+{
+	struct net_device *dev = m->private;
+	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
+
+	rtw_hal_set_odm_var(padapter, HAL_ODM_RX_Dframe_INFO, m, _FALSE);
+	return 0;
+}
+static int proc_get_tx_info_msg(struct seq_file *m, void *v)
+{
+	_irqL irqL;
+	struct net_device *dev = m->private;
+	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
+	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
+	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
+	struct sta_info *psta;
+	u8 bc_addr[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+	u8 null_addr[6] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
+	struct sta_priv *pstapriv = &padapter->stapriv;
+	int i;
+	_list	*plist, *phead;
+	u8 current_rate_id = 0, current_sgi = 0;
+
+	char *BW, *status;
+
+	_enter_critical_bh(&pstapriv->sta_hash_lock, &irqL);
+
+	if (check_fwstate(&padapter->mlmepriv, WIFI_STATION_STATE))
+		status = "station mode";
+	else if (check_fwstate(&padapter->mlmepriv, WIFI_AP_STATE))
+		status = "AP mode";
+	else
+		status = " ";
+	DBG_871X_SEL_NL(m, "status=%s\n", status);
+	for (i = 0; i < NUM_STA; i++) {
+		phead = &(pstapriv->sta_hash[i]);
+		plist = get_next(phead);
+
+		while ((rtw_end_of_queue_search(phead, plist)) == _FALSE) {
+
+			psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
+
+			plist = get_next(plist);
+
+			if ((_rtw_memcmp(psta->hwaddr, bc_addr, 6)  !=  _TRUE)
+				&& (_rtw_memcmp(psta->hwaddr, null_addr, 6) != _TRUE)
+				&& (_rtw_memcmp(psta->hwaddr, adapter_mac_addr(padapter), 6) != _TRUE)) {
+
+				switch (psta->bw_mode) {
+
+				case CHANNEL_WIDTH_20:
+					BW = "20M";
+					break;
+
+				case CHANNEL_WIDTH_40:
+					BW = "40M";
+					break;
+
+				case CHANNEL_WIDTH_80:
+					BW = "80M";
+					break;
+
+				case CHANNEL_WIDTH_160:
+					BW = "160M";
+					break;
+
+				default:
+					BW = "";
+					break;
+				}
+				current_rate_id = rtw_get_current_tx_rate(adapter, psta->mac_id);
+				current_sgi = rtw_get_current_tx_sgi(adapter, psta->mac_id);
+
+				DBG_871X_SEL_NL(m, "==============================\n");
+				DBG_871X_SEL_NL(m, "macaddr=" MAC_FMT"\n", MAC_ARG(psta->hwaddr));
+				DBG_871X_SEL_NL(m, "Tx_Data_Rate=%s\n", HDATA_RATE(current_rate_id));
+				DBG_871X_SEL_NL(m, "BW=%s,sgi=%u\n", BW, current_sgi);
+
+			}
+		}
+	}
+
+	_exit_critical_bh(&pstapriv->sta_hash_lock, &irqL);
+
+	return 0;
+
+}
 
 
 static int proc_get_linked_info_dump(struct seq_file *m, void *v)
@@ -790,12 +908,12 @@ exit:
 	return count;
 }
 
-static int proc_get_target_tx_power(struct seq_file *m, void *v)
+static int proc_get_tx_power_by_rate_base(struct seq_file *m, void *v)
 {
 	struct net_device *dev = m->private;
 	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
 
-	dump_target_tx_power(m, adapter);
+	dump_tx_power_by_rate_base(m, adapter);
 
 	return 0;
 }
@@ -818,52 +936,6 @@ static int proc_get_tx_power_limit(struct seq_file *m, void *v)
 	dump_tx_power_limit(m, adapter);
 
 	return 0;
-}
-
-static int proc_get_tx_power_ext_info(struct seq_file *m, void *v)
-{
-	struct net_device *dev = m->private;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-
-	dump_tx_power_ext_info(m, adapter);
-
-	return 0;
-}
-
-static ssize_t proc_set_tx_power_ext_info(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	_adapter *adapter = (_adapter *)rtw_netdev_priv(dev);
-
-	char tmp[32] = {0};
-	char cmd[16] = {0};
-
-	if (count > sizeof(tmp)) {
-		rtw_warn_on(1);
-		return -EFAULT;
-	}
-
-	if (buffer && !copy_from_user(tmp, buffer, count)) {
-
-		int num = sscanf(tmp, "%s", cmd);
-
-		if (num < 1)
-			return count;
-
-		phy_free_filebuf_mask(adapter, LOAD_BB_PG_PARA_FILE | LOAD_RF_TXPWR_LMT_PARA_FILE);
-
-		rtw_ps_deny(adapter, PS_DENY_IOCTL);
-		LeaveAllPowerSaveModeDirect(adapter);
-
-		if (strcmp("default", cmd) == 0)
-			rtw_run_in_thread_cmd(adapter, ((void *)(phy_reload_default_tx_power_ext_info)), adapter);
-		else
-			rtw_run_in_thread_cmd(adapter, ((void *)(phy_reload_tx_power_ext_info)), adapter);
-
-		rtw_ps_deny_cancel(adapter, PS_DENY_IOCTL);
-	}
-
-	return count;
 }
 
 #ifdef CONFIG_RF_GAIN_OFFSET
@@ -1102,241 +1174,7 @@ ssize_t proc_set_btinfo_evt(struct file *file, const char __user *buffer, size_t
 	
 	return count;
 }
-
-static u8 btreg_read_type = 0;
-static u16 btreg_read_addr = 0;
-static int btreg_read_error = 0;
-static u8 btreg_write_type = 0;
-static u16 btreg_write_addr = 0;
-static int btreg_write_error = 0;
-
-static u8 *btreg_type[] = {
-	"rf",
-	"modem",
-	"bluewize",
-	"vendor",
-	"le"
-};
-
-static int btreg_parse_str(char *input, u8 *type, u16 *addr, u16 *val)
-{
-	u32 num;
-	u8 str[80] = {0};
-	u8 t = 0;
-	u32 a, v;
-	u8 i, n;
-	u8 *p;
-
-
-	num = sscanf(input, "%s %x %x", str, &a, &v);
-	if (num < 2) {
-		DBG_871X("%s: INVALID input!(%s)\n", __FUNCTION__, input);
-		return -EINVAL;
-	}
-	if ((num < 3) && val) {
-		DBG_871X("%s: INVALID input!(%s)\n", __FUNCTION__, input);
-		return -EINVAL;
-	}
-
-	/* convert to lower case for following type compare */
-	p = str;
-	for ( ; *p; ++p)
-		*p = tolower(*p);
-	n = sizeof(btreg_type)/sizeof(btreg_type[0]);
-	for (i = 0; i < n; i++) {
-		if (!strcmp(str, btreg_type[i])) {
-			t = i;
-			break;
-		}
-	}
-	if (i == n) {
-		DBG_871X("%s: unknown type(%s)!\n", __FUNCTION__, str);
-		return -EINVAL;
-	}
-
-	switch (t) {
-	case 0:
-		/* RF */
-		if (a & 0xFFFFFF80) {
-			DBG_871X("%s: INVALID address(0x%X) for type %s(%d)!\n",
-				__FUNCTION__, a, btreg_type[t], t);
-			return -EINVAL;
-		}
-		break;
-	case 1:
-		/* Modem */
-		if (a & 0xFFFFFE00) {
-			DBG_871X("%s: INVALID address(0x%X) for type %s(%d)!\n",
-				__FUNCTION__, a, btreg_type[t], t);
-			return -EINVAL;
-		}
-		break;
-	default:
-		/* Others(Bluewize, Vendor, LE) */
-		if (a & 0xFFFFF000) {
-			DBG_871X("%s: INVALID address(0x%X) for type %s(%d)!\n",
-				__FUNCTION__, a, btreg_type[t], t);
-			return -EINVAL;
-		}
-		break;
-	}
-
-	if (val) {
-		if (v & 0xFFFF0000) {
-			DBG_871X("%s: INVALID value(0x%x)!\n", __FUNCTION__, v);
-			return -EINVAL;
-		}
-		*val = (u16)v;
-	}
-
-	*type = (u8)t;
-	*addr = (u16)a;
-
-	return 0;
-}
-
-int proc_get_btreg_read(struct seq_file *m, void *v)
-{
-	struct net_device *dev;
-	PADAPTER padapter;
-	u16 val;
-
-
-	if (btreg_read_error)
-		return btreg_read_error;
-
-	dev = m->private;
-	padapter = (PADAPTER)rtw_netdev_priv(dev);
-
-	val = rtw_btcoex_btreg_read(padapter, btreg_read_type, btreg_read_addr);
-	DBG_871X_SEL_NL(m, "BTREG: (%s)0x%04X = 0x%04x\n",
-			btreg_type[btreg_read_type], btreg_read_addr, val);
-
-	return 0;
-}
-
-ssize_t proc_set_btreg_read(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	PADAPTER padapter;
-	u8 tmp[80] = {0};
-	u32 num;
-	int err;
-
-
-	padapter = (PADAPTER)rtw_netdev_priv(dev);
-
-	if (NULL == buffer) {
-		DBG_871X(FUNC_ADPT_FMT ": input buffer is NULL!\n",
-			FUNC_ADPT_ARG(padapter));
-		err = -EFAULT;
-		goto exit;
-	}
-
-	if (count < 1) {
-		DBG_871X(FUNC_ADPT_FMT ": input length is 0!\n",
-			FUNC_ADPT_ARG(padapter));
-		err = -EFAULT;
-		goto exit;
-	}
-
-	num = count;
-	if (num > (sizeof(tmp) - 1))
-		num = (sizeof(tmp) - 1);
-
-	if (copy_from_user(tmp, buffer, num)) {
-		DBG_871X(FUNC_ADPT_FMT ": copy buffer from user space FAIL!\n",
-			FUNC_ADPT_ARG(padapter));
-		err = -EFAULT;
-		goto exit;
-	}
-
-	err = btreg_parse_str(tmp, &btreg_read_type, &btreg_read_addr, NULL);
-	if (err)
-		goto exit;
-
-	DBG_871X(FUNC_ADPT_FMT ": addr=(%s)0x%X\n",
-		FUNC_ADPT_ARG(padapter), btreg_type[btreg_read_type], btreg_read_addr);
-
-exit:
-	btreg_read_error = err;
-
-	return count;
-}
-
-int proc_get_btreg_write(struct seq_file *m, void *v)
-{
-	struct net_device *dev;
-	PADAPTER padapter;
-	u16 val;
-
-
-	if (btreg_write_error)
-		return btreg_write_error;
-
-	dev = m->private;
-	padapter = (PADAPTER)rtw_netdev_priv(dev);
-
-	val = rtw_btcoex_btreg_read(padapter, btreg_write_type, btreg_write_addr);
-	DBG_871X_SEL_NL(m, "BTREG: write (%s)0x%04X = 0x%04x\n",
-			btreg_type[btreg_write_type], btreg_write_addr, val);
-
-	return 0;
-}
-
-ssize_t proc_set_btreg_write(struct file *file, const char __user *buffer, size_t count, loff_t *pos, void *data)
-{
-	struct net_device *dev = data;
-	PADAPTER padapter;
-	u8 tmp[80] = {0};
-	u32 num;
-	u16 val;
-	int err;
-
-
-	padapter = (PADAPTER)rtw_netdev_priv(dev);
-
-	if (NULL == buffer) {
-		DBG_871X(FUNC_ADPT_FMT ": input buffer is NULL!\n",
-			FUNC_ADPT_ARG(padapter));
-		err = -EFAULT;
-		goto exit;
-	}
-
-	if (count < 1) {
-		DBG_871X(FUNC_ADPT_FMT ": input length is 0!\n",
-			FUNC_ADPT_ARG(padapter));
-		err = -EFAULT;
-		goto exit;
-	}
-
-	num = count;
-	if (num > (sizeof(tmp) - 1))
-		num = (sizeof(tmp) - 1);
-
-	if (copy_from_user(tmp, buffer, num)) {
-		DBG_871X(FUNC_ADPT_FMT ": copy buffer from user space FAIL!\n",
-			FUNC_ADPT_ARG(padapter));
-		err = -EFAULT;
-		goto exit;
-	}
-
-	err = btreg_parse_str(tmp, &btreg_write_type, &btreg_write_addr, &val);
-	if (err)
-		goto exit;
-
-	DBG_871X(FUNC_ADPT_FMT ": Set (%s)0x%X = 0x%x\n",
-		FUNC_ADPT_ARG(padapter), btreg_type[btreg_write_type], btreg_write_addr, val);
-
-	rtw_btcoex_btreg_write(padapter, btreg_write_type, btreg_write_addr, val);
-
-exit:
-	btreg_write_error = err;
-
-	return count;
-}
-#endif /* CONFIG_BT_COEXIST */
-
+#endif
 #ifdef CONFIG_AUTO_CHNL_SEL_NHM
 static int proc_get_best_chan(struct seq_file *m, void *v)
 {
@@ -1477,15 +1315,14 @@ const struct rtw_proc_hdl adapter_proc_hdls [] = {
 	{"btcoex_dbg", proc_get_btcoex_dbg, proc_set_btcoex_dbg},
 	{"btcoex", proc_get_btcoex_info, NULL},
 	{"btinfo_evt", proc_get_dummy, proc_set_btinfo_evt},
-	{"btreg_read", proc_get_btreg_read, proc_set_btreg_read},
-	{"btreg_write", proc_get_btreg_write, proc_set_btreg_write},
 #endif /* CONFIG_BT_COEXIST */
 
 #if defined(DBG_CONFIG_ERROR_DETECT)
 	{"sreset", proc_get_sreset, proc_set_sreset},
 #endif /* DBG_CONFIG_ERROR_DETECT */
 	{"linked_info_dump",proc_get_linked_info_dump,proc_set_linked_info_dump},
-
+	{"tx_info_msg", proc_get_tx_info_msg, NULL},
+	{"rx_info_msg", proc_get_rx_info_msg, proc_set_rx_info_msg},
 #ifdef CONFIG_GPIO_API
 	{"gpio_info",proc_get_gpio,proc_set_gpio},
 	{"gpio_set_output_value",proc_get_dummy,proc_set_gpio_output_value},
@@ -1521,10 +1358,9 @@ const struct rtw_proc_hdl adapter_proc_hdls [] = {
 	{"dump_rx_cnt_mode",proc_get_rx_cnt_dump,proc_set_rx_cnt_dump},
 #endif	
 	{"change_bss_chbw", NULL, proc_set_change_bss_chbw},
-	{"target_tx_power", proc_get_target_tx_power, NULL},
+	{"tx_power_by_rate_base", proc_get_tx_power_by_rate_base, NULL},
 	{"tx_power_by_rate", proc_get_tx_power_by_rate, NULL},
 	{"tx_power_limit", proc_get_tx_power_limit, NULL},
-	{"tx_power_ext_info", proc_get_tx_power_ext_info, proc_set_tx_power_ext_info},
 #ifdef CONFIG_RF_GAIN_OFFSET
 	{"tx_gain_offset", proc_get_dummy, proc_set_tx_gain_offset},
 	{"kfree_flag", proc_get_kfree_flag, proc_set_kfree_flag},

@@ -273,7 +273,6 @@ void rtl8723b_c2h_packet_handler(PADAPTER padapter, u8 *pbuf, u16 length);
 
 
 void rtl8723b_set_hal_ops(struct hal_ops *pHalFunc);
-void init_hal_spec_8723b(_adapter *adapter);
 void SetHwReg8723B(PADAPTER padapter, u8 variable, u8 *val);
 void GetHwReg8723B(PADAPTER padapter, u8 variable, u8 *val);
 #ifdef CONFIG_C2H_PACKET_EN

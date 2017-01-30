@@ -113,8 +113,6 @@ void rtw_hal_dm_init(_adapter *padapter)
 		padapter->HalFunc.dm_init(padapter);
 
 		_rtw_spinlock_init(&pHalData->IQKSpinLock);
-
-		phy_load_tx_power_ext_info(padapter, 1, 1);
 	}
 }
 void rtw_hal_dm_deinit(_adapter *padapter)
@@ -1023,7 +1021,7 @@ u8 rtw_hal_ops_check(_adapter *padapter)
 	if (NULL == padapter->HalFunc.UpdateRAMaskHandler) {
 		rtw_hal_error_msg("UpdateRAMaskHandler");
 		ret = _FAIL;
-	}	
+	}
 	
 	if (NULL == padapter->HalFunc.SetBeaconRelatedRegistersHandler) {
 		rtw_hal_error_msg("SetBeaconRelatedRegistersHandler");
@@ -1062,7 +1060,7 @@ u8 rtw_hal_ops_check(_adapter *padapter)
 		ret = _FAIL;
 	}
 	#endif //CONFIG_WOWLAN
-	if ((IS_HARDWARE_TYPE_8814AU(padapter) || IS_HARDWARE_TYPE_8814AS(padapter)
+	if ((IS_HARDWARE_TYPE_8814A(padapter)
 		|| IS_HARDWARE_TYPE_8822BU(padapter) || IS_HARDWARE_TYPE_8822BS(padapter))
 		&& NULL == padapter->HalFunc.fw_correct_bcn) {
 		rtw_hal_error_msg("fw_correct_bcn");

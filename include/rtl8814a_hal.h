@@ -51,7 +51,8 @@ enum{
 		VOLTAGE_V25						= 0x03,
 		LDOE25_SHIFT					= 28 ,
 	};
-#define FW_SIZE					      0x10000  // Compatible with RTL8723 Maximal RAM code size 24K.   modified to 32k, TO compatible with 92d maximal fw size 32k
+/* max. iram is 64k , max dmen is 32k. Total = 96k = 0x18000*/
+#define FW_SIZE							0x18000
 #define FW_START_ADDRESS   0x1000
 typedef struct _RT_FIRMWARE_8814 {
 	FIRMWARE_SOURCE	eFWSource;
@@ -184,6 +185,14 @@ typedef struct _RT_FIRMWARE_8814 {
 #define TX_PAGE_BOUNDARY_8814A			TXPKT_PGNUM_8814A	// Need to enlarge boundary, by KaiYuan
 #define TX_PAGE_BOUNDARY_WOWLAN_8814A	TXPKT_PGNUM_8814A	//TODO: 20130415 KaiYuan Check this value later
 
+#ifdef CONFIG_FW_C2H_DEBUG 
+#define RX_DMA_RESERVED_SIZE_8814A	0x100	// 256B, reserved for c2h debug message
+#else
+#define RX_DMA_RESERVED_SIZE_8814A	0x0	// 0B
+#endif
+#define RX_DMA_BOUNDARY_8814A		(MAX_RX_DMA_BUFFER_SIZE_8814A - RX_DMA_RESERVED_SIZE_8814A - 1)
+
+
 
 #define  TOTAL_PGNUM_8814A		2048
 #define  TXPKT_PGNUM_8814A		(2048 - BCNQ_PAGE_NUM_8814-WOWLAN_PAGE_NUM_8814)
@@ -282,6 +291,11 @@ VOID hal_ReadPAType_8814A(
 	OUT u8*		pPAType, 
 	OUT u8*		pLNAType
 	);
+void hal_GetRxGainOffset_8814A(
+	PADAPTER	Adapter,
+	pu1Byte		PROMContent,
+	BOOLEAN		AutoloadFail
+	);
 void Hal_EfuseParseKFreeData_8814A(
 	IN		PADAPTER		Adapter,
 	IN		u8				*PROMContent,
@@ -300,16 +314,6 @@ u8	MgntQuery_NssTxRate(u16 Rate);
 void Hal_DetectWoWMode(PADAPTER pAdapter);
 #endif //CONFIG_WOWLAN
 
-VOID SetDownLoadFwRsvdPagePkt_8814A(
-	IN PADAPTER		Adapter,
-	IN PVOID			buffer,
-	IN u32		len
-	);
-
-BOOLEAN WaitDownLoadRSVDPageOK_3081(
-	IN	PADAPTER			Adapter
-	);
-
 void _InitBeaconParameters_8814A(PADAPTER padapter);
 void SetBeaconRelatedRegisters8814A(PADAPTER padapter);
 
@@ -322,7 +326,6 @@ u8 SetHalDefVar8814A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 u8 GetHalDefVar8814A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 s32 c2h_id_filter_ccx_8814a(u8 *buf);
 void rtl8814_set_hal_ops(struct hal_ops *pHalFunc);
-void init_hal_spec_8814a(_adapter *adapter);
 
 // register
 void SetBcnCtrlReg(PADAPTER padapter, u8 SetBits, u8 ClearBits);

@@ -207,9 +207,7 @@ struct phy_info
 #endif
 };
 
-#ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
-struct rx_raw_rssi
-{
+struct rx_raw_rssi {
 	u8 data_rate;
 	u8 pwdball;
 	s8 pwr_all;
@@ -219,9 +217,7 @@ struct rx_raw_rssi
 	
 	s8 ofdm_pwr[4];
 	u8 ofdm_snr[4];
-
 };
-#endif
 
 struct rx_pkt_attrib	{
 	u16	pkt_len;
@@ -293,16 +289,11 @@ struct rx_pkt_attrib	{
 
 #define RECVBUFF_ALIGN_SZ 8
 
-#if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A)
-	#ifdef CONFIG_PCI_HCI
-		#define RXDESC_SIZE 16
-		#define RX_WIFI_INFO_SIZE	24
-	#else
-		#define RXDESC_SIZE	24
-	#endif
-#else
-#define RXDESC_SIZE	24
+#if (defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A)) && defined(CONFIG_PCI_HCI)
+#define RXBD_SIZE	sizeof(struct recv_stat)	
 #endif
+
+#define RXDESC_SIZE	24
 #define RXDESC_OFFSET RXDESC_SIZE
 
 struct recv_stat
@@ -450,9 +441,7 @@ struct recv_priv
 	u8 signal_strength;
 	u8 signal_qual;
 	s8 rssi;	//translate_percentage_to_dbm(ptarget_wlan->network.PhyInfo.SignalStrength);
-	#ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
 	struct rx_raw_rssi raw_rssi_info;
-	#endif
 	//s8 rxpwdb;	
 	s16 noise;	
 	//int RxSNRdB[2];
@@ -471,6 +460,8 @@ struct recv_priv
 	struct smooth_rssi_data signal_strength_data;
 #endif //CONFIG_NEW_SIGNAL_STAT_PROCESS
 	u16 sink_udpport,pre_rtp_rxseq,cur_rtp_rxseq;
+
+	BOOLEAN store_law_data_flag;
 };
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS

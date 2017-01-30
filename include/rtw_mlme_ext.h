@@ -129,6 +129,7 @@ typedef enum _RT_CHANNEL_DOMAIN
 	RTW_CHPLAN_MKK1_MKK1 = 0x27,
 	RTW_CHPLAN_WORLD_KCC1 = 0x28,
 	RTW_CHPLAN_WORLD_FCC2 = 0x29,
+	RTW_CHPLAN_FCC2_NULL = 0x2A,
 	RTW_CHPLAN_WORLD_FCC3 = 0x30,
 	RTW_CHPLAN_WORLD_FCC4 = 0x31,
 	RTW_CHPLAN_WORLD_FCC5 = 0x32,
@@ -159,6 +160,7 @@ typedef enum _RT_CHANNEL_DOMAIN
 	RTW_CHPLAN_FCC1_FCC10 = 0x57,
 	RTW_CHPLAN_MKK2_MKK4 = 0x58,
 	RTW_CHPLAN_WORLD_ETSI14 = 0x59,
+	RTW_CHPLAN_FCC1_FCC5 = 0x60,
 
 	RTW_CHPLAN_MAX,
 	RTW_CHPLAN_REALTEK_DEFINE = 0x7F,
@@ -174,6 +176,7 @@ typedef enum _RT_CHANNEL_DOMAIN_2G
 	RTW_RD_2G_ETSI2 = 5,	/* France */
 	RTW_RD_2G_GLOBAL = 6,	/* Global domain */
 	RTW_RD_2G_MKK2 = 7,		/* Japan */
+	RTW_RD_2G_FCC2 = 8,		/* US */
 
 	RTW_RD_2G_MAX,
 }RT_CHANNEL_DOMAIN_2G, *PRT_CHANNEL_DOMAIN_2G;
@@ -856,7 +859,6 @@ u8 chk_bmc_sleepq_cmd(_adapter* padapter);
 extern u8 set_tx_beacon_cmd(_adapter*padapter);
 unsigned int setup_beacon_frame(_adapter *padapter, unsigned char *beacon_frame);
 void update_mgnt_tx_rate(_adapter *padapter, u8 rate);
-void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib);
 void update_mgntframe_attrib(_adapter *padapter, struct pkt_attrib *pattrib);
 void update_mgntframe_attrib_addr(_adapter *padapter, struct xmit_frame *pmgntframe);
 void dump_mgntframe(_adapter *padapter, struct xmit_frame *pmgntframe);

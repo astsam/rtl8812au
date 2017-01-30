@@ -92,14 +92,26 @@
 
 #define	NONE			0
 
+/*NBI API------------------------------------*/
+#define	NBI_ENABLE 1
+#define	NBI_DISABLE 2
 
+#define	NBI_TABLE_SIZE_128	27
+#define	NBI_TABLE_SIZE_256	59
 
+#define	NUM_START_CH_80M	7
+#define	NUM_START_CH_40M	14
 
-//8723A High Power IGI Setting
-#define		DM_DIG_HIGH_PWR_IGI_LOWER_BOUND	0x22
-#define  		DM_DIG_Gmode_HIGH_PWR_IGI_LOWER_BOUND 0x28
-#define		DM_DIG_HIGH_PWR_THRESHOLD	0x3a
-#define		DM_DIG_LOW_PWR_THRESHOLD	0x14
+#define	CH_OFFSET_40M		2
+#define	CH_OFFSET_80M		6
+
+#define	NBI_128_FFT_TYPE	1
+#define	NBI_256_FFT_TYPE	2
+
+#define	NBI_SET_SUCCESS	1
+#define	NBI_SET_ERROR		2
+#define	NBI_SET_NO_NEED	3
+
 
 
 //============================================================
@@ -817,6 +829,8 @@ typedef  struct DM_Out_Source_Dynamic_Mechanism_Structure
 	u1Byte			LastUSBHub;
 	u1Byte			TxBfDataRate;
 	
+	u1Byte			nbi_set_result;
+	
 	u1Byte			c2h_cmd_start;
 	u1Byte			fw_debug_trace[60]; 
 	u1Byte			pre_c2h_seq;
@@ -1435,6 +1449,25 @@ void odm_dtc(PDM_ODM_T pDM_Odm);
 
 VOID phydm_NoisyDetection(IN	PDM_ODM_T	pDM_Odm	);
 
+u1Byte
+phydm_nbi_setting(
+	IN		PVOID		pDM_VOID,
+	IN		u4Byte		enable,
+	IN		u4Byte		channel,
+	IN		u4Byte		bw,
+	IN		u4Byte		f_interference,
+	IN		u4Byte		Second_ch
+);
+
 
 #endif
+
+VOID
+phydm_nbi_debug(
+	IN		PVOID		pDM_VOID,
+	IN		u4Byte		*const dm_value,
+	IN		u4Byte		*_used,
+	OUT		char			*output,
+	IN		u4Byte		*_out_len
+);
 

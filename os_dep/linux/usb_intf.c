@@ -210,6 +210,7 @@ static struct usb_device_id rtw_usb_id_tbl[] ={
 	{USB_DEVICE(0x056E, 0x400B), .driver_info = RTL8814A}, /* ELECOM - ELECOM */
 	{USB_DEVICE(0x056E, 0x400D), .driver_info = RTL8814A}, /* ELECOM - ELECOM */
 	{USB_DEVICE(0x7392, 0xA834), .driver_info = RTL8814A}, /* Edimax - Edimax */
+	{USB_DEVICE(0x7392, 0xA833), .driver_info = RTL8814A}, /* Edimax - Edimax */
 #endif /* CONFIG_RTL8814A */
 
 #ifdef CONFIG_RTL8188F
@@ -611,25 +612,9 @@ _func_exit_;
 static int usb_reprobe_to_usb3(PADAPTER Adapter)
 {
 	struct registry_priv  *registry_par = &Adapter->registrypriv;
-	int ret = _FALSE;
-	
-	if (registry_par->switch_usb3 == _TRUE) {
-		if (IS_HIGH_SPEED_USB(Adapter)) {
-			if ((rtw_read8(Adapter, 0x74) & (BIT(2)|BIT(3))) != BIT(3)) {
-				rtw_write8(Adapter, 0x74, 0x8);
-				rtw_write8(Adapter, 0x70, 0x2);
-				rtw_write8(Adapter, 0x3e, 0x1);
-				rtw_write8(Adapter, 0x3d, 0x3);
-				/* usb disconnect */
-				rtw_write8(Adapter, 0x5, 0x80);
-				ret = _TRUE;
-			}
-			
-		} else if (IS_SUPER_SPEED_USB(Adapter))	{
-			rtw_write8(Adapter, 0x70, rtw_read8(Adapter, 0x70) & (~BIT(1)));
-			rtw_write8(Adapter, 0x3e, rtw_read8(Adapter, 0x3e) & (~BIT(0)));
-		}
-	}
+	u8 ret = _FALSE;
+
+	rtw_hal_set_hwreg(Adapter, HW_VAR_USB_MODE, &ret);
 
 	return ret;
 }
@@ -674,9 +659,6 @@ u8 rtw_set_hal_ops(_adapter *padapter)
 	#endif /* CONFIG_RTL8703B */
 
 	if (_FAIL == rtw_hal_ops_check(padapter) )
-		return _FAIL;
-
-	if (hal_spec_init(padapter) == _FAIL)
 		return _FAIL;
 
 	return _SUCCESS;
@@ -1378,8 +1360,6 @@ static void rtw_usb_if1_deinit(_adapter *if1)
 	#endif
 #endif
 
-	rtw_cancel_all_timer(if1);
-
 #ifdef CONFIG_WOWLAN
 	pwrctl->wowlan_mode=_FALSE;
 #endif //CONFIG_WOWLAN
@@ -1556,6 +1536,9 @@ _func_enter_;
 		LeaveAllPowerSaveMode(padapter);
 	}
 	rtw_set_drv_stopped(padapter);	/*for stop thread*/
+
+	/* stop cmd thread */
+	rtw_stop_cmd_thread(padapter);
 #ifdef CONFIG_CONCURRENT_MODE
 #ifdef CONFIG_MULTI_VIR_IFACES
 	rtw_drv_stop_vir_ifaces(dvobj);

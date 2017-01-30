@@ -336,7 +336,6 @@ void rtw_btcoex_MediaStatusNotify(PADAPTER, u8 mediaStatus);
 void rtw_btcoex_SpecialPacketNotify(PADAPTER, u8 pktType);
 void rtw_btcoex_IQKNotify(PADAPTER padapter, u8 state);
 void rtw_btcoex_BtInfoNotify(PADAPTER, u8 length, u8 *tmpBuf);
-void rtw_btcoex_BtMpRptNotify(PADAPTER, u8 length, u8 *tmpBuf);
 void rtw_btcoex_SuspendNotify(PADAPTER, u8 state);
 void rtw_btcoex_HaltNotify(PADAPTER);
 void rtw_btcoex_SwitchBtTRxMask(PADAPTER);
@@ -385,8 +384,6 @@ void rtw_btcoex_SendScanNotify(PADAPTER padapter, u8 scanType);
 #define BT_SendEventExtBtCoexControl(Adapter, bNeedDbgRsp, dataLen, pData) rtw_btcoex_SendEventExtBtCoexControl(Adapter, bNeedDbgRsp, dataLen, pData)
 #define BT_SendEventExtBtInfoControl(Adapter, dataLen, pData) rtw_btcoex_SendEventExtBtInfoControl(Adapter, dataLen, pData)
 #endif //CONFIG_BT_COEXIST_SOCKET_TRX
-u16 rtw_btcoex_btreg_read(PADAPTER padapter, u8 type, u16 addr);
-void rtw_btcoex_btreg_write(PADAPTER padapter, u8 type, u16 addr, u16 val);
 
 // ==================================================
 // Below Functions are called by BT-Coex
