@@ -625,8 +625,25 @@ static int usb_reprobe_to_usb3(PADAPTER Adapter)
 	struct registry_priv  *registry_par = &Adapter->registrypriv;
 	u8 ret = _FALSE;
 
+#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
+	if (IS_HIGH_SPEED_USB(Adapter)) {
+		if ((rtw_read8(Adapter, 0x74) & (BIT(2)|BIT(3))) != BIT(3)) {
+			rtw_write8(Adapter, 0x74, 0x8);
+			rtw_write8(Adapter, 0x70, 0x2);
+			rtw_write8(Adapter, 0x3e, 0x1);
+			rtw_write8(Adapter, 0x3d, 0x3);
+			/* usb disconnect */
+			rtw_write8(Adapter, 0x5, 0x80);
+			ret = _TRUE;
+		}
+		
+	} else if (IS_SUPER_SPEED_USB(Adapter))	{
+		rtw_write8(Adapter, 0x70, rtw_read8(Adapter, 0x70) & (~BIT(1)));
+		rtw_write8(Adapter, 0x3e, rtw_read8(Adapter, 0x3e) & (~BIT(0)));
+	}
+#else
 	rtw_hal_set_hwreg(Adapter, HW_VAR_USB_MODE, &ret);
-
+#endif
 	return ret;
 }
 
