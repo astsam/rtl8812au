@@ -32,6 +32,7 @@
 #endif /* Linux kernel >= 4.0.0 */
 
 #include <rtw_wifi_regd.h>
+#include <hal_data.h>
 
 #define RTW_MAX_MGMT_TX_CNT (8)
 #define RTW_MAX_MGMT_TX_MS_GAS (500)
@@ -3441,11 +3442,25 @@ static int cfg80211_rtw_set_txpower(struct wiphy *wiphy,
 	struct wireless_dev *wdev,
 #endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)) || defined(COMPAT_KERNEL_RELEASE)
-	enum nl80211_tx_power_setting type, int mbm)
+	enum nl80211_tx_power_setting type,
 #else
-	enum tx_power_setting type, int dbm)
+	enum tx_power_setting type,
 #endif
+	int value)
 {
+	_adapter *padapter = wiphy_to_adapter(wiphy);
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,36)) || defined(COMPAT_KERNEL_RELEASE)
+	value /= 100;
+#endif
+
+	if(value < 0)
+		value = 0;
+	if(value > 40)
+		value = 40;
+
+	pHalData->CurrentTxPwrIdx = value;
+
 #if 0
 	struct iwm_priv *iwm = wiphy_to_iwm(wiphy);
 	int ret;
@@ -3472,7 +3487,6 @@ static int cfg80211_rtw_set_txpower(struct wiphy *wiphy,
 		return -EOPNOTSUPP;
 	}
 #endif
-	DBG_8192C("%s\n", __func__);
 	return 0;
 }
 
@@ -3482,9 +3496,10 @@ static int cfg80211_rtw_get_txpower(struct wiphy *wiphy,
 #endif
 	int *dbm)
 {
-	DBG_8192C("%s\n", __func__);
+	_adapter *padapter = wiphy_to_adapter(wiphy);
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 
-	*dbm = (12);
+	*dbm = pHalData->CurrentTxPwrIdx;
 	
 	return 0;
 }

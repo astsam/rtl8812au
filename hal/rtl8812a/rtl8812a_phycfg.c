@@ -546,7 +546,8 @@ phy_TxPwrAdjInPercentage(
 	
 	if(*pTxPwrIdx > RF6052_MAX_TX_PWR)
 		*pTxPwrIdx = RF6052_MAX_TX_PWR;
-	
+
+#if 0	
 	//
 	// <Roger_Notes> NEC Spec: dB = 10*log(X/Y), X: target value, Y: default value.
 	// For example: TxPower 50%, 10*log(50/100)=(nearly)-3dB
@@ -564,7 +565,9 @@ phy_TxPwrAdjInPercentage(
 	{
 		*pTxPwrIdx -=6;
 	}
-
+#endif
+	*pTxPwrIdx += pHalData->CurrentTxPwrIdx;
+	*pTxPwrIdx -= 18;
 	if(*pTxPwrIdx > RF6052_MAX_TX_PWR) // Avoid underflow condition.
 		*pTxPwrIdx = RF6052_MAX_TX_PWR;
 }
@@ -720,7 +723,7 @@ PHY_GetTxPowerIndex_8812A(
 	if ( txPower % 2 == 1 && !IS_NORMAL_CHIP(pHalData->VersionID))
 		--txPower;
 
-	//DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':'B'), Channel,txPower, txPower);
+	DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':'B'), Channel,txPower, txPower);
 
 	return (u8) txPower;
 }
