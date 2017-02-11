@@ -3460,6 +3460,7 @@ static int cfg80211_rtw_set_txpower(struct wiphy *wiphy,
 		value = 40;
 
 	pHalData->CurrentTxPwrIdx = value;
+	PHY_SetTxPowerLevel8812(padapter, pHalData->CurrentChannel);
 
 #if 0
 	struct iwm_priv *iwm = wiphy_to_iwm(wiphy);

@@ -723,7 +723,7 @@ PHY_GetTxPowerIndex_8812A(
 	if ( txPower % 2 == 1 && !IS_NORMAL_CHIP(pHalData->VersionID))
 		--txPower;
 
-	DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':'B'), Channel,txPower, txPower);
+	// DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':'B'), Channel,txPower, txPower);
 
 	return (u8) txPower;
 }
