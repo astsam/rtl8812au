@@ -1218,6 +1218,8 @@ PHY_GetTxPowerLevel8814(
 	OUT ps4Byte    		powerlevel
 	)
 {
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
+	*powerlevel = pHalData->CurrentTxPwrIdx;
 #if 0
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);
