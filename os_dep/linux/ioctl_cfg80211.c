@@ -6158,21 +6158,35 @@ void rtw_cfg80211_init_wdev_data(_adapter *padapter)
 #endif
 }
 
-static void rtw_cfg80211_create_vht_cap(struct ieee80211_sta_vht_cap *vht_cap)
+static void rtw_cfg80211_create_vht_cap(_adapter *padapter, struct ieee80211_sta_vht_cap *vht_cap)
 {
-       u16 mcs_map;
-       int i;
+#ifdef CONFIG_80211AC_VHT
+	static int highest_rates[] = {433, 866, 1300, 1733}; // 80 MHz
+	u16 mcs_map;
+	int i;
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+	struct mlme_priv 		*pmlmepriv = &padapter->mlmepriv;
+	struct vht_priv		*pvhtpriv = &pmlmepriv->vhtpriv;
 
-       vht_cap->vht_supported = 1;
-       vht_cap->cap = IEEE80211_VHT_CAP_RXLDPC;
+	vht_cap->vht_supported = 1;
+	vht_cap->cap = IEEE80211_VHT_CAP_RXLDPC|IEEE80211_VHT_CAP_SHORT_GI_80|IEEE80211_VHT_CAP_TXSTBC|
+		IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE;
 
-       mcs_map = 0;
-       for (i = 0; i < 8; i++) {
-               mcs_map |= IEEE80211_VHT_MCS_SUPPORT_0_9 << (i*2);
-       }
+	mcs_map = 0;
+	for (i = 0; i < 8; i++) {
+		if(i < pHalData->NumTotalRFPath)
+			mcs_map |= IEEE80211_VHT_MCS_SUPPORT_0_9 << (i*2);
+		else
+			mcs_map |= IEEE80211_VHT_MCS_NOT_SUPPORTED << (i*2);
+	}
 
-       vht_cap->vht_mcs.rx_mcs_map = cpu_to_le16(mcs_map);
-       vht_cap->vht_mcs.tx_mcs_map = cpu_to_le16(mcs_map);
+	vht_cap->vht_mcs.tx_mcs_map =
+	vht_cap->vht_mcs.rx_mcs_map = cpu_to_le16(mcs_map);
+	vht_cap->vht_mcs.tx_highest =
+	vht_cap->vht_mcs.rx_highest = cpu_to_le16(highest_rates[pHalData->NumTotalRFPath-1]);
+#else
+	vht_cap->vht_supported = 0;
+#endif
 }
 
 
@@ -6198,7 +6212,7 @@ void rtw_cfg80211_init_wiphy(_adapter *padapter)
 		bands = wiphy->bands[IEEE80211_BAND_5GHZ];
 		if (bands) {
 			rtw_cfg80211_init_ht_capab(padapter, &bands->ht_cap, IEEE80211_BAND_5GHZ, rf_type);
-			rtw_cfg80211_create_vht_cap(&bands->vht_cap);
+			rtw_cfg80211_create_vht_cap(padapter, &bands->vht_cap);
 		}
 	}
 #endif
