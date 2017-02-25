@@ -496,7 +496,7 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 	PHYDM_InitDebugSetting(podmpriv);
 
 	pHalData->TxPwrInPercentage = TX_PWR_PERCENTAGE_3;
-
+	pHalData->CurrentTxPwrIdx = 18;
 }
 
 void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)

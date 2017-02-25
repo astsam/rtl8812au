@@ -565,6 +565,8 @@ phy_TxPwrAdjInPercentage(
 		*pTxPwrIdx -=6;
 	}
 
+	*pTxPwrIdx += pHalData->CurrentTxPwrIdx;
+
 	if(*pTxPwrIdx > RF6052_MAX_TX_PWR) // Avoid underflow condition.
 		*pTxPwrIdx = RF6052_MAX_TX_PWR;
 }
