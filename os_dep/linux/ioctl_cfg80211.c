@@ -145,7 +145,7 @@ static struct ieee80211_rate rtw_rates[] = {
 #define RTW_G_RATES_NUM	12
 
 #define RTW_2G_CHANNELS_NUM 14
-#define RTW_5G_CHANNELS_NUM 37
+#define RTW_5G_CHANNELS_NUM 41
 
 static struct ieee80211_channel rtw_2ghz_channels[] = {
 	CHAN2G(1, 2412, 0),
@@ -170,15 +170,16 @@ static struct ieee80211_channel rtw_5ghz_a_channels[] = {
 	CHAN5G(42, 0),		CHAN5G(44, 0),
 	CHAN5G(46, 0),		CHAN5G(48, 0),
 	CHAN5G(52, 0),		CHAN5G(56, 0),
-	CHAN5G(60, 0),		CHAN5G(64, 0),
+	CHAN5G(58, 0),		CHAN5G(60, 0),
+	CHAN5G(62, 0),		CHAN5G(64, 0),
 	CHAN5G(100, 0),		CHAN5G(104, 0),
 	CHAN5G(108, 0),		CHAN5G(112, 0),
 	CHAN5G(116, 0),		CHAN5G(120, 0),
 	CHAN5G(124, 0),		CHAN5G(128, 0),
 	CHAN5G(132, 0),		CHAN5G(136, 0),
-	CHAN5G(140, 0),		CHAN5G(149, 0),
+	CHAN5G(140, 0),		CHAN5G(144, 0),	CHAN5G(149, 0),
 	CHAN5G(153, 0),		CHAN5G(157, 0),
-	CHAN5G(161, 0),		CHAN5G(165, 0),
+	CHAN5G(161, 0),		CHAN5G(165, 0), CHAN5G(169, 0),
 	CHAN5G(184, 0),		CHAN5G(188, 0),
 	CHAN5G(192, 0),		CHAN5G(196, 0),
 	CHAN5G(200, 0),		CHAN5G(204, 0),
