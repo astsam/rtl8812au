@@ -124,7 +124,7 @@ int rtw_ldpc_cap = 0x33;
 // BIT0: Enable VHT STBC Rx, BIT1: Enable VHT STBC Tx, BIT4: Enable HT STBC Rx, BIT5: Enable HT STBC Tx
 int rtw_stbc_cap = 0x33;
 // BIT0: Enable VHT Beamformer, BIT1: Enable VHT Beamformee, BIT4: Enable HT Beamformer, BIT5: Enable HT Beamformee
-int rtw_beamform_cap = 0x2;
+int rtw_beamform_cap = 0x3;
 int rtw_bfer_rf_number = 0; /*BeamformerCapRfNum Rf path number, 0 for auto, others for manual*/
 int rtw_bfee_rf_number = 0; /*BeamformeeCapRfNum  Rf path number, 0 for auto, others for manual*/
 
