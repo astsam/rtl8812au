@@ -322,7 +322,7 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 				if (ch)
 					ch->flags &= ~(IEEE80211_CHAN_DISABLED|IEEE80211_CHAN_NO_HT40PLUS|
 						IEEE80211_CHAN_NO_HT40MINUS|IEEE80211_CHAN_NO_80MHZ|
-						IEEE80211_CHAN_NO_160MHZ);
+						IEEE80211_CHAN_NO_160MHZ|IEEE80211_CHAN_NO_IR);
 			}
 		}
 	}
