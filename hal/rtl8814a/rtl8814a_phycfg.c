@@ -1211,6 +1211,16 @@ PHY_SetRFPowerState8814A(
 todo */
 //1 5. Tx  Power setting API
 
+VOID
+phy_TxPwrAdjInPercentage(
+	IN		PADAPTER		Adapter,
+	OUT		u8*				pTxPwrIdx)
+{
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
+	int txPower = *pTxPwrIdx + pHalData->CurrentTxPwrIdx - 18;
+
+	*pTxPwrIdx = txPower > RF6052_MAX_TX_PWR ? RF6052_MAX_TX_PWR : txPower;
+}
 
 VOID
 PHY_GetTxPowerLevel8814(
@@ -1305,7 +1315,7 @@ PHY_GetTxPowerIndex_8814A(
 	limit = PHY_GetTxPowerLimit( pAdapter, pAdapter->registrypriv.RegPwrTblSel, (u8)(!bIn24G), pHalData->CurrentChannelBW, RFPath, Rate, pHalData->CurrentChannel);
 
 	powerDiffByRate = powerDiffByRate > limit ? limit : powerDiffByRate;
-	/* DBG_871X("Rate-0x%x: (TxPower, PowerDiffByRate Path-%c) = (0x%X, %d)\n", Rate, ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), txPower, powerDiffByRate); */
+	/*DBG_871X("Rate-0x%x: (TxPower, PowerDiffByRate Path-%c) = (0x%X, %d)\n", Rate, ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), txPower, powerDiffByRate);*/
 
 	txPower += powerDiffByRate;
 	
@@ -1315,6 +1325,7 @@ PHY_GetTxPowerIndex_8814A(
 	CCX_CellPowerLimit( pAdapter, Channel, Rate, &txPower );
 #endif
 #endif
+	phy_TxPwrAdjInPercentage(pAdapter, (u8 *)&txPower);
 	if(txPower > MAX_POWER_INDEX)
 		txPower = MAX_POWER_INDEX;
 
@@ -1322,8 +1333,8 @@ PHY_GetTxPowerIndex_8814A(
 		//(pHalData->bautoload_fail_flag || pHalData->EfuseMap[EFUSE_INIT_MAP][EEPROM_TX_PWR_INX_JAGUAR] == 0xFF))
 		//txPower = 0x12;
 
-	/* DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), Channel,
-		txPower, txPower); */
+	/*DBG_871X("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), Channel,
+		txPower, txPower);*/
 
 	return (u8) txPower;	
 }
