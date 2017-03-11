@@ -25,26 +25,32 @@ or
 for setting monitor mode
 
 1. Set interface down
-`# ip link set wlan0 down`
+```
+$ sudo ip link set wlan0 down
+```
 2. Set monitor mode
-`# iwconfig wlan0 mode monitor`
+```
+$ sudo iwconfig wlan0 mode monitor
+```
 3. Set interface up
-`# ip link set wlan0 up`
+```
+$ sudo ip link set wlan0 up
+```
 
 for switching channels (interface must be up)
 
 Set channel 6, width 40 MHz:
 ```
-# iw wlan0 set channel 6 HT40-
+$ sudo iw wlan0 set channel 6 HT40-
 ```
 Set channel 149, width 80 MHz:
 ```
-# iw wlan0 set freq 5745 80 5775
+$ sudo iw wlan0 set freq 5745 80 5775
 ```
 
 for setting TX power (v4.3.21 branch only):
 ```
-# iwconfig wlan0 txpower 30
+$ sudo iwconfig wlan0 txpower 30
 ```
 
 to inject frames with b/g rates use the Rate field in the radiotap header
