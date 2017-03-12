@@ -28,6 +28,10 @@ void rtl8814_query_rx_desc_status(union recv_frame *precvframe, u8 *pdesc)
 
 	_rtw_memset(pattrib, 0, sizeof(struct rx_pkt_attrib));
 
+#ifdef CONFIG_RADIOTAP_WITH_RXDESC
+	_rtw_memcpy(pattrib->rxdesc, pdesc, RXDESC_SIZE);
+#endif
+
 	//Offset 0
 	pattrib->pkt_len = (u16)GET_RX_STATUS_DESC_PKT_LEN_8814A(pdesc);//(le32_to_cpu(pdesc->rxdw0)&0x00003fff)
 	pattrib->crc_err = (u8)GET_RX_STATUS_DESC_CRC32_8814A(pdesc);//((le32_to_cpu(pdesc->rxdw0) >> 14) & 0x1);
@@ -52,8 +56,7 @@ void rtl8814_query_rx_desc_status(union recv_frame *precvframe, u8 *pdesc)
 	if (GET_RX_STATUS_DESC_RPT_SEL_8814A(pdesc))
 		pattrib->pkt_rpt_type = C2H_PACKET;
 	else
-	
-	pattrib->pkt_rpt_type = NORMAL_RX;
+		pattrib->pkt_rpt_type = NORMAL_RX;
 
 	//Offset 12
 	pattrib->data_rate=(u8)GET_RX_STATUS_DESC_RX_RATE_8814A(pdesc);//((le32_to_cpu(pdesc->rxdw3))&0x7f);
