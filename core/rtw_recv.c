@@ -4011,6 +4011,12 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe)
 	rtap_hdr = (struct ieee80211_radiotap_header *)&hdr_buf[0];
 	rtap_hdr->it_version = PKTHDR_RADIOTAP_VERSION;
 
+#ifdef CONFIG_RTL8814A
+	/* RTL8814AU rx descriptor has no bandwidth, ldpc, stbc and sgi info */
+	/* fixup bandwidth */
+	pattrib->bw = pattrib->phy_info.BandWidth & 0x03;
+#endif
+
 	if(pHalData->NumTotalRFPath>0 && pattrib->physt) {
 		rtap_hdr->it_present |=	(1<<IEEE80211_RADIOTAP_EXT) |
 			(1<<IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE);
@@ -4165,21 +4171,19 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe)
 		hdr_buf[rt_len] |= BIT1; /* MCS index known */
 
 		/* bandwidth */
-#ifdef CONFIG_RTL8814A
-		if(pattrib->physt) {
-			hdr_buf[rt_len] |= BIT0;
-			hdr_buf[rt_len+1] |= (pattrib->phy_info.BandWidth & 0x03);
-		}
-#else
 		hdr_buf[rt_len] |= BIT0;
 		hdr_buf[rt_len+1] |= (pattrib->bw & 0x03);
-#endif
+
 		/* guard interval */
+#ifndef CONFIG_RTL8814A
 		hdr_buf[rt_len] |= BIT2;
+#endif
 		hdr_buf[rt_len+1] |= (pattrib->sgi & 0x01) << 2;
 
 		/* STBC */
+#ifndef CONFIG_RTL8814A
 		hdr_buf[rt_len] |= BIT5;
+#endif
 		hdr_buf[rt_len+1] |= (pattrib->stbc & 0x03) << 5;
 
 		rt_len += 2;
@@ -4206,15 +4210,21 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe)
 		tmp_16bit |= BIT8;
 
 		/* STBC */
+#ifndef CONFIG_RTL8814A
 		tmp_16bit |= BIT0;
+#endif
 		hdr_buf[rt_len+2] |= (pattrib->stbc & 0x01);
 
 		/* Guard interval */
+#ifndef CONFIG_RTL8814A
 		tmp_16bit |= BIT2;
+#endif
 		hdr_buf[rt_len+2] |= (pattrib->sgi & 0x01) << 2;
 
 		/* LDPC extra OFDM symbol */
+#ifndef CONFIG_RTL8814A
 		tmp_16bit |= BIT4;
+#endif
 		hdr_buf[rt_len+2] |= (pattrib->ldpc & 0x01) << 4;
 
 		memcpy(&hdr_buf[rt_len], &tmp_16bit, 2);
@@ -4327,7 +4337,6 @@ int recv_frame_monitor(_adapter *padapter, union recv_frame *rframe)
 	struct recv_priv *precvpriv = &padapter->recvpriv;
 	_queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
 	_pkt *pskb = NULL;
-
 
 	/* fill radiotap header */
 	if (fill_radiotap_hdr(padapter, rframe) == _FAIL) {

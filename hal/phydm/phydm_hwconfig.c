@@ -1170,7 +1170,7 @@ odm_RxPhyBWJaguarSeries_Parsing(
 )
 {
 
-	if(pPktinfo->DataRate <= ODM_RATE54M) {
+	if(pPktinfo->DataRate > ODM_RATE54M) {
 		switch (pPhyStaRpt->r_RFMOD) {
 		case 1:
 			if (pPhyStaRpt->sub_chnl == 0)
@@ -1193,8 +1193,8 @@ odm_RxPhyBWJaguarSeries_Parsing(
 			pPhyInfo->BandWidth = 0;
 			break;
 		}
-	}
-
+	} else
+			pPhyInfo->BandWidth = 0;
 }
 
 VOID
