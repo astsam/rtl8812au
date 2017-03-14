@@ -4099,7 +4099,7 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe)
 	/*tmp_16bit = CHAN2FREQ(pHalData->CurrentChannel);*/
 	memcpy(&hdr_buf[rt_len], &tmp_16bit, 2);
 	rt_len += 2;
-
+	
 	/* channel flags */
 	tmp_16bit = 0;
 	if (pHalData->CurrentBandType == 0) 
@@ -4165,9 +4165,15 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe)
 		hdr_buf[rt_len] |= BIT1; /* MCS index known */
 
 		/* bandwidth */
+#ifdef CONFIG_RTL8814A
+		if(pattrib->physt) {
+			hdr_buf[rt_len] |= BIT0;
+			hdr_buf[rt_len+1] |= (pattrib->phy_info.BandWidth & 0x03);
+		}
+#else
 		hdr_buf[rt_len] |= BIT0;
 		hdr_buf[rt_len+1] |= (pattrib->bw & 0x03);
-
+#endif
 		/* guard interval */
 		hdr_buf[rt_len] |= BIT2;
 		hdr_buf[rt_len+1] |= (pattrib->sgi & 0x01) << 2;
@@ -4554,7 +4560,6 @@ _recv_data_drop:
 }
 
 
-int recv_func(_adapter *padapter, union recv_frame *rframe);
 int recv_func(_adapter *padapter, union recv_frame *rframe)
 {
 	int ret;
@@ -4568,24 +4573,25 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 		recv_frame_monitor(padapter, rframe);
 		ret = _SUCCESS;
 		goto exit;
-	} else
+	} else {
+		/* check if need to handle uc_swdec_pending_queue*/
+		if (check_fwstate(mlmepriv, WIFI_STATION_STATE) && psecuritypriv->busetkipkey)
+		{
+			union recv_frame *pending_frame;
+			int cnt = 0;
 
-	/* check if need to handle uc_swdec_pending_queue*/
-	if (check_fwstate(mlmepriv, WIFI_STATION_STATE) && psecuritypriv->busetkipkey)
-	{
-		union recv_frame *pending_frame;
-		int cnt = 0;
+			while((pending_frame=rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue))) {
+				cnt++;
+				DBG_COUNTER(padapter->rx_logs.core_rx_dequeue);
+				recv_func_posthandle(padapter, pending_frame);
+			}
 
-		while((pending_frame=rtw_alloc_recvframe(&padapter->recvpriv.uc_swdec_pending_queue))) {
-			cnt++;
-			DBG_COUNTER(padapter->rx_logs.core_rx_dequeue);
-			recv_func_posthandle(padapter, pending_frame);
+			if (cnt)
+				DBG_871X(FUNC_ADPT_FMT" dequeue %d from uc_swdec_pending_queue\n",
+					FUNC_ADPT_ARG(padapter), cnt);
 		}
-
-		if (cnt)
-			DBG_871X(FUNC_ADPT_FMT" dequeue %d from uc_swdec_pending_queue\n",
-				FUNC_ADPT_ARG(padapter), cnt);
 	}
+
 
 	DBG_COUNTER(padapter->rx_logs.core_rx);
 	ret = recv_func_prehandle(padapter, rframe);
