@@ -330,10 +330,11 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 		}
 		SET_TX_DESC_USE_RATE_8814A(ptxdesc, 1);
 		SET_TX_DESC_TX_RATE_8814A(ptxdesc, MRateToHwRate(pattrib->rate));
-		if (pattrib->ldpc)
+		if (pattrib->ldpc) {
 			SET_TX_DESC_DATA_LDPC_8814A(ptxdesc, 1);
-		else
+		} else { 
 			SET_TX_DESC_DATA_LDPC_8814A(ptxdesc, 0);
+		}
 		SET_TX_DESC_DATA_STBC_8814A(ptxdesc, pattrib->stbc & 3);
 		SET_TX_DESC_DATA_BW_8814A(ptxdesc, pattrib->bwmode); // 0 - 20 MHz, 1 - 40 MHz, 2 - 80 MHz
 	}
