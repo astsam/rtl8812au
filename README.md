@@ -52,6 +52,10 @@ for setting TX power (v4.3.21 branch only):
 ```
 $ sudo iwconfig wlan0 txpower 30
 ```
+or
+```
+$ sudo iw wlan0 set txpower fixed 3000
+```
 
 to inject frames with b/g rates use the Rate field in the radiotap header
 
