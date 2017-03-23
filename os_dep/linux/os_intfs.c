@@ -847,6 +847,7 @@ static int rtw_ndev_notifier_call(struct notifier_block * nb, unsigned long stat
 #else
 	struct net_device *dev = ptr;
 #endif
+	_adapter *adapter = rtw_netdev_priv(dev);
 
 #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,29))
 	if (dev->netdev_ops->ndo_do_ioctl != rtw_ioctl)
@@ -860,6 +861,8 @@ static int rtw_ndev_notifier_call(struct notifier_block * nb, unsigned long stat
 	switch (state) {
 	case NETDEV_CHANGENAME:
 		rtw_adapter_proc_replace(dev);
+		strncpy(adapter->old_ifname, dev->name, IFNAMSIZ);
+		adapter->old_ifname[IFNAMSIZ-1] = 0;
 		break;
 	}
 
