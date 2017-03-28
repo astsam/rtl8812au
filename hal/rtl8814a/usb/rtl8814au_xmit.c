@@ -315,6 +315,30 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 	SET_TX_DESC_GID_8814A(ptxdesc, pattrib->txbf_g_id);
 	SET_TX_DESC_PAID_8814A(ptxdesc, pattrib->txbf_p_aid);				
 
+/* injected frame */
+	if(pattrib->inject == 0xa5) {
+		SET_TX_DESC_RETRY_LIMIT_ENABLE_8814A(ptxdesc, 1);
+		if (pattrib->retry_ctrl == _TRUE) {
+			SET_TX_DESC_DATA_RETRY_LIMIT_8814A(ptxdesc, 6);
+		} else {
+			SET_TX_DESC_DATA_RETRY_LIMIT_8814A(ptxdesc, 0);
+		}
+		if(pattrib->sgi == _TRUE) {
+			SET_TX_DESC_DATA_SHORT_8814A(ptxdesc, 1);
+		} else {
+			SET_TX_DESC_DATA_SHORT_8814A(ptxdesc, 0);
+		}
+		SET_TX_DESC_USE_RATE_8814A(ptxdesc, 1);
+		SET_TX_DESC_TX_RATE_8814A(ptxdesc, MRateToHwRate(pattrib->rate));
+		if (pattrib->ldpc) {
+			SET_TX_DESC_DATA_LDPC_8814A(ptxdesc, 1);
+		} else { 
+			SET_TX_DESC_DATA_LDPC_8814A(ptxdesc, 0);
+		}
+		SET_TX_DESC_DATA_STBC_8814A(ptxdesc, pattrib->stbc & 3);
+		SET_TX_DESC_DATA_BW_8814A(ptxdesc, pattrib->bwmode); // 0 - 20 MHz, 1 - 40 MHz, 2 - 80 MHz
+	}
+
 	rtl8814a_cal_txdesc_chksum(ptxdesc);
 	_dbg_dump_tx_info(padapter,pxmitframe->frame_tag,ptxdesc);	
 	return pull;
