@@ -21,10 +21,18 @@
 #ifndef	__PHYDMDIG_H__
 #define    __PHYDMDIG_H__
 
-#define DIG_VERSION	"1.8"	/*2015.07.01*/
+#define DIG_VERSION	"1.22"	/* 2016.04.28  Stanley. Add CRC32 information in FA statistic */
 
 /* Pause DIG & CCKPD */
 #define		DM_DIG_MAX_PAUSE_TYPE		0x7
+
+typedef enum tag_DIG_GoUpCheck_Level {
+
+	DIG_GOUPCHECK_LEVEL_0,
+	DIG_GOUPCHECK_LEVEL_1,
+	DIG_GOUPCHECK_LEVEL_2
+	
+} DIG_GOUPCHECK_LEVEL;
 
 typedef struct _Dynamic_Initial_Gain_Threshold_
 {
@@ -67,6 +75,7 @@ typedef struct _Dynamic_Initial_Gain_Threshold_
 	u1Byte		pause_cckpd_value[DM_DIG_MAX_PAUSE_TYPE + 1];
 
 	u1Byte		LargeFAHit;
+	u1Byte		LargeFA_Timeout;		/*if (LargeFAHit), monitor "LargeFA_Timeout" sec, if timeout, LargeFAHit=0*/
 	u1Byte		ForbiddenIGI;
 	u4Byte		Recover_cnt;
 
@@ -83,31 +92,59 @@ typedef struct _Dynamic_Initial_Gain_Threshold_
 	u1Byte		pause_dig_level;
 	u1Byte		pause_dig_value[DM_DIG_MAX_PAUSE_TYPE + 1];
 
-#if(DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
-	BOOLEAN		bTpTarget;
-	BOOLEAN		bNoiseEst;
-	u4Byte		TpTrainTH_min;
-	u1Byte		IGIOffset_A;
-	u1Byte		IGIOffset_B;
+	u4Byte		cckFaMa;
+	DIG_GOUPCHECK_LEVEL		DIG_GoUpCheck_Level;
+
+#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
+	BOOLEAN					bTpTarget;
+	BOOLEAN					bNoiseEst;
+	u4Byte					TpTrainTH_min;
+	u1Byte					IGIOffset_A;
+	u1Byte					IGIOffset_B;
+#endif
+
+#if (RTL8822B_SUPPORT == 1 || RTL8197F_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
+	u1Byte		rfGainIdx;
+	u1Byte		agcTableIdx;
+	u1Byte		bigJumpLmt[16];
+	u1Byte		enableAdjustBigJump:1;
+	u1Byte		bigJumpStep1:3;
+	u1Byte		bigJumpStep2:2;
+	u1Byte		bigJumpStep3:2;
 #endif
 }DIG_T,*pDIG_T;
 
 typedef struct _FALSE_ALARM_STATISTICS{
-	u4Byte	Cnt_Parity_Fail;
-	u4Byte	Cnt_Rate_Illegal;
-	u4Byte	Cnt_Crc8_fail;
-	u4Byte	Cnt_Mcs_fail;
-	u4Byte	Cnt_Ofdm_fail;
-	u4Byte	Cnt_Ofdm_fail_pre;	//For RTL8881A
-	u4Byte	Cnt_Cck_fail;
-	u4Byte	Cnt_all;
-	u4Byte	Cnt_Fast_Fsync;
-	u4Byte	Cnt_SB_Search_fail;
-	u4Byte	Cnt_OFDM_CCA;
-	u4Byte	Cnt_CCK_CCA;
-	u4Byte	Cnt_CCA_all;
-	u4Byte	Cnt_BW_USC;	//Gary
-	u4Byte	Cnt_BW_LSC;	//Gary
+	u4Byte		Cnt_Parity_Fail;
+	u4Byte		Cnt_Rate_Illegal;
+	u4Byte		Cnt_Crc8_fail;
+	u4Byte		Cnt_Mcs_fail;
+	u4Byte		Cnt_Ofdm_fail;
+	u4Byte		Cnt_Ofdm_fail_pre;	//For RTL8881A
+	u4Byte		Cnt_Cck_fail;
+	u4Byte		Cnt_all;
+	u4Byte		Cnt_all_pre;
+	u4Byte		Cnt_Fast_Fsync;
+	u4Byte		Cnt_SB_Search_fail;
+	u4Byte		Cnt_OFDM_CCA;
+	u4Byte		Cnt_CCK_CCA;
+	u4Byte		Cnt_CCA_all;
+	u4Byte		Cnt_BW_USC;	//Gary
+	u4Byte		Cnt_BW_LSC;	//Gary
+	u4Byte		cnt_cck_crc32_error;
+	u4Byte		cnt_cck_crc32_ok;
+	u4Byte		cnt_ofdm_crc32_error;
+	u4Byte		cnt_ofdm_crc32_ok;
+	u4Byte		cnt_ht_crc32_error;
+	u4Byte		cnt_ht_crc32_ok;
+	u4Byte		cnt_vht_crc32_error;
+	u4Byte		cnt_vht_crc32_ok;
+	u4Byte		cnt_crc32_error_all;
+	u4Byte		cnt_crc32_ok_all;
+	BOOLEAN		cck_block_enable;
+	BOOLEAN		ofdm_block_enable;
+	u4Byte		dbg_port0;
+	BOOLEAN		edcca_flag;
 }FALSE_ALARM_STATISTICS, *PFALSE_ALARM_STATISTICS;
 
 typedef enum tag_Dynamic_Init_Gain_Operation_Type_Definition
@@ -176,7 +213,6 @@ typedef enum tag_PHYDM_Pause_Level {
 	PHYDM_PAUSE_LEVEL_7 = DM_DIG_MAX_PAUSE_TYPE		/* maximum level */
 } PHYDM_PAUSE_LEVEL;
 
-
 #define		DM_DIG_THRESH_HIGH			40
 #define		DM_DIG_THRESH_LOW			35
 
@@ -184,11 +220,11 @@ typedef enum tag_PHYDM_Pause_Level {
 #define		DM_FALSEALARM_THRESH_HIGH	1000
 
 #define		DM_DIG_MAX_NIC				0x3e
-#define		DM_DIG_MIN_NIC				0x1e //0x22//0x1c
+#define		DM_DIG_MIN_NIC				0x20
 #define		DM_DIG_MAX_OF_MIN_NIC		0x3e
 
 #define		DM_DIG_MAX_AP					0x3e
-#define		DM_DIG_MIN_AP					0x1c
+#define		DM_DIG_MIN_AP					0x20
 #define		DM_DIG_MAX_OF_MIN			0x2A	//0x32
 #define		DM_DIG_MIN_AP_DFS				0x20
 
@@ -198,7 +234,7 @@ typedef enum tag_PHYDM_Pause_Level {
 #define		DM_DIG_MAX_AP_HP				0x42
 #define		DM_DIG_MIN_AP_HP				0x30
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
+#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
 #define		DM_DIG_MAX_AP_COVERAGR		0x26
 #define		DM_DIG_MIN_AP_COVERAGE		0x1c
 #define		DM_DIG_MAX_OF_MIN_COVERAGE	0x22
@@ -235,6 +271,8 @@ typedef enum tag_PHYDM_Pause_Level {
 #define 		DM_DIG_FA_TH1_LPS				15 //-> 15 lps
 #define 		DM_DIG_FA_TH2_LPS				30 //-> 30 lps
 #define 		RSSI_OFFSET_DIG				0x05
+#define		LARGE_FA_TIMEOUT				60
+
 
 VOID
 ODM_ChangeDynamicInitGainThresh(
@@ -296,6 +334,11 @@ ODM_Write_CCK_CCA_Thres(
 	IN		u1Byte					CurCCK_CCAThres
 	);
 
+BOOLEAN
+phydm_DIG_GoUpCheck(
+	IN		PVOID		pDM_VOID
+	);
+
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 VOID
 odm_MPT_DIGCallback(
@@ -309,7 +352,7 @@ odm_MPT_DIGWorkItemCallback(
 
 #endif
 
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_ADSL))
+#if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
 VOID
 odm_MPT_DIGCallback(
 	IN		PVOID					pDM_VOID

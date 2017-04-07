@@ -24,6 +24,11 @@
 
 
 /*--------------------------Define -------------------------------------------*/ 
+#define	CCK_RSSI_INIT_COUNT 5
+
+#define	RA_RSSI_STATE_INIT	0
+#define	RA_RSSI_STATE_SEND	1
+#define	RA_RSSI_STATE_HOLD	2
 
 #define AGC_DIFF_CONFIG_MP(ic, band) (ODM_ReadAndConfig_MP_##ic##_AGC_TAB_DIFF(pDM_Odm, Array_MP_##ic##_AGC_TAB_DIFF_##band, \
                                                                               sizeof(Array_MP_##ic##_AGC_TAB_DIFF_##band)/sizeof(u4Byte)))
@@ -178,9 +183,26 @@ typedef struct _Phy_Status_Rpt_8812 {
 } PHY_STATUS_RPT_8812_T, *PPHY_STATUS_RPT_8812_T;
 
 VOID
+phydm_reset_rssi_for_dm(
+	IN OUT	PDM_ODM_T	pDM_Odm,
+	IN		u1Byte		station_id
+);
+
+VOID
 odm_Init_RSSIForDM(
 	IN OUT	PDM_ODM_T	pDM_Odm
+);
+
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+VOID
+phydm_normal_driver_rx_sniffer(
+	IN OUT	PDM_ODM_T			pDM_Odm,
+	IN		pu1Byte				pDesc,
+	IN		PRT_RFD_STATUS		pRtRfdStatus,
+	IN		pu1Byte				pDrvInfo,
+	IN		u1Byte				PHYStatus
 	);
+#endif
 
 VOID
 ODM_PhyStatusQuery(
@@ -242,11 +264,11 @@ odm_SignalScaleMapping(
 	IN	s4Byte CurrSig 
 	);
 
-#if (RTL8822B_SUPPORT == 1)
+#if (ODM_PHY_STATUS_NEW_TYPE_SUPPORT == 1)
 /*For 8822B only!! need to move to FW finally */
 /*==============================================*/
 VOID
-phydm_RxPhyStatusJaguarSeries2(
+phydm_RxPhyStatusNewType(
 	IN		PDM_ODM_T					pPhydm,
 	IN		pu1Byte						pPhyStatus,
 	IN		PODM_PACKET_INFO_T			pPktinfo,
@@ -300,8 +322,19 @@ typedef struct _Phy_Status_Rpt_Jaguar2_Type0 {
 
 	/* DW3 */
 	u1Byte		signal_quality;
-	u1Byte		agc_rpt;
-	u1Byte		bb_power;
+#if (ODM_ENDIAN_TYPE == ODM_ENDIAN_LITTLE)
+	u1Byte		vga:5;
+	u1Byte		lna_l:3;
+	u1Byte		bb_power:6;
+	u1Byte		rsvd_9:1;
+	u1Byte		lna_h:1;
+#else
+	u1Byte		lna_l:3;
+	u1Byte		vga:5;
+	u1Byte		lna_h:1;
+	u1Byte		rsvd_9:1;
+	u1Byte		bb_power:6;
+#endif
 	u1Byte		rsvd_5;
 
 	/* DW4 */
@@ -501,6 +534,32 @@ typedef struct _Phy_Status_Rpt_Jaguar2_Type2 {
 #endif
 } PHY_STATUS_RPT_JAGUAR2_TYPE2, *PPHY_STATUS_RPT_JAGUAR2_TYPE2;
 /*==============================================*/
-#endif
-#endif
+#endif /*#if (ODM_PHY_STATUS_NEW_TYPE_SUPPORT == 1)*/
+
+u4Byte
+query_phydm_trx_capability(
+	IN		PDM_ODM_T					pDM_Odm
+);
+
+u4Byte
+query_phydm_stbc_capability(
+	IN		PDM_ODM_T					pDM_Odm
+);
+
+u4Byte
+query_phydm_ldpc_capability(
+	IN		PDM_ODM_T					pDM_Odm
+);
+
+u4Byte
+query_phydm_txbf_parameters(
+	IN		PDM_ODM_T					pDM_Odm
+);
+
+u4Byte
+query_phydm_txbf_capability(
+	IN		PDM_ODM_T					pDM_Odm
+);
+
+#endif /*#ifndef	__HALHWOUTSRC_H__*/
 

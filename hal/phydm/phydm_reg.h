@@ -45,6 +45,12 @@
 #define	ODM_EDCA_BK_PARAM			0x50C
 #define	ODM_TXPAUSE					0x522
 
+/* LTE_COEX */
+#define REG_LTECOEX_CTRL			0x07C0
+#define REG_LTECOEX_WRITE_DATA		0x07C4
+#define REG_LTECOEX_READ_DATA		0x07C8
+#define REG_LTECOEX_PATH_CONTROL	0x70
+
 //BB REG
 #define	ODM_FPGA_PHY0_PAGE8			0x800
 #define	ODM_PSD_SETTING				0x808
@@ -104,6 +110,7 @@
 #define	ODM_RF_T_METER_88E			0x42
 #define	ODM_RF_T_METER_92E			0x42
 #define	ODM_RF_T_METER_8812			0x42
+#define	rRF_TxGainOffset				0x55
 
 //Ant Detect Reg
 #define	ODM_DPDT						0x300

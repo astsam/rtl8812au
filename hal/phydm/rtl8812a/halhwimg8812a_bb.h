@@ -18,7 +18,7 @@
 * 
 ******************************************************************************/
 
-/*Image2HeaderVersion: 2.14*/
+/*Image2HeaderVersion: 2.18*/
 #if (RTL8812A_SUPPORT == 1)
 #ifndef __INC_MP_BB_HW_IMG_8812A_H
 #define __INC_MP_BB_HW_IMG_8812A_H
@@ -89,6 +89,16 @@ ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_ASUS(/* TC: Test Chip, MP: MP Chip*/
 u4Byte ODM_GetVersion_MP_8812A_PHY_REG_PG_ASUS(void);
 
 /******************************************************************************
+*                           PHY_REG_PG_DNI.TXT
+******************************************************************************/
+
+void
+ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_DNI(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
+);
+u4Byte ODM_GetVersion_MP_8812A_PHY_REG_PG_DNI(void);
+
+/******************************************************************************
 *                           PHY_REG_PG_NEC.TXT
 ******************************************************************************/
 
@@ -97,6 +107,16 @@ ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_NEC(/* TC: Test Chip, MP: MP Chip*/
 	IN   PDM_ODM_T  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8812A_PHY_REG_PG_NEC(void);
+
+/******************************************************************************
+*                           PHY_REG_PG_TPLINK.TXT
+******************************************************************************/
+
+void
+ODM_ReadAndConfig_MP_8812A_PHY_REG_PG_TPLINK(/* TC: Test Chip, MP: MP Chip*/
+	IN   PDM_ODM_T  pDM_Odm
+);
+u4Byte ODM_GetVersion_MP_8812A_PHY_REG_PG_TPLINK(void);
 
 #endif
 #endif /* end of HWIMG_SUPPORT*/

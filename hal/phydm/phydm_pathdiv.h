@@ -21,7 +21,7 @@
 #ifndef	__PHYDMPATHDIV_H__
 #define    __PHYDMPATHDIV_H__
 /*#define PATHDIV_VERSION "2.0" //2014.11.04*/
-#define PATHDIV_VERSION	"3.0" /*2015.01.13 Dino*/
+#define PATHDIV_VERSION	"3.1" /*2015.07.29 by YuChen*/
 
 #if(defined(CONFIG_PATH_DIVERSITY))
 #define USE_PATH_A_AS_DEFAULT_ANT   //for 8814 dynamic TX path selection

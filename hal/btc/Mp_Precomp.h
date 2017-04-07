@@ -69,6 +69,16 @@ do {\
 #define RT_TRACE(dbgtype, dbgflag, printstr)
 #endif
 
+#ifdef CONFIG_BT_COEXIST
+#define BT_SUPPORT		1
+#define COEX_SUPPORT	1
+#define HS_SUPPORT		1
+#else
+#define BT_SUPPORT		0
+#define COEX_SUPPORT	0
+#define HS_SUPPORT		0
+#endif
+
 #include "HalBtcOutSrc.h"
 #include "HalBtc8188c2Ant.h"
 #include "HalBtc8192d2Ant.h"
@@ -84,6 +94,11 @@ do {\
 #include "HalBtc8821a2Ant.h"
 #include "HalBtc8821aCsr2Ant.h"
 #include "HalBtc8703b1Ant.h"
-#include "HalBtc8703b2Ant.h"
+#include "halbtc8723d1ant.h"
+#include "halbtc8723d2ant.h"
+#include "HalBtc8822b1Ant.h"
+#include "halbtc8821c1ant.h"
+#include "halbtc8821c2ant.h"
+
 
 #endif // __MP_PRECOMP_H__

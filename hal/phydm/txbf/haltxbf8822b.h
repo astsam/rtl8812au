@@ -38,6 +38,26 @@ HalTxbf8822B_FwTxBF(
 	IN PVOID			pDM_VOID,
 	IN	u1Byte				Idx
 	);
+
+VOID
+phydm_8822btxbf_rfmode(
+	IN PVOID		pDM_VOID,
+	IN u1Byte	SUBFeeCnt,
+	IN u1Byte	MUBFeeCnt
+	);
+
+VOID
+phydm_8822b_sutxbfer_workaroud(
+	IN PVOID		pDM_VOID,
+	IN BOOLEAN	EnableSUBfer,
+	IN u1Byte	Nc,
+	IN u1Byte	Nr,
+	IN u1Byte	Ng,
+	IN u1Byte	CB,
+	IN u1Byte	BW,
+	IN BOOLEAN	isVHT
+	);
+
 #else
 #define HalTxbf8822B_Init(pDM_VOID)		
 #define HalTxbf8822B_Enter(pDM_VOID, Idx)

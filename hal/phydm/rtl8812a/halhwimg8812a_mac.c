@@ -18,7 +18,7 @@
 * 
 ******************************************************************************/
 
-/*Image2HeaderVersion: 2.14*/
+/*Image2HeaderVersion: 2.18*/
 #include "mp_precomp.h"
 #include "../phydm_precomp.h"
 
@@ -287,7 +287,7 @@ ODM_ReadAndConfig_MP_8812A_MAC_REG(
 u4Byte
 ODM_GetVersion_MP_8812A_MAC_REG(void)
 {
-	   return 55;
+	   return 57;
 }
 
 #endif /* end of HWIMG_SUPPORT*/

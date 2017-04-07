@@ -29,15 +29,6 @@ odm_SetCrystalCap(
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
 	PDM_ODM_T					pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PCFO_TRACKING				pCfoTrack = (PCFO_TRACKING)PhyDM_Get_Structure( pDM_Odm, PHYDM_CFOTRACK);
-	BOOLEAN 					bEEPROMCheck;
-#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN|ODM_CE))
-	PADAPTER					Adapter = pDM_Odm->Adapter;
-	HAL_DATA_TYPE				*pHalData = GET_HAL_DATA(Adapter);
-
-	bEEPROMCheck = (pHalData->EEPROMVersion >= 0x01)?TRUE:FALSE;
-#else
-	bEEPROMCheck = TRUE;
-#endif
 
 	if(pCfoTrack->CrystalCap == CrystalCap)
 		return;
@@ -52,17 +43,11 @@ odm_SetCrystalCap(
 		/* write 0x2C[30:25] = 0x2C[24:19] = CrystalCap */
 		CrystalCap = CrystalCap & 0x3F;
 		ODM_SetBBReg(pDM_Odm, REG_MAC_PHY_CTRL, 0x7FF80000, (CrystalCap|(CrystalCap << 6)));
-	} else if (((pDM_Odm->SupportICType & ODM_RTL8723A) && bEEPROMCheck) ||
-		(pDM_Odm->SupportICType & (ODM_RTL8703B|ODM_RTL8723B|ODM_RTL8192E|ODM_RTL8821))) {
+	} else if ((pDM_Odm->SupportICType & (ODM_RTL8703B|ODM_RTL8723B|ODM_RTL8192E|ODM_RTL8821))) {
 		/* 0x2C[23:18] = 0x2C[17:12] = CrystalCap */
 		CrystalCap = CrystalCap & 0x3F;
 		ODM_SetBBReg(pDM_Odm, REG_MAC_PHY_CTRL, 0x00FFF000, (CrystalCap|(CrystalCap << 6)));	
-	} else if (pDM_Odm->SupportICType & ODM_RTL8821B) {
-		/* write 0x28[6:1] = 0x24[30:25] = CrystalCap */
-		CrystalCap = CrystalCap & 0x3F;
-		ODM_SetBBReg(pDM_Odm, REG_AFE_XTAL_CTRL, 0x7E000000, CrystalCap);
-		ODM_SetBBReg(pDM_Odm, REG_AFE_PLL_CTRL, 0x7E, CrystalCap);
-	} else if (pDM_Odm->SupportICType & ODM_RTL8814A) {
+	}  else if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		/* write 0x2C[26:21] = 0x2C[20:15] = CrystalCap */
 		CrystalCap = CrystalCap & 0x3F;
 		ODM_SetBBReg(pDM_Odm, REG_MAC_PHY_CTRL, 0x07FF8000, (CrystalCap|(CrystalCap << 6)));
@@ -172,8 +157,14 @@ ODM_CfoTrackingInit(
 	pCfoTrack->DefXCap = pCfoTrack->CrystalCap = odm_GetDefaultCrytaltalCap(pDM_Odm);
 	pCfoTrack->bATCStatus = odm_GetATCStatus(pDM_Odm);
 	pCfoTrack->bAdjust = TRUE;
-	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CFO_TRACKING, ODM_DBG_LOUD, ("ODM_CfoTracking_init()=========> \n"));
-	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CFO_TRACKING, ODM_DBG_LOUD, ("ODM_CfoTracking_init(): bATCStatus = %d, CrystalCap = 0x%x \n",pCfoTrack->bATCStatus, pCfoTrack->DefXCap));
+	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CFO_TRACKING, ODM_DBG_LOUD, ("ODM_CfoTracking_init()=========>\n"));
+	ODM_RT_TRACE(pDM_Odm, ODM_COMP_CFO_TRACKING, ODM_DBG_LOUD, ("ODM_CfoTracking_init(): bATCStatus = %d, CrystalCap = 0x%x\n", pCfoTrack->bATCStatus, pCfoTrack->DefXCap));
+
+#if RTL8822B_SUPPORT
+	/* Crystal cap. control by WiFi */
+	if (pDM_Odm->SupportICType & ODM_RTL8822B)
+		ODM_SetBBReg(pDM_Odm, 0x10, 0x40, 0x1);
+#endif
 }
 
 VOID

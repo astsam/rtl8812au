@@ -21,7 +21,7 @@
 #ifndef	__PHYDMCFOTRACK_H__
 #define    __PHYDMCFOTRACK_H__
 
-#define CFO_TRACKING_VERSION	"1.2" /*2015.06.17*/
+#define CFO_TRACKING_VERSION	"1.4" /*2015.10.01	Stanley, Modify for 8822B*/
 
 #define		CFO_TH_XTAL_HIGH			20			// kHz
 #define		CFO_TH_XTAL_LOW			10			// kHz

@@ -21,7 +21,7 @@
 #ifndef	__PHYDMANTDECT_H__
 #define    __PHYDMANTDECT_H__
 
-#define ANTDECT_VERSION	"2.0" //2014.11.04
+#define ANTDECT_VERSION	"2.1"	/*2015.07.29 by YuChen*/
 
 #if(defined(CONFIG_ANT_DETECTION))
 //#if( DM_ODM_SUPPORT_TYPE & (ODM_WIN |ODM_CE))

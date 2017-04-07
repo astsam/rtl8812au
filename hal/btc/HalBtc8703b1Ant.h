@@ -1,78 +1,89 @@
-//===========================================
-// The following is for 8703B 1ANT BT Co-exist definition
-//===========================================
-#define	BT_AUTO_REPORT_ONLY_8703B_1ANT				1
 
-#define	BT_INFO_8703B_1ANT_B_FTP						BIT7
-#define	BT_INFO_8703B_1ANT_B_A2DP					BIT6
-#define	BT_INFO_8703B_1ANT_B_HID						BIT5
-#define	BT_INFO_8703B_1ANT_B_SCO_BUSY				BIT4
-#define	BT_INFO_8703B_1ANT_B_ACL_BUSY				BIT3
-#define	BT_INFO_8703B_1ANT_B_INQ_PAGE				BIT2
-#define	BT_INFO_8703B_1ANT_B_SCO_ESCO				BIT1
-#define	BT_INFO_8703B_1ANT_B_CONNECTION				BIT0
+#if (BT_SUPPORT == 1 && COEX_SUPPORT == 1)
+
+#if (RTL8703B_SUPPORT == 1)
+/* *******************************************
+ * The following is for 8703B 1ANT BT Co-exist definition
+ * ******************************************* */
+#define	BT_AUTO_REPORT_ONLY_8703B_1ANT				1
+#define BT_8703B_1ANT_ENABLE_GNTBT_TO_GPIO14		0
+
+#define	BT_INFO_8703B_1ANT_B_FTP						BIT(7)
+#define	BT_INFO_8703B_1ANT_B_A2DP					BIT(6)
+#define	BT_INFO_8703B_1ANT_B_HID						BIT(5)
+#define	BT_INFO_8703B_1ANT_B_SCO_BUSY				BIT(4)
+#define	BT_INFO_8703B_1ANT_B_ACL_BUSY				BIT(3)
+#define	BT_INFO_8703B_1ANT_B_INQ_PAGE				BIT(2)
+#define	BT_INFO_8703B_1ANT_B_SCO_ESCO				BIT(1)
+#define	BT_INFO_8703B_1ANT_B_CONNECTION				BIT(0)
 
 #define	BT_INFO_8703B_1ANT_A2DP_BASIC_RATE(_BT_INFO_EXT_)	\
-		(((_BT_INFO_EXT_&BIT0))? TRUE:FALSE)
+	(((_BT_INFO_EXT_&BIT(0))) ? true : false)
 
 #define	BTC_RSSI_COEX_THRESH_TOL_8703B_1ANT		2
 
-#define  BT_8703B_1ANT_WIFI_NOISY_THRESH							30   //max: 255
+#define  BT_8703B_1ANT_WIFI_NOISY_THRESH							50   /* max: 255 */
 
-//for Antenna detection
+/* for Antenna detection */
 #define	BT_8703B_1ANT_ANTDET_PSDTHRES_BACKGROUND					50
 #define	BT_8703B_1ANT_ANTDET_PSDTHRES_2ANT_BADISOLATION				70
 #define	BT_8703B_1ANT_ANTDET_PSDTHRES_2ANT_GOODISOLATION			55
 #define	BT_8703B_1ANT_ANTDET_PSDTHRES_1ANT							35
-#define	BT_8703B_1ANT_ANTDET_RETRY_INTERVAL							10	//retry timer if ant det is fail, unit: second
+#define	BT_8703B_1ANT_ANTDET_RETRY_INTERVAL							10	/* retry timer if ant det is fail, unit: second */
+#define	BT_8703B_1ANT_ANTDET_SWEEPPOINT_DELAY							40000
 #define	BT_8703B_1ANT_ANTDET_ENABLE									0
 #define	BT_8703B_1ANT_ANTDET_COEXMECHANISMSWITCH_ENABLE				0
 
 #define	BT_8703B_1ANT_LTECOEX_INDIRECTREG_ACCESS_TIMEOUT		30000
 
-enum _SIGNAL_STATE{
-	SET_TO_LOW=0,
-	SET_TO_HIGH=1,
-	SET_BY_HW=0
+enum bt_8703b_1ant_signal_state {
+	BT_8703B_1ANT_SIG_STA_SET_TO_LOW		= 0x0,
+	BT_8703B_1ANT_SIG_STA_SET_BY_HW		= 0x0,
+	BT_8703B_1ANT_SIG_STA_SET_TO_HIGH		= 0x1,
+	BT_8703B_1ANT_SIG_STA_MAX
 };
 
-enum _PATH_CONTRL_OWNER{
-	BTSIDE_CONTROL=0,
-	WLSIDE_CONTROL=1
+enum bt_8703b_1ant_path_ctrl_owner {
+	BT_8703B_1ANT_PCO_BTSIDE		= 0x0,
+	BT_8703B_1ANT_PCO_WLSIDE	= 0x1,
+	BT_8703B_1ANT_PCO_MAX
 };
 
-enum _GNT_CONTROL_TYPE{
-	CONTROL_BY_PTA=0,
-	CONTROL_BY_SW=1	
+enum bt_8703b_1ant_gnt_ctrl_type {
+	BT_8703B_1ANT_GNT_TYPE_CTRL_BY_PTA		= 0x0,
+	BT_8703B_1ANT_GNT_TYPE_CTRL_BY_SW		= 0x1,
+	BT_8703B_1ANT_GNT_TYPE_MAX
 };
 
-enum _GNT_CONTROL_BLOCK{
-	RFC_AND_BB=0,
-	RFC_ONLY=1,
-	BB_ONLY=2
+enum bt_8703b_1ant_gnt_ctrl_block {
+	BT_8703B_1ANT_GNT_BLOCK_RFC_BB		= 0x0,
+	BT_8703B_1ANT_GNT_BLOCK_RFC			= 0x1,
+	BT_8703B_1ANT_GNT_BLOCK_BB			= 0x2,
+	BT_8703B_1ANT_GNT_BLOCK_MAX
 };
 
-enum _LTE_COEXTABLE_TYPE{
-	WL_VS_LTE=0,
-	BT_VS_LTE=1
+enum bt_8703b_1ant_lte_coex_table_type {
+	BT_8703B_1ANT_CTT_WL_VS_LTE			= 0x0,
+	BT_8703B_1ANT_CTT_BT_VS_LTE			= 0x1,
+	BT_8703B_1ANT_CTT_MAX
 };
 
-enum _LTE_BREAKTABLE_TYPE{
-	WL_BREAK_LTE=0,
-	BT_BREAK_LTE=1,
-	LTE_BREAK_WL=2,
-	LTE_BREAK_BT=3
+enum bt_8703b_1ant_lte_break_table_type {
+	BT_8703B_1ANT_LBTT_WL_BREAK_LTE			= 0x0,
+	BT_8703B_1ANT_LBTT_BT_BREAK_LTE				= 0x1,
+	BT_8703B_1ANT_LBTT_LTE_BREAK_WL			= 0x2,
+	BT_8703B_1ANT_LBTT_LTE_BREAK_BT				= 0x3,
+	BT_8703B_1ANT_LBTT_MAX
 };
 
-
-typedef enum _BT_INFO_SRC_8703B_1ANT{
+enum bt_info_src_8703b_1ant {
 	BT_INFO_SRC_8703B_1ANT_WIFI_FW			= 0x0,
 	BT_INFO_SRC_8703B_1ANT_BT_RSP				= 0x1,
 	BT_INFO_SRC_8703B_1ANT_BT_ACTIVE_SEND		= 0x2,
 	BT_INFO_SRC_8703B_1ANT_MAX
-}BT_INFO_SRC_8703B_1ANT,*PBT_INFO_SRC_8703B_1ANT;
+};
 
-typedef enum _BT_8703B_1ANT_BT_STATUS{
+enum bt_8703b_1ant_bt_status {
 	BT_8703B_1ANT_BT_STATUS_NON_CONNECTED_IDLE	= 0x0,
 	BT_8703B_1ANT_BT_STATUS_CONNECTED_IDLE		= 0x1,
 	BT_8703B_1ANT_BT_STATUS_INQ_PAGE				= 0x2,
@@ -80,19 +91,19 @@ typedef enum _BT_8703B_1ANT_BT_STATUS{
 	BT_8703B_1ANT_BT_STATUS_SCO_BUSY				= 0x4,
 	BT_8703B_1ANT_BT_STATUS_ACL_SCO_BUSY			= 0x5,
 	BT_8703B_1ANT_BT_STATUS_MAX
-}BT_8703B_1ANT_BT_STATUS,*PBT_8703B_1ANT_BT_STATUS;
+};
 
-typedef enum _BT_8703B_1ANT_WIFI_STATUS{
+enum bt_8703b_1ant_wifi_status {
 	BT_8703B_1ANT_WIFI_STATUS_NON_CONNECTED_IDLE				= 0x0,
 	BT_8703B_1ANT_WIFI_STATUS_NON_CONNECTED_ASSO_AUTH_SCAN		= 0x1,
 	BT_8703B_1ANT_WIFI_STATUS_CONNECTED_SCAN					= 0x2,
-	BT_8703B_1ANT_WIFI_STATUS_CONNECTED_SPECIAL_PKT				= 0x3,
+	BT_8703B_1ANT_WIFI_STATUS_CONNECTED_SPECIFIC_PKT				= 0x3,
 	BT_8703B_1ANT_WIFI_STATUS_CONNECTED_IDLE					= 0x4,
 	BT_8703B_1ANT_WIFI_STATUS_CONNECTED_BUSY					= 0x5,
 	BT_8703B_1ANT_WIFI_STATUS_MAX
-}BT_8703B_1ANT_WIFI_STATUS,*PBT_8703B_1ANT_WIFI_STATUS;
+};
 
-typedef enum _BT_8703B_1ANT_COEX_ALGO{
+enum bt_8703b_1ant_coex_algo {
 	BT_8703B_1ANT_COEX_ALGO_UNDEFINED			= 0x0,
 	BT_8703B_1ANT_COEX_ALGO_SCO				= 0x1,
 	BT_8703B_1ANT_COEX_ALGO_HID				= 0x2,
@@ -105,269 +116,233 @@ typedef enum _BT_8703B_1ANT_COEX_ALGO{
 	BT_8703B_1ANT_COEX_ALGO_HID_A2DP_PANEDR	= 0x9,
 	BT_8703B_1ANT_COEX_ALGO_HID_A2DP			= 0xa,
 	BT_8703B_1ANT_COEX_ALGO_MAX				= 0xb,
-}BT_8703B_1ANT_COEX_ALGO,*PBT_8703B_1ANT_COEX_ALGO;
+};
 
-typedef struct _COEX_DM_8703B_1ANT{
-	// hw setting
-	u1Byte		preAntPosType;
-	u1Byte		curAntPosType;
-	// fw mechanism
-	BOOLEAN		bCurIgnoreWlanAct;
-	BOOLEAN		bPreIgnoreWlanAct;
-	u1Byte		prePsTdma;
-	u1Byte		curPsTdma;
-	u1Byte		psTdmaPara[5];
-	u1Byte		psTdmaDuAdjType;
-	BOOLEAN		bAutoTdmaAdjust;
-	BOOLEAN		bPrePsTdmaOn;
-	BOOLEAN		bCurPsTdmaOn;
-	BOOLEAN		bPreBtAutoReport;
-	BOOLEAN		bCurBtAutoReport;
-	u1Byte		preLps;
-	u1Byte		curLps;
-	u1Byte		preRpwm;
-	u1Byte		curRpwm;
+struct coex_dm_8703b_1ant {
+	/* hw setting */
+	u8		pre_ant_pos_type;
+	u8		cur_ant_pos_type;
+	/* fw mechanism */
+	boolean		cur_ignore_wlan_act;
+	boolean		pre_ignore_wlan_act;
+	u8		pre_ps_tdma;
+	u8		cur_ps_tdma;
+	u8		ps_tdma_para[5];
+	u8		ps_tdma_du_adj_type;
+	boolean		auto_tdma_adjust;
+	boolean		pre_ps_tdma_on;
+	boolean		cur_ps_tdma_on;
+	boolean		pre_bt_auto_report;
+	boolean		cur_bt_auto_report;
+	u8		pre_lps;
+	u8		cur_lps;
+	u8		pre_rpwm;
+	u8		cur_rpwm;
 
-	// sw mechanism
-	BOOLEAN 	bPreLowPenaltyRa;
-	BOOLEAN		bCurLowPenaltyRa;
-	u4Byte		preVal0x6c0;
-	u4Byte		curVal0x6c0;
-	u4Byte		preVal0x6c4;
-	u4Byte		curVal0x6c4;
-	u4Byte		preVal0x6c8;
-	u4Byte		curVal0x6c8;
-	u1Byte		preVal0x6cc;
-	u1Byte		curVal0x6cc;
-	BOOLEAN		bLimitedDig;
+	/* sw mechanism */
+	boolean	pre_low_penalty_ra;
+	boolean		cur_low_penalty_ra;
+	u32		pre_val0x6c0;
+	u32		cur_val0x6c0;
+	u32		pre_val0x6c4;
+	u32		cur_val0x6c4;
+	u32		pre_val0x6c8;
+	u32		cur_val0x6c8;
+	u8		pre_val0x6cc;
+	u8		cur_val0x6cc;
+	boolean		limited_dig;
 
-	u4Byte		backupArfrCnt1;	// Auto Rate Fallback Retry cnt
-	u4Byte		backupArfrCnt2;	// Auto Rate Fallback Retry cnt
-	u2Byte		backupRetryLimit;
-	u1Byte		backupAmpduMaxTime;
+	u32		backup_arfr_cnt1;	/* Auto Rate Fallback Retry cnt */
+	u32		backup_arfr_cnt2;	/* Auto Rate Fallback Retry cnt */
+	u16		backup_retry_limit;
+	u8		backup_ampdu_max_time;
 
-	// algorithm related
-	u1Byte		preAlgorithm;
-	u1Byte		curAlgorithm;
-	u1Byte		btStatus;
-	u1Byte		wifiChnlInfo[3];
+	/* algorithm related */
+	u8		pre_algorithm;
+	u8		cur_algorithm;
+	u8		bt_status;
+	u8		wifi_chnl_info[3];
 
-	u4Byte		preRaMask;
-	u4Byte		curRaMask;
-	u1Byte		preArfrType;
-	u1Byte		curArfrType;
-	u1Byte		preRetryLimitType;
-	u1Byte		curRetryLimitType;
-	u1Byte		preAmpduTimeType;
-	u1Byte		curAmpduTimeType;
-	u4Byte		nArpCnt;
+	u32		pre_ra_mask;
+	u32		cur_ra_mask;
+	u8		pre_arfr_type;
+	u8		cur_arfr_type;
+	u8		pre_retry_limit_type;
+	u8		cur_retry_limit_type;
+	u8		pre_ampdu_time_type;
+	u8		cur_ampdu_time_type;
+	u32		arp_cnt;
 
-	u1Byte		errorCondition;
-} COEX_DM_8703B_1ANT, *PCOEX_DM_8703B_1ANT;
+	u8		error_condition;
+};
 
-typedef struct _COEX_STA_8703B_1ANT{
-	BOOLEAN					bBtLinkExist;
-	BOOLEAN					bScoExist;
-	BOOLEAN					bA2dpExist;
-	BOOLEAN					bHidExist;
-	BOOLEAN					bPanExist;
-	BOOLEAN					bBtHiPriLinkExist;
-	u1Byte					nNumOfProfile;
+struct coex_sta_8703b_1ant {
+	boolean					bt_disabled;
+	boolean					bt_link_exist;
+	boolean					sco_exist;
+	boolean					a2dp_exist;
+	boolean					hid_exist;
+	boolean					pan_exist;
+	boolean					bt_hi_pri_link_exist;
+	u8					num_of_profile;
 
-	BOOLEAN					bUnderLps;
-	BOOLEAN					bUnderIps;
-	u4Byte					specialPktPeriodCnt;
-	u4Byte					highPriorityTx;
-	u4Byte					highPriorityRx;
-	u4Byte					lowPriorityTx;
-	u4Byte					lowPriorityRx;
-	s1Byte					btRssi;
-	BOOLEAN					bBtTxRxMask;
-	u1Byte					preBtRssiState;
-	u1Byte					preWifiRssiState[4];
-	BOOLEAN					bC2hBtInfoReqSent;
-	u1Byte					btInfoC2h[BT_INFO_SRC_8703B_1ANT_MAX][10];
-	u4Byte					btInfoC2hCnt[BT_INFO_SRC_8703B_1ANT_MAX];
-	BOOLEAN					bBtWhckTest;
-	BOOLEAN					bC2hBtInquiryPage;
-	BOOLEAN					bC2hBtPage;				//Add for win8.1 page out issue
-	BOOLEAN					bWiFiIsHighPriTask;		//Add for win8.1 page out issue
-	u1Byte					btRetryCnt;
-	u1Byte					btInfoExt;
-	u4Byte					popEventCnt;
-	u1Byte					nScanAPNum;
+	boolean					under_lps;
+	boolean					under_ips;
+	u32					specific_pkt_period_cnt;
+	u32					high_priority_tx;
+	u32					high_priority_rx;
+	u32					low_priority_tx;
+	u32					low_priority_rx;
+	s8					bt_rssi;
+	boolean					bt_tx_rx_mask;
+	u8					pre_bt_rssi_state;
+	u8					pre_wifi_rssi_state[4];
+	boolean					c2h_bt_info_req_sent;
+	u8					bt_info_c2h[BT_INFO_SRC_8703B_1ANT_MAX][10];
+	u32					bt_info_c2h_cnt[BT_INFO_SRC_8703B_1ANT_MAX];
+	boolean					bt_whck_test;
+	boolean					c2h_bt_inquiry_page;
+	boolean					c2h_bt_page;				/* Add for win8.1 page out issue */
+	boolean					wifi_is_high_pri_task;		/* Add for win8.1 page out issue */
+	u8					bt_retry_cnt;
+	u8					bt_info_ext;
+	u32					pop_event_cnt;
+	u8					scan_ap_num;
 
-	u4Byte					nCRCOK_CCK;
-	u4Byte					nCRCOK_11g;
-	u4Byte					nCRCOK_11n;
-	u4Byte					nCRCOK_11nAgg;
-	
-	u4Byte					nCRCErr_CCK;
-	u4Byte					nCRCErr_11g;
-	u4Byte					nCRCErr_11n;
-	u4Byte					nCRCErr_11nAgg;	
+	u32					crc_ok_cck;
+	u32					crc_ok_11g;
+	u32					crc_ok_11n;
+	u32					crc_ok_11n_agg;
 
-	BOOLEAN					bCCKLock;
-	BOOLEAN					bPreCCKLock;
-	BOOLEAN					bCCKEverLock;
-	u1Byte					nCoexTableType;
+	u32					crc_err_cck;
+	u32					crc_err_11g;
+	u32					crc_err_11n;
+	u32					crc_err_11n_agg;
 
-	BOOLEAN					bForceLpsOn;
-	u4Byte					wrongProfileNotification;
+	boolean					cck_lock;
+	boolean					pre_ccklock;
+	boolean					cck_ever_lock;
+	u8					coex_table_type;
 
-	BOOLEAN					bConCurrentRxModeOn;
-}COEX_STA_8703B_1ANT, *PCOEX_STA_8703B_1ANT;
+	boolean					force_lps_on;
+	u32					wrong_profile_notification;
 
-#define  BT_8703B_1ANT_ANTDET_PSD_POINTS			256	//MAX:1024
-#define  BT_8703B_1ANT_ANTDET_PSD_AVGNUM			1	//MAX:3
+	boolean					concurrent_rx_mode_on;
+
+	u16					score_board;
+
+	u8					a2dp_bit_pool;
+	u8					cut_version;
+	boolean				acl_busy;
+	boolean				wl_rf_off_on_event;
+	boolean				bt_create_connection;
+	boolean				gnt_control_by_PTA;
+};
+
+#define  BT_8703B_1ANT_ANTDET_PSD_POINTS			256	/* MAX:1024 */
+#define  BT_8703B_1ANT_ANTDET_PSD_AVGNUM			1	/* MAX:3 */
 #define	BT_8703B_1ANT_ANTDET_BUF_LEN				16
 
-typedef struct _PSDSCAN_STA_8703B_1ANT{
+struct psdscan_sta_8703b_1ant {
 
-u4Byte		 	nAntDet_BTLEChannel;  //BT LE Channel ex:2412
-u4Byte			nAntDet_BTTxTime;
-u4Byte			nAntDet_PrePSDScanPeakVal;
-BOOLEAN			nAntDet_IsAntDetAvailable;
-u4Byte			nAntDet_PSDScanPeakVal;
-BOOLEAN			nAntDet_IsBTReplyAvailable;
-u4Byte			nAntDet_PSDScanPeakFreq;
+	u32			ant_det_bt_le_channel;  /* BT LE Channel ex:2412 */
+	u32			ant_det_bt_tx_time;
+	u32			ant_det_pre_psdscan_peak_val;
+	boolean			ant_det_is_ant_det_available;
+	u32			ant_det_psd_scan_peak_val;
+	boolean			ant_det_is_btreply_available;
+	u32			ant_det_psd_scan_peak_freq;
 
-u1Byte			nAntDet_Result;
-u1Byte			nAntDet_PeakVal[BT_8703B_1ANT_ANTDET_BUF_LEN];
-u1Byte			nAntDet_PeakFreq[BT_8703B_1ANT_ANTDET_BUF_LEN];
-u4Byte			bAntDet_TryCount;
-u4Byte			bAntDet_FailCount;
-u4Byte			nAntDet_IntevalCount;
-u4Byte			nAntDet_ThresOffset;
+	u8			ant_det_result;
+	u8			ant_det_peak_val[BT_8703B_1ANT_ANTDET_BUF_LEN];
+	u8			ant_det_peak_freq[BT_8703B_1ANT_ANTDET_BUF_LEN];
+	u32			ant_det_try_count;
+	u32			ant_det_fail_count;
+	u32			ant_det_inteval_count;
+	u32			ant_det_thres_offset;
 
-u4Byte			nRealCentFreq;
-s4Byte			nRealOffset;
-u4Byte			nRealSpan;
-	
-u4Byte			nPSDBandWidth;  //unit: Hz
-u4Byte			nPSDPoint;		//128/256/512/1024
-u4Byte			nPSDReport[1024];  //unit:dB (20logx), 0~255
-u4Byte			nPSDReport_MaxHold[1024];  //unit:dB (20logx), 0~255
-u4Byte			nPSDStartPoint;
-u4Byte			nPSDStopPoint;
-u4Byte			nPSDMaxValuePoint;
-u4Byte			nPSDMaxValue;
-u4Byte			nPSDStartBase;
-u4Byte			nPSDAvgNum;	// 1/8/16/32
-u4Byte			nPSDGenCount;
-BOOLEAN			bIsPSDRunning;
-BOOLEAN			bIsPSDShowMaxOnly;
-} PSDSCAN_STA_8703B_1ANT, *PPSDSCAN_STA_8703B_1ANT;
+	u32			real_cent_freq;
+	s32			real_offset;
+	u32			real_span;
 
-//===========================================
-// The following is interface which will notify coex module.
-//===========================================
-VOID
-EXhalbtc8703b1ant_PowerOnSetting(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
-VOID
-EXhalbtc8703b1ant_PreLoadFirmware(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
-VOID
-EXhalbtc8703b1ant_InitHwConfig(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	BOOLEAN				bWifiOnly
-	);
-VOID
-EXhalbtc8703b1ant_InitCoexDm(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
-VOID
-EXhalbtc8703b1ant_IpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
-VOID
-EXhalbtc8703b1ant_LpsNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
-VOID
-EXhalbtc8703b1ant_ScanNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
-VOID
-EXhalbtc8703b1ant_ConnectNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	u1Byte			type
-	);
-VOID
-EXhalbtc8703b1ant_MediaStatusNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
-VOID
-EXhalbtc8703b1ant_SpecialPacketNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				type
-	);
-VOID
-EXhalbtc8703b1ant_BtInfoNotify(
-	IN	PBTC_COEXIST		pBtCoexist,
-	IN	pu1Byte			tmpBuf,
-	IN	u1Byte			length
-	);
-VOID
-EXhalbtc8703b1ant_RfStatusNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte					type
-	);
-VOID
-EXhalbtc8703b1ant_HaltNotify(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
-VOID
-EXhalbtc8703b1ant_PnpNotify(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u1Byte				pnpState
-	);
-VOID
-EXhalbtc8703b1ant_CoexDmReset(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
-VOID
-EXhalbtc8703b1ant_Periodical(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
-VOID
-EXhalbtc8703b1ant_DisplayCoexInfo(
-	IN	PBTC_COEXIST		pBtCoexist
-	);
-VOID
-EXhalbtc8703b1ant_AntennaDetection(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u4Byte					centFreq,
-	IN	u4Byte					offset,
-	IN	u4Byte					span,
-	IN	u4Byte					seconds
-	);
-VOID
-EXhalbtc8703b1ant_AntennaIsolation(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u4Byte					centFreq,
-	IN	u4Byte					offset,
-	IN	u4Byte					span,
-	IN	u4Byte					seconds
-	);
+	u32			psd_band_width;  /* unit: Hz */
+	u32			psd_point;		/* 128/256/512/1024 */
+	u32			psd_report[1024];  /* unit:dB (20logx), 0~255 */
+	u32			psd_report_max_hold[1024];  /* unit:dB (20logx), 0~255 */
+	u32			psd_start_point;
+	u32			psd_stop_point;
+	u32			psd_max_value_point;
+	u32			psd_max_value;
+	u32			psd_start_base;
+	u32			psd_avg_num;	/* 1/8/16/32 */
+	u32			psd_gen_count;
+	boolean			is_psd_running;
+	boolean			is_psd_show_max_only;
+};
 
-VOID
-EXhalbtc8703b1ant_PSDScan(
-	IN	PBTC_COEXIST			pBtCoexist,
-	IN	u4Byte					centFreq,
-	IN	u4Byte					offset,
-	IN	u4Byte					span,
-	IN	u4Byte					seconds
-	);
-VOID
-EXhalbtc8703b1ant_DisplayAntDetection(
-	IN	PBTC_COEXIST			pBtCoexist
-	);
+/* *******************************************
+ * The following is interface which will notify coex module.
+ * ******************************************* */
+void ex_halbtc8703b1ant_power_on_setting(IN struct btc_coexist *btcoexist);
+void ex_halbtc8703b1ant_pre_load_firmware(IN struct btc_coexist *btcoexist);
+void ex_halbtc8703b1ant_init_hw_config(IN struct btc_coexist *btcoexist,
+				       IN boolean wifi_only);
+void ex_halbtc8703b1ant_init_coex_dm(IN struct btc_coexist *btcoexist);
+void ex_halbtc8703b1ant_ips_notify(IN struct btc_coexist *btcoexist,
+				   IN u8 type);
+void ex_halbtc8703b1ant_lps_notify(IN struct btc_coexist *btcoexist,
+				   IN u8 type);
+void ex_halbtc8703b1ant_scan_notify(IN struct btc_coexist *btcoexist,
+				    IN u8 type);
+void ex_halbtc8703b1ant_connect_notify(IN struct btc_coexist *btcoexist,
+				       IN u8 type);
+void ex_halbtc8703b1ant_media_status_notify(IN struct btc_coexist *btcoexist,
+		IN u8 type);
+void ex_halbtc8703b1ant_specific_packet_notify(IN struct btc_coexist *btcoexist,
+		IN u8 type);
+void ex_halbtc8703b1ant_bt_info_notify(IN struct btc_coexist *btcoexist,
+				       IN u8 *tmp_buf, IN u8 length);
+void ex_halbtc8703b1ant_rf_status_notify(IN struct btc_coexist *btcoexist,
+		IN u8 type);
+void ex_halbtc8703b1ant_halt_notify(IN struct btc_coexist *btcoexist);
+void ex_halbtc8703b1ant_pnp_notify(IN struct btc_coexist *btcoexist,
+				   IN u8 pnp_state);
+void ex_halbtc8703b1ant_coex_dm_reset(IN struct btc_coexist *btcoexist);
+void ex_halbtc8703b1ant_periodical(IN struct btc_coexist *btcoexist);
+void ex_halbtc8703b1ant_display_coex_info(IN struct btc_coexist *btcoexist);
+void ex_halbtc8703b1ant_antenna_detection(IN struct btc_coexist *btcoexist,
+		IN u32 cent_freq, IN u32 offset, IN u32 span, IN u32 seconds);
+void ex_halbtc8703b1ant_antenna_isolation(IN struct btc_coexist *btcoexist,
+		IN u32 cent_freq, IN u32 offset, IN u32 span, IN u32 seconds);
 
+void ex_halbtc8703b1ant_psd_scan(IN struct btc_coexist *btcoexist,
+		 IN u32 cent_freq, IN u32 offset, IN u32 span, IN u32 seconds);
+void ex_halbtc8703b1ant_display_ant_detection(IN struct btc_coexist *btcoexist);
+
+#else
+#define	ex_halbtc8703b1ant_power_on_setting(btcoexist)
+#define	ex_halbtc8703b1ant_pre_load_firmware(btcoexist)
+#define	ex_halbtc8703b1ant_init_hw_config(btcoexist, wifi_only)
+#define	ex_halbtc8703b1ant_init_coex_dm(btcoexist)
+#define	ex_halbtc8703b1ant_ips_notify(btcoexist, type)
+#define	ex_halbtc8703b1ant_lps_notify(btcoexist, type)
+#define	ex_halbtc8703b1ant_scan_notify(btcoexist, type)
+#define	ex_halbtc8703b1ant_connect_notify(btcoexist, type)
+#define	ex_halbtc8703b1ant_media_status_notify(btcoexist, type)
+#define	ex_halbtc8703b1ant_specific_packet_notify(btcoexist, type)
+#define	ex_halbtc8703b1ant_bt_info_notify(btcoexist, tmp_buf, length)
+#define	ex_halbtc8703b1ant_rf_status_notify(btcoexist, type)
+#define	ex_halbtc8703b1ant_halt_notify(btcoexist)
+#define	ex_halbtc8703b1ant_pnp_notify(btcoexist, pnp_state)
+#define	ex_halbtc8703b1ant_coex_dm_reset(btcoexist)
+#define	ex_halbtc8703b1ant_periodical(btcoexist)
+#define	ex_halbtc8703b1ant_display_coex_info(btcoexist)
+#define	ex_halbtc8703b1ant_antenna_detection(btcoexist, cent_freq, offset, span, seconds)
+#define	ex_halbtc8703b1ant_antenna_isolation(btcoexist, cent_freq, offset, span, seconds)
+#define	ex_halbtc8703b1ant_psd_scan(btcoexist, cent_freq, offset, span, seconds)
+#define	ex_halbtc8703b1ant_display_ant_detection(btcoexist)
+
+#endif
+
+
+#endif

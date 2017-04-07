@@ -6,158 +6,9 @@
 /*============================================================*/
 
 #include "mp_precomp.h"
-#include "../phydm_precomp.h"
 
 #if (BEAMFORMING_SUPPORT == 1)
 #if (RTL8822B_SUPPORT == 1)
-
-#if 0
-VOID
-HalTxbf8814A_GetBeamformcap(
-	IN PADAPTER	Adapter
-)
-{
-	HAL_DATA_TYPE			*pHalData = GET_HAL_DATA(Adapter);
-	PDM_ODM_T			pDM_Odm = &pHalData->DM_OutSrc;
-	PRT_BEAMFORMING_INFO	pBeamformingInfo = GET_BEAMFORM_INFO(Adapter);
-	BEAMFORMING_CAP	BeamformCap = BEAMFORMING_CAP_NONE;
-
-	BeamformCap = phydm_Beamforming_GetBeamCap(pDM_Odm, pBeamformingInfo);
-
-	if (BeamformCap == pBeamformingInfo->BeamformCap)
-		return;
-	else 
-		pBeamformingInfo->BeamformCap = BeamformCap;
-
-}
-
-VOID
-HalTxbf8814A_GetTxRate(
-	IN	PADAPTER			Adapter
-)
-{
-
-	HAL_DATA_TYPE				*pHalData = GET_HAL_DATA(Adapter);
-	PDM_ODM_T					pDM_Odm = &pHalData->DM_OutSrc;
-	PRT_BEAMFORMING_INFO			pBeamInfo = GET_BEAMFORM_INFO(Adapter);
-	PRT_BEAMFORMEE_ENTRY	pEntry;
-	u4Byte		TxRptData = 0;
-	u1Byte		DataRate = 0xFF;
-
-	pEntry = &(pBeamInfo->BeamformeeEntry[pBeamInfo->BeamformeeCurIdx]);
-
-	ReadSdramData_8814A(Adapter, (u1Byte)pEntry->MacId, LOC_8814A_CTRL_INFO, &TxRptData, 1);
-	DataRate = (u1Byte)TxRptData;
-	DataRate &= bMask7bits;   /*Bit7 indicates SGI*/
-	
-	pDM_Odm->TxBfDataRate = DataRate;
-
-}
-
-VOID
-HalTxbf8814A_ResetTxPath(
-	IN	PADAPTER			Adapter,
-	IN	u1Byte				idx
-)
-{
-#if DEV_BUS_TYPE == RT_USB_INTERFACE
-
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter); 
-	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc; 
-	PRT_BEAMFORMING_INFO	pBeamformingInfo = GET_BEAMFORM_INFO(Adapter);
-	RT_BEAMFORMEE_ENTRY	BeamformeeEntry;
-	u1Byte	Nr_index = 0;
-	
-	if (idx < BEAMFORMEE_ENTRY_NUM)
-		BeamformeeEntry = pBeamformingInfo->BeamformeeEntry[idx];
-	else
-		return;
-	
-	if ((pDM_Odm->LastUSBHub) != (RT_GetHubUSBMode(Adapter))) {	
-		Nr_index = TxBF_Nr(halTxbf8814A_GetNtx(Adapter), BeamformeeEntry.CompSteeringNumofBFer);
-
-		if (idx == 0) {
-			switch (Nr_index) {			
-			case 0:	
-			break;
-
-			case 1:			/*Nsts = 2	BC*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT3|BIT2|BIT1|BIT0, 0x6);		/*1ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT7|BIT6|BIT5|BIT4, 0x6);		/*2ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, 0x0000ff00, 0x10);				/*BC*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, BIT23|BIT22|BIT21|BIT20, 0x6);	/*set TxPath selection for 8814a BFer bug refine*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, bMaskByte3, 0x10);				/*if Bfer enable, always use 3Tx for all Spatial stream*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_2, bMaskLWord, 0x1060);
-			break;
-
-			case 2:			/*Nsts = 3	BCD*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT3|BIT2|BIT1|BIT0, 0xe);		/*1ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT7|BIT6|BIT5|BIT4, 0xe);		/*2ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, 0x0000ff00, 0x90);				/*BCD*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT19|BIT18|BIT17|BIT16, 0xe);	/*3ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, 0xff00000, 0x90);					/*bcd*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, BIT23|BIT22|BIT21|BIT20, 0xe);	/*set TxPath selection for 8814a BFer bug refine*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, bMaskByte3, 0x90);				/*if Bfer enable, always use 3Tx for all Spatial stream*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_2, bMaskDWord, 0x90e90e0);
-			break;
-			
-			default:			/*Nr>3, same as Case 3*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT3|BIT2|BIT1|BIT0, 0xf);		/*1ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT7|BIT6|BIT5|BIT4, 0xf);		/*2ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, 0x0000ff00, 0x93);				/*BC*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, BIT19|BIT18|BIT17|BIT16, 0xf);	/*3ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF0, 0xff00000, 0x93);					/*bcd*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, BIT23|BIT22|BIT21|BIT20, 0xf);	/*set TxPath selection for 8814a BFer bug refine*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, bMaskByte3, 0x93);				/*if Bfer enable, always use 3Tx for all Spatial stream*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_2, bMaskDWord, 0x93f93f0);
-			break;
-			}
-		} else	{
-			switch (Nr_index) {
-			case 0:	
-			break;
-
-			case 1:			/*Nsts = 2	BC*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT3|BIT2|BIT1|BIT0, 0x6);		/*1ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT7|BIT6|BIT5|BIT4, 0x6);		/*2ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, 0x0000ff00, 0x10);				/*BC*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, BIT23|BIT22|BIT21|BIT20, 0x6);	/*set TxPath selection for 8814a BFer bug refine*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, bMaskByte3, 0x10);				/*if Bfer enable, always use 3Tx for all Spatial stream*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_2, bMaskLWord, 0x1060);
-			break;
-
-			case 2:			/*Nsts = 3	BCD*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT3|BIT2|BIT1|BIT0, 0xe);		/*1ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT7|BIT6|BIT5|BIT4, 0xe);		/*2ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, 0x0000ff00, 0x90);				/*BC*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT19|BIT18|BIT17|BIT16, 0xe);	/*3ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, 0xff00000, 0x90);					/*bcd*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, BIT23|BIT22|BIT21|BIT20, 0xe);	/*set TxPath selection for 8814a BFer bug refine*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, bMaskByte3, 0x90);				/*if Bfer enable, always use 3Tx for all Spatial stream*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_2, bMaskDWord, 0x90e90e0);
-			break;
-			
-			default:			/*Nr>3, same as Case 3*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT3|BIT2|BIT1|BIT0, 0xf);		/*1ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT7|BIT6|BIT5|BIT4, 0xf);		/*2ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, 0x0000ff00, 0x93);				/*BC*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, BIT19|BIT18|BIT17|BIT16, 0xf);	/*3ss*/
-			PHY_SetBBReg(Adapter, REG_BB_TXBF_ANT_SET_BF1, 0xff00000, 0x93);					/*bcd*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, BIT23|BIT22|BIT21|BIT20, 0xf);	/*set TxPath selection for 8814a BFer bug refine*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_1, bMaskByte3, 0x93);				/*if Bfer enable, always use 3Tx for all Spatial stream*/
-			PHY_SetBBReg(Adapter, REG_BB_TX_PATH_SEL_2, bMaskDWord, 0x93f93f0);
-			break;
-		
-			}
-		}
-
-			pDM_Odm->LastUSBHub = RT_GetHubUSBMode(Adapter);
-	}
-	else
-		return;
-#endif
-}
-#endif
 
 u1Byte
 halTxbf8822B_GetNtx(
@@ -247,17 +98,17 @@ halTxbf8822B_RfMode(
 		return;
 
 	for (i = ODM_RF_PATH_A; i < ODM_RF_PATH_B; i++) {
-		ODM_SetRFReg(pDM_Odm, i, RF_WeLut_Jaguar, 0x80000, 0x1);
+		ODM_SetRFReg(pDM_Odm, (ODM_RF_RADIO_PATH_E)i, RF_WeLut_Jaguar, 0x80000, 0x1);
 		/*RF Mode table write enable*/
 	}
 
 	if ((pBeamformingInfo->beamformee_su_cnt > 0) || (pBeamformingInfo->beamformee_mu_cnt > 0)) {
 		for (i = ODM_RF_PATH_A; i < ODM_RF_PATH_B; i++) {
-			ODM_SetRFReg(pDM_Odm, i, RF_ModeTableAddr, 0xfffff, 0x18000);
+			ODM_SetRFReg(pDM_Odm, (ODM_RF_RADIO_PATH_E)i, RF_ModeTableAddr, 0xfffff, 0x18000);
 			/*Select RX mode*/
-			ODM_SetRFReg(pDM_Odm, i, RF_ModeTableData0, 0xfffff, 0xBE77F);
+			ODM_SetRFReg(pDM_Odm, (ODM_RF_RADIO_PATH_E)i, RF_ModeTableData0, 0xfffff, 0xBE77F);
 			/*Set Table data*/
-			ODM_SetRFReg(pDM_Odm, i, RF_ModeTableData1, 0xfffff, 0x226BF);
+			ODM_SetRFReg(pDM_Odm, (ODM_RF_RADIO_PATH_E)i, RF_ModeTableData1, 0xfffff, 0x226BF);
 			/*Enable TXIQGEN in RX mode*/
 		}
 		ODM_SetRFReg(pDM_Odm, ODM_RF_PATH_A, RF_ModeTableData1, 0xfffff, 0xE26BF);
@@ -265,36 +116,36 @@ halTxbf8822B_RfMode(
 	}
 
 	for (i = ODM_RF_PATH_A; i < ODM_RF_PATH_B; i++) {
-		ODM_SetRFReg(pDM_Odm, i, RF_WeLut_Jaguar, 0x80000, 0x0);
+		ODM_SetRFReg(pDM_Odm, (ODM_RF_RADIO_PATH_E)i, RF_WeLut_Jaguar, 0x80000, 0x0);
 		/*RF Mode table write disable*/
 	}
 
 	if (pBeamformingInfo->beamformee_su_cnt > 0) {
 
 		/*for 8814 19ac(idx 1), 19b4(idx 0), different Tx ant setting*/
-		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1, BIT28|BIT29, 0x2);			/*enable BB TxBF ant mapping register*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, BIT28|BIT29, 0x2);			/*enable BB TxBF ant mapping register*/
 		
 		if (idx == 0) {
 			/*Nsts = 2	AB*/
-			ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF0, 0xffff, 0x0433);
-			ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1, 0xfff00000, 0x043);
+			ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF0_8822B, 0xffff, 0x0433);
+			ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1_8822B, 0xfff00000, 0x043);
 			/*ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_2, bMaskLWord, 0x430);*/
 
 		} else {/*IDX =1*/
-			ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1, 0xffff, 0x0433);
-			ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1, 0xfff00000, 0x043);
+			ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, 0xffff, 0x0433);
+			ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1_8822B, 0xfff00000, 0x043);
 			/*ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_2, bMaskLWord, 0x430;*/
 		}
 	} else {
-		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1, 0xfff00000, 0x1); /*1SS by path-A*/
-		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_2, bMaskLWord, 0x430); /*2SS by path-A,B*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1_8822B, 0xfff00000, 0x1); /*1SS by path-A*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_2_8822B, bMaskLWord, 0x430); /*2SS by path-A,B*/
 	}
 	
 	if (pBeamformingInfo->beamformee_mu_cnt > 0) {
 		/*MU STAs share the common setting*/
-		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1, BIT31, 1);
-		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1, 0xffff, 0x0433);
-		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1, 0xfff00000, 0x043);
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, BIT31, 1);
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, 0xffff, 0x0433);
+		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1_8822B, 0xfff00000, 0x043);
 	}
 
 }
@@ -422,9 +273,10 @@ HalTxbf8822B_Init(
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	u1Byte		u1bTmp;
 	PRT_BEAMFORMING_INFO		pBeamformingInfo = &pDM_Odm->BeamformingInfo;
+	PADAPTER				Adapter = pDM_Odm->Adapter;
 
 	ODM_SetBBReg(pDM_Odm, 0x14c0 , BIT16, 1); /*Enable P1 aggr new packet according to P0 transfer time*/
-	ODM_SetBBReg(pDM_Odm, 0x14c0 , BIT15|BIT14|BIT13|BIT12, 1); /*MU Retry Limit*/
+	ODM_SetBBReg(pDM_Odm, 0x14c0 , BIT15|BIT14|BIT13|BIT12, 10); /*MU Retry Limit*/
 	ODM_SetBBReg(pDM_Odm, 0x14c0 , BIT7, 0); /*Disable Tx MU-MIMO until sounding done*/	
 	ODM_SetBBReg(pDM_Odm, 0x14c0 , 0x3F, 0); /* Clear validity of MU STAs */
 	ODM_Write1Byte(pDM_Odm, 0x167c , 0x70); /*MU-MIMO Option as default value*/
@@ -437,8 +289,25 @@ HalTxbf8822B_Init(
 	/* 0x45F[7:0] = 0x10 (Rate=OFDM_6M, BW20) */
 	ODM_Write1Byte(pDM_Odm, REG_NDPA_OPT_CTRL_8822B, 0x10);
 
+	/*Temp Settings*/
+	ODM_SetBBReg(pDM_Odm, 0x6DC , 0x3F000000, 4); /*STA2's CSI rate is fixed at 6M*/
+	ODM_SetBBReg(pDM_Odm, 0x1C94 , bMaskDWord, 0xAFFFAFFF); /*Grouping bitmap parameters*/
+
 	/* Init HW variable */
 	pBeamformingInfo->RegMUTxCtrl = ODM_Read4Byte(pDM_Odm, 0x14c0);
+
+	if (pDM_Odm->RFType == ODM_2T2R) { /*2T2R*/
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s: RFType is 2T2R\n", __func__));
+		config_phydm_trx_mode_8822b(pDM_Odm, (ODM_RF_PATH_E)3, (ODM_RF_PATH_E)3, TRUE);/*Tx2path*/
+	}
+
+#if (OMNIPEEK_SNIFFER_ENABLED == 1)
+	/* Config HW to receive packet on the user position from registry for sniffer mode. */
+	/* ODM_SetBBReg(pDM_Odm, 0xB00 , BIT9, 1);*/ /* For A-cut only. RegB00[9] = 1 (enable PMAC Rx) */
+	ODM_SetBBReg(pDM_Odm, 0xB54 , BIT30, 1); /* RegB54[30] = 1 (force user position) */
+	ODM_SetBBReg(pDM_Odm, 0xB54 , (BIT29|BIT28), Adapter->MgntInfo.SniffUserPosition); /* RegB54[29:28] = user position (0~3) */
+	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("Set Adapter->MgntInfo.SniffUserPosition=%#X\n", Adapter->MgntInfo.SniffUserPosition));
+#endif
 }
 
 VOID
@@ -506,11 +375,11 @@ HalTxbf8822B_Enter(
 		CSI_Param = (u2Byte)((coefficientsize<<10)|(codebookinfo<<8)|(grouping<<6)|(Nr_index<<3)|(Nc_index));
 
 		if (BFerIdx == 0)
-			ODM_Write2Byte(pDM_Odm, REG_CSI_RPT_PARAM_BW20_8822B, CSI_Param);
+			ODM_Write2Byte(pDM_Odm, REG_TX_CSI_RPT_PARAM_BW20_8822B, CSI_Param);
 		else
-			ODM_Write2Byte(pDM_Odm, REG_CSI_RPT_PARAM_BW20_8822B+2, CSI_Param);
+			ODM_Write2Byte(pDM_Odm, REG_TX_CSI_RPT_PARAM_BW20_8822B+2, CSI_Param);
 		/*ndp_rx_standby_timer, 8814 need > 0x56, suggest from Dvaid*/
-		ODM_Write1Byte(pDM_Odm, REG_SND_PTCL_CTRL_8814A+3, 0x70);
+		ODM_Write1Byte(pDM_Odm, REG_SND_PTCL_CTRL_8822B+3, 0x70);
 	
 	}
 
@@ -566,7 +435,7 @@ HalTxbf8822B_Enter(
 		
 		/*Sounding protocol control*/
 		ODM_Write1Byte(pDM_Odm, REG_SND_PTCL_CTRL_8822B, 0xDB);	
-		
+
 		/* MAC address */
 		for (i = 0; i < 6 ; i++)
 			ODM_Write1Byte(pDM_Odm, (REG_ASSOCIATED_BFMER0_INFO_8822B+i), pBeamformerEntry->MacAddr[i]);
@@ -599,6 +468,10 @@ HalTxbf8822B_Enter(
 		coefficientsize = 0; /*This is nothing really matter*/ 
 		CSI_Param = (u2Byte)((coefficientsize<<10)|(codebookinfo<<8)|(grouping<<6)|(Nr_index<<3)|(Nc_index));
 		ODM_Write2Byte(pDM_Odm, 0x6F4, CSI_Param);
+
+		/*for B-Cut*/
+		ODM_SetBBReg(pDM_Odm, 0x6A0 , BIT20, 0);
+		ODM_SetBBReg(pDM_Odm, 0x688 , BIT20, 0);
 
 	}
 	
@@ -662,13 +535,11 @@ HalTxbf8822B_Enter(
 				pBeamformeeEntry->gid_valid[i] = 0;
 		}
 		for (i = 0; i < 16; i++) {
-			if (i < 4) {
-				pBeamformeeEntry->user_position[i] = (u1Byte)(user_position_l & 0xFF);
-				user_position_l = user_position_l >> 8;
-			} else if (i < 8) {
-				pBeamformeeEntry->user_position[i] = (u1Byte)(user_position_h & 0xFF);
-				user_position_h = user_position_h >> 8;
-			} else
+			if (i < 4)
+				pBeamformeeEntry->user_position[i] = (u1Byte)((user_position_l >>(i*8)) & 0xFF);
+			else if (i < 8)
+				pBeamformeeEntry->user_position[i] = (u1Byte)((user_position_h >>((i-4)*8)) & 0xFF);
+			else
 				pBeamformeeEntry->user_position[i] = 0;
 		}
 
@@ -687,7 +558,10 @@ HalTxbf8822B_Enter(
 		/*set validity of MU STAs*/		
 		pBeamformingInfo->RegMUTxCtrl &= 0xFFFFFFC0;
 		pBeamformingInfo->RegMUTxCtrl |= pBeamformingInfo->beamformee_mu_reg_maping&0x3F;
-		ODM_Write4Byte(pDM_Odm, 0x14c0, pBeamformingInfo->RegMUTxCtrl);	
+		ODM_Write4Byte(pDM_Odm, 0x14c0, pBeamformingInfo->RegMUTxCtrl);
+
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("@%s, RegMUTxCtrl = 0x%x, user_position_l = 0x%x, user_position_h = 0x%x\n", 
+			__func__, pBeamformingInfo->RegMUTxCtrl, user_position_l, user_position_h));
 
 		value16 = ODM_Read2Byte(pDM_Odm, mu_reg[pBeamformeeEntry->mu_reg_index]);
 		value16 &= 0xFE00; /*Clear PAID*/
@@ -700,14 +574,14 @@ HalTxbf8822B_Enter(
 		u1bTmp |= 0xD0; /* Set bit 28, 30, 31 to 3b'111*/
 		ODM_Write1Byte(pDM_Odm, REG_TXBF_CTRL_8822B+3, u1bTmp);
 		/* Set NDPA to 6M*/
-		ODM_Write1Byte(pDM_Odm, REG_NDPA_RATE_8822B, 0x4); /* 6M */
+		ODM_Write1Byte(pDM_Odm, REG_NDPA_RATE_8822B, 0x4); 
 
 		u1bTmp = ODM_Read1Byte(pDM_Odm, REG_NDPA_OPT_CTRL_8822B);
 		u1bTmp &= 0xFC; /* Clear bit 0, 1*/
 		ODM_Write1Byte(pDM_Odm, REG_NDPA_OPT_CTRL_8822B, u1bTmp);
 
 		u4bTmp = ODM_Read4Byte(pDM_Odm, REG_SND_PTCL_CTRL_8822B);
-		u4bTmp = ((u4bTmp & 0xFF0000FF) | 0x020200); /* Set [23:8] to 0x0202 */
+		u4bTmp = ((u4bTmp & 0xFF0000FF) | 0x020200); /* Set [23:8] to 0x0202*/
 		ODM_Write4Byte(pDM_Odm, REG_SND_PTCL_CTRL_8822B, u4bTmp);	
 
 		/* Set 0x6A0[14] = 1 to accept action_no_ack */
@@ -724,7 +598,23 @@ HalTxbf8822B_Enter(
 #endif		
 
 		phydm_Beamforming_Notify(pDM_Odm);
+#if 1
+		{
+			u4Byte ctrl_info_offset, index;
+			/*Set Ctrl Info*/
+			ODM_Write2Byte(pDM_Odm, 0x140, 0x660);
+			ctrl_info_offset = 0x8000 + 32 * pBeamformeeEntry->MacId;
+			/*Reset Ctrl Info*/
+			for (index = 0; index < 8; index++)
+				ODM_Write4Byte(pDM_Odm, ctrl_info_offset + index*4, 0);
+			
+			ODM_Write4Byte(pDM_Odm, ctrl_info_offset, (pBeamformeeEntry->mu_reg_index + 1) << 16);
+			ODM_Write1Byte(pDM_Odm, 0x81, 0x80); /*RPTBUF ready*/
 
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("@%s, MacId = %d, ctrl_info_offset = 0x%x, mu_reg_index = %x\n", 
+			__func__, pBeamformeeEntry->MacId, ctrl_info_offset, pBeamformeeEntry->mu_reg_index));
+		}
+#endif
 	}
 
 }
@@ -758,11 +648,11 @@ HalTxbf8822B_Leave(
 			if (pBeamformerEntry->su_reg_index == 0) {	
 				ODM_Write4Byte(pDM_Odm, REG_ASSOCIATED_BFMER0_INFO_8822B, 0);
 				ODM_Write2Byte(pDM_Odm, REG_ASSOCIATED_BFMER0_INFO_8822B+4, 0);
-				ODM_Write2Byte(pDM_Odm, REG_CSI_RPT_PARAM_BW20_8822B, 0);
+				ODM_Write2Byte(pDM_Odm, REG_TX_CSI_RPT_PARAM_BW20_8822B, 0);
 			} else {
 				ODM_Write4Byte(pDM_Odm, REG_ASSOCIATED_BFMER1_INFO_8822B, 0);
 				ODM_Write2Byte(pDM_Odm, REG_ASSOCIATED_BFMER1_INFO_8822B+4, 0);
-				ODM_Write2Byte(pDM_Odm, REG_CSI_RPT_PARAM_BW20_8822B+2, 0);
+				ODM_Write2Byte(pDM_Odm, REG_TX_CSI_RPT_PARAM_BW20_8822B+2, 0);
 			}
 			pBeamformingInfo->beamformer_su_reg_maping &= ~(BIT(pBeamformerEntry->su_reg_index));
 			pBeamformerEntry->su_reg_index = 0xFF;
@@ -770,7 +660,7 @@ HalTxbf8822B_Leave(
 			/*set validity of MU STA0 and MU STA1*/
 			pBeamformingInfo->RegMUTxCtrl &= 0xFFFFFFC0;
 			ODM_Write4Byte(pDM_Odm, 0x14c0, pBeamformingInfo->RegMUTxCtrl);
-			
+
 			ODM_Memory_Set(pDM_Odm, pBeamformerEntry->gid_valid, 0, 8);
 			ODM_Memory_Set(pDM_Odm, pBeamformerEntry->user_position, 0, 16);
 			pBeamformerEntry->is_mu_ap = FALSE;
@@ -798,7 +688,7 @@ HalTxbf8822B_Leave(
 			/*set validity of MU STA*/
 			pBeamformingInfo->RegMUTxCtrl &= ~(BIT(pBeamformeeEntry->mu_reg_index));
 			ODM_Write4Byte(pDM_Odm, 0x14c0, pBeamformingInfo->RegMUTxCtrl);
-			
+
 			
 			pBeamformeeEntry->is_mu_sta = FALSE;
 			pBeamformingInfo->beamformee_mu_reg_maping &= ~(BIT(pBeamformeeEntry->mu_reg_index));
@@ -828,6 +718,7 @@ HalTxbf8822B_Status(
 	u32 user_position_lsb[6] = {0};
 	u32 user_position_msb[6] = {0};
 	u32 value32;
+	BOOLEAN is_sounding_success[6] = {FALSE};
 
 	if (Idx < BEAMFORMEE_ENTRY_NUM)
 		pBeamformEntry = &pBeamformingInfo->BeamformeeEntry[Idx];
@@ -868,10 +759,26 @@ HalTxbf8822B_Status(
 		tmpVal = ODM_Read2Byte(pDM_Odm, REG_TXBF_CTRL_8822B);
 		ODM_Write2Byte(pDM_Odm, REG_TXBF_CTRL_8822B, tmpVal|BIT15);
 	} else {
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("@%s, MU Sounding Done\n",  __func__));
 		/*MU sounding done */
-		if (pBeamformEntry->BeamformEntryState == BEAMFORMING_ENTRY_STATE_PROGRESSED) {
-			/*value32 = ODM_GetBBReg(pDM_Odm, 0xF4C, 0xFFFF0000);*/
-			value32 = 1;
+		if (1){//(pBeamformEntry->BeamformEntryState == BEAMFORMING_ENTRY_STATE_PROGRESSED) {
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("@%s, BEAMFORMING_ENTRY_STATE_PROGRESSED\n",  __func__));
+
+			value32 = ODM_GetBBReg(pDM_Odm, 0x1684, bMaskDWord);
+			is_sounding_success[0] = (value32 & BIT10)?1:0;
+			is_sounding_success[1] = (value32 & BIT26)?1:0;
+			value32 = ODM_GetBBReg(pDM_Odm, 0x1688, bMaskDWord);
+			is_sounding_success[2] = (value32 & BIT10)?1:0;
+			is_sounding_success[3] = (value32 & BIT26)?1:0;
+			value32 = ODM_GetBBReg(pDM_Odm, 0x168C, bMaskDWord);
+			is_sounding_success[4] = (value32 & BIT10)?1:0;
+			is_sounding_success[5] = (value32 & BIT26)?1:0;
+
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("@%s, is_sounding_success STA1:%d,  STA2:%d, STA3:%d, STA4:%d, STA5:%d, STA6:%d\n", 
+				__func__, is_sounding_success[0], is_sounding_success[1] , is_sounding_success[2] , is_sounding_success[3] , is_sounding_success[4] , is_sounding_success[5] ));
+			
+			value32 = ODM_GetBBReg(pDM_Odm, 0xF4C, 0xFFFF0000);
+			//ODM_SetBBReg(pDM_Odm, 0x19E0, bMaskHWord, 0xFFFF);/*Let MAC ignore bitmap*/
 			
 			is_bitmap_ready = (BOOLEAN)((value32 & BIT15) >> 15);
 			bitmap = (u16)(value32 & 0x3FFF);
@@ -926,14 +833,17 @@ HalTxbf8822B_Status(
 			}
 
 			for (idx = 0; idx < 6; idx++) {
-				pBeamformingInfo->RegMUTxCtrl |= ~(BIT8|BIT9|BIT10);
+				pBeamformingInfo->RegMUTxCtrl &= ~(BIT8|BIT9|BIT10);
 				pBeamformingInfo->RegMUTxCtrl |= ((idx<<8)&(BIT8|BIT9|BIT10));
 				ODM_Write4Byte(pDM_Odm, 0x14c0, pBeamformingInfo->RegMUTxCtrl);
 				ODM_SetMACReg(pDM_Odm, 0x14C4, bMaskDWord, gid_valid[idx]); /*set MU STA gid valid table*/
 			}
 
 			/*Enable TxMU PPDU*/
-			pBeamformingInfo->RegMUTxCtrl |= BIT7;
+			if (pBeamformingInfo->dbg_disable_mu_tx == FALSE)
+				pBeamformingInfo->RegMUTxCtrl |= BIT7;
+			else
+				pBeamformingInfo->RegMUTxCtrl &= ~BIT7;
 			ODM_Write4Byte(pDM_Odm, 0x14c0, pBeamformingInfo->RegMUTxCtrl);
 		}
 	}
@@ -996,7 +906,7 @@ HalTxbf8822B_ConfigGtab(
 	ODM_SetBBReg(pDM_Odm, 0x14c4, bMaskDWord, gid_valid); 
 	ODM_SetBBReg(pDM_Odm, 0x14c8, bMaskDWord, user_position_l);
 	ODM_SetBBReg(pDM_Odm, 0x14cc, bMaskDWord, user_position_h);
-	
+
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s: STA1: gid_valid = 0x%x, user_position_l = 0x%x, user_position_h = 0x%x\n",
 		__func__, gid_valid, user_position_l, user_position_h));
 
@@ -1081,7 +991,7 @@ HalTxbf8822B_FwTxBF(
 	)
 {
 #if 0
-	PRT_BEAMFORMING_INFO	pBeamInfo = GET_BEAMFORM_INFO(Adapter);
+	PRT_BEAMFORMING_INFO 	pBeamInfo = GET_BEAMFORM_INFO(Adapter);
 	PRT_BEAMFORMEE_ENTRY	pBeamEntry = pBeamInfo->BeamformeeEntry+Idx;
 
 	if (pBeamEntry->BeamformEntryState == BEAMFORMING_ENTRY_STATE_PROGRESSING)
@@ -1091,9 +1001,101 @@ HalTxbf8822B_FwTxBF(
 #endif
 }
 
+
+/*this function is only used for BFer*/
+VOID
+phydm_8822btxbf_rfmode(
+	IN PVOID		pDM_VOID,
+	IN u1Byte	SUBFeeCnt,
+	IN u1Byte	MUBFeeCnt
+	)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
+	u1Byte		i, Nr_index = 0;
+
+	if (pDM_Odm->RFType == ODM_1T1R)
+		return;
+
+	if ((SUBFeeCnt > 0) || (MUBFeeCnt > 0)) {
+		for (i = ODM_RF_PATH_A; i <= ODM_RF_PATH_B; i++) {
+			ODM_SetRFReg(pDM_Odm, i, 0xEF, BIT19, 0x1); /*RF Mode table write enable*/
+			ODM_SetRFReg(pDM_Odm, i, 0x33, 0xF, 3); /*Select RX mode*/
+			ODM_SetRFReg(pDM_Odm, i, 0x3E, 0xfffff, 0x00036); /*Set Table data*/	
+			ODM_SetRFReg(pDM_Odm, i, 0x3F, 0xfffff, 0x5AFCE); /*Set Table data*/
+			ODM_SetRFReg(pDM_Odm, i, 0xEF, BIT19, 0x0); /*RF Mode table write disable*/
+		}
+	}
+
+	if (SUBFeeCnt > 0 || MUBFeeCnt > 0) {
+		/*for 8814 19ac(idx 1), 19b4(idx 0), different Tx ant setting*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, BIT28|BIT29, 0x2);	/*enable BB TxBF ant mapping register*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, BIT31, 1);			/*ignore user since 8822B only 2Tx*/
+		
+		/*Nsts = 2	AB*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, 0xffff, 0x0433);
+		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1_8822B, 0xfff00000, 0x043);
+
+	} else {
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, BIT28|BIT29, 0x0);	/*enable BB TxBF ant mapping register*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TXBF_ANT_SET_BF1_8822B, BIT31, 0);			/*ignore user since 8822B only 2Tx*/
+		
+		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_1_8822B, 0xfff00000, 0x1); /*1SS by path-A*/
+		ODM_SetBBReg(pDM_Odm, REG_BB_TX_PATH_SEL_2_8822B, bMaskLWord, 0x430); /*2SS by path-A,B*/
+	}
+
+}
+
+
+/*this function is for BFer bug workaround*/
+VOID
+phydm_8822b_sutxbfer_workaroud(
+	IN PVOID		pDM_VOID,
+	IN BOOLEAN	EnableSUBfer,
+	IN u1Byte	Nc,
+	IN u1Byte	Nr,
+	IN u1Byte	Ng,
+	IN u1Byte	CB,
+	IN u1Byte	BW,
+	IN BOOLEAN	isVHT
+	)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
+
+	if (EnableSUBfer) {
+		ODM_SetBBReg(pDM_Odm, 0x19f8, BIT22|BIT21|BIT20, 0x1);
+		ODM_SetBBReg(pDM_Odm, 0x19f8, BIT25|BIT24|BIT23, 0x0);
+		ODM_SetBBReg(pDM_Odm, 0x19f8, BIT16, 0x1);
+
+		if (isVHT)
+			ODM_SetBBReg(pDM_Odm, 0x19f0, BIT5|BIT4|BIT3|BIT2|BIT1|BIT0, 0x1f);
+		else
+			ODM_SetBBReg(pDM_Odm, 0x19f0, BIT5|BIT4|BIT3|BIT2|BIT1|BIT0, 0x22);
+		
+		ODM_SetBBReg(pDM_Odm, 0x19f0, BIT7|BIT6, Nc);
+		ODM_SetBBReg(pDM_Odm, 0x19f0, BIT9|BIT8, Nr);
+		ODM_SetBBReg(pDM_Odm, 0x19f0, BIT11|BIT10, Ng);
+		ODM_SetBBReg(pDM_Odm, 0x19f0, BIT13|BIT12, CB);
+
+		ODM_SetBBReg(pDM_Odm, 0xb58, BIT3|BIT2, BW);
+		ODM_SetBBReg(pDM_Odm, 0xb58, BIT7|BIT6|BIT5|BIT4, 0x0);
+		ODM_SetBBReg(pDM_Odm, 0xb58, BIT9|BIT8, BW);
+		ODM_SetBBReg(pDM_Odm, 0xb58, BIT13|BIT12|BIT11|BIT10, 0x0);
+	} else
+		ODM_SetBBReg(pDM_Odm, 0x19f8, BIT16, 0x0);
+
+	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_TRACE, ("[%s] EnableSUBfer = %d, isVHT = %d\n", __func__, EnableSUBfer, isVHT));
+	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_TRACE, ("[%s] Nc = %d, Nr = %d, Ng = %d, CB = %d, BW = %d\n", __func__, Nc, Nr, Ng, CB, BW));
+	
+
+}
+
+
+
+
 #else	/* (RTL8822B_SUPPORT == 1)*/
 
 #endif	/* (RTL8822B_SUPPORT == 1)*/
 
-#endif /*(BEAMFORMING_SUPPORT == 1)*/
+#endif 
+
 

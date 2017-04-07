@@ -153,10 +153,7 @@ odm_EdcaTurboCheckCE(
 		return;
 	}
 
-	if(	(pDM_Odm->SupportICType == ODM_RTL8192C) ||
-		(pDM_Odm->SupportICType == ODM_RTL8723A) ||
-		(pDM_Odm->SupportICType == ODM_RTL8188E))
-	{
+	if (pDM_Odm->SupportICType & ODM_RTL8188E) {
 		if((IOTPeer == HT_IOT_PEER_RALINK)||(IOTPeer == HT_IOT_PEER_ATHEROS))
 			bBiasOnRx = _TRUE;
 	}
@@ -193,31 +190,13 @@ odm_EdcaTurboCheckCE(
 
 		//if ((pDM_Odm->DM_EDCA_Table.prv_traffic_idx != trafficIndex) || (!pDM_Odm->DM_EDCA_Table.bCurrentTurboEDCA))
 		{
-			if (ICType == ODM_RTL8192D) {
-				// Single PHY
-				if (pDM_Odm->RFType == ODM_2T2R) {
-					EDCA_BE_UL = 0x60a42b;    //0x5ea42b;
-					EDCA_BE_DL = 0x60a42b;    //0x5ea42b;
-			} else {
-					EDCA_BE_UL = 0x6ea42b;
-					EDCA_BE_DL = 0x6ea42b;
+			if (pDM_Odm->SupportInterface == ODM_ITRF_PCIE) {
+				EDCA_BE_UL = 0x6ea42b;
+				EDCA_BE_DL = 0x6ea42b;
 			}
-			}
-			else
-			{
-				if(pDM_Odm->SupportInterface==ODM_ITRF_PCIE) {
-					if((ICType==ODM_RTL8192C)&&(pDM_Odm->RFType==ODM_2T2R)) {
-						EDCA_BE_UL = 0x60a42b;
-						EDCA_BE_DL = 0x60a42b;
-					} else {
-						EDCA_BE_UL = 0x6ea42b;
-						EDCA_BE_DL = 0x6ea42b;
-					}
-				}
-			}
-		
+
 			//92D txop can't be set to 0x3e for cisco1250
-			if((ICType!=ODM_RTL8192D) && (IOTPeer== HT_IOT_PEER_CISCO) &&(WirelessMode==ODM_WM_N24G))
+			if ((IOTPeer == HT_IOT_PEER_CISCO) && (WirelessMode == ODM_WM_N24G))
 			{
 				EDCA_BE_DL = edca_setting_DL[IOTPeer];
 				EDCA_BE_UL = edca_setting_UL[IOTPeer];
@@ -323,18 +302,15 @@ odm_EdcaTurboCheckMP(
 	pbIsCurRDLState=&(pDM_Odm->DM_EDCA_Table.bIsCurRDLState);	
 
 	//2012/09/14 MH Add 
-	if (pMgntInfo->NumNonBePkt > pMgntInfo->RegEdcaThresh && !Adapter->MgntInfo.bWiFiConfg)
+	if (pMgntInfo->NumNonBePkt > pMgntInfo->RegEdcaThresh && !(Adapter->MgntInfo.bWiFiConfg & RT_WIFI_LOGO))
 		pHalData->bIsAnyNonBEPkts = TRUE;
 
 	pMgntInfo->NumNonBePkt = 0;
 
        // Caculate TX/RX TP:
-	//curTxOkCnt = Adapter->TxStats.NumTxBytesUnicast - pMgntInfo->lastTxOkCnt;
-	//curRxOkCnt = Adapter->RxStats.NumRxBytesUnicast - pMgntInfo->lastRxOkCnt;
-	curTxOkCnt = Adapter->TxStats.NumTxBytesUnicast - pDM_Odm->lastTxOkCnt;
-	curRxOkCnt = Adapter->RxStats.NumRxBytesUnicast - pDM_Odm->lastRxOkCnt;
-	pDM_Odm->lastTxOkCnt = Adapter->TxStats.NumTxBytesUnicast;
-	pDM_Odm->lastRxOkCnt = Adapter->RxStats.NumRxBytesUnicast;
+	curTxOkCnt = pDM_Odm->curTxOkCnt;
+	curRxOkCnt = pDM_Odm->curRxOkCnt;
+
 
 	if(pExtAdapter == NULL) 
 		pExtAdapter = pDefaultAdapter;
@@ -603,7 +579,7 @@ odm_IsEdcaTurboDisable(
 	}
 
 	if((!(pDM_Odm->SupportAbility& ODM_MAC_EDCA_TURBO ))||
-		(pDM_Odm->bWIFITest)||
+		(pDM_Odm->WIFITest & RT_WIFI_LOGO)||
 		(IOTPeer>= HT_IOT_PEER_MAX))
 	{
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD, ("EdcaTurboDisable\n"));
@@ -633,11 +609,9 @@ ODM_EdcaParaSelByIot(
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PADAPTER		       Adapter = pDM_Odm->Adapter;
-	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
 	u4Byte                         IOTPeer=0;
 	u4Byte                         ICType=pDM_Odm->SupportICType;
 	u1Byte                         WirelessMode=0xFF;                   //invalid value
-	u4Byte				RFType=pDM_Odm->RFType;
 	u4Byte                         IOTPeerSubType = 0;
 
 	PMGNT_INFO			pMgntInfo = &Adapter->MgntInfo;
@@ -653,41 +627,12 @@ ODM_EdcaParaSelByIot(
 	IOTPeerSubType=pMgntInfo->IOTPeerSubtype;
 	GetTwoPortSharedResource(Adapter,TWO_PORT_SHARED_OBJECT__STATUS,NULL,&TwoPortStatus);
 
-
-	if(ICType==ODM_RTL8192D)
-	{      
-		// Single PHY
-		if(pDM_Odm->RFType==ODM_2T2R)
-		{
-			(*EDCA_BE_UL) = 0x60a42b;    //0x5ea42b;
-			(*EDCA_BE_DL) = 0x60a42b;    //0x5ea42b;
-
-		}
-		else
-		{
-			(*EDCA_BE_UL) = 0x6ea42b;
-			(*EDCA_BE_DL) = 0x6ea42b;
-		}
-
-	}
 ////============================
 /// IOT case for MP
 ////============================	
-
-	else
-	{
-
-		if(pDM_Odm->SupportInterface==ODM_ITRF_PCIE){
-			if((ICType==ODM_RTL8192C)&&(pDM_Odm->RFType==ODM_2T2R))			{
-				(*EDCA_BE_UL) = 0x60a42b;
-				(*EDCA_BE_DL) = 0x60a42b;
-			}
-			else
-			{
-				(*EDCA_BE_UL) = 0x6ea42b;
-				(*EDCA_BE_DL) = 0x6ea42b;
-			}
-		}
+	if (pDM_Odm->SupportInterface == ODM_ITRF_PCIE) {
+			(*EDCA_BE_UL) = 0x6ea42b;
+			(*EDCA_BE_DL) = 0x6ea42b;
 	}
  
 	if(TwoPortStatus == TWO_PORT_STATUS__EXTENSION_ONLY)
@@ -713,7 +658,7 @@ ODM_EdcaParaSelByIot(
 		}
 		
 		//92D txop can't be set to 0x3e for cisco1250
-		if((ICType!=ODM_RTL8192D) && (IOTPeer== HT_IOT_PEER_CISCO) &&(WirelessMode==ODM_WM_N24G))
+		if ((IOTPeer == HT_IOT_PEER_CISCO) && (WirelessMode == ODM_WM_N24G))
 		{
 			(*EDCA_BE_DL) = edca_setting_DL[IOTPeer];
 			(*EDCA_BE_UL) = edca_setting_UL[IOTPeer];
@@ -747,14 +692,6 @@ ODM_EdcaParaSelByIot(
 		}
 	}
 
-    	if((ICType == ODM_RTL8192D)&&(IOTPeerSubType == HT_IOT_PEER_LINKSYS_E4200_V1)&&((WirelessMode==ODM_WM_N5G)))
-	{
-		(*EDCA_BE_DL) = 0x432b;
-		(*EDCA_BE_UL) = 0x432b;
-	}		
-
-
-
 	if((ICType==ODM_RTL8812)||(ICType==ODM_RTL8192E))           //add 8812AU/8812AE
 	{
 		(*EDCA_BE_UL) = 0x5ea42b;
@@ -769,15 +706,6 @@ ODM_EdcaParaSelByIot(
 		(*EDCA_BE_DL) = 0xa42b;
 
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("8814A: EDCA_BE_UL=0x%lx EDCA_BE_DL =0x%lx\n",(*EDCA_BE_UL),(*EDCA_BE_DL)));
-	}
-
-	
-
-	// Revised for Atheros DIR-655 IOT issue to improve down link TP, added by Roger, 2013.03.22.
-	if((ICType == ODM_RTL8723A) && (IOTPeerSubType== HT_IOT_PEER_ATHEROS_DIR655) && 
-		(pMgntInfo->dot11CurrentChannelNumber == 6))
-	{
-		(*EDCA_BE_DL) = 0xa92b;
 	}
 
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_EDCA_TURBO,ODM_DBG_LOUD,("Special: EDCA_BE_UL=0x%lx EDCA_BE_DL =0x%lx, IOTPeer = %d\n",(*EDCA_BE_UL),(*EDCA_BE_DL), IOTPeer));

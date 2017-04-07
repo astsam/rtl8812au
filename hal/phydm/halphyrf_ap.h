@@ -20,7 +20,7 @@
  
  #ifndef __HAL_PHY_RF_H__
  #define __HAL_PHY_RF_H__
- 
+
 #include "phydm_powertracking_ap.h"
 #if (RTL8814A_SUPPORT == 1)
 #include "rtl8814a/phydm_iqk_8814a.h"
@@ -30,6 +30,9 @@
 #include "rtl8822b/phydm_iqk_8822b.h"
 #endif
 
+#if (RTL8821C_SUPPORT == 1)
+#include "rtl8822b/phydm_iqk_8821c.h"
+#endif
 
 typedef enum _PWRTRACK_CONTROL_METHOD {
 	BBSWING,
@@ -44,6 +47,8 @@ typedef VOID 	(*FuncLCK)(PVOID);
 				//refine by YuChen for 8814A
 typedef VOID  	(*FuncSwing)(PVOID, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
 typedef VOID	(*FuncSwing8814only)(PVOID, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
+typedef VOID	(*FuncAllSwing)(PVOID, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
+
 
 typedef struct _TXPWRTRACK_CFG {
 	u1Byte 		SwingTableSize_CCK;	
@@ -58,6 +63,7 @@ typedef struct _TXPWRTRACK_CFG {
 	FuncLCK		PHY_LCCalibrate;
 	FuncSwing	GetDeltaSwingTable;
 	FuncSwing8814only	GetDeltaSwingTable8814only;
+	FuncAllSwing	GetDeltaAllSwingTable;
 } TXPWRTRACK_CFG, *PTXPWRTRACK_CFG;
 
 VOID 
@@ -106,6 +112,17 @@ ODM_TXPowerTrackingCallback_ThermalMeter_JaguarSeries(
 	IN PADAPTER	Adapter
 #endif
 	);
+
+#elif (RTL8197F_SUPPORT == 1 || RTL8822B_SUPPORT == 1)
+VOID
+ODM_TXPowerTrackingCallback_ThermalMeter_JaguarSeries3(
+#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+	IN	PVOID		pDM_VOID
+#else
+	IN PADAPTER	Adapter
+#endif
+	);
+
 #endif
 
 #define IS_CCK_RATE(_rate) 				(ODM_MGN_1M == _rate || _rate == ODM_MGN_2M || _rate == ODM_MGN_5_5M || _rate == ODM_MGN_11M )

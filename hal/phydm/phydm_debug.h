@@ -22,7 +22,9 @@
 #ifndef	__ODM_DBG_H__
 #define __ODM_DBG_H__
 
-#define DEBUG_VERSION	"1.0"  /*2015.01.13 Dino*/
+/*#define DEBUG_VERSION	"1.1"*/  /*2015.07.29 YuChen*/
+/*#define DEBUG_VERSION	"1.2"*/  /*2015.08.28 Dino*/
+#define DEBUG_VERSION	"1.3"  /*2016.04.28 YuChen*/
 //-----------------------------------------------------------------------------
 //	Define the debug levels
 //
@@ -71,6 +73,7 @@
 #define	RATE_UP			BIT2
 #define	RATE_DOWN		BIT3
 #define	TRY_DONE		BIT4
+#define	RA_H2C		BIT5
 #define	F_RATE_AP_RPT	BIT7
 
 //-----------------------------------------------------------------------------
@@ -83,15 +86,16 @@
 #define	ODM_COMP_DYNAMIC_TXPWR		BIT2
 #define	ODM_COMP_FA_CNT				BIT3
 #define	ODM_COMP_RSSI_MONITOR		BIT4
-#define	ODM_COMP_CCK_PD				BIT5
+#define	ODM_COMP_SNIFFER				BIT5
 #define	ODM_COMP_ANT_DIV				BIT6
-#define	ODM_COMP_PWR_SAVE			BIT7
-#define	ODM_COMP_PWR_TRAIN			BIT8
+#define	ODM_COMP_DFS					BIT7
+#define	ODM_COMP_NOISY_DETECT		BIT8
 #define	ODM_COMP_RATE_ADAPTIVE		BIT9
 #define	ODM_COMP_PATH_DIV			BIT10
-#define	ODM_COMP_PSD					BIT11
+#define	ODM_COMP_CCX					BIT11
+
 #define	ODM_COMP_DYNAMIC_PRICCA		BIT12
-#define	ODM_COMP_RXHP					BIT13
+									/*BIT13 TBD*/
 #define	ODM_COMP_MP					BIT14
 #define	ODM_COMP_CFO_TRACKING		BIT15
 #define	ODM_COMP_ACS					BIT16
@@ -100,20 +104,24 @@
 #define	PHYDM_COMP_TXBF				BIT19
 //MAC Functions
 #define	ODM_COMP_EDCA_TURBO			BIT20
-#define	ODM_COMP_EARLY_MODE			BIT21
+									/*BIT21 TBD*/
 #define	ODM_FW_DEBUG_TRACE			BIT22
 //RF Functions
+									/*BIT23 TBD*/
 #define	ODM_COMP_TX_PWR_TRACK		BIT24
 #define	ODM_COMP_RX_GAIN_TRACK		BIT25
 #define	ODM_COMP_CALIBRATION			BIT26
 //Common Functions
 #define	ODM_PHY_CONFIG				BIT28
-#define	BEAMFORMING_DEBUG				BIT29
+#define	ODM_COMP_INIT					BIT29
 #define	ODM_COMP_COMMON				BIT30
-#define	ODM_COMP_INIT					BIT31
-#define	ODM_COMP_NOISY_DETECT		BIT32
+#define	ODM_COMP_API					BIT31
+
 
 /*------------------------Export Marco Definition---------------------------*/
+
+#define	config_phydm_read_txagc_check(data)		(data != INVALID_TXAGC_DATA)
+
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	#define RT_PRINTK				DbgPrint
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
@@ -134,32 +142,26 @@
 	do {	\
 		if(((comp) & pDM_Odm->DebugComponents) && (level <= pDM_Odm->DebugLevel || level == ODM_DBG_SERIOUS))	\
 		{																			\
-			if(pDM_Odm->SupportICType == ODM_RTL8192C)								\
-				DbgPrint("[ODM-92C] ");												\
-			else if(pDM_Odm->SupportICType == ODM_RTL8192D)							\
-				DbgPrint("[ODM-92D] ");												\
-			else if(pDM_Odm->SupportICType == ODM_RTL8723A)							\
-				DbgPrint("[ODM-8723A] ");											\
-			else if(pDM_Odm->SupportICType == ODM_RTL8188E)							\
-				DbgPrint("[ODM-8188E] ");											\
+			if (pDM_Odm->SupportICType == ODM_RTL8188E)							\
+				DbgPrint("[PhyDM-8188E] ");											\
 			else if(pDM_Odm->SupportICType == ODM_RTL8192E) 						\
-				DbgPrint("[ODM-8192E] ");											\
+				DbgPrint("[PhyDM-8192E] ");											\
 			else if(pDM_Odm->SupportICType == ODM_RTL8812)							\
-				DbgPrint("[ODM-8812] ");											\
+				DbgPrint("[PhyDM-8812A] ");											\
 			else if(pDM_Odm->SupportICType == ODM_RTL8821)							\
-				DbgPrint("[ODM-8821] ");											\
+				DbgPrint("[PhyDM-8821A] ");											\
 			else if(pDM_Odm->SupportICType == ODM_RTL8814A)							\
-				DbgPrint("[ODM-8814] ");											\
+				DbgPrint("[PhyDM-8814A] ");											\
 			else if(pDM_Odm->SupportICType == ODM_RTL8703B)							\
-				DbgPrint("[ODM-8703B] ");											\
+				DbgPrint("[PhyDM-8703B] ");											\
 			else if(pDM_Odm->SupportICType == ODM_RTL8822B)							\
-				DbgPrint("[ODM-8822] ");											\
+				DbgPrint("[PhyDM-8822B] ");											\
 			else if (pDM_Odm->SupportICType == ODM_RTL8188F)							\
-				DbgPrint("[ODM-8188F] ");											\
+				DbgPrint("[PhyDM-8188F] ");											\
 			RT_PRINTK fmt;															\
 		}	\
 	} while (0)
-	
+
 #define ODM_RT_TRACE_F(pDM_Odm, comp, level, fmt)									\
 		if(((comp) & pDM_Odm->DebugComponents) && (level <= pDM_Odm->DebugLevel))	\
 		{																			\
@@ -203,17 +205,12 @@
 VOID 
 PHYDM_InitDebugSetting(IN		PDM_ODM_T		pDM_Odm);
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-VOID phydm_BB_RxHang_Info(IN PDM_ODM_T pDM_Odm);
-#endif
-
-#define	BB_TMP_BUF_SIZE		100
-VOID phydm_BB_Debug_Info(IN PDM_ODM_T pDM_Odm);
 VOID phydm_BasicDbgMessage(	IN		PVOID			pDM_VOID);
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 #define	PHYDM_DBGPRINT		0
 #define	PHYDM_SSCANF(x, y, z)	DCMD_Scanf(x, y, z)
+#define	PHYDM_VAST_INFO_SNPRINTF	PHYDM_SNPRINTF
 #if (PHYDM_DBGPRINT == 1)
 #define	PHYDM_SNPRINTF(msg)	\
 		do {\
@@ -228,7 +225,7 @@ VOID phydm_BasicDbgMessage(	IN		PVOID			pDM_VOID);
 		} while (0)
 #endif
 #else
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+#if (DM_ODM_SUPPORT_TYPE == ODM_CE) || defined(__OSK__)
 #define	PHYDM_DBGPRINT		0
 #else
 #define	PHYDM_DBGPRINT		1
@@ -240,6 +237,13 @@ VOID phydm_BasicDbgMessage(	IN		PVOID			pDM_VOID);
 #define	DCMD_HEX				"%x"
 
 #define	PHYDM_SSCANF(x, y, z)	sscanf(x, y, z)
+
+#define	PHYDM_VAST_INFO_SNPRINTF(msg)\
+		do {\
+			snprintf msg;\
+			DbgPrint(output);\
+		} while (0)
+
 #if (PHYDM_DBGPRINT == 1)
 #define	PHYDM_SNPRINTF(msg)\
 		do {\

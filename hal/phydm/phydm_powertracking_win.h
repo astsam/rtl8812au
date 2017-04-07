@@ -26,8 +26,10 @@
 #define	DPK_DELTA_MAPPING_NUM	13
 #define	index_mapping_HP_NUM	15	
 #define	TXSCALE_TABLE_SIZE 		37
+#define	CCK_TABLE_SIZE_8723D    41
 #define	TXPWR_TRACK_TABLE_SIZE 	30
 #define	DELTA_SWINGIDX_SIZE     30
+#define DELTA_SWINTSSI_SIZE     61
 #define	BAND_NUM 				3
 #define	MAX_RF_PATH	4
 #define	CCK_TABLE_SIZE_88F	21
@@ -53,6 +55,9 @@ extern	u4Byte OFDMSwingTable_New[OFDM_TABLE_SIZE];
 extern	u1Byte CCKSwingTable_Ch1_Ch13_New[CCK_TABLE_SIZE][8];
 extern	u1Byte CCKSwingTable_Ch14_New [CCK_TABLE_SIZE][8];
 extern	u1Byte CCKSwingTable_Ch1_Ch14_88F[CCK_TABLE_SIZE_88F][16];
+extern	u1Byte CCKSwingTable_Ch1_Ch13_88F[CCK_TABLE_SIZE_88F][16];
+extern	u1Byte CCKSwingTable_Ch14_88F[CCK_TABLE_SIZE_88F][16];
+extern	u4Byte CCKSwingTable_Ch1_Ch14_8723D[CCK_TABLE_SIZE_8723D];
 
 extern  u4Byte TxScalingTable_Jaguar[TXSCALE_TABLE_SIZE];
 
@@ -145,6 +150,8 @@ typedef struct ODM_RF_Calibration_Structure
 	s1Byte	DeltaPowerIndex[MAX_RF_PATH];
 	s1Byte	DeltaPowerIndexLast[MAX_RF_PATH];	
 	BOOLEAN bTxPowerChanged;
+	s1Byte	XtalOffset;
+	s1Byte	XtalOffsetLast;
 		
 	u1Byte 	ThermalValue_HP[HP_THERMAL_NUM];
 	u1Byte 	ThermalValue_HP_index;
@@ -175,6 +182,20 @@ typedef struct ODM_RF_Calibration_Structure
 	u1Byte  DeltaSwingTableIdx_5GC_N[BAND_NUM][DELTA_SWINGIDX_SIZE];
 	u1Byte  DeltaSwingTableIdx_5GD_P[BAND_NUM][DELTA_SWINGIDX_SIZE];
 	u1Byte  DeltaSwingTableIdx_5GD_N[BAND_NUM][DELTA_SWINGIDX_SIZE];
+	u1Byte  DeltaSwingTSSITable_2GCCKA[DELTA_SWINTSSI_SIZE];         
+	u1Byte  DeltaSwingTSSITable_2GCCKB[DELTA_SWINTSSI_SIZE];           
+	u1Byte  DeltaSwingTSSITable_2GCCKC[DELTA_SWINTSSI_SIZE];            
+	u1Byte  DeltaSwingTSSITable_2GCCKD[DELTA_SWINTSSI_SIZE];            
+	u1Byte  DeltaSwingTSSITable_2GA[DELTA_SWINTSSI_SIZE];                
+	u1Byte  DeltaSwingTSSITable_2GB[DELTA_SWINTSSI_SIZE];              
+	u1Byte  DeltaSwingTSSITable_2GC[DELTA_SWINTSSI_SIZE];                   
+	u1Byte  DeltaSwingTSSITable_2GD[DELTA_SWINTSSI_SIZE];                
+	u1Byte  DeltaSwingTSSITable_5GA[BAND_NUM][DELTA_SWINTSSI_SIZE];
+	u1Byte  DeltaSwingTSSITable_5GB[BAND_NUM][DELTA_SWINTSSI_SIZE];
+	u1Byte  DeltaSwingTSSITable_5GC[BAND_NUM][DELTA_SWINTSSI_SIZE];
+	u1Byte  DeltaSwingTSSITable_5GD[BAND_NUM][DELTA_SWINTSSI_SIZE];
+	s1Byte  DeltaSwingTableXtal_P[DELTA_SWINGIDX_SIZE];
+	s1Byte  DeltaSwingTableXtal_N[DELTA_SWINGIDX_SIZE];
 	u1Byte  DeltaSwingTableIdx_2GA_P_8188E[DELTA_SWINGIDX_SIZE];
 	u1Byte  DeltaSwingTableIdx_2GA_N_8188E[DELTA_SWINGIDX_SIZE];
 	
@@ -185,6 +206,7 @@ typedef struct ODM_RF_Calibration_Structure
 #else
 	u1Byte			BbSwingIdxOfdmBase;
 #endif
+	BOOLEAN		DefaultBbSwingIndexFlag;
 	BOOLEAN			BbSwingFlagOfdm;
 	u1Byte			BbSwingIdxCck;
 	u1Byte			BbSwingIdxCckCurrent;
@@ -194,7 +216,8 @@ typedef struct ODM_RF_Calibration_Structure
 	BOOLEAN			BbSwingFlagCck;
 	
 	s1Byte			Absolute_OFDMSwingIdx[MAX_RF_PATH];   
-	s1Byte			Remnant_OFDMSwingIdx[MAX_RF_PATH];   
+	s1Byte			Remnant_OFDMSwingIdx[MAX_RF_PATH];
+	s1Byte			Absolute_CCKSwingIdx[MAX_RF_PATH]; 
 	s1Byte			Remnant_CCKSwingIdx;
 	s1Byte			Modify_TxAGC_Value;       /*Remnat compensate value at TxAGC */
 	BOOLEAN			Modify_TxAGC_Flag_PathA;
@@ -221,7 +244,8 @@ typedef struct ODM_RF_Calibration_Structure
 	BOOLEAN bLCKInProgress;
 	BOOLEAN	bAntennaDetected;
 	BOOLEAN	bNeedIQK;
-	BOOLEAN	bIQKInProgress;	
+	BOOLEAN	bIQKInProgress;
+	BOOLEAN	bIQKPAoff;
 	u1Byte	Delta_IQK;
 	u4Byte	ADDA_backup[IQK_ADDA_REG_NUM];
 	u4Byte	IQK_MAC_backup[IQK_MAC_REG_NUM];
@@ -231,13 +255,17 @@ typedef struct ODM_RF_Calibration_Structure
 	u4Byte	RxIQC_8723B[2][2][2]; /* { {S1: 0xc14, 0xca0} ,           {S0: 0xc14, 0xca0}} */
 	u4Byte	TxIQC_8703B[3][2];	/* { {S1: 0xc94, 0xc80, 0xc4c} , {S0: 0xc9c, 0xc88, 0xc4c}}*/
 	u4Byte	RxIQC_8703B[2][2];	/* { {S1: 0xc14, 0xca0} ,           {S0: 0xc14, 0xca0}}*/
+	u4Byte	TxIQC_8723D[2][3][2];	/* { {S1: 0xc94, 0xc80, 0xc4c} , {S0: 0xc9c, 0xc88, 0xc4c}}*/
+	u4Byte	RxIQC_8723D[2][2][2];	/* { {S1: 0xc14, 0xca0} ,           {S0: 0xc14, 0xca0}}*/
 	
-	
-
-	// <James> IQK time measurement 
 	u8Byte	IQK_StartTime;
+	u8Byte	IQK_TotalProgressingTime;
 	u8Byte	IQK_ProgressingTime;
 	u4Byte  LOK_Result;
+	u1Byte	IQKstep;
+	u1Byte	Kcount;
+	u1Byte	retry_count[4][2]; /* [4]: path ABCD, [2] TXK, RXK */
+	BOOLEAN	isMPmode;
 
 	//for APK
 	u4Byte 	APKoutput[2][2]; //path A/B; output1_1a/output1_2a
@@ -257,6 +285,12 @@ typedef struct ODM_RF_Calibration_Structure
 
 	s1Byte Modify_TxAGC_Value_OFDM;
 	s1Byte Modify_TxAGC_Value_CCK;
+
+	/*Add by Yuchen for Kfree Phydm*/
+	u1Byte			RegRfKFreeEnable;	/*for registry*/
+	u1Byte			RfKFreeEnable;		/*for efuse enable check*/
+
+	HALMAC_PWR_TRACKING_OPTION	HALMAC_PWR_TRACKING_INFO;
 }ODM_RF_CAL_T,*PODM_RF_CAL_T;
 
 

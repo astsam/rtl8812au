@@ -18,7 +18,7 @@
 * 
 ******************************************************************************/
 
-/*Image2HeaderVersion: 2.11*/
+/*Image2HeaderVersion: 2.16*/
 #if (RTL8812A_SUPPORT == 1)
 #ifndef __INC_MP_FW_HW_IMG_8812A_H
 #define __INC_MP_FW_HW_IMG_8812A_H

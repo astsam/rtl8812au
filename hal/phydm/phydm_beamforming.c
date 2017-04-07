@@ -57,11 +57,11 @@ phydm_staInfoInit(
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 
 	if (!IS_STA_VALID(pSTA)) {
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s => sta_info(mac_id:%d) failed\n", __func__, staIdx));
 		rtw_warn_on(1);
-		DBG_871X("%s => sta_info(mac_id:%d) failed\n", __func__, staIdx);
 		return pEntry;
 	}
-	
+
 	ODM_MoveMemory(pDM_Odm, pEntry->MyMacAddr, adapter_mac_addr(pSTA->padapter), 6);
 	pEntry->HtBeamformCap = pSTA->htpriv.beamform_cap;
 
@@ -341,12 +341,12 @@ phydm_Beamforming_GetFirstMUBFeeEntryIdx(
 /*Add SU BFee and MU BFee*/
 PRT_BEAMFORMEE_ENTRY
 Beamforming_AddBFeeEntry(
-	IN	PVOID				pDM_VOID,
+	IN	PVOID					pDM_VOID,
 	IN	PRT_BEAMFORM_STAINFO	pSTA,
-	IN	BEAMFORMING_CAP	BeamformCap,
-	IN	u1Byte				NumofSoundingDim,
-	IN	u1Byte				CompSteeringNumofBFer,
-	OUT	pu1Byte				Idx
+	IN	BEAMFORMING_CAP		BeamformCap,
+	IN	u1Byte					NumofSoundingDim,
+	IN	u1Byte					CompSteeringNumofBFer,
+	OUT	pu1Byte					Idx
 	)
 {
 	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
@@ -401,7 +401,7 @@ Beamforming_AddBFeeEntry(
 			pDM_Odm->BeamformingInfo.beamformee_mu_cnt += 1;
 			pEntry->is_mu_sta = TRUE;
 			pDM_Odm->BeamformingInfo.FirstMUBFeeIndex = phydm_Beamforming_GetFirstMUBFeeEntryIdx(pDM_Odm);
-		} else if  (BeamformCap & BEAMFORMER_CAP_VHT_SU) {
+		} else if  (BeamformCap & (BEAMFORMER_CAP_VHT_SU|BEAMFORMER_CAP_HT_EXPLICIT)) {
 			pDM_Odm->BeamformingInfo.beamformee_su_cnt += 1;
 			pEntry->is_mu_sta = FALSE;
 		}
@@ -415,11 +415,11 @@ Beamforming_AddBFeeEntry(
 /*Add SU BFee and MU BFer*/
 PRT_BEAMFORMER_ENTRY
 Beamforming_AddBFerEntry(
-	IN	PVOID				pDM_VOID,
+	IN	PVOID					pDM_VOID,
 	IN	PRT_BEAMFORM_STAINFO	pSTA,
-	IN	BEAMFORMING_CAP	BeamformCap,
-	IN	u1Byte				NumofSoundingDim,
-	OUT	pu1Byte				Idx
+	IN	BEAMFORMING_CAP		BeamformCap,
+	IN	u1Byte					NumofSoundingDim,
+	OUT	pu1Byte					Idx
 	)
 {
 	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
@@ -463,7 +463,7 @@ Beamforming_AddBFerEntry(
 			pDM_Odm->BeamformingInfo.beamformer_mu_cnt += 1;
 			pEntry->is_mu_ap = TRUE;
 			pEntry->AID = pSTA->AID;
-		} else if (BeamformCap & BEAMFORMEE_CAP_VHT_SU) {
+		} else if (BeamformCap & (BEAMFORMEE_CAP_VHT_SU|BEAMFORMEE_CAP_HT_EXPLICIT)) {
 			pDM_Odm->BeamformingInfo.beamformer_su_cnt += 1;
 			pEntry->is_mu_ap = FALSE;
 		}
@@ -661,7 +661,7 @@ Beamforming_SendVHTNDPAPacket(
 
 	HalComTxbf_Set(pDM_Odm, TXBF_SET_GET_TX_RATE, NULL);
 
-	if ((pDM_Odm->TxBfDataRate >= ODM_RATEVHTSS3MCS7) && (pDM_Odm->TxBfDataRate <= ODM_RATEVHTSS3MCS9)) {
+	if ((pDM_Odm->TxBfDataRate >= ODM_RATEVHTSS3MCS7) && (pDM_Odm->TxBfDataRate <= ODM_RATEVHTSS3MCS9) && (pBeamInfo->snding3SS == FALSE)) {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("@%s: 3SS VHT 789 don't sounding\n", __func__));
 
 	} else  {
@@ -741,7 +741,6 @@ phydm_beamforming_SoundingIdx(
 	)
 {
 	u1Byte					Idx = 0;
-	RT_BEAMFORMEE_ENTRY	BeamEntry;
 	RT_BEAMFORMING_OID_INFO	BeamOidInfo = pBeamInfo->BeamformingOidInfo;
 	PDM_ODM_T					pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
@@ -943,8 +942,6 @@ phydm_beamforming_EndPeriod_SW(
 {
 	PDM_ODM_T					pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PADAPTER					Adapter = pDM_Odm->Adapter;
-	u1Byte						Idx = 0;
-	PRT_BEAMFORMEE_ENTRY		pBeamformEntry;
 	PRT_BEAMFORMING_INFO 		pBeamInfo = &pDM_Odm->BeamformingInfo;
 	PRT_SOUNDING_INFO			pSoundInfo = &(pBeamInfo->SoundingInfo);
 	
@@ -1197,20 +1194,21 @@ Beamforming_InitEntry(
 
 	if (pSTA->WirelessMode < WIRELESS_MODE_N_24G)
 		return FALSE;
-	else {	/*HT*/
-		/*We are Beamformee because the STA is Beamformer*/
-		if (TEST_FLAG(pSTA->CurBeamform, BEAMFORMING_HT_BEAMFORMER_ENABLE)) {
-			BeamformCap =(BEAMFORMING_CAP)(BeamformCap |BEAMFORMEE_CAP_HT_EXPLICIT);
-			NumofSoundingDim = (pSTA->CurBeamform&BEAMFORMING_HT_BEAMFORMEE_CHNL_EST_CAP)>>6;
+	else {
+		if (pSTA->WirelessMode & WIRELESS_MODE_N_5G || pSTA->WirelessMode & WIRELESS_MODE_N_24G) {/*HT*/
+			if (TEST_FLAG(pSTA->CurBeamform, BEAMFORMING_HT_BEAMFORMER_ENABLE)) {/*We are Beamformee because the STA is Beamformer*/
+				BeamformCap = (BEAMFORMING_CAP)(BeamformCap | BEAMFORMEE_CAP_HT_EXPLICIT);
+				NumofSoundingDim = (pSTA->CurBeamform&BEAMFORMING_HT_BEAMFORMEE_CHNL_EST_CAP)>>6;
+			}
+			/*We are Beamformer because the STA is Beamformee*/
+			if (TEST_FLAG(pSTA->CurBeamform, BEAMFORMING_HT_BEAMFORMEE_ENABLE) ||
+				TEST_FLAG(pSTA->HtBeamformCap, BEAMFORMING_HT_BEAMFORMER_TEST)) {
+				BeamformCap = (BEAMFORMING_CAP)(BeamformCap | BEAMFORMER_CAP_HT_EXPLICIT);
+				CompSteeringNumofBFer = (pSTA->CurBeamform & BEAMFORMING_HT_BEAMFORMER_STEER_NUM)>>4;
+			}
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] HT CurBeamform=0x%X, BeamformCap=0x%X\n", __func__, pSTA->CurBeamform, BeamformCap));
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] HT NumofSoundingDim=%d, CompSteeringNumofBFer=%d\n", __func__, NumofSoundingDim, CompSteeringNumofBFer));
 		}
-		/*We are Beamformer because the STA is Beamformee*/
-		if (TEST_FLAG(pSTA->CurBeamform, BEAMFORMING_HT_BEAMFORMEE_ENABLE) ||
-			TEST_FLAG(pSTA->HtBeamformCap, BEAMFORMING_HT_BEAMFORMER_TEST)) {
-			BeamformCap =(BEAMFORMING_CAP)(BeamformCap | BEAMFORMER_CAP_HT_EXPLICIT);
-			CompSteeringNumofBFer = (pSTA->CurBeamform & BEAMFORMING_HT_BEAMFORMER_STEER_NUM)>>4;
-		}
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] HT CurBeamform=0x%X, BeamformCap=0x%X\n", __func__, pSTA->CurBeamform, BeamformCap));
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] HT NumofSoundingDim=%d, CompSteeringNumofBFer=%d\n", __func__, NumofSoundingDim, CompSteeringNumofBFer));
 #if	(ODM_IC_11AC_SERIES_SUPPORT == 1)
 		if (pSTA->WirelessMode & WIRELESS_MODE_AC_5G || pSTA->WirelessMode & WIRELESS_MODE_AC_24G) {	/*VHT*/	
 
@@ -1344,34 +1342,6 @@ Beamforming_DeInitEntry(
 }
 
 
-VOID
-Beamforming_Reset(
-	IN	PVOID				pDM_VOID
-	)
-{
-	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	u1Byte					Idx = 0;
-	PRT_BEAMFORMING_INFO	pBeamformingInfo = &(pDM_Odm->BeamformingInfo);
-
-	for (Idx = 0; Idx < BEAMFORMEE_ENTRY_NUM; Idx++) {
-		if (pBeamformingInfo->BeamformeeEntry[Idx].bUsed == TRUE) {
-			pBeamformingInfo->BeamformeeEntry[Idx].bUsed = FALSE;
-			pBeamformingInfo->BeamformeeEntry[Idx].BeamformEntryCap = BEAMFORMING_CAP_NONE;
-			/*pBeamformingInfo->BeamformeeEntry[Idx].BeamformEntryState = BEAMFORMING_ENTRY_STATE_UNINITIALIZE;*/
-			/*Modified by David*/
-			pBeamformingInfo->BeamformeeEntry[Idx].bBeamformingInProgress = FALSE;
-			HalComTxbf_Set(pDM_Odm, TXBF_SET_SOUNDING_LEAVE, (pu1Byte)&Idx);
-		}
-	}
-
-	for (Idx = 0; Idx < BEAMFORMER_ENTRY_NUM; Idx++) {
-		pBeamformingInfo->BeamformerEntry[Idx].bUsed = FALSE;
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Idx=%d, bUsed=%d\n", __func__, Idx, pBeamformingInfo->BeamformerEntry[Idx].bUsed));
-	}
-
-}
-
-
 BOOLEAN
 BeamformingStart_V1(
 	IN	PVOID		pDM_VOID,
@@ -1454,45 +1424,53 @@ BeamformingStart_SW(
 	BOOLEAN					ret = TRUE;
 	PRT_BEAMFORMING_INFO	pBeamInfo = &(pDM_Odm->BeamformingInfo);
 
-	pEntry = &(pBeamInfo->BeamformeeEntry[Idx]);
-
-	if (pEntry->bUsed == FALSE) {
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("Skip Beamforming, no entry for Idx =%d\n", Idx));
-		pEntry->bBeamformingInProgress = FALSE;
-		return FALSE;
-	} else {
-		if (pEntry->bBeamformingInProgress) {
-			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("bBeamformingInProgress, skip...\n"));
-			return FALSE;
-		}
-
-		pEntry->bBeamformingInProgress = TRUE;
+	if (pBeamInfo->is_mu_sounding) {
+		pBeamInfo->is_mu_sounding_in_progress = TRUE;
+		pEntry = &(pBeamInfo->BeamformeeEntry[Idx]);
 		RA = pEntry->MacAddr;
-		
-		if (Mode == SOUNDING_SW_HT_TIMER || Mode == SOUNDING_HW_HT_TIMER || Mode == SOUNDING_AUTO_HT_TIMER) {	
-			if (!(pEntry->BeamformEntryCap & BEAMFORMER_CAP_HT_EXPLICIT)) {
-				pEntry->bBeamformingInProgress = FALSE;
-				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Return by not support BEAMFORMER_CAP_HT_EXPLICIT <==\n", __func__));
-				return FALSE;
-			}
-		} else if (Mode == SOUNDING_SW_VHT_TIMER || Mode == SOUNDING_HW_VHT_TIMER || Mode == SOUNDING_AUTO_VHT_TIMER) {
-			if (!(pEntry->BeamformEntryCap & BEAMFORMER_CAP_VHT_SU)) {
-				pEntry->bBeamformingInProgress = FALSE;
-				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Return by not support BEAMFORMER_CAP_VHT_SU <==\n", __func__));
-				return FALSE;
-			}
-		}
-		if (pEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_INITIALIZED && pEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_PROGRESSED) {
+
+	} else {
+		pEntry = &(pBeamInfo->BeamformeeEntry[Idx]);
+
+		if (pEntry->bUsed == FALSE) {
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("Skip Beamforming, no entry for Idx =%d\n", Idx));
 			pEntry->bBeamformingInProgress = FALSE;
-			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Return by incorrect BeamformEntryState(%d) <==\n", __func__, pEntry->BeamformEntryState));
 			return FALSE;
 		} else {
-			pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_PROGRESSING;
-			pEntry->bSound = TRUE;
-		}
-	}
+			if (pEntry->bBeamformingInProgress) {
+				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("bBeamformingInProgress, skip...\n"));
+				return FALSE;
+			}
 
-	pBeamInfo->BeamformeeCurIdx = Idx;
+			pEntry->bBeamformingInProgress = TRUE;
+			RA = pEntry->MacAddr;
+			
+			if (Mode == SOUNDING_SW_HT_TIMER || Mode == SOUNDING_HW_HT_TIMER || Mode == SOUNDING_AUTO_HT_TIMER) {	
+				if (!(pEntry->BeamformEntryCap & BEAMFORMER_CAP_HT_EXPLICIT)) {
+					pEntry->bBeamformingInProgress = FALSE;
+					ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Return by not support BEAMFORMER_CAP_HT_EXPLICIT <==\n", __func__));
+					return FALSE;
+				}
+			} else if (Mode == SOUNDING_SW_VHT_TIMER || Mode == SOUNDING_HW_VHT_TIMER || Mode == SOUNDING_AUTO_VHT_TIMER) {
+				if (!(pEntry->BeamformEntryCap & BEAMFORMER_CAP_VHT_SU)) {
+					pEntry->bBeamformingInProgress = FALSE;
+					ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Return by not support BEAMFORMER_CAP_VHT_SU <==\n", __func__));
+					return FALSE;
+				}
+			}
+			if (pEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_INITIALIZED && pEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_PROGRESSED) {
+				pEntry->bBeamformingInProgress = FALSE;
+				ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Return by incorrect BeamformEntryState(%d) <==\n", __func__, pEntry->BeamformEntryState));
+				return FALSE;
+			} else {
+				pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_PROGRESSING;
+				pEntry->bSound = TRUE;
+			}
+		}
+
+		pBeamInfo->BeamformeeCurIdx = Idx;
+	}
+	
 	/*2014.12.22 Luke: Need to be checked*/
 	/*GET_TXBF_INFO(Adapter)->fTxbfSet(Adapter, TXBF_SET_SOUNDING_STATUS, (pu1Byte)&Idx);*/
 
@@ -1548,9 +1526,7 @@ BeamformingStart_FW(
 	)
 {
 	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	pu1Byte					RA = NULL;
 	PRT_BEAMFORMEE_ENTRY	pEntry;
-	BOOLEAN					ret = TRUE;
 	PRT_BEAMFORMING_INFO	pBeamInfo = &(pDM_Odm->BeamformingInfo);
 
 	pEntry = &(pBeamInfo->BeamformeeEntry[Idx]);
@@ -1604,36 +1580,42 @@ phydm_Beamforming_End_SW(
 	PRT_BEAMFORMING_INFO 	pBeamInfo = &pDM_Odm->BeamformingInfo;
 	PRT_BEAMFORMEE_ENTRY	pEntry = &(pBeamInfo->BeamformeeEntry[pBeamInfo->BeamformeeCurIdx]);
 
-	if (pEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_PROGRESSING) {
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] BeamformStatus %d\n", __func__, pEntry->BeamformEntryState));
-		return;
-	}
-
-	if ((pDM_Odm->TxBfDataRate >= ODM_RATEVHTSS3MCS7) && (pDM_Odm->TxBfDataRate <= ODM_RATEVHTSS3MCS9)) {
-		ODM_RT_TRACE(pDM_Odm, BEAMFORMING_DEBUG, ODM_DBG_LOUD, ("[%s] VHT3SS 7,8,9, do not apply V matrix.\n", __func__));
-		pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_INITIALIZED;
-		HalComTxbf_Set(pDM_Odm, TXBF_SET_SOUNDING_STATUS, (pu1Byte)&(pBeamInfo->BeamformeeCurIdx));
-	} else if (Status == 1) {
-		pEntry->LogStatusFailCnt = 0;
-		pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_PROGRESSED;
+	if (pBeamInfo->is_mu_sounding) {
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s: MU sounding done\n", __func__));
+		pBeamInfo->is_mu_sounding_in_progress = FALSE;
 		HalComTxbf_Set(pDM_Odm, TXBF_SET_SOUNDING_STATUS, (pu1Byte)&(pBeamInfo->BeamformeeCurIdx));
 	} else {
-		pEntry->LogStatusFailCnt++;
-		pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_INITIALIZED;
-		HalComTxbf_Set(pDM_Odm, TXBF_SET_TX_PATH_RESET, (pu1Byte)&(pBeamInfo->BeamformeeCurIdx));
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] LogStatusFailCnt %d\n", __func__, pEntry->LogStatusFailCnt));
+		if (pEntry->BeamformEntryState != BEAMFORMING_ENTRY_STATE_PROGRESSING) {
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] BeamformStatus %d\n", __func__, pEntry->BeamformEntryState));
+			return;
+		}
+
+		if ((pDM_Odm->TxBfDataRate >= ODM_RATEVHTSS3MCS7) && (pDM_Odm->TxBfDataRate <= ODM_RATEVHTSS3MCS9) && (pBeamInfo->snding3SS == FALSE)) {
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] VHT3SS 7,8,9, do not apply V matrix.\n", __func__));
+			pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_INITIALIZED;
+			HalComTxbf_Set(pDM_Odm, TXBF_SET_SOUNDING_STATUS, (pu1Byte)&(pBeamInfo->BeamformeeCurIdx));
+		} else if (Status == 1) {
+			pEntry->LogStatusFailCnt = 0;
+			pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_PROGRESSED;
+			HalComTxbf_Set(pDM_Odm, TXBF_SET_SOUNDING_STATUS, (pu1Byte)&(pBeamInfo->BeamformeeCurIdx));
+		} else {
+			pEntry->LogStatusFailCnt++;
+			pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_INITIALIZED;
+			HalComTxbf_Set(pDM_Odm, TXBF_SET_TX_PATH_RESET, (pu1Byte)&(pBeamInfo->BeamformeeCurIdx));
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] LogStatusFailCnt %d\n", __func__, pEntry->LogStatusFailCnt));
+		}
+		
+		if (pEntry->LogStatusFailCnt > 50) {
+			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s LogStatusFailCnt > 50, Stop SOUNDING\n", __func__));
+			pEntry->bSound = FALSE;
+			Beamforming_DeInitEntry(pDM_Odm, pEntry->MacAddr); 
+
+			/*Modified by David - Every action of deleting entry should follow by Notify*/
+			phydm_Beamforming_Notify(pDM_Odm);
+		}	
+		
+		pEntry->bBeamformingInProgress = FALSE;
 	}
-	
-	if (pEntry->LogStatusFailCnt > 30) {
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s LogStatusFailCnt > 50, Stop SOUNDING\n", __func__));
-		pEntry->bSound = FALSE;
-		Beamforming_DeInitEntry(pDM_Odm, pEntry->MacAddr); 
-
-		/*Modified by David - Every action of deleting entry should follow by Notify*/
-		phydm_Beamforming_Notify(pDM_Odm);
-	}	
-	pEntry->bBeamformingInProgress = FALSE;
-
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s: Status=%d\n", __func__, Status));
 }	
 
@@ -1659,10 +1641,16 @@ Beamforming_TimerCallback(
 	PRT_BEAMFORMING_INFO		pBeamInfo = &(pDM_Odm->BeamformingInfo);
 	PRT_BEAMFORMEE_ENTRY		pEntry = &(pBeamInfo->BeamformeeEntry[pBeamInfo->BeamformeeCurIdx]);
 	PRT_SOUNDING_INFO			pSoundInfo = &(pBeamInfo->SoundingInfo);
+	BOOLEAN					bBeamformingInProgress;
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Start!\n", __func__));
 
-	if (pEntry->bBeamformingInProgress) {
+	if (pBeamInfo->is_mu_sounding)
+		bBeamformingInProgress = pBeamInfo->is_mu_sounding_in_progress;
+	else
+		bBeamformingInProgress = pEntry->bBeamformingInProgress;
+
+	if (bBeamformingInProgress) {
 	 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("bBeamformingInProgress, reset it\n"));
 		phydm_Beamforming_End_SW(pDM_Odm, 0);
 	 }
@@ -1725,7 +1713,6 @@ phydm_Beamforming_Init(
 {
 	PDM_ODM_T					pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PRT_BEAMFORMING_INFO 		pBeamInfo = &pDM_Odm->BeamformingInfo;
-	PHAL_TXBF_INFO				pTxbfInfo = &pBeamInfo->TxbfInfo;
 	PRT_BEAMFORMING_OID_INFO	pBeamOidInfo = &(pBeamInfo->BeamformingOidInfo);
 	
 	pBeamOidInfo->SoundOidMode = SOUNDING_STOP_OID_TIMER;
@@ -1739,12 +1726,47 @@ phydm_Beamforming_Init(
 	pBeamInfo->mu_ap_index = 0;
 	pBeamInfo->is_mu_sounding = FALSE;
 	pBeamInfo->FirstMUBFeeIndex = 0xFF;
+	pBeamInfo->applyVmatrix = TRUE;
+	pBeamInfo->snding3SS = FALSE;
+	
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)	
 	pBeamInfo->SourceAdapter = pDM_Odm->Adapter;
 #endif
 	halComTxbf_beamformInit(pDM_Odm);
 }	
 
+
+BOOLEAN
+phydm_actingDetermine(
+	IN PVOID			pDM_VOID,
+	IN PHYDM_ACTING_TYPE	type
+	)
+{
+	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
+	BOOLEAN		ret = FALSE;
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+	PADAPTER	Adapter = pDM_Odm->BeamformingInfo.SourceAdapter;
+#else
+	PADAPTER	Adapter = pDM_Odm->Adapter;
+#endif
+
+#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
+	if (type == PhyDM_ACTING_AS_AP)
+		ret = ACTING_AS_AP(Adapter);
+	else if (type == PhyDM_ACTING_AS_IBSS)
+		ret = ACTING_AS_IBSS(Adapter);
+#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
+	struct mlme_priv			*pmlmepriv = &(Adapter->mlmepriv);
+
+	if (type == PhyDM_ACTING_AS_AP)
+		ret = check_fwstate(pmlmepriv, WIFI_AP_STATE);
+	else if (type == PhyDM_ACTING_AS_IBSS)
+		ret = check_fwstate(pmlmepriv, WIFI_ADHOC_STATE) || check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE);
+#endif
+
+	return ret;
+
+}
 
 VOID
 Beamforming_Enter(
@@ -1770,12 +1792,10 @@ Beamforming_Leave(
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
-	if (RA == NULL)
-		Beamforming_Reset(pDM_Odm);
-	else
+	if (RA != NULL) {
 		Beamforming_DeInitEntry(pDM_Odm, RA);
-
-	phydm_Beamforming_Notify(pDM_Odm);
+		phydm_Beamforming_Notify(pDM_Odm);
+	}
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] End!!\n", __func__));
 }

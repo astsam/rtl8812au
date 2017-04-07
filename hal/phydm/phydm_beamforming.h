@@ -1,5 +1,5 @@
-#ifndef __INC_BEAMFORMING_H
-#define __INC_BEAMFORMING_H
+#ifndef __INC_PHYDM_BEAMFORMING_H
+#define __INC_PHYDM_BEAMFORMING_H
 
 #ifndef BEAMFORMING_SUPPORT
 #define	BEAMFORMING_SUPPORT		0
@@ -10,7 +10,6 @@
 #include "txbf/haltxbfjaguar.h"
 #include "txbf/haltxbf8192e.h"
 #include "txbf/haltxbf8814a.h"
-#include "txbf/haltxbf8821b.h"
 #include "txbf/haltxbf8822b.h"
 #include "txbf/haltxbfinterface.h"
 
@@ -137,7 +136,7 @@ typedef struct _RT_BEAMFORMER_ENTRY {
 	u2Byte				G_ID;
 	u1Byte				MyMacAddr[6];
 	u1Byte				MacAddr[6];
-	BEAMFORMING_CAP	BeamformEntryCap;
+	BEAMFORMING_CAP		BeamformEntryCap;
 	u1Byte				NumofSoundingDim;
 	u1Byte				ClockResetTimes;		/*Modified by Jeffery @2015-04-10*/
 	u1Byte				PreLogSeq;				/*Modified by Jeffery @2015-03-30*/
@@ -192,6 +191,10 @@ typedef struct _RT_BEAMFORMING_INFO {
 	u1Byte					mu_ap_index;
 	BOOLEAN					is_mu_sounding;
 	u1Byte					FirstMUBFeeIndex;
+	BOOLEAN					is_mu_sounding_in_progress;
+	BOOLEAN					dbg_disable_mu_tx;
+	BOOLEAN					applyVmatrix;
+	BOOLEAN					snding3SS;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	PADAPTER				SourceAdapter;
 #endif
@@ -205,6 +208,11 @@ typedef struct _RT_NDPA_STA_INFO {
 	u2Byte	FeedbackType:1;
 	u2Byte	NcIndex:3;	
 } RT_NDPA_STA_INFO, *PRT_NDPA_STA_INFO;
+
+typedef enum _PHYDM_ACTING_TYPE {
+	PhyDM_ACTING_AS_IBSS = 0,
+	PhyDM_ACTING_AS_AP = 1
+} PHYDM_ACTING_TYPE;
 
 
 BEAMFORMING_CAP
@@ -244,6 +252,11 @@ phydm_Beamforming_Notify(
 	IN	PVOID	pDM_VOID
 	);
 
+BOOLEAN
+phydm_actingDetermine(
+	IN PVOID		pDM_VOID,
+	IN	PHYDM_ACTING_TYPE	type
+	);
 
 VOID
 Beamforming_Enter(
@@ -348,6 +361,7 @@ Beamforming_SendVHTNDPAPacket(
 
 #else
 #define Beamforming_GidPAid(Adapter, pTcb)
+#define	phydm_actingDetermine(pDM_Odm, type)	FALSE
 #define Beamforming_Enter(pDM_Odm, staIdx)
 #define Beamforming_Leave(pDM_Odm, RA)
 #define Beamforming_End_FW(pDMOdm)

@@ -22,7 +22,7 @@
 #ifndef	__ODM_INTERFACE_H__
 #define __ODM_INTERFACE_H__
 
-#define INTERFACE_VERSION	"1.0"		/*2015.01.13  Dino*/
+#define INTERFACE_VERSION	"1.1"		/*2015.07.29  YuChen*/
 
 //
 // =========== Constant/Structure/Enum/... Define
@@ -78,10 +78,6 @@ ODM_REG(DIG,_pDM_Odm)
 // only sample code
 //#define _cat(_name, _ic_type, _func)									\
 //	( 															\
-//		((_ic_type) & ODM_RTL8192C)? _func##_ic(_name, _8192C):		\
-//		((_ic_type) & ODM_RTL8192D)? _func##_ic(_name, _8192D):		\
-//		((_ic_type) & ODM_RTL8192S)? _func##_ic(_name, _8192S):		\
-//		((_ic_type) & ODM_RTL8723A)? _func##_ic(_name, _8723A):		\
 //		((_ic_type) & ODM_RTL8188E)? _func##_ic(_name, _8188E):		\
 //		_func##_ic(_name, _8195)									\
 //	)
@@ -107,8 +103,9 @@ typedef enum _PHYDM_H2C_CMD {
 	PHYDM_H2C_DYNAMIC_TX_PATH = 6,
 	PHYDM_H2C_FW_TRACE_EN = 7,
 	PHYDM_H2C_TXBF = 8,
+	PHYDM_H2C_MU = 9,
 	ODM_MAX_H2CCMD
-} PHYDM_H2C_CMD;
+}PHYDM_H2C_CMD;
 
 typedef enum _PHYDM_C2H_EVT {
 	PHYDM_C2H_DBG = 0,
@@ -118,22 +115,17 @@ typedef enum _PHYDM_C2H_EVT {
 	PHYDM_C2H_INFO = 9,
 	PHYDM_C2H_BT_MP = 11,
 	PHYDM_C2H_RA_RPT = 12,
-	PHYDM_C2H_RA_PARA_RPT = 14,
+	PHYDM_C2H_RA_PARA_RPT=14,
 	PHYDM_C2H_DYNAMIC_TX_PATH_RPT = 15,
 	PHYDM_C2H_IQK_FINISH = 17, /*0x11*/
 	PHYDM_C2H_DBG_CODE = 0xFE,
 	PHYDM_C2H_EXTEND = 0xFF,
-} PHYDM_C2H_EVT;
+}PHYDM_C2H_EVT;
 
 typedef enum _PHYDM_EXTEND_C2H_EVT {
 	PHYDM_EXTEND_C2H_DBG_PRINT = 0
 
-} PHYDM_EXTEND_C2H_EVT;
-
-typedef enum _PHYDM_ACTING_TYPE {
-	PhyDM_ACTING_AS_IBSS = 0,
-	PhyDM_ACTING_AS_AP = 1
-} PHYDM_ACTING_TYPE;
+}PHYDM_EXTEND_C2H_EVT;
 
 
 //
@@ -401,12 +393,6 @@ VOID
 ODM_ReleaseTimer(
 	IN 	PDM_ODM_T		pDM_Odm,
 	IN	PRT_TIMER		pTimer
-	);
-
-BOOLEAN
-phydm_actingDetermine(
-	IN	PDM_ODM_T		pDM_Odm,
-	IN	PHYDM_ACTING_TYPE	type
 	);
 
 //

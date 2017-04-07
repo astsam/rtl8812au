@@ -20,7 +20,7 @@
  
  #ifndef __HAL_PHY_RF_H__
  #define __HAL_PHY_RF_H__
- 
+
 #include "phydm_kfree.h"
 #if (RTL8814A_SUPPORT == 1)
 #include "rtl8814a/phydm_iqk_8814a.h"
@@ -28,8 +28,13 @@
 
 #if (RTL8822B_SUPPORT == 1)
 #include "rtl8822b/phydm_iqk_8822b.h"
+#include "../mac/Halmac_type.h"
 #endif
 #include "phydm_powertracking_win.h"
+
+#if (RTL8821C_SUPPORT == 1)
+#include "rtl8821c/phydm_iqk_8821c.h"
+#endif
 
 typedef enum _SPUR_CAL_METHOD {
 	PLL_RESET,
@@ -40,21 +45,25 @@ typedef enum _PWRTRACK_CONTROL_METHOD {
 	BBSWING,
 	TXAGC,
 	MIX_MODE,
-	TSSI_MODE
+	TSSI_MODE,
+	MIX_2G_TSSI_5G_MODE,
+	MIX_5G_TSSI_2G_MODE
 } PWRTRACK_METHOD;
 
-typedef VOID 	(*FuncSetPwr)(PDM_ODM_T, PWRTRACK_METHOD, u1Byte, u1Byte);
+typedef VOID(*FuncSetPwr)(PVOID, PWRTRACK_METHOD, u1Byte, u1Byte);
 typedef VOID(*FuncIQK)(PVOID, u1Byte, u1Byte, u1Byte);
-typedef VOID 	(*FuncLCK)(PDM_ODM_T);
-				//refine by YuChen for 8814A
-typedef VOID  	(*FuncSwing)(PDM_ODM_T, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
-typedef VOID	(*FuncSwing8814only)(PDM_ODM_T, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
+typedef VOID(*FuncLCK)(PVOID);
+typedef VOID(*FuncSwing)(PVOID, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
+typedef VOID(*FuncSwing8814only)(PVOID, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
+typedef VOID (*FuncSwingXtal)(PVOID, ps1Byte*, ps1Byte*);
+typedef VOID (*FuncSetXtal)(PVOID);
+typedef VOID(*FuncAllSwing)(PVOID, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*, pu1Byte*);
 
 typedef struct _TXPWRTRACK_CFG {
 	u1Byte 		SwingTableSize_CCK;	
 	u1Byte 		SwingTableSize_OFDM;
-	u1Byte 		Threshold_IQK;
-	u1Byte 		Threshold_DPK;	
+	u1Byte		Threshold_IQK;
+	u1Byte		Threshold_DPK;
 	u1Byte 		AverageThermalNum;
 	u1Byte 		RfPathCount;
 	u4Byte 		ThermalRegAddr;	
@@ -63,9 +72,12 @@ typedef struct _TXPWRTRACK_CFG {
 	FuncLCK		PHY_LCCalibrate;
 	FuncSwing	GetDeltaSwingTable;
 	FuncSwing8814only	GetDeltaSwingTable8814only;
+	FuncSwingXtal			GetDeltaSwingXtalTable;
+	FuncSetXtal			ODM_TxXtalTrackSetXtal;
+	FuncAllSwing	GetDeltaAllSwingTable;
 } TXPWRTRACK_CFG, *PTXPWRTRACK_CFG;
 
-VOID 
+VOID
 ConfigureTxpowerTrack(
 	IN 	PDM_ODM_T		pDM_Odm,
 	OUT	PTXPWRTRACK_CFG	pConfig

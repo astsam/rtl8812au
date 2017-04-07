@@ -780,7 +780,7 @@ ConstructVHTMUNDPAPacket(
 	}
 	if (pEntry == NULL)
 		return;
-
+	
 	/* Frame control.*/
 	SET_80211_HDR_FRAME_CONTROL(pNDPAFrame, 0);
 	SET_80211_HDR_TYPE_AND_SUBTYPE(pNDPAFrame, Type_NDPA);
@@ -868,6 +868,126 @@ SendSWVHTMUNDPAPacket(
 	return ret;
 }
 
+
+VOID
+DBG_ConstructVHTMUNDPAPacket(
+	IN PDM_ODM_T		pDM_Odm,
+	IN CHANNEL_WIDTH	BW,
+	OUT pu1Byte			Buffer,
+	OUT pu4Byte			pLength
+	)
+{	
+	PRT_BEAMFORMING_INFO	pBeamInfo = &(pDM_Odm->BeamformingInfo);
+	PADAPTER				Adapter = pBeamInfo->SourceAdapter;
+	u2Byte					Duration = 0;
+	u1Byte					Sequence = 0;
+	pu1Byte					pNDPAFrame = Buffer;
+	RT_NDPA_STA_INFO		STAInfo;
+	u1Byte					idx;
+	u1Byte					DestAddr[6] = {0};
+	PRT_BEAMFORMEE_ENTRY	pEntry = NULL;
+
+	BOOLEAN	is_STA1 = FALSE;
+
+
+	/* Fill the first MU BFee entry (STA1) MAC addr to destination address then
+	     HW will change A1 to broadcast addr. 2015.05.28. Suggested by SD1 Chunchu. */
+	for (idx = 0; idx < BEAMFORMEE_ENTRY_NUM; idx++) {		
+		pEntry = &(pBeamInfo->BeamformeeEntry[idx]);
+		if (pEntry->is_mu_sta) {
+			if (is_STA1 == FALSE) {
+				is_STA1 = TRUE;
+				continue;
+			} else {
+				cpMacAddr(DestAddr, pEntry->MacAddr);
+				break;
+			}
+		}
+	}
+
+	/* Frame control.*/
+	SET_80211_HDR_FRAME_CONTROL(pNDPAFrame, 0);
+	SET_80211_HDR_TYPE_AND_SUBTYPE(pNDPAFrame, Type_NDPA);
+
+	SET_80211_HDR_ADDRESS1(pNDPAFrame, DestAddr);
+	SET_80211_HDR_ADDRESS2(pNDPAFrame, pDM_Odm->CurrentAddress);
+
+	/*--------------------------------------------*/
+	/* <Note> Need to modify "Duration" to MU consideration. */
+	Duration = 2*aSifsTime + 44;
+	
+	if (BW == CHANNEL_WIDTH_80)
+		Duration += 40;
+	else if (BW == CHANNEL_WIDTH_40)
+		Duration += 87;
+	else	
+		Duration += 180;
+	/*--------------------------------------------*/
+
+	SET_80211_HDR_DURATION(pNDPAFrame, Duration);
+
+	Sequence = *(pDM_Odm->pSoundingSeq) << 2;
+	ODM_MoveMemory(pDM_Odm, pNDPAFrame + 16, &Sequence, 1);
+
+	*pLength = 17;
+
+	/*STA2's STA Info*/
+	STAInfo.AID = pEntry->AID;
+	STAInfo.FeedbackType = 1; /* 1'b1: MU */
+	STAInfo.NcIndex = 0;
+
+	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Get BeamformeeEntry idx(%d), AID =%d\n", __func__, idx, pEntry->AID));
+	
+	ODM_MoveMemory(pDM_Odm, pNDPAFrame+(*pLength), (pu1Byte)&STAInfo, 2);
+	*pLength += 2;
+
+}
+
+BOOLEAN
+DBG_SendSWVHTMUNDPAPacket(
+	IN	PVOID			pDM_VOID,
+	IN	CHANNEL_WIDTH	BW
+	)
+{
+	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
+	PRT_TCB					pTcb;
+	PRT_TX_LOCAL_BUFFER		pBuf;
+	BOOLEAN					ret = TRUE;
+	u1Byte					NDPTxRate = 0;
+	PRT_BEAMFORMING_INFO	pBeamInfo = &(pDM_Odm->BeamformingInfo);
+	PADAPTER				Adapter = pBeamInfo->SourceAdapter;
+
+	NDPTxRate = MGN_VHT2SS_MCS0;
+	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] NDPTxRate =%d\n", __func__, NDPTxRate));
+
+	PlatformAcquireSpinLock(Adapter, RT_TX_SPINLOCK);
+
+	if (MgntGetBuffer(Adapter, &pTcb, &pBuf)) {
+		DBG_ConstructVHTMUNDPAPacket(
+				pDM_Odm,
+				BW,
+				pBuf->Buffer.VirtualAddress, 
+				&pTcb->PacketLength
+				);
+
+		pTcb->bTxEnableSwCalcDur = TRUE;
+		pTcb->BWOfPacket = BW;
+		pTcb->TxBFPktType = RT_BF_PKT_TYPE_UNICAST_NDPA;
+
+		/*rate of NDP decide by Nr*/
+		MgntSendPacket(Adapter, pTcb, pBuf, pTcb->PacketLength, NORMAL_QUEUE, NDPTxRate);
+	} else
+		ret = FALSE;
+	
+	PlatformReleaseSpinLock(Adapter, RT_TX_SPINLOCK);	
+
+	if (ret)
+		RT_DISP_DATA(FBEAM, FBEAM_DATA, "", pBuf->Buffer.VirtualAddress, pTcb->PacketLength);
+
+	return ret;
+}
+
+
 #endif	/*#if (SUPPORT_MU_BF == 1)*/
 #endif	/*#ifdef SUPPORT_MU_BF*/
 
@@ -888,7 +1008,6 @@ Beamforming_GetReportFrame(
 	pu1Byte					TA;
 	u1Byte					Idx, offset;
 	
-	/*DBG_871X("beamforming_get_report_frame\n");*/
 
 	/*Memory comparison to see if CSI report is the same with previous one*/
 	TA = GetAddr2Ptr(pframe);
@@ -900,7 +1019,6 @@ Beamforming_GetReportFrame(
 	else
 		return ret;
 
-	/*DBG_871X("%s MacId %d offset=%d\n", __FUNCTION__, pBeamformEntry->mac_id, offset);*/
 	
 	return ret;
 }
@@ -932,7 +1050,7 @@ SendFWHTNDPAPacket(
 	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
 	
 	if (pmgntframe == NULL) {
-		DBG_871X("%s, alloc mgnt frame fail\n", __func__);
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s, alloc mgnt frame fail\n", __func__));
 		return _FALSE;
 	}
 
@@ -1022,7 +1140,7 @@ SendSWHTNDPAPacket(
 	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
 	
 	if (pmgntframe == NULL) {
-		DBG_871X("%s, alloc mgnt frame fail\n", __func__);
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s, alloc mgnt frame fail\n", __func__));
 		return _FALSE;
 	}
 
@@ -1109,7 +1227,7 @@ SendFWVHTNDPAPacket(
 	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
 	
 	if (pmgntframe == NULL) {
-		DBG_871X("%s, alloc mgnt frame fail\n", __func__);
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s, alloc mgnt frame fail\n", __func__));
 		return _FALSE;
 	}
 
@@ -1214,7 +1332,7 @@ SendSWVHTNDPAPacket(
 	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
 	
 	if (pmgntframe == NULL) {
-		DBG_871X("%s, alloc mgnt frame fail\n", __func__);
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s, alloc mgnt frame fail\n", __func__));
 		return _FALSE;
 	}
 	

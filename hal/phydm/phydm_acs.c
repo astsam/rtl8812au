@@ -73,13 +73,13 @@ odm_AutoChannelSelectSetting(
 	if(pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)
 	{
 		//PHY parameters initialize for ac series
-		ODM_Write2Byte(pDM_Odm, ODM_REG_NHM_TIMER_11AC+2, period);	//0x990[31:16]=0x2710	Time duration for NHM unit: 4us, 0x2710=40ms
+		ODM_Write2Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11AC+2, period);	//0x990[31:16]=0x2710	Time duration for NHM unit: 4us, 0x2710=40ms
 		//ODM_SetBBReg(pDM_Odm, ODM_REG_NHM_TH9_TH10_11AC, BIT8|BIT9|BIT10, NHMType);	//0x994[9:8]=3			enable CCX
 	}
 	else if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
 	{
 		//PHY parameters initialize for n series
-		ODM_Write2Byte(pDM_Odm, ODM_REG_NHM_TIMER_11N+2, period);	//0x894[31:16]=0x2710	Time duration for NHM unit: 4us, 0x2710=40ms
+		ODM_Write2Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11N+2, period);	//0x894[31:16]=0x2710	Time duration for NHM unit: 4us, 0x2710=40ms
 		//ODM_SetBBReg(pDM_Odm, ODM_REG_NHM_TH9_TH10_11N, BIT10|BIT9|BIT8, NHMType);	//0x890[9:8]=3			enable CCX		
 	}
 #endif
@@ -112,7 +112,7 @@ odm_AutoChannelSelectInit(
 		pACS->Channel_Info_2G[1][i] = 0;
 	}
 
-	if(pDM_Odm->SupportICType & (ODM_IC_11AC_SERIES|ODM_RTL8192D))
+	if (pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)
 	{
 		for (i = 0; i < ODM_MAX_CHANNEL_5G; ++i)
 		{
@@ -234,7 +234,7 @@ phydm_AutoChannelSelectSettingAP(
     
         if(pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)     // store Reg0x990, Reg0x994, Reg0x998, Reg0x99C, Reg0x9a0
         {
-            pACS->Reg0x990 = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TIMER_11AC);                // Reg0x990
+            pACS->Reg0x990 = ODM_Read4Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11AC);                // Reg0x990
             pACS->Reg0x994 = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TH9_TH10_11AC);           // Reg0x994
             pACS->Reg0x998 = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TH3_TO_TH0_11AC);       // Reg0x998
             pACS->Reg0x99C = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TH7_TO_TH4_11AC);       // Reg0x99c
@@ -243,7 +243,7 @@ phydm_AutoChannelSelectSettingAP(
         else if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
         {
             pACS->Reg0x890 = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TH9_TH10_11N);             // Reg0x890
-            pACS->Reg0x894 = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TIMER_11N);                  // Reg0x894
+            pACS->Reg0x894 = ODM_Read4Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11N);                  // Reg0x894
             pACS->Reg0x898 = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TH3_TO_TH0_11N);         // Reg0x898
             pACS->Reg0x89C = ODM_Read4Byte(pDM_Odm, ODM_REG_NHM_TH7_TO_TH4_11N);         // Reg0x89c
             pACS->Reg0xE28 = ODM_Read1Byte(pDM_Odm, ODM_REG_NHM_TH8_11N);                     // Reg0xe28, u1Byte    
@@ -257,7 +257,7 @@ phydm_AutoChannelSelectSettingAP(
         
         if(pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)     // store Reg0x990, Reg0x994, Reg0x998, Reg0x99C, Reg0x9a0
         {
-            ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TIMER_11AC,          pACS->Reg0x990);
+            ODM_Write4Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11AC,          pACS->Reg0x990);
             ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TH9_TH10_11AC,     pACS->Reg0x994);
             ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TH3_TO_TH0_11AC, pACS->Reg0x998);
             ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TH7_TO_TH4_11AC, pACS->Reg0x99C);
@@ -266,7 +266,7 @@ phydm_AutoChannelSelectSettingAP(
         else if(pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
         {
             ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TH9_TH10_11N,     pACS->Reg0x890);
-            ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TIMER_11N,          pACS->Reg0x894);
+            ODM_Write4Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11AC,          pACS->Reg0x894);
             ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TH3_TO_TH0_11N, pACS->Reg0x898);
             ODM_Write4Byte(pDM_Odm, ODM_REG_NHM_TH7_TO_TH4_11N, pACS->Reg0x89C);
             ODM_Write1Byte(pDM_Odm, ODM_REG_NHM_TH8_11N,             pACS->Reg0xE28); 
@@ -284,7 +284,7 @@ phydm_AutoChannelSelectSettingAP(
         if(pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)
         {   
             //4 Set NHM period, 0x990[31:16]=0x61a8, Time duration for NHM unit: 4us, 0x61a8=100ms
-            ODM_Write2Byte(pDM_Odm, ODM_REG_NHM_TIMER_11AC+2, period);
+            ODM_Write2Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11AC+2, period);
             //4 Set NHM ignore_cca=1, ignore_txon=1, ccx_en=0
             ODM_SetBBReg(pDM_Odm, ODM_REG_NHM_TH9_TH10_11AC,BIT8|BIT9|BIT10, 3);
             
@@ -319,7 +319,7 @@ phydm_AutoChannelSelectSettingAP(
         else if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
         {
             //4 Set NHM period, 0x894[31:16]=0x61a8, Time duration for NHM unit: 4us, 0x61a8=100ms
-            ODM_Write2Byte(pDM_Odm, ODM_REG_NHM_TIMER_11N+2, period);
+            ODM_Write2Byte(pDM_Odm, ODM_REG_CCX_PERIOD_11AC+2, period);
             //4 Set NHM ignore_cca=1, ignore_txon=1, ccx_en=0
             ODM_SetBBReg(pDM_Odm, ODM_REG_NHM_TH9_TH10_11N,BIT8|BIT9|BIT10, 3);
             
@@ -409,9 +409,9 @@ phydm_GetNHMStatisticsAP(
         //4 Check if NHM result is ready        
         for (i=0; i<20; i++) {
             
-            ODM_delay_ms(1);
-            if (ODM_GetBBReg(pDM_Odm,ODM_REG_NHM_DUR_READY_11AC,BIT17))
-                break;
+		ODM_delay_ms(1);
+		if (ODM_GetBBReg(pDM_Odm, ODM_REG_NHM_DUR_READY_11AC, BIT16))
+			break;
         }
     
         if ( pACS->ACS_Step==1 ) {
@@ -1222,85 +1222,5 @@ choose_ch:
 
 #endif
 
-VOID
-phydm_CLMInit(
-	IN		PVOID			pDM_VOID,
-	IN		u2Byte			sampleNum			/*unit : 4us*/
-)
-{
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;		
 
-	if (pDM_Odm->SupportICType & ODM_IC_11AC_SERIES) {
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_TIME_PERIOD_11AC, bMaskLWord, sampleNum);	/*4us sample 1 time*/
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_11AC, BIT8, 0x1);							/*Enable CCX for CLM*/
-	} else if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_TIME_PERIOD_11N, bMaskLWord, sampleNum);	/*4us sample 1 time*/
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_11N, BIT8, 0x1);								/*Enable CCX for CLM*/	
-	}
-
-	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("[%s] : CLM sampleNum = %d\n", __func__, sampleNum));
-		
-}
-
-VOID
-phydm_CLMtrigger(
-	IN		PVOID			pDM_VOID
-)
-{
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-
-	if (pDM_Odm->SupportICType & ODM_IC_11AC_SERIES) {
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_11AC, BIT0, 0x0);	/*Trigger CLM*/
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_11AC, BIT0, 0x1);
-	} else if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES) {
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_11N, BIT0, 0x0);	/*Trigger CLM*/
-		ODM_SetBBReg(pDM_Odm, ODM_REG_CLM_11N, BIT0, 0x1);
-	}
-}
-
-BOOLEAN
-phydm_checkCLMready(
-	IN		PVOID			pDM_VOID
-)
-{
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	u4Byte			value32 = 0;
-	BOOLEAN			ret = FALSE;
-	
-	if (pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)
-		value32 = ODM_GetBBReg(pDM_Odm, ODM_REG_CLM_RESULT_11AC, bMaskDWord);				/*make sure CLM calc is ready*/
-	else if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
-		value32 = ODM_GetBBReg(pDM_Odm, ODM_REG_CLM_READY_11N, bMaskDWord);				/*make sure CLM calc is ready*/
-
-	if (value32 & BIT16)
-		ret = TRUE;
-	else
-		ret = FALSE;
-
-	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("[%s] : CLM ready = %d\n", __func__, ret));
-
-	return ret;
-}
-
-u2Byte
-phydm_getCLMresult(
-	IN		PVOID			pDM_VOID
-)
-{
-	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	u4Byte			value32 = 0;
-	u2Byte			results = 0;
-	
-	if (pDM_Odm->SupportICType & ODM_IC_11AC_SERIES)
-		value32 = ODM_GetBBReg(pDM_Odm, ODM_REG_CLM_RESULT_11AC, bMaskDWord);				/*read CLM calc result*/
-	else if (pDM_Odm->SupportICType & ODM_IC_11N_SERIES)
-		value32 = ODM_GetBBReg(pDM_Odm, ODM_REG_CLM_RESULT_11N, bMaskDWord);				/*read CLM calc result*/
-
-	results = (u2Byte)(value32 & bMaskLWord);
-
-	ODM_RT_TRACE(pDM_Odm, ODM_COMP_ACS, ODM_DBG_LOUD, ("[%s] : CLM result = %d\n", __func__, results));
-	
-	return results;
-/*results are number of CCA times in sampleNum*/
-}
 

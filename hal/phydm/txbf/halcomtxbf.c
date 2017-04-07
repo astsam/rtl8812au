@@ -126,6 +126,10 @@ phydm_beamformSetSoundingClk(
 
 	if (PlatformIsWorkItemScheduled(&(pTxbfInfo->Txbf_ClkWorkItem)) == FALSE)
 			PlatformScheduleWorkItem(&(pTxbfInfo->Txbf_ClkWorkItem));
+#elif(DM_ODM_SUPPORT_TYPE == ODM_CE)
+	PADAPTER	padapter = pDM_Odm->Adapter;
+
+	rtw_run_in_thread_cmd(padapter, halComTxbf_ClkWorkItemCallback, padapter);
 #else
 	halComTxbf_ClkWorkItemCallback(pDM_Odm);
 #endif
@@ -189,8 +193,6 @@ halComTxbf_EnterWorkItemCallback(
 		HalTxbf8192E_Enter(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
 		HalTxbf8814A_Enter(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8821B)
-		HalTxbf8821B_Enter(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
 		HalTxbf8822B_Enter(pDM_Odm, Idx);
 }
@@ -222,8 +224,6 @@ halComTxbf_LeaveWorkItemCallback(
 		HalTxbf8192E_Leave(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
 		HalTxbf8814A_Leave(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8821B)
-		HalTxbf8821B_Leave(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
 		HalTxbf8822B_Leave(pDM_Odm, Idx);
 }
@@ -255,8 +255,6 @@ halComTxbf_FwNdpaWorkItemCallback(
 		HalTxbf8192E_FwTxBF(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
 		HalTxbf8814A_FwTxBF(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8821B)
-		HalTxbf8821B_FwTxBF(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
 		HalTxbf8822B_FwTxBF(pDM_Odm, Idx);
 }
@@ -367,8 +365,6 @@ halComTxbf_StatusWorkItemCallback(
 		HalTxbf8192E_Status(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
 		HalTxbf8814A_Status(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8821B)
-		HalTxbf8821B_Status(pDM_Odm, Idx);
 	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
 		HalTxbf8822B_Status(pDM_Odm, Idx);
 }
@@ -426,9 +422,7 @@ HalComTxbf_Set(
 	)
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	PBOOLEAN		pBoolean=(PBOOLEAN)pInBuf;
 	pu1Byte			pU1Tmp=(pu1Byte)pInBuf;
-	pu4Byte			pU4Tmp=(pu4Byte)pInBuf;
 	PHAL_TXBF_INFO	pTxbfInfo = &pDM_Odm->BeamformingInfo.TxbfInfo;
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] setType = 0x%X\n", __func__, setType));
@@ -489,9 +483,6 @@ HalComTxbf_Get(
 	PHAL_DATA_TYPE		pHalData=GET_HAL_DATA(Adapter);
 	PDM_ODM_T			pDM_Odm = &pHalData->DM_OutSrc;
 	PBOOLEAN			pBoolean=(PBOOLEAN)pOutBuf;
-	ps4Byte				pS4Tmp=(ps4Byte)pOutBuf;
-	pu4Byte				pU4Tmp=(pu4Byte)pOutBuf;
-	pu1Byte				pU1Tmp=(pu1Byte)pOutBuf;
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
@@ -519,9 +510,8 @@ HalComTxbf_Get(
 		} else
 			*pBoolean = FALSE;
 	} else if (getType == TXBF_GET_MU_MIMO_STA) {
-#if (RTL8822B_SUPPORT == 1)
-		if (/*pDM_Odm->SupportICType & (ODM_RTL8822B)*/
-			IS_HARDWARE_TYPE_8822B(Adapter))
+#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1))
+		if (IS_HARDWARE_TYPE_8822B(Adapter) || IS_HARDWARE_TYPE_8821C(Adapter))
 			*pBoolean = TRUE;
 		else
 #endif
@@ -530,8 +520,7 @@ HalComTxbf_Get(
 
 	} else if (getType == TXBF_GET_MU_MIMO_AP) {
 #if (RTL8822B_SUPPORT == 1)	
-		if (/*pDM_Odm->SupportICType & (ODM_RTL8822B)*/
-			IS_HARDWARE_TYPE_8822B(Adapter))
+		if (IS_HARDWARE_TYPE_8822B(Adapter))
 			*pBoolean = TRUE;
 		else
 #endif

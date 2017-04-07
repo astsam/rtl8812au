@@ -35,7 +35,7 @@ void ConfigureTxpowerTrack_8812A(
 
 VOID
 GetDeltaSwingTable_8812A(
-	IN 	PDM_ODM_T			pDM_Odm,
+	IN	PVOID		pDM_VOID,
 	OUT pu1Byte 			*TemperatureUP_A,
 	OUT pu1Byte 			*TemperatureDOWN_A,
 	OUT pu1Byte 			*TemperatureUP_B,
@@ -51,7 +51,7 @@ void DoIQK_8812A(
 
 VOID
 ODM_TxPwrTrackSetPwr8812A(
-	PDM_ODM_T			pDM_Odm,
+	PVOID		pDM_VOID,
 	PWRTRACK_METHOD 	Method,
 	u1Byte 				RFPath,
 	u1Byte 				ChannelMappedIndex
@@ -71,7 +71,7 @@ PHY_IQCalibrate_8812A(
 //
 void	
 PHY_LCCalibrate_8812A(
-	IN PDM_ODM_T		pDM_Odm
+	IN PVOID		pDM_VOID
 );
 
 //

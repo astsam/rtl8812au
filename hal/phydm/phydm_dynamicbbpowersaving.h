@@ -21,7 +21,7 @@
 #ifndef	__PHYDMDYNAMICBBPOWERSAVING_H__
 #define    __PHYDMDYNAMICBBPOWERSAVING_H__
 
-#define DYNAMIC_BBPWRSAV_VERSION	"1.0"
+#define DYNAMIC_BBPWRSAV_VERSION	"1.1"
 
 typedef struct _Dynamic_Power_Saving_
 {
@@ -47,16 +47,6 @@ void ODM_RF_Saving(
 
 VOID 
 odm_DynamicBBPowerSavingInit(
-	IN		PVOID					pDM_VOID
-	);
-
-VOID 
-odm_DynamicBBPowerSaving(
-	IN		PVOID					pDM_VOID
-	);
-
-VOID
-odm_1R_CCA(
 	IN		PVOID					pDM_VOID
 	);
 

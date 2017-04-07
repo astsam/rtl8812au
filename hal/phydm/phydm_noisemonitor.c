@@ -21,7 +21,7 @@
 //============================================================
 // include files
 //============================================================
-//#include "mp_precomp.h"
+#include "mp_precomp.h"
 #include "phydm_precomp.h"
 #include "phydm_noisemonitor.h"
 
@@ -39,7 +39,7 @@
 #define Valid_Max			10
 #define ValidCnt				5	
 
-#if (DM_ODM_SUPPORT_TYPE &  (ODM_CE))
+#if (DM_ODM_SUPPORT_TYPE &  (ODM_CE|ODM_WIN))
 
 s2Byte odm_InbandNoise_Monitor_NSeries(PDM_ODM_T	pDM_Odm,u8 bPauseDIG,u8 IGIValue,u32 max_time)
 {
@@ -47,7 +47,7 @@ s2Byte odm_InbandNoise_Monitor_NSeries(PDM_ODM_T	pDM_Odm,u8 bPauseDIG,u8 IGIValu
 	u1Byte				max_rf_path=0,rf_path;	
 	u1Byte				reg_c50, reg_c58,valid_done=0;	
 	struct noise_level		noise_data;
-	u32 start  = 0, 	func_start=0,	func_end = 0;
+	u8Byte	start  = 0, func_start = 0,	func_end = 0;
 
 	func_start = ODM_GetCurrentTime(pDM_Odm);
 	pDM_Odm->noise_level.noise_all = 0;
@@ -145,17 +145,17 @@ s2Byte odm_InbandNoise_Monitor_NSeries(PDM_ODM_T	pDM_Odm,u8 bPauseDIG,u8 IGIValu
 			break;
 		}
 	}
-	reg_c50 = (s4Byte)ODM_GetBBReg(pDM_Odm,rOFDM0_XAAGCCore1,bMaskByte0);
+	reg_c50 = (u1Byte)ODM_GetBBReg(pDM_Odm, rOFDM0_XAAGCCore1, bMaskByte0);
 	reg_c50 &= ~BIT7;
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD,("0x%x = 0x%02x(%d)\n", rOFDM0_XAAGCCore1, reg_c50, reg_c50));
-	pDM_Odm->noise_level.noise[ODM_RF_PATH_A] = -110 + reg_c50 + noise_data.sum[ODM_RF_PATH_A];
+	pDM_Odm->noise_level.noise[ODM_RF_PATH_A] = (u1Byte)(-110 + reg_c50 + noise_data.sum[ODM_RF_PATH_A]);
 	pDM_Odm->noise_level.noise_all += pDM_Odm->noise_level.noise[ODM_RF_PATH_A];
 		
 	if(max_rf_path == 2){
-		reg_c58 = (s4Byte)ODM_GetBBReg(pDM_Odm,rOFDM0_XBAGCCore1,bMaskByte0);
+		reg_c58 = (u1Byte)ODM_GetBBReg(pDM_Odm, rOFDM0_XBAGCCore1, bMaskByte0);
 		reg_c58 &= ~BIT7;
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_COMMON, ODM_DBG_LOUD,("0x%x = 0x%02x(%d)\n", rOFDM0_XBAGCCore1, reg_c58, reg_c58));
-		pDM_Odm->noise_level.noise[ODM_RF_PATH_B] = -110 + reg_c58 + noise_data.sum[ODM_RF_PATH_B];
+		pDM_Odm->noise_level.noise[ODM_RF_PATH_B] = (u1Byte)(-110 + reg_c58 + noise_data.sum[ODM_RF_PATH_B]);
 		pDM_Odm->noise_level.noise_all += pDM_Odm->noise_level.noise[ODM_RF_PATH_B];
 	}
 	pDM_Odm->noise_level.noise_all /= max_rf_path;
@@ -186,10 +186,10 @@ odm_InbandNoise_Monitor_ACSeries(PDM_ODM_T	pDM_Odm, u8 bPauseDIG, u8 IGIValue, u
 	s4Byte	        value32, pwdb_A = 0, sval, noise, sum;
 	BOOLEAN	        pd_flag;
 	u1Byte			i, valid_cnt;
-	u32 start = 0, func_start = 0, func_end = 0;
+	u8Byte	start = 0, func_start = 0, func_end = 0;
 
 
-	if (!(pDM_Odm->SupportICType & (ODM_RTL8812 | ODM_RTL8821)))
+	if (!(pDM_Odm->SupportICType & (ODM_RTL8812 | ODM_RTL8821 | ODM_RTL8814A)))
 		return 0;
 	
 	func_start = ODM_GetCurrentTime(pDM_Odm);
@@ -236,13 +236,19 @@ odm_InbandNoise_Monitor_ACSeries(PDM_ODM_T	pDM_Odm, u8 bPauseDIG, u8 IGIValue, u
 
 			ODM_RT_TRACE(pDM_Odm, ODM_COMP_COMMON, ODM_DBG_LOUD, ("pwdb_A= %d dB, rxi_buf_anta= 0x%x, rxq_buf_anta= 0x%x\n", pwdb_A, rxi_buf_anta & 0x3FF, rxq_buf_anta & 0x3FF));
 		}
-
+		/*Start CK320&CK88*/
+		ODM_SetBBReg(pDM_Odm, 0x8B4, BIT6, 0);
 		/*BB Reset*/
 		ODM_Write1Byte(pDM_Odm, 0x02, ODM_Read1Byte(pDM_Odm, 0x02) & (~BIT0));
 		ODM_Write1Byte(pDM_Odm, 0x02, ODM_Read1Byte(pDM_Odm, 0x02) | BIT0);
-
-		/*Start CK320&CK88*/
-		ODM_SetBBReg(pDM_Odm, 0x8B4, BIT6, 0);
+		/*PMAC Reset*/
+		ODM_Write1Byte(pDM_Odm, 0xB03, ODM_Read1Byte(pDM_Odm, 0xB03) & (~BIT0));
+		ODM_Write1Byte(pDM_Odm, 0xB03, ODM_Read1Byte(pDM_Odm, 0xB03) | BIT0);
+		/*CCK Reset*/
+		if (ODM_Read1Byte(pDM_Odm, 0x80B) & BIT4) {
+			ODM_Write1Byte(pDM_Odm, 0x80B, ODM_Read1Byte(pDM_Odm, 0x80B) & (~BIT4));
+			ODM_Write1Byte(pDM_Odm, 0x80B, ODM_Read1Byte(pDM_Odm, 0x80B) | BIT4);		
+		}
 
 		sval = pwdb_A;
 

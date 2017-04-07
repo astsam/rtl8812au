@@ -25,14 +25,24 @@ typedef enum _C2H_EVT {
 	C2H_LB = 0x01,
 	C2H_TXBF = 0x02,
 	C2H_CCX_TX_RPT = 0x03,
+	C2H_FW_SCAN_COMPLETE = 0x7,
 	C2H_BT_INFO = 0x09,
 	C2H_BT_MP_INFO = 0x0B,
 	C2H_RA_RPT = 0x0C,
 	C2H_RA_PARA_RPT = 0x0E,
-	C2H_FW_SWCHNL = 0x10,
+	C2H_FW_CHNL_SWITCH_COMPLETE = 0x10,
 	C2H_IQK_FINISH = 0x11,
 	C2H_MAILBOX_STATUS = 0x15,
 	C2H_P2P_RPORT = 0x16,
+#ifdef CONFIG_MCC_MODE
+	C2H_MCC = 0x17,
+#endif /* CONFIG_MCC_MODE */
+	C2H_MAC_HIDDEN_RPT = 0x19,
+	C2H_MAC_HIDDEN_RPT_2 = 0x1A,
+	C2H_BCN_EARLY_RPT = 0x1E,
+	C2H_BT_SCOREBOARD_STATUS = 0x20,
+	C2H_DEFEATURE_DBG = 0x22,
+	C2H_DEFEATURE_RSVD = 0xFD,
 	C2H_EXTEND = 0xff,
 } C2H_EVT;
 
@@ -40,5 +50,17 @@ typedef enum _EXTEND_C2H_EVT {
 	EXTEND_C2H_DBG_PRINT = 0
 } EXTEND_C2H_EVT;
 
-#endif /* __COMMON_C2H_H__ */
+/* C2H_MAC_HIDDEN_RPT, 0x19 */
+#define MAC_HIDDEN_RPT_LEN 8
+int c2h_mac_hidden_rpt_hdl(_adapter *adapter, u8 *data, u8 len);
 
+/* C2H_MAC_HIDDEN_RPT_2, 0x1A */
+#define MAC_HIDDEN_RPT_2_LEN 5
+int c2h_mac_hidden_rpt_2_hdl(_adapter *adapter, u8 *data, u8 len);
+int hal_read_mac_hidden_rpt(_adapter *adapter);
+
+/* C2H_DEFEATURE_DBG, 0x22 */
+#define DEFEATURE_DBG_LEN 1
+int c2h_defeature_dbg_hdl(_adapter *adapter, u8 *data, u8 len);
+
+#endif /* __COMMON_C2H_H__ */
