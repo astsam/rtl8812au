@@ -447,7 +447,8 @@ struct pkt_attrib {
 	u16 txbf_p_aid;/*beamforming Partial_AID*/
 	u16 txbf_g_id;/*beamforming Group ID*/
 #endif
-
+    u8  inject; /* == a5 if injected */
+	
 };
 #endif
 
