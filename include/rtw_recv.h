@@ -174,6 +174,9 @@ typedef struct _ODM_Phy_Status_Info_ {
 } ODM_PHY_INFO_T, *PODM_PHY_INFO_T;
 #endif
 
+#define RXDESC_SIZE	24
+#define RXDESC_OFFSET RXDESC_SIZE
+
 struct phy_info {
 	u8			RxPWDBAll;
 	u8			SignalQuality;				/* in 0-100 index. */
@@ -266,6 +269,10 @@ struct rx_pkt_attrib	{
 	u32 tsfl;
 	u32	MacIDValidEntry[2];	/* 64 bits present 64 entry. */
 
+#ifdef CONFIG_RADIOTAP_WITH_RXDESC
+	u8	rxdesc[RXDESC_SIZE];
+#endif
+
 #if 0
 	u8	signal_qual;
 	s8	rx_mimo_signal_qual[2];
@@ -291,9 +298,6 @@ struct rx_pkt_attrib	{
 #elif (defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B)) && defined(CONFIG_PCI_HCI)
 	#define RXBD_SIZE	sizeof(struct recv_stat)
 #endif
-
-#define RXDESC_SIZE	24
-#define RXDESC_OFFSET RXDESC_SIZE
 
 #ifdef CONFIG_TRX_BD_ARCH
 struct rx_buf_desc {
