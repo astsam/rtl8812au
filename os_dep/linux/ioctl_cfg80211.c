@@ -6158,12 +6158,31 @@ void rtw_cfg80211_init_wdev_data(_adapter *padapter)
 #endif
 }
 
+static void rtw_cfg80211_create_vht_cap(struct ieee80211_sta_vht_cap *vht_cap)
+{
+       u16 mcs_map;
+       int i;
+
+       vht_cap->vht_supported = 1;
+       vht_cap->cap = IEEE80211_VHT_CAP_RXLDPC;
+
+       mcs_map = 0;
+       for (i = 0; i < 8; i++) {
+               mcs_map |= IEEE80211_VHT_MCS_SUPPORT_0_9 << (i*2);
+       }
+
+       vht_cap->vht_mcs.rx_mcs_map = cpu_to_le16(mcs_map);
+       vht_cap->vht_mcs.tx_mcs_map = cpu_to_le16(mcs_map);
+}
+
+
 void rtw_cfg80211_init_wiphy(_adapter *padapter)
 {
 	u8 rf_type;
 	struct ieee80211_supported_band *bands;
 	struct wireless_dev *pwdev = padapter->rtw_wdev;
 	struct wiphy *wiphy = pwdev->wiphy;
+	struct ieee80211_sta_vht_cap *vht_cap;
 
 	rtw_hal_get_hwreg(padapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
 
@@ -6177,8 +6196,10 @@ void rtw_cfg80211_init_wiphy(_adapter *padapter)
 #ifdef CONFIG_IEEE80211_BAND_5GHZ
 	if (IsSupported5G(padapter->registrypriv.wireless_mode)) {
 		bands = wiphy->bands[IEEE80211_BAND_5GHZ];
-		if (bands)
+		if (bands) {
 			rtw_cfg80211_init_ht_capab(padapter, &bands->ht_cap, IEEE80211_BAND_5GHZ, rf_type);
+			rtw_cfg80211_create_vht_cap(&bands->vht_cap);
+		}
 	}
 #endif
 	/* init regulary domain */
