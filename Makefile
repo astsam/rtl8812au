@@ -67,7 +67,7 @@ CONFIG_WIFI_MONITOR = y
 CONFIG_MCC_MODE = n
 CONFIG_APPEND_VENDOR_IE_ENABLE = n
 ########################## Debug ###########################
-CONFIG_RTW_DEBUG = y
+CONFIG_RTW_DEBUG = n
 # default log level is _DRV_INFO_ = 4,
 # please refer to "How_to_set_driver_debug_log_level.doc" to set the available level.
 CONFIG_RTW_LOG_LEVEL = 4
@@ -160,6 +160,13 @@ ifeq ($(CONFIG_PCI_HCI), y)
 HCI_NAME = pci
 endif
 
+ifeq ($(DEBUG), 1)
+EXTRA_CFLAGS += -DDBG=1 -DCONFIG_RTW_DEBUG -DCONFIG_DBG_COUNTER -DCONFIG_RADIOTAP_WITH_RXDESC
+else ifeq ($(DEBUG), 2)
+EXTRA_CFLAGS += -DDBG=1 -DCONFIG_RTW_DEBUG -DCONFIG_DBG_COUNTER -DCONFIG_RADIOTAP_WITH_RXDESC -DCONFIG_DEBUG_RTL871X
+else
+EXTRA_CFLAGS += -DDBG=0
+endif
 
 _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/os_intfs.o \
