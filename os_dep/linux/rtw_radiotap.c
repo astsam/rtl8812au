@@ -161,7 +161,6 @@ int rtw_ieee80211_radiotap_iterator_init(
 
 	return 0;
 }
-EXPORT_SYMBOL(rtw_ieee80211_radiotap_iterator_init);
 
 static void find_ns(struct ieee80211_radiotap_iterator *iterator,
 		    uint32_t oui, uint8_t subns)
@@ -367,4 +366,4 @@ int rtw_ieee80211_radiotap_iterator_next(
 			return 0;
 	}
 }
-EXPORT_SYMBOL(rtw_ieee80211_radiotap_iterator_next);
+
