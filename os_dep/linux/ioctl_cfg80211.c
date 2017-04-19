@@ -3986,6 +3986,11 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 	mon_wdev->netdev = mon_ndev;
 	mon_wdev->iftype = NL80211_IFTYPE_MONITOR;
 	mon_ndev->ieee80211_ptr = mon_wdev;
+	
+	SET_NETDEV_DEV(mon_ndev, wiphy_dev(pwdev_priv->rtw_wdev->wiphy));
+	
+	memcpy(mon_ndev->dev_addr, padapter->pnetdev->dev_addr, ETH_ALEN);
+	memcpy(mon_ndev->perm_addr, padapter->pnetdev->perm_addr, ETH_ALEN);
 
 	ret = register_netdevice(mon_ndev);
 	if (ret) {
