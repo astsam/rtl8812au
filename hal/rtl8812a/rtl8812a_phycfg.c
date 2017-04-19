@@ -1305,7 +1305,8 @@ PHY_SwitchWirelessBand8812(
 	if (Band == BAND_ON_2_4G) {
 		/* 2.4G band */
 
-#ifdef CONFIG_RTL8821A
+//#ifdef CONFIG_RTL8821A
+#if 0
 		/* 20160224 yiwei ,  8811au one antenna  module don't support antenna  div , so driver must to control antenna  band , otherwise one of the band will has issue */
 		if (IS_HARDWARE_TYPE_8821(Adapter)) {
 			if (Adapter->registrypriv.drv_ant_band_switch == 1 && pHalData->AntDivCfg == 0) {
@@ -1362,7 +1363,8 @@ PHY_SwitchWirelessBand8812(
 	} else {	/* 5G band */
 		u16 count = 0, reg41A = 0;
 
-#ifdef CONFIG_RTL8821A
+//#ifdef CONFIG_RTL8821A
+#if 0
 		/* 20160224 yiwei ,  8811a one antenna  module don't support antenna  div , so driver must to control antenna  band , otherwise one of the band will has issue */
 		if (IS_HARDWARE_TYPE_8821(Adapter)) {
 			if (Adapter->registrypriv.drv_ant_band_switch == 1 && pHalData->AntDivCfg == 0) {
