@@ -132,15 +132,6 @@ PHY_GetTxPowerIndex_8814A(
 	IN	PADAPTER			Adapter,
 	IN  u8				RFPath,
 	IN	u8				Rate,
-	IN	CHANNEL_WIDTH		BandWidth,
-	IN	u8				Channel
-);
-
-u8
-PHY_GetTxPowerIndex8814A(
-	IN	PADAPTER			Adapter,
-	IN  u8				RFPath,
-	IN	u8				Rate,
 	IN	u8				BandWidth,
 	IN	u8				Channel,
 	struct txpwr_idx_comp *tic

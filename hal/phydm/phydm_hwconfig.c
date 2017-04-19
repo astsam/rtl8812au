@@ -2260,8 +2260,9 @@ ODM_ConfigRFWithTxPwrTrackHeaderFile(
 			READ_AND_CONFIG_MP(8814A, _TxPowerTrack_Type5);
 		else
 			READ_AND_CONFIG_MP(8814A,_TxPowerTrack);
-			
-		READ_AND_CONFIG_MP(8814A, _TxPowerTSSI);
+
+// FIXME: ODM_ReadAndConfig_MP_8814A_TxPowerTSSI() is required
+//		READ_AND_CONFIG_MP(8814A, _TxPowerTSSI);
 	}
 #endif
 #if RTL8703B_SUPPORT

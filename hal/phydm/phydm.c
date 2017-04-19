@@ -736,11 +736,13 @@ odm_HWSetting(
 		odm_HWSetting_8821A(pDM_Odm);
 #endif
 
+// FIXME: phydm_hwsetting_8814a() is required
+#if 0
 #if (RTL8814A_SUPPORT == 1)
 	if (pDM_Odm->SupportICType & ODM_RTL8814A)
 		phydm_hwsetting_8814a(pDM_Odm);
 #endif
-
+#endif
 }
 
 //
