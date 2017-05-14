@@ -1597,7 +1597,7 @@ int rtw_mp_tx(struct net_device *dev,
 			_rtw_memset(pMptCtx->PMacTxInfo.MacAddress, 0xFF, ETH_ALEN);
 
 			PMAC_Get_Pkt_Param(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
-
+#if !defined(__arm__)
 			if (MPT_IS_CCK_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 
 				CCK_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
@@ -1606,6 +1606,7 @@ int rtw_mp_tx(struct net_device *dev,
 				/* 24 BIT*/
 				L_SIG_generator(pMptCtx->PMacPktInfo.N_sym, &pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 			}
+#endif
 			/*	48BIT*/
 			if (MPT_IS_HT_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 				HT_SIG_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);

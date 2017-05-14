@@ -33,6 +33,11 @@
 #define CEILING_NEG(X) ((X - (int)(X)) < 0 ? (int)(X - 1) : (int)(X))
 #define ceil(X) (((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X))
 
+static int rtfloor(float x) {
+    int xi = (int)x;
+    return x < xi ? xi - 1 : xi;
+}
+#if 0
 int rtfloor(float x)
 {
 	int i = x - 2;
@@ -41,6 +46,7 @@ int rtfloor(float x)
 		;
 	return i;
 }
+#endif
 #endif
 
 #ifdef CONFIG_MP_INCLUDED
@@ -2766,7 +2772,7 @@ void CRC16_generator(
 }
 
 
-
+#if !defined(__arm__)
 /*========================================
 	SFD		SIGNAL	SERVICE	LENGTH	CRC
 	16 bit	8 bit	8 bit	16 bit	16 bit
@@ -2846,7 +2852,7 @@ void CCK_generator(
 	ByteToBit(pPMacTxInfo->CRC16, crc16_out, 2);
 
 }
-
+#endif
 
 void PMAC_Get_Pkt_Param(
 	PRT_PMAC_TX_INFO	pPMacTxInfo,
@@ -2919,7 +2925,7 @@ void PMAC_Get_Pkt_Param(
 		pPMacTxInfo->m_STBC = 1;
 }
 
-
+#if !defined(__arm__)
 UINT LDPC_parameter_generator(
 	UINT N_pld_int,
 	UINT N_CBPSS,
@@ -3265,6 +3271,7 @@ void L_SIG_generator(
 	_rtw_memset(pPMacTxInfo->LSIG, 0, 3);
 	ByteToBit(pPMacTxInfo->LSIG, (bool *)sig_bi, 3);
 }
+#endif
 
 
 void CRC8_generator(
