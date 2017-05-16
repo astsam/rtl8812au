@@ -6758,4 +6758,4 @@ void rtw_cfg80211_dev_res_unregister(struct dvobj_priv *dvobj)
 #endif
 }
 
-#endif /* CONFIG_IOCTL_CFG80211 */
+/* #endif # CONFIG_IOCTL_CFG80211 */
