@@ -44,6 +44,7 @@ enum ieee80211_band {
 	/* keep last */
 	IEEE80211_NUM_BANDS
 };
+#define is_compat_task in_compat_syscall
 #endif
 
 #endif
