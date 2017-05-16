@@ -1517,31 +1517,4 @@ int rtw_suspend_free_assoc_resource(_adapter *padapter);
 	#include <pci_hal.h>
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0))
-
-/*
- * wireless hardware capability structures
- */
-
-/**
- * enum ieee80211_band - supported frequency bands
- *
- * The bands are assigned this way because the supported
- * bitrates differ in these bands.
- *
- * @IEEE80211_BAND_2GHZ: 2.4GHz ISM band
- * @IEEE80211_BAND_5GHZ: around 5GHz band (4.9-5.7)
- * @IEEE80211_BAND_60GHZ: around 60 GHz band (58.32 - 64.80 GHz)
- * @IEEE80211_NUM_BANDS: number of defined bands
- */
-enum ieee80211_band {
-	IEEE80211_BAND_2GHZ = NL80211_BAND_2GHZ,
-	IEEE80211_BAND_5GHZ = NL80211_BAND_5GHZ,
-	IEEE80211_BAND_60GHZ = NL80211_BAND_60GHZ,
-
-	/* keep last */
-	IEEE80211_NUM_BANDS
-};
-#endif
-
 #endif /* __DRV_TYPES_H__ */
