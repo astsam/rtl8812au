@@ -164,18 +164,12 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x07B8, 0x8812), .driver_info = RTL8812}, /* Abocom - Abocom */
 	{USB_DEVICE(0x2001, 0x3315), .driver_info = RTL8812}, /* D-Link - Cameo */
 	{USB_DEVICE(0x2001, 0x3316), .driver_info = RTL8812}, /* D-Link - Cameo */
-	{USB_DEVICE(0x13B1, 0x003F), .driver_info = RTL8812}, /* Linksys - WUSB6300 */
+	{USB_DEVICE(0x13b1, 0x003F), .driver_info = RTL8812}, /* Linksys - WUSB6300 */
 	{USB_DEVICE(0x2357, 0x0101), .driver_info = RTL8812}, /* TP-Link - Archer T4U */
-	{USB_DEVICE(0x2357, 0x010D), .driver_info = RTL8812}, /* TP-Link - Archer T4U AC1300 */
 	{USB_DEVICE(0x2357, 0x0103), .driver_info = RTL8812}, /* TP-Link - T4UH */
-	{USB_DEVICE(0x2357, 0x010F), .driver_info = RTL8812}, /* TP-Link - T4UHP */
-	{USB_DEVICE(0x20F4, 0x805B), .driver_info = RTL8812}, /* TRENDnet - */
-	{USB_DEVICE(0x2604, 0x0012), .driver_info = RTL8812}, /* Tenda - U12 */
-	{USB_DEVICE(0x0411, 0x025D), .driver_info = RTL8812}, /* Buffalo - WI-U3-866D */
+	{USB_DEVICE(0x20f4, 0x805B), .driver_info = RTL8812}, /* TRENDnet - */
+	{USB_DEVICE(0x0411, 0x025d), .driver_info = RTL8812}, /* Buffalo - WI-U3-866D */
 	{USB_DEVICE(0x050D, 0x1109), .driver_info = RTL8812}, /* Belkin F9L1109 - SerComm */
-	{USB_DEVICE(0x0BDA, 0x8812), .driver_info = RTL8812}, /* Netis WF2190 */
-	{USB_DEVICE(0x148F, 0x9097), .driver_info = RTL8812}, /* Amped Wireless ACA1 */
-	{USB_DEVICE(0x0BDA, 0x8812), .driver_info = RTL8812}, /* Alfa - AWUS036AC */
 #endif
 
 #ifdef CONFIG_RTL8821A
@@ -199,9 +193,6 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x0411, 0x0242), .driver_info = RTL8821}, /* ELECOM - WDC-433DU2H */
 	{USB_DEVICE(0x2019, 0xAB32), .driver_info = RTL8821}, /* Planex - GW-450S */
 	{USB_DEVICE(0x0846, 0x9052), .driver_info = RTL8821}, /* Netgear - A6100 */
-	{USB_DEVICE(0x0BDA, 0xA811), .driver_info = RTL8821}, /* GMYLE - AC450 */
-	{USB_DEVICE(0x04BB, 0x0953), .driver_info = RTL8821}, /* I-O DATA - WN-AC433UA */
-	{USB_DEVICE(0x0BDA, 0xa811), .driver_info = RTL8821}, /* Comcast - CF-915AC */	
 #endif
 
 #ifdef CONFIG_RTL8192E
