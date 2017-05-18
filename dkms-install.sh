@@ -7,7 +7,7 @@ else
   echo "About to run dkms install steps..."
 fi
 
-DRV_DIR=Realtek-8812au-8814au
+DRV_DIR=rtl8812au
 DRV_NAME=rtl8812au
 DRV_VERSION=5.1.5
 
