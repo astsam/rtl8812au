@@ -1,0 +1,42 @@
+diff --git a/packages/linux-drivers/RTL8192CU/package.mk b/packages/linux-drivers/RTL8192CU/package.mk
+index 8fd8d55..05a3b99 100644
+--- a/packages/linux-drivers/RTL8192CU/package.mk
++++ b/packages/linux-drivers/RTL8192CU/package.mk
+@@ -42,7 +42,8 @@ make_target() {
+        ARCH=$TARGET_ARCH \
+        KSRC=$(kernel_path) \
+        CROSS_COMPILE=$TARGET_PREFIX \
+-       CONFIG_POWER_SAVING=n
++       CONFIG_POWER_SAVING=n \
++       CONFIG_HW_PWRP_DETECTION=y
+ }
+ 
+ makeinstall_target() {
+diff --git a/packages/linux-drivers/RTL8192DU/package.mk b/packages/linux-drivers/RTL8192DU/package.mk
+index d10da26..e0ea1f9 100644
+--- a/packages/linux-drivers/RTL8192DU/package.mk
++++ b/packages/linux-drivers/RTL8192DU/package.mk
+@@ -42,7 +42,8 @@ make_target() {
+        ARCH=$TARGET_ARCH \
+        KSRC=$(kernel_path) \
+        CROSS_COMPILE=$TARGET_PREFIX \
+-       CONFIG_POWER_SAVING=n
++       CONFIG_POWER_SAVING=n \
++       CONFIG_HW_PWRP_DETECTION=y
+ }
+ 
+ makeinstall_target() {
+diff --git a/packages/linux-drivers/RTL8812AU/package.mk b/packages/linux-drivers/RTL8812AU/package.mk
+index a04bb2f..89b062c 100644
+--- a/packages/linux-drivers/RTL8812AU/package.mk
++++ b/packages/linux-drivers/RTL8812AU/package.mk
+@@ -42,7 +42,8 @@ make_target() {
+        ARCH=$TARGET_ARCH \
+        KSRC=$(kernel_path) \
+        CROSS_COMPILE=$TARGET_PREFIX \
+-       CONFIG_POWER_SAVING=n
++       CONFIG_POWER_SAVING=n \
++       CONFIG_HW_PWRP_DETECTION=y
+ }
+ 
+ makeinstall_target() {

@@ -747,12 +747,28 @@ check_bss:
 		struct ieee80211_channel *notify_channel;
 		u32 freq;
 		u16 channel = cur_network->network.Configuration.DSConfig;
-
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0))
+		struct cfg80211_roam_info roam_info = {};
+		#endif
+		
 		freq = rtw_ch2freq(channel);
 		notify_channel = ieee80211_get_channel(wiphy, freq);
 		#endif
 
 		RTW_INFO(FUNC_ADPT_FMT" call cfg80211_roamed\n", FUNC_ADPT_ARG(padapter));
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0))
+		roam_info.channel = notify_channel;
+		roam_info.bssid = cur_network->network.MacAddress;
+		roam_info.req_ie =
+			pmlmepriv->assoc_req+sizeof(struct rtw_ieee80211_hdr_3addr)+2;
+		roam_info.req_ie_len =
+			pmlmepriv->assoc_req_len-sizeof(struct rtw_ieee80211_hdr_3addr)-2;
+		roam_info.resp_ie =
+			pmlmepriv->assoc_rsp+sizeof(struct rtw_ieee80211_hdr_3addr)+6;
+		roam_info.resp_ie_len =
+			pmlmepriv->assoc_rsp_len-sizeof(struct rtw_ieee80211_hdr_3addr)-6;
+		cfg80211_roamed(padapter->pnetdev, &roam_info, GFP_ATOMIC);
+		#else
 		cfg80211_roamed(padapter->pnetdev
 			#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
 			, notify_channel
@@ -763,6 +779,7 @@ check_bss:
 			, pmlmepriv->assoc_rsp + sizeof(struct rtw_ieee80211_hdr_3addr) + 6
 			, pmlmepriv->assoc_rsp_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 6
 			, GFP_ATOMIC);
+			#endif
 	} else {
 		#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 11, 0) || defined(COMPAT_KERNEL_RELEASE)
 		RTW_INFO("pwdev->sme_state(b)=%d\n", pwdev->sme_state);
@@ -3605,6 +3622,62 @@ static const struct net_device_ops rtw_cfg80211_monitor_if_ops = {
 };
 #endif
 
+static int rtw_cfg80211_add_if(_adapter *padapter, char *name, struct net_device **ndev,
+		enum nl80211_iftype type)
+{
+	int ret = 0;
+		
+	if (!name) {
+		DBG_871X(FUNC_ADPT_FMT" without specific name\n", FUNC_ADPT_ARG(padapter));
+		ret = -EINVAL;
+		goto out;
+	}
+	if (!padapter) {
+		DBG_871X(FUNC_ADPT_FMT" without padapter\n", FUNC_ADPT_ARG(padapter));
+		ret = -EINVAL;
+		goto out;
+	}
+	if (padapter->pnetdev) {
+		DBG_871X(FUNC_ADPT_FMT" virtual interface exist\n", FUNC_ADPT_ARG(padapter));
+		ret = -EBUSY;
+		goto out;
+	}
+
+	DBG_871X(FUNC_ADPT_FMT" alloc netdev (padapter=%p, name=%s)\n", FUNC_ADPT_ARG(padapter), padapter, name);
+	if (rtw_os_ndev_init (padapter, name) != _SUCCESS) {
+		DBG_871X(FUNC_ADPT_FMT" error allocating virtual interface\n", FUNC_ADPT_ARG(padapter));
+		ret = -ENODEV;
+		goto out;
+	}
+	if (ndev) *ndev = padapter->pnetdev;
+
+	/* set pointer and type */
+	padapter->pnetdev->ieee80211_ptr = padapter->rtw_wdev;
+	if (padapter->rtw_wdev->iftype != type) {
+		DBG_871X(FUNC_ADPT_FMT" switch iftype to %d\n", FUNC_ADPT_ARG(padapter), type);
+		ret = cfg80211_rtw_change_iface (padapter->rtw_wdev->wiphy, padapter->pnetdev, type, NULL, NULL);
+		if (ret) {
+			DBG_871X(FUNC_ADPT_FMT" errer switching iftype to %d remain with %d\n",
+				FUNC_ADPT_ARG(padapter), type, padapter->rtw_wdev->iftype);
+			goto out;
+		}
+	}
+
+	/* now do register net device */
+	DBG_871X(FUNC_ADPT_FMT" register net device\n", FUNC_ADPT_ARG(padapter));
+	ret = register_netdevice(padapter->pnetdev);
+	if (ret) {
+		DBG_871X(FUNC_ADPT_FMT" register net device\n", FUNC_ADPT_ARG(padapter));
+		free_netdev(padapter->pnetdev);
+		padapter->pnetdev = NULL;
+		goto out;
+	}
+	DBG_871X(FUNC_ADPT_FMT" done\n", FUNC_ADPT_ARG(padapter));
+		
+out:
+	return ret;
+}
+
 static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct net_device **ndev)
 {
 	int ret = 0;
@@ -3713,28 +3786,21 @@ static int
 
 	switch (type) {
 	case NL80211_IFTYPE_ADHOC:
+	case NL80211_IFTYPE_AP:
 	case NL80211_IFTYPE_AP_VLAN:
 	case NL80211_IFTYPE_WDS:
 	case NL80211_IFTYPE_MESH_POINT:
-		ret = -ENODEV;
-		break;
-	case NL80211_IFTYPE_MONITOR:
-		ret = rtw_cfg80211_add_monitor_if(padapter, (char *)name, &ndev);
-		break;
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
 	case NL80211_IFTYPE_P2P_CLIENT:
-#endif
-	case NL80211_IFTYPE_STATION:
-		ret = -ENODEV;
-		break;
-
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 37)) || defined(COMPAT_KERNEL_RELEASE)
 	case NL80211_IFTYPE_P2P_GO:
 #endif
-	case NL80211_IFTYPE_AP:
-		ret = -ENODEV;
+	case NL80211_IFTYPE_STATION:
+		ret = rtw_cfg80211_add_if(padapter, (char *)name, &ndev, type);
 		break;
+		case NL80211_IFTYPE_MONITOR:
+		ret = rtw_cfg80211_add_monitor_if(padapter, (char *)name, &ndev);
+ 		break;
 	default:
 		ret = -ENODEV;
 		RTW_INFO("Unsupported interface type\n");
@@ -3782,6 +3848,8 @@ static int cfg80211_rtw_del_virtual_intf(struct wiphy *wiphy,
 		pwdev_priv->ifname_mon[0] = '\0';
 		RTW_INFO(FUNC_NDEV_FMT" remove monitor interface\n", FUNC_NDEV_ARG(ndev));
 	}
+	
+	if (adapter) adapter->pnetdev = NULL;
 
 exit:
 	return ret;
@@ -6330,7 +6398,11 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 #endif
 
 #if defined(CONFIG_PM) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
+	#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0))
 	wiphy->flags |= WIPHY_FLAG_SUPPORTS_SCHED_SCAN;
+	#else // kernel >= 4.12
+	wiphy->max_sched_scan_reqs = 1;
+	#endif
 #ifdef CONFIG_PNO_SUPPORT
 	wiphy->max_sched_scan_ssids = MAX_PNO_LIST_COUNT;
 #endif

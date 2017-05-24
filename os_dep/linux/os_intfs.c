@@ -1321,7 +1321,7 @@ int rtw_os_ndev_alloc(_adapter *adapter)
 #endif
 
 #if defined(CONFIG_IOCTL_CFG80211)
-	if (rtw_cfg80211_ndev_res_alloc(adapter) != _SUCCESS) {
+	if (!adapter->wiphy && rtw_cfg80211_ndev_res_alloc(adapter) != _SUCCESS) {
 		rtw_warn_on(1);
 		goto free_ndev;
 	}
@@ -1346,6 +1346,29 @@ void rtw_os_ndev_free(_adapter *adapter)
 		rtw_free_netdev(adapter->pnetdev);
 		adapter->pnetdev = NULL;
 	}
+}
+
+int rtw_os_ndev_only_register(_adapter *adapter, char *name)
+{
+	int ret = _SUCCESS;
+	struct net_device *ndev = adapter->pnetdev;
+
+	/* alloc netdev name */
+	rtw_init_netdev_name(ndev, name);
+
+	_rtw_memcpy(ndev->dev_addr, adapter_mac_addr(adapter), ETH_ALEN);
+
+	/* Tell the network stack we exist */
+	DBG_871X(FUNC_NDEV_FMT" register netdev if%d\n", FUNC_NDEV_ARG(ndev), (adapter->iface_id+1));
+#if 0	/* do not do it here - to be done in later stage to avoid deadlock */
+	if (register_netdev(ndev) != 0) {
+		DBG_871X(FUNC_NDEV_FMT" if%d Failed!\n", FUNC_NDEV_ARG(ndev), (adapter->iface_id+1));
+		ret = _FAIL;
+	}
+#endif
+	DBG_871X(FUNC_NDEV_FMT" reg. if%d done\n", FUNC_NDEV_ARG(ndev), (adapter->iface_id+1));
+
+	return ret;
 }
 
 int rtw_os_ndev_register(_adapter *adapter, char *name)
@@ -1403,8 +1426,10 @@ void rtw_os_ndev_unregister(_adapter *adapter)
 	rtw_cfg80211_ndev_res_unregister(adapter);
 #endif
 
-	if ((adapter->DriverState != DRIVER_DISAPPEAR) && netdev)
+	if ((adapter->DriverState != DRIVER_DISAPPEAR) && netdev) {
 		unregister_netdev(netdev); /* will call netdev_close() */
+		adapter->pnetdev = NULL;
+	}
 
 #if defined(CONFIG_IOCTL_CFG80211) && !defined(RTW_SINGLE_WIPHY)
 	rtw_wiphy_unregister(adapter_to_wiphy(adapter));
@@ -1424,12 +1449,18 @@ void rtw_os_ndev_unregister(_adapter *adapter)
 int rtw_os_ndev_init(_adapter *adapter, char *name)
 {
 	int ret = _FAIL;
+	int haswiphy = adapter && adapter->wiphy;
 
 	if (rtw_os_ndev_alloc(adapter) != _SUCCESS)
 		goto exit;
 
-	if (rtw_os_ndev_register(adapter, name) != _SUCCESS)
-		goto os_ndev_free;
+	if (haswiphy) {
+		if (rtw_os_ndev_only_register(adapter, name) != _SUCCESS)
+			goto os_ndev_free;
+	} else {
+		if (rtw_os_ndev_register(adapter, name) != _SUCCESS)
+			goto os_ndev_free;
+	}
 
 	ret = _SUCCESS;
 

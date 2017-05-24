@@ -114,17 +114,11 @@ void rtl8814au_interface_configure(_adapter *padapter)
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
 
 	if (IS_SUPER_SPEED_USB(padapter))
-	{
 		pHalData->UsbBulkOutSize = USB_SUPER_SPEED_BULK_SIZE;//1024 bytes
-	}
 	else if (IS_HIGH_SPEED_USB(padapter))
-	{
 		pHalData->UsbBulkOutSize = USB_HIGH_SPEED_BULK_SIZE;//512 bytes
-	}
 	else
-	{
 		pHalData->UsbBulkOutSize = USB_FULL_SPEED_BULK_SIZE;//64 bytes
-	}
 
 	pHalData->interfaceIndex = pdvobjpriv->InterfaceNumber;
 
