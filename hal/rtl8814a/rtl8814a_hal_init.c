@@ -2009,12 +2009,7 @@ hal_Read_TRX_antenna_8814A(
 	
 	/* if driver doesn't set rf_config, use the value of EEPROM */
 	if (Adapter->registrypriv.rf_config == RF_MAX_TYPE) {
-
-		if (trx_antenna == RF_4T4R
-#ifdef CONFIG_USB_HCI
-		&& IS_SUPER_SPEED_USB(Adapter)
-#endif /* CONFIG_USB_HCI */
-		)
+		if (trx_antenna == RF_4T4R && IS_SUPER_SPEED_USB(Adapter))
 			Adapter->registrypriv.rf_config = RF_3T3R;
 		else if (trx_antenna == RF_2T4R)
 			Adapter->registrypriv.rf_config = RF_2T4R;
