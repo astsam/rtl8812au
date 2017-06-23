@@ -2772,7 +2772,7 @@ void CRC16_generator(
 }
 
 
-#if !defined(__arm__)
+#if !defined(__arm__) && (LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0))
 /*========================================
 	SFD		SIGNAL	SERVICE	LENGTH	CRC
 	16 bit	8 bit	8 bit	16 bit	16 bit
@@ -2925,7 +2925,7 @@ void PMAC_Get_Pkt_Param(
 		pPMacTxInfo->m_STBC = 1;
 }
 
-#if !defined(__arm__)
+#if !defined(__arm__) && (LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0))
 UINT LDPC_parameter_generator(
 	UINT N_pld_int,
 	UINT N_CBPSS,
