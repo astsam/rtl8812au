@@ -5246,7 +5246,7 @@ static void hw_var_set_mlme_sitesurvey(PADAPTER Adapter, u8 variable, u8* val)
 	u16	value_rxfltmap2;
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
 	struct mlme_priv *pmlmepriv=&(Adapter->mlmepriv);
-	u8 ap_num;
+	u8 ap_num = 0;
 
 #ifdef DBG_IFACE_STATUS
 	DBG_IFACE_STATUS_DUMP(Adapter);
