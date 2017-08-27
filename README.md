@@ -1,8 +1,9 @@
-# RTL8812AU/21AU and RTL8814AU driver with monitor mode and frame injection
+# RTL8812AU/21AU and RTL8814AU drivers
+# with monitor mode and frame injection
 
 
 ## DKMS
-This driver can be installed using [DKMS](http://linux.dell.com/dkms/). This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
+This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
 sudo apt install dkms
 ```
@@ -20,20 +21,15 @@ sudo ./dkms-remove.sh
 ```
 
 ## Make
-For building the RTL8812AU driver with 'make' use
-```
-make 
-```
-and for building the RTL8814AU driver with 'make' use
-```
-make RTL8814=1
-```
-but for installing both these drivers use these commands on e.g Kali on kernel v4.12
+For building & installing the RTL8812AU driver with 'make' use
 ```
 make
-make RTL8814=1
 make install
-cp 8814au.ko /lib/modules/4.12.0-kali1-amd64/kernel/drivers/net/wireless/
+```
+and for building & installing the RTL8814AU driver with 'make' use
+```
+make RTL8814=1
+make install 8814au
 ```
 
 ## Notes
