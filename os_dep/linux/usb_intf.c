@@ -228,9 +228,9 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x7392, 0xA834), .driver_info = RTL8814A}, /* Edimax - Edimax */
 	{USB_DEVICE(0x7392, 0xA833), .driver_info = RTL8814A}, /* Edimax - Edimax */
 	{USB_DEVICE(0x2357, 0x0106), .driver_info = RTL8814A}, /* TP-LINK Archer T9UH */
+	{USB_DEVICE(0x20f4, 0x809a), .driver_info = RTL8814A}, /* TRENDnet - TRENDnet */
 	{USB_DEVICE(0x20f4, 0x809B), .driver_info = RTL8814A}, /* TRENDnet TEW-809UB */
-
-
+	{USB_DEVICE(0x0846, 0x9054), .driver_info = RTL8814A}, /* Netgear A7000 */
 #endif /* CONFIG_RTL8814A */
 
 #ifdef CONFIG_RTL8188F
