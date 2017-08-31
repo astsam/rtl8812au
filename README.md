@@ -2,7 +2,11 @@
 The master branch is based on https://github.com/ulli-kroll/rtl8821au branch v4.3.22-beta/rework.
 According to rtw_version.c the real driver version is 4.3.20.
 
-The branch v4.3.21 may be built for RTL8814AU or RTL8812AU/RTL8821AU chipset. 
+# Kali
+Kali Linux now supports/builds from the v5.1.5 branch, which got kernel v4.12 support, more adapters supported and we strongly recommend to use the v5.1.5 branch for whatever linux you may be running. Both 8812AU & 8814AU are supported.
+
+
+The branch v4.3.21 may also be built for RTL8814AU or RTL8812AU/RTL8821AU chipset. Kernel v4.12 support still missing.
 
 for building RTL8812AU/RTL8821AU driver type:
 
