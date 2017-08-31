@@ -41,3 +41,14 @@ wifi.scan-rand-mac-address=no
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
 sudo service NetworkManager restart
+```
+
+## Credits
+```
+astsam - for the main work + monitor/injection support - https://github.com/astsam
+```
+
+## Sources
+```
+astsam - https://github.com/astsam/rtl8812au
+```
