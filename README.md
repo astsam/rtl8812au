@@ -48,7 +48,11 @@ sudo service NetworkManager restart
 astsam - for the main work + monitor/injection support - https://github.com/astsam
 ```
 
-## Sources
+## Other Sources
 ```
-astsam - https://github.com/astsam/rtl8812au
+astsam     - https://github.com/astsam/rtl8812au
+gnab       - https://github.com/gnab/rtl8812au
+zebulon2   - https://github.com/zebulon2/rtl8812au
+paspro     - https://github.com/paspro/rtl8812au
+ulli-kroll - https://github.com/ulli-kroll/rtl8821au
 ```
