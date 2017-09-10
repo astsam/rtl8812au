@@ -29,7 +29,7 @@ make install
 and for building & installing the RTL8814AU driver with 'make' use
 ```
 make RTL8814=1
-make install 8814au
+make install RTL8814=1
 ```
 
 ## Notes
