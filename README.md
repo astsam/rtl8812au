@@ -33,6 +33,16 @@ make install RTL8814=1
 ```
 
 ## Notes
+Download
+```
+git clone https://github.com/aircrack-ng/rtl8812au.git
+cd rtl*
+```
+Maybe you should install some packet to build it.
+```
+sudo apt-get install build-essential
+sudo apt-get install linux-headers-`uname -r`
+```
 For Ubuntu 17.04 add the following lines
 ```
 [device]
