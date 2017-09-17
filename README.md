@@ -52,9 +52,7 @@ For setting monitor mode
   ```
   airmon-ng check kill
   ```
-  Or 
-  
-  Uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection
+  Or Uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection
   
   2. Set interface down
   ```
