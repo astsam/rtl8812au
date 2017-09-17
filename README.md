@@ -48,11 +48,11 @@ sudo apt-get install build-essential
 sudo apt-get install linux-headers-`uname -r`
 ```
 For setting monitor mode
-  1. Fix problematic interference in monitor mode.
+  1. Fix problematic interference in monitor mode. 
   ```
   airmon-ng check kill
   ```
-  Or Uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
+  You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
   
   2. Set interface down
   ```
