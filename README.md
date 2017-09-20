@@ -33,6 +33,47 @@ make install RTL8814=1
 ```
 
 ## Notes
+Download
+```
+git clone https://github.com/aircrack-ng/rtl8812au.git
+cd rtl*
+```
+To download v4.3.21
+```
+git clone -b v4.3.21 https://github.com/aircrack-ng/rtl8812au.git
+```
+Maybe you should install some packet to build it.
+```
+sudo apt-get install build-essential
+sudo apt-get install linux-headers-`uname -r`
+```
+For setting monitor mode
+  1. Fix problematic interference in monitor mode. 
+  ```
+  airmon-ng check kill
+  ```
+  You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
+  
+  2. Set interface down
+  ```
+  sudo ip link set wlan0 down
+  ``` 
+  3. Set monitor mode
+  ```
+  sudo iw dev wlan0 set type monitor
+  ```
+  4. Set interface up
+  ```
+  sudo ip link set wlan0 up
+  ```
+For setting TX power (v4.3.21 branch only):
+```
+sudo iwconfig wlan0 txpower 30
+```
+or
+```
+sudo iw wlan0 set txpower fixed 3000
+```
 For Ubuntu 17.04 add the following lines
 ```
 [device]
