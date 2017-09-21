@@ -421,6 +421,7 @@ struct pkt_attrib {
 	u8	rate;
 	u8	intel_proxim;
 	u8	retry_ctrl;
+	u8	sw_seq;
 	u8   mbssid;
 	u8	ldpc;
 	u8	stbc;

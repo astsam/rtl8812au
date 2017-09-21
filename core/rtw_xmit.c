@@ -3994,6 +3994,7 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 	pattrib->ldpc = ldpc;
 	pattrib->stbc = stbc;
 	pattrib->retry_ctrl = (txflags & 0x08)?_FALSE:_TRUE;
+	pattrib->sw_seq = (txflags & 0x10)?_TRUE:_FALSE;
 
 	
 	pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
