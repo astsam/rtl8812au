@@ -657,8 +657,8 @@ static int usb_reprobe_switch_usb_mode(PADAPTER Adapter)
 	u8 ret = _FALSE;
 
 	/* efuse not allow driver to switch usb mode */
-	if (pHalData->EEPROMUsbSwitch == _FALSE)
-		goto exit;
+	//if (pHalData->EEPROMUsbSwitch == _FALSE)
+	//	goto exit;
 
 	/* registry not allow driver to switch usb mode */
 	if (registry_par->switch_usb_mode == 0)
