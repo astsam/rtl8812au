@@ -97,4 +97,5 @@ zebulon2   - https://github.com/zebulon2/rtl8812au
 paspro     - https://github.com/paspro/rtl8812au
 ulli-kroll - https://github.com/ulli-kroll/rtl8821au
 tpircher   - https://github.com/tpircher/rtl8814AU
+xxNull-lsk - https://github.com/xxNull-lsk/rtl8812AU
 ```
