@@ -1775,8 +1775,9 @@ endif
 # ARM64 - odroid-c2 and such
 ifeq ($(CONFIG_PLATFORM_ARM64), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
 ARCH ?= arm64
-CROSS_COMPILE ?=
+CROSS_COMPILE := aarch64-linux-gnu-
 KVER ?= $(shell uname -r)
 KSRC := /lib/modules/$(KVER)/build
 MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
