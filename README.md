@@ -84,6 +84,16 @@ at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkMa
 sudo service NetworkManager restart
 ```
 
+## Led Parameter
+```
+We've added the "realtek-leds.conf" in build directory, 
+with this you may change the leds to "2 Allways On", " 1 Normal" or "0 Allways Off" with placing the file in "/etc/modprobe.d/
+
+Manual modprobe will override this file if option value also included at the command line, e.g.,
+$ sudo modprobe -r 8812au
+$ sudo modprobe 8812au rtw_led_ctrl=1
+```
+
 ## Credits
 ```
 astsam - for the main work + monitor/injection support - https://github.com/astsam
