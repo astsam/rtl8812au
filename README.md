@@ -35,7 +35,7 @@ make install RTL8814=1
 ## Notes
 Download
 ```
-git clone https://github.com/aircrack-ng/rtl8812au.git
+git clone -b v5.1.5 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
 To download v4.3.21
