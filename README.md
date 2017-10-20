@@ -1,7 +1,20 @@
 # RTL8812AU/21AU and RTL8814AU drivers
 # with monitor mode and frame injection
 
+## TODO
+These are the problems that needs attention, any help would be appreciated.
+```
+* USB3 (USBModeSwitch) does not work correctly, forcing adapters to use only USB2.0.
+  Considering many adapters supported are high speed this needs attention.
+  Check issue report @ https://github.com/aircrack-ng/rtl8812au/issues/29
+  
+* AP AC speed does NOT work.
+  Check issue report @ https://github.com/aircrack-ng/rtl8812au/issues/31
+  
+* RadioTap FCS flag is set, but frame does not contain FCS.
+  Check issue report @https://github.com/aircrack-ng/rtl8812au/issues/28
 
+```
 ## DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
