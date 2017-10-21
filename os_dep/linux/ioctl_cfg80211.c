@@ -6248,7 +6248,7 @@ static void rtw_cfg80211_init_vht_capab(_adapter *padapter, struct ieee80211_sta
 	/* B8 B9 B10 Rx STBC */
 	if(TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX)) {
 	  rtw_hal_get_def_var(padapter, HAL_DEF_RX_STBC, (u8 *)(&rx_stbc_nss));
-	  printk("rx_stbc_nss: %d", rx_stbc_nss);
+
 	  if (rx_stbc_nss == 1)
 	    vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;
 	  else if (rx_stbc_nss == 2)
