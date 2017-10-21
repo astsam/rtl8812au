@@ -227,7 +227,7 @@ int rtw_antdiv_type = 0
 int rtw_drv_ant_band_switch = 1; /* 0:OFF , 1:ON, Driver control antenna band switch*/
 
 /* 0: doesn't switch, 1: switch from usb2.0 to usb 3.0 2: switch from usb3.0 to usb 2.0 */
-int rtw_switch_usb_mode = 0;
+int rtw_switch_usb_mode = 1;
 
 #ifdef CONFIG_USB_AUTOSUSPEND
 int rtw_enusbss = 1;/* 0:disable,1:enable */

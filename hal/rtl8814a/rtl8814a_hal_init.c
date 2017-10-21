@@ -6632,7 +6632,7 @@ u8 GetHalDefVar8814A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval)
 			break;
 
 		case HAL_DEF_RX_STBC:
-			*(u8*)pval = 1;
+			*(u8*)pval = 4;
 			break;
 
 		case HAL_DEF_EXPLICIT_BEAMFORMER:
