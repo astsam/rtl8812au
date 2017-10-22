@@ -4,15 +4,11 @@
 ## TODO
 These are the problems that needs attention, any help would be appreciated.
 ```
-* USB3 (USBModeSwitch) does not work correctly, forcing adapters to use only USB2.0.
-  Considering many adapters supported are high speed this needs attention.
-  Check issue report @ https://github.com/aircrack-ng/rtl8812au/issues/29
-  
-* AP AC speed does NOT work.
-  Check issue report @ https://github.com/aircrack-ng/rtl8812au/issues/31
+* txpower control has been added, but some issues remain.
+  Check issue reports for more information.
   
 * RadioTap FCS flag is set, but frame does not contain FCS.
-  Check issue report @https://github.com/aircrack-ng/rtl8812au/issues/28
+  Check issue report @ https://github.com/aircrack-ng/rtl8812au/issues/28
 
 ```
 ## DKMS
@@ -51,10 +47,6 @@ Download
 git clone -b v5.1.5 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
-To download v4.3.21
-```
-git clone -b v4.3.21 https://github.com/aircrack-ng/rtl8812au.git
-```
 Package / Build dependencies
 ```
 sudo apt-get install build-essential
@@ -79,7 +71,7 @@ For setting monitor mode
   ```
   sudo ip link set wlan0 up
   ```
-For setting TX power (v4.3.21 branch only):
+For setting TX power
 ```
 sudo iwconfig wlan0 txpower 30
 ```
@@ -97,7 +89,7 @@ at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkMa
 sudo service NetworkManager restart
 ```
 
-## Led Parameter
+## LED Parameter
 ```
 We've added the "realtek-leds.conf" in build directory, 
 with this you may change the leds to 
@@ -110,16 +102,6 @@ $ sudo modprobe 8812au rtw_led_ctrl=1
 
 ## Credits
 ```
-astsam - for the main work + monitor/injection support - https://github.com/astsam
-```
-
-## Other Sources
-```
-astsam     - https://github.com/astsam/rtl8812au
-gnab       - https://github.com/gnab/rtl8812au
-zebulon2   - https://github.com/zebulon2/rtl8812au
-paspro     - https://github.com/paspro/rtl8812au
-ulli-kroll - https://github.com/ulli-kroll/rtl8821au
-tpircher   - https://github.com/tpircher/rtl8814AU
-xxNull-lsk - https://github.com/xxNull-lsk/rtl8812AU
+astsam    - for the main work + monitor/injection support        - https://github.com/astsam
+evilphish - for great patching (USB3, VHT + txpower control +++) - https://github.com/evilphish
 ```
