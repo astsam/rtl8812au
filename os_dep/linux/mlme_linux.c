@@ -18,19 +18,15 @@
  *
  ******************************************************************************/
 
-
 #define _MLME_OSDEP_C_
 
 #include <drv_types.h>
-
 
 #ifdef RTK_DMP_PLATFORM
 void Linkup_workitem_callback(struct work_struct *work)
 {
 	struct mlme_priv *pmlmepriv = container_of(work, struct mlme_priv, Linkup_workitem);
 	_adapter *padapter = container_of(pmlmepriv, _adapter, mlmepriv);
-
-
 
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 12))
 	kobject_uevent(&padapter->pnetdev->dev.kobj, KOBJ_LINKUP);
@@ -45,8 +41,6 @@ void Linkdown_workitem_callback(struct work_struct *work)
 	struct mlme_priv *pmlmepriv = container_of(work, struct mlme_priv, Linkdown_workitem);
 	_adapter *padapter = container_of(pmlmepriv, _adapter, mlmepriv);
 
-
-
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 12))
 	kobject_uevent(&padapter->pnetdev->dev.kobj, KOBJ_LINKDOWN);
 #else
@@ -55,7 +49,6 @@ void Linkdown_workitem_callback(struct work_struct *work)
 
 }
 #endif
-
 
 /*
 void sitesurvey_ctrl_handler(void *FunctionContext)
@@ -74,13 +67,11 @@ void rtw_join_timeout_handler(void *FunctionContext)
 	_rtw_join_timeout_handler(adapter);
 }
 
-
 void _rtw_scan_timeout_handler(void *FunctionContext)
 {
 	_adapter *adapter = (_adapter *)FunctionContext;
 	rtw_scan_timeout_handler(adapter);
 }
-
 
 void _dynamic_check_timer_handlder(void *FunctionContext)
 {
@@ -107,7 +98,6 @@ void _rtw_set_scan_deny_timer_hdl(void *FunctionContext)
 	rtw_set_scan_deny_timer_hdl(adapter);
 }
 #endif
-
 
 void rtw_init_mlme_timer(_adapter *padapter)
 {
@@ -156,7 +146,6 @@ void rtw_os_indicate_connect(_adapter *adapter)
 #ifdef RTK_DMP_PLATFORM
 	_set_workitem(&adapter->mlmepriv.Linkup_workitem);
 #endif
-
 
 }
 
@@ -237,7 +226,6 @@ void rtw_os_indicate_disconnect(_adapter *adapter,  u16 reason, u8 locally_gener
 {
 	/* RT_PMKID_LIST   backupPMKIDList[NUM_PMKID_CACHE]; */
 
-
 	netif_carrier_off(adapter->pnetdev); /* Do it first for tx broadcast pkt after disconnection issue! */
 
 #ifdef CONFIG_IOCTL_CFG80211
@@ -252,7 +240,6 @@ void rtw_os_indicate_disconnect(_adapter *adapter,  u16 reason, u8 locally_gener
 	/* modify for CONFIG_IEEE80211W, none 11w also can use the same command */
 	rtw_reset_securitypriv_cmd(adapter);
 
-
 }
 
 void rtw_report_sec_ie(_adapter *adapter, u8 authmode, u8 *sec_ie)
@@ -260,8 +247,6 @@ void rtw_report_sec_ie(_adapter *adapter, u8 authmode, u8 *sec_ie)
 	uint	len;
 	u8	*buff, *p, i;
 	union iwreq_data wrqu;
-
-
 
 	buff = NULL;
 	if (authmode == _WPA_IE_ID_) {
@@ -296,7 +281,6 @@ void rtw_report_sec_ie(_adapter *adapter, u8 authmode, u8 *sec_ie)
 
 		rtw_mfree(buff, IW_CUSTOM_MAX);
 	}
-
 
 }
 
@@ -384,7 +368,6 @@ void rtw_indicate_sta_assoc_event(_adapter *padapter, struct sta_info *psta)
 	if (pstapriv->sta_aid[psta->aid - 1] != psta)
 		return;
 
-
 	wrqu.addr.sa_family = ARPHRD_ETHER;
 
 	_rtw_memcpy(wrqu.addr.sa_data, psta->hwaddr, ETH_ALEN);
@@ -411,7 +394,6 @@ void rtw_indicate_sta_disassoc_event(_adapter *padapter, struct sta_info *psta)
 	if (pstapriv->sta_aid[psta->aid - 1] != psta)
 		return;
 
-
 	wrqu.addr.sa_family = ARPHRD_ETHER;
 
 	_rtw_memcpy(wrqu.addr.sa_data, psta->hwaddr, ETH_ALEN);
@@ -423,7 +405,6 @@ void rtw_indicate_sta_disassoc_event(_adapter *padapter, struct sta_info *psta)
 #endif
 
 }
-
 
 #ifdef CONFIG_HOSTAPD_MLME
 
@@ -442,7 +423,6 @@ static int mgnt_netdev_open(struct net_device *pnetdev)
 	struct hostapd_priv *phostapdpriv = rtw_netdev_priv(pnetdev);
 
 	RTW_INFO("mgnt_netdev_open: MAC Address:" MAC_FMT "\n", MAC_ARG(pnetdev->dev_addr));
-
 
 	init_usb_anchor(&phostapdpriv->anchored);
 
@@ -536,14 +516,10 @@ int hostapd_mode_init(_adapter *padapter)
 	pnetdev->features |= NETIF_F_IP_CSUM;
 #endif
 
-
-
 	if (dev_alloc_name(pnetdev, "mgnt.wlan%d") < 0)
 		RTW_INFO("hostapd_mode_init(): dev_alloc_name, fail!\n");
 
-
 	/* SET_NETDEV_DEV(pnetdev, pintfpriv->udev); */
-
 
 	mac[0] = 0x00;
 	mac[1] = 0xe0;
@@ -554,9 +530,7 @@ int hostapd_mode_init(_adapter *padapter)
 
 	_rtw_memcpy(pnetdev->dev_addr, mac, ETH_ALEN);
 
-
 	netif_carrier_off(pnetdev);
-
 
 	/* Tell the network stack we exist */
 	if (register_netdev(pnetdev) != 0) {
