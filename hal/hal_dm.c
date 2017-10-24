@@ -99,7 +99,6 @@ void Init_ODM_ComInfo(_adapter *adapter)
 
 	ODM_CmnInfoInit(pDM_Odm, ODM_CMNINFO_BWIFI_TEST, adapter->registrypriv.wifi_spec);
 
-
 	if (pHalData->rf_type == RF_1T1R)
 		ODM_CmnInfoInit(pDM_Odm, ODM_CMNINFO_RF_TYPE, ODM_1T1R);
 	else if (pHalData->rf_type == RF_1T2R)
@@ -120,7 +119,6 @@ void Init_ODM_ComInfo(_adapter *adapter)
 		ODM_CmnInfoInit(pDM_Odm, ODM_CMNINFO_RF_TYPE, ODM_4T4R);
 	else
 		ODM_CmnInfoInit(pDM_Odm, ODM_CMNINFO_RF_TYPE, ODM_XTXR);
-
 
 	{
 		/* 1 ======= BoardType: ODM_CMNINFO_BOARD_TYPE ======= */
