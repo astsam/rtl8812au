@@ -648,8 +648,10 @@ void rtw_cfg80211_ibss_indicate_connect(_adapter *padapter)
 				return ;
 			}
 		} else {
-			if (scanned == NULL)
+			if (scanned == NULL) {
 				rtw_warn_on(1);
+				return;
+			}
 
 			if (_rtw_memcmp(&(scanned->network.Ssid), &(pnetwork->Ssid), sizeof(NDIS_802_11_SSID)) == _TRUE
 				&& _rtw_memcmp(scanned->network.MacAddress, pnetwork->MacAddress, sizeof(NDIS_802_11_MAC_ADDRESS)) == _TRUE
@@ -747,7 +749,7 @@ check_bss:
 		struct ieee80211_channel *notify_channel;
 		u32 freq;
 		u16 channel = cur_network->network.Configuration.DSConfig;
-		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0))
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0))
 		struct cfg80211_roam_info roam_info = {};
 		#endif
 
@@ -756,7 +758,7 @@ check_bss:
 		#endif
 
 		RTW_INFO(FUNC_ADPT_FMT" call cfg80211_roamed\n", FUNC_ADPT_ARG(padapter));
-		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0))
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0))
 		roam_info.channel = notify_channel;
 		roam_info.bssid = cur_network->network.MacAddress;
 		roam_info.req_ie =
@@ -907,7 +909,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
 		if (param->u.crypt.idx >= WEP_KEYS
 #ifdef CONFIG_IEEE80211W
-			&& param->u.crypt.idx > BIP_MAX_KEYID
+			|| param->u.crypt.idx >= BIP_MAX_KEYID
 #endif /* CONFIG_IEEE80211W */
 		) {
 			ret = -EINVAL;
@@ -1166,7 +1168,7 @@ static int rtw_cfg80211_set_encryption(struct net_device *dev, struct ieee_param
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
 		if (param->u.crypt.idx >= WEP_KEYS
 #ifdef CONFIG_IEEE80211W
-			&& param->u.crypt.idx > BIP_MAX_KEYID
+			|| param->u.crypt.idx >= BIP_MAX_KEYID
 #endif /* CONFIG_IEEE80211W */
 		) {
 			ret = -EINVAL;
@@ -3478,8 +3480,10 @@ static int rtw_cfg80211_monitor_if_xmit_entry(struct sk_buff *skb, struct net_de
 
 	RTW_INFO(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
-	if (skb)
-		rtw_mstat_update(MSTAT_TYPE_SKB, MSTAT_ALLOC_SUCCESS, skb->truesize);
+	if (!skb)
+		goto fail;
+
+	rtw_mstat_update(MSTAT_TYPE_SKB, MSTAT_ALLOC_SUCCESS, skb->truesize);
 
 	if (unlikely(skb->len < sizeof(struct ieee80211_radiotap_header)))
 		goto fail;
@@ -3666,6 +3670,11 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 	mon_ndev->type = ARPHRD_IEEE80211_RADIOTAP;
 	strncpy(mon_ndev->name, name, IFNAMSIZ);
 	mon_ndev->name[IFNAMSIZ - 1] = 0;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12 ,0))
+	mon_ndev->needs_free_netdev = true;
+#else
+	mon_ndev->destructor = rtw_ndev_destructor;
+#endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 9))
 	mon_ndev->needs_free_netdev = false;
 	mon_ndev->priv_destructor = rtw_ndev_destructor;
@@ -6442,7 +6451,7 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 #endif
 
 #if defined(CONFIG_PM) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
-	#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0))
+	#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 12 ,0))
 	wiphy->flags |= WIPHY_FLAG_SUPPORTS_SCHED_SCAN;
 	#else // kernel >= 4.12
 	wiphy->max_sched_scan_reqs = 1;
