@@ -1974,24 +1974,13 @@ hal_ReadUsbModeSwitch_8814AU(
 	IN	BOOLEAN		AutoloadFail
 	)
 {
-
   	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
 	
 	if (AutoloadFail)
 		pHalData->EEPROMUsbSwitch = _FALSE;
 	else
-		/* check efuse 0x08 bit2 */
+		/* check efuse 0x0E bit2 */
 		pHalData->EEPROMUsbSwitch = (PROMContent[EEPROM_USB_MODE_8814A] & BIT1) >> 1;
-
-	/*	if(AutoloadFail)
-	{
-		UsbModeSwitch_SetUsbModeMechOn(Adapter, _FALSE);
-	}
-	else
-	{
-		UsbModeSwitch_SetUsbModeMechOn(Adapter, ((PROMContent[8]&BIT1)>>1));
-		}*/
-
 }
 
 static VOID
