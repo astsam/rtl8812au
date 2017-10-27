@@ -52,7 +52,6 @@
 	#endif
 #endif /* !RTW_HALMAC */
 
-
 u8 MgntQuery_NssTxRate(u16 Rate)
 {
 	u8	NssNum = RF_TX_NUM_NONIMPLEMENT;
@@ -112,7 +111,6 @@ s32 hal_mpt_SetPowerTracking(PADAPTER padapter, u8 enable)
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	PDM_ODM_T		pDM_Odm = &(pHalData->odmpriv);
 
-
 	if (!netif_running(padapter->pnetdev)) {
 		return _FAIL;
 	}
@@ -136,7 +134,6 @@ void hal_mpt_GetPowerTracking(PADAPTER padapter, u8 *enable)
 
 	*enable = pDM_Odm->RFCalibrateInfo.TxPowerTrackControl;
 }
-
 
 void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
 {
@@ -1299,7 +1296,6 @@ void mpt_SetRFPath_8723D(PADAPTER pAdapter)
 			PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, 0x51,
 				     bRFRegOffsetMask, 0x6B04E);
 
-
 		for (i = 0; i < 3; ++i) {
 			/* <20130603, Kordan> Because BB suppors only 1T1R,
 			   we restore IQC  to S1 instead of S0.*/
@@ -1468,7 +1464,6 @@ VOID mpt_SetRFPath_819X(PADAPTER	pAdapter)
 		break;
 	}
 
-
 	if (chgTx && chgRx) {
 		switch (pHalData->rf_chip) {
 		case RF_8225:
@@ -1492,7 +1487,6 @@ VOID mpt_SetRFPath_819X(PADAPTER	pAdapter)
 		}
 	}
 }	/* MPT_ProSetRFPath */
-
 
 void hal_mpt_SetAntenna(PADAPTER	pAdapter)
 
@@ -1560,11 +1554,9 @@ s32 hal_mpt_SetThermalMeter(PADAPTER pAdapter, u8 target_ther)
 		return _FAIL;
 	}
 
-
 	if (check_fwstate(&pAdapter->mlmepriv, WIFI_MP_STATE) == _FALSE) {
 		return _FAIL;
 	}
-
 
 	target_ther &= 0xff;
 	if (target_ther < 0x07)
@@ -1577,13 +1569,11 @@ s32 hal_mpt_SetThermalMeter(PADAPTER pAdapter, u8 target_ther)
 	return _SUCCESS;
 }
 
-
 void hal_mpt_TriggerRFThermalMeter(PADAPTER pAdapter)
 {
 	PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, 0x42, BIT17 | BIT16, 0x03);
 
 }
-
 
 u8 hal_mpt_ReadRFThermalMeter(PADAPTER pAdapter)
 
@@ -1594,7 +1584,6 @@ u8 hal_mpt_ReadRFThermalMeter(PADAPTER pAdapter)
 	return (u8)ThermalValue;
 
 }
-
 
 void hal_mpt_GetThermalMeter(PADAPTER pAdapter, u8 *value)
 {
@@ -1610,7 +1599,6 @@ void hal_mpt_GetThermalMeter(PADAPTER pAdapter, u8 *value)
 #endif
 
 }
-
 
 void hal_mpt_SetSingleCarrierTx(PADAPTER pAdapter, u8 bStart)
 {
@@ -1655,7 +1643,6 @@ void hal_mpt_SetSingleCarrierTx(PADAPTER pAdapter, u8 bStart)
 		PHY_SetBBReg(pAdapter, rPMAC_Reset, bBBResetB, 0x1);
 	}
 }
-
 
 void hal_mpt_SetSingleToneTx(PADAPTER pAdapter, u8 bStart)
 {
@@ -2070,7 +2057,6 @@ static	VOID mpt_StopCckContTx(
 	PHY_SetBBReg(pAdapter, rFPGA0_XB_HSSIParameter1, bMaskDWord, 0x01000100);
 
 }	/* mpt_StopCckContTx */
-
 
 static	VOID mpt_StopOfdmContTx(
 	PADAPTER	pAdapter

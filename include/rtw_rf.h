@@ -116,7 +116,6 @@ enum	_REG_PREAMBLE_MODE {
 	PREAMBLE_SHORT	= 3,
 };
 
-
 enum _RTL8712_RF_MIMO_CONFIG_ {
 	RTL8712_RFCONFIG_1T = 0x10,
 	RTL8712_RFCONFIG_2T = 0x20,
@@ -203,7 +202,7 @@ typedef enum _PROTECTION_MODE {
 	PROTECTION_MODE_FORCE_DISABLE = 2,
 } PROTECTION_MODE, *PPROTECTION_MODE;
 
-typedef	enum _RT_RF_TYPE_DEFINITION {
+enum rt_rf_types {
 	RF_1T2R = 0,
 	RF_2T4R = 1,
 	RF_2T2R = 2,
@@ -215,7 +214,7 @@ typedef	enum _RT_RF_TYPE_DEFINITION {
 	RF_4T4R	= 8,
 
 	RF_MAX_TYPE = 0xF, /* u1Byte */
-} RT_RF_TYPE_DEF_E;
+};
 
 int rtw_ch2freq(int chan);
 int rtw_freq2ch(int freq);

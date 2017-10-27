@@ -20,7 +20,6 @@
 #ifndef __RTW_SECURITY_H_
 #define __RTW_SECURITY_H_
 
-
 #define _NO_PRIVACY_		0x0
 #define _WEP40_				0x1
 #define _TKIP_				0x2
@@ -63,7 +62,6 @@ typedef enum {
 	ENCRYP_PROTOCOL_MAX
 } ENCRYP_PROTOCOL_E;
 
-
 #ifndef Ndis802_11AuthModeWPA2
 #define Ndis802_11AuthModeWPA2 (Ndis802_11AuthModeWPANone + 1)
 #endif
@@ -76,7 +74,7 @@ union pn48	{
 
 	u64	val;
 
-#ifdef CONFIG_LITTLE_ENDIAN
+#ifdef __LITTLE_ENDIAN
 
 struct {
 	u8 TSC0;
@@ -89,7 +87,7 @@ struct {
 	u8 TSC7;
 } _byte_;
 
-#elif defined(CONFIG_BIG_ENDIAN)
+#else
 
 struct {
 	u8 TSC7;
@@ -111,7 +109,6 @@ union Keytype {
 	u32    lkey[4];
 };
 
-
 typedef struct _RT_PMKID_LIST {
 	u8						bUsed;
 	u8						Bssid[6];
@@ -120,7 +117,6 @@ typedef struct _RT_PMKID_LIST {
 	u8						*ssid_octet;
 	u16						ssid_length;
 } RT_PMKID_LIST, *PRT_PMKID_LIST;
-
 
 struct security_priv {
 	u32	  dot11AuthAlgrthm;		/* 802.11 auth, could be open, shared, 8021x and authswitch */
@@ -162,7 +158,6 @@ struct security_priv {
 	u8 wps_ie[MAX_WPS_IE_LEN];/* added in assoc req */
 	int wps_ie_len;
 
-
 	u8	binstallGrpkey;
 #ifdef CONFIG_GTK_OL
 	u8	binstallKCK_KEK;
@@ -182,7 +177,6 @@ struct security_priv {
 
 	s32 	hw_decrypted;/* if the rx packets is hw_decrypted==_FALSE, it means the hw has not been ready. */
 
-
 	/* keeps the auth_type & enc_status from upper layer ioctl(wpa_supplicant or wzc) */
 	u32 ndisauthtype;	/* NDIS_802_11_AUTHENTICATION_MODE */
 	u32 ndisencryptstatus;	/* NDIS_802_11_ENCRYPTION_STATUS */
@@ -197,7 +191,6 @@ struct security_priv {
 	u8 oidassociation[512]; /* for wpa/wpa2 usage */
 	u8 authenticator_ie[256];  /* store ap security information element */
 	u8 supplicant_ie[256];  /* store sta security information element */
-
 
 	/* for tkip countermeasure */
 	u32 last_mic_err_time;
@@ -297,7 +290,6 @@ struct sha256_state {
 		} \
 	} while (0)
 
-
 #define GET_TKIP_PN(iv, dot11txpn)\
 	do {\
 		dot11txpn._byte_.TSC0 = iv[2];\
@@ -307,7 +299,6 @@ struct sha256_state {
 		dot11txpn._byte_.TSC4 = iv[6];\
 		dot11txpn._byte_.TSC5 = iv[7];\
 	} while (0)
-
 
 #define ROL32(A, n)	(((A) << (n)) | (((A)>>(32-(n)))  & ((1UL << (n)) - 1)))
 #define ROR32(A, n)	ROL32((A), 32-(n))
@@ -424,7 +415,6 @@ static const unsigned long K[64] = {
 	0x682e6ff3UL, 0x748f82eeUL, 0x78a5636fUL, 0x84c87814UL, 0x8cc70208UL,
 	0x90befffaUL, 0xa4506cebUL, 0xbef9a3f7UL, 0xc67178f2UL
 };
-
 
 /* Various logical functions */
 #define RORc(x, y) \

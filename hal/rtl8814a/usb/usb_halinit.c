@@ -28,7 +28,6 @@
 
 #endif
 
-
 static void _dbg_dump_macreg(_adapter *padapter)
 {
 	u32 offset = 0;
@@ -49,7 +48,6 @@ _ConfigChipOutEP_8814(
 	)
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
-
 
 	pHalData->OutEpQueueSel = 0;
 	pHalData->OutEpNumber = 0;
@@ -114,17 +112,11 @@ void rtl8814au_interface_configure(_adapter *padapter)
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
 
 	if (IS_SUPER_SPEED_USB(padapter))
-	{
 		pHalData->UsbBulkOutSize = USB_SUPER_SPEED_BULK_SIZE;//1024 bytes
-	}
 	else if (IS_HIGH_SPEED_USB(padapter))
-	{
 		pHalData->UsbBulkOutSize = USB_HIGH_SPEED_BULK_SIZE;//512 bytes
-	}
 	else
-	{
 		pHalData->UsbBulkOutSize = USB_FULL_SPEED_BULK_SIZE;//64 bytes
-	}
 
 	pHalData->interfaceIndex = pdvobjpriv->InterfaceNumber;
 
@@ -234,7 +226,6 @@ _InitBurstPktLen(IN PADAPTER Adapter)
 	}
 }
 
-
 VOID
 _InitQueueReservedPage_8814AUsb(
 	IN  PADAPTER 	Adapter
@@ -273,7 +264,6 @@ _InitQueueReservedPage_8814AUsb(
 	RTW_INFO("<===_InitQueueReservedPage_8814AUsb()\n");
 }
 
-
 static u32 _InitPowerOn_8814AU(_adapter *padapter)
 {
 	int 		status = _SUCCESS;
@@ -286,7 +276,6 @@ static u32 _InitPowerOn_8814AU(_adapter *padapter)
 	if(!HalPwrSeqCmdParsing(padapter, ~PWR_CUT_TESTCHIP_MSK, PWR_FAB_ALL_MSK, PWR_INTF_USB_MSK, Rtl8814A_NIC_ENABLE_FLOW))
 		return _FAIL;
 
-
 	// Enable MAC DMA/WMAC/SCHEDULE/SEC block
 	// Set CR bit10 to enable 32k calibration. Suggested by SD1 Gimmy. Added by tynli. 2011.08.31.
 	rtw_write16(padapter, REG_CR_8814A, 0x00);  //suggseted by zhouzhou, by page, 20111230
@@ -298,10 +287,6 @@ static u32 _InitPowerOn_8814AU(_adapter *padapter)
 	_InitQueueReservedPage_8814AUsb(padapter);
 	return status;
 }
-
-
-
-
 
 //---------------------------------------------------------------
 //
@@ -340,7 +325,6 @@ _InitPageBoundary_8814AUsb(
 	
 }
 
-
 static VOID
 _InitNormalChipRegPriority_8814AUsb(
 	IN	PADAPTER	Adapter,
@@ -370,7 +354,6 @@ _InitNormalChipTwoOutEpPriority_8814AUsb(
 	struct registry_priv	*pregistrypriv = &Adapter->registrypriv;
 	u16			beQ,bkQ,viQ,voQ,mgtQ,hiQ;
 	
-
 	u16	valueHi = 0;
 	u16	valueLow = 0;
 	
@@ -462,8 +445,6 @@ _InitQueuePriority_8814AUsb(
 			break;
 	}
 }
-
-
 
 static VOID
 _InitHardwareDropIncorrectBulkOut_8814A(
@@ -691,7 +672,6 @@ _InitEDCA_8814AUsb(
 	//rtw_write8(Adapter, REG_USTIME_EDCA, 0x50);
 }
 
-
 static VOID
 _InitBeaconMaxError_8814A(
 	IN  PADAPTER	Adapter,
@@ -704,7 +684,6 @@ _InitBeaconMaxError_8814A(
 	//rtw_write8(Adapter, REG_BCN_MAX_ERR, (InfraMode ? 0xFF : 0x10));	
 #endif
 }
-
 
 #ifdef CONFIG_LED
 static void _InitHWLed(PADAPTER Adapter)
@@ -786,7 +765,6 @@ usb_AggSettingTxUpdate_8814A(
 	
 #endif //CONFIG_USB_TX_AGGREGATION
 }	// usb_AggSettingTxUpdate
-
 
 /*-----------------------------------------------------------------------------
  * Function:	usb_AggSettingRxUpdate()
@@ -893,8 +871,7 @@ USB_AggModeSwitch(
 	{
 		return;	// Inf not support.
 	}
-	
-	
+		
 	if (pMgntInfo->LinkDetectInfo.bHigherBusyRxTraffic == _TRUE && 
 		pHalData->UsbRxHighSpeedMode == _FALSE)
 	{
@@ -912,7 +889,6 @@ USB_AggModeSwitch(
 		return; 
 	}
 	
-
 #if USB_RX_AGGREGATION_92C
 	if (pHalData->UsbRxHighSpeedMode == _TRUE)	
 	{
@@ -976,7 +952,6 @@ _InitOperationMode_8814A(
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	u8				regBwOpMode = 0;
 	u32				regRATR = 0, regRRSR = 0;
-
 
 	//1 This part need to modified according to the rate set we filtered!!
 	//
@@ -1176,7 +1151,6 @@ void _ps_close_RF(_adapter *padapter){
 	//phy_SsPwrSwitch92CU(padapter, rf_off, 1);
 }
 
-
 /*	A lightweight deinit function	*/
 static void rtl8814au_hw_reset(_adapter *Adapter)
 {
@@ -1236,7 +1210,6 @@ u32 rtl8814au_hal_init(PADAPTER Adapter)
 	rt_rf_power_state		eRfPowerStateToSet;
 
 	u32 init_start_time = rtw_get_current_time();
-
 
 #ifdef DBG_HAL_INIT_PROFILING
 
@@ -1365,8 +1338,6 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_BEGIN);
 */
 	rtl8814au_hw_reset(Adapter); //todo
 
-
-
 HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_PW_ON);
 	status = _InitPowerOn_8814AU(Adapter);
 	if(status == _FAIL){
@@ -1479,7 +1450,6 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC02);
 #endif	// CONFIG_TX_MCAST2UNI
 #endif	// CONFIG_CONCURRENT_MODE || CONFIG_TX_MCAST2UNI
 	
-
 #ifdef CONFIG_LED
 	_InitHWLed(Adapter);
 #endif //CONFIG_LED
@@ -1617,14 +1587,11 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_PW_TRACK);
 		
 		//ODM_TXPowerTrackingCheck(&pHalData->odmpriv );
 		
-
 HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_LCK);
 		//PHY_LCCalibrate_8812A(Adapter);
 	}
 
-
 HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC21);
-
 
 //HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_PABIAS);
 //	_InitPABias(Adapter);
@@ -1698,7 +1665,6 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_END);
 		);
 	}	
 	#endif
-
 
 	return status;
 }
@@ -1785,7 +1751,6 @@ u32 rtl8814au_hal_deinit(PADAPTER Adapter)
 	}		
 	return _SUCCESS;
  }
-
 
 unsigned int rtl8814au_inirp_init(PADAPTER Adapter)
 {	
@@ -1936,7 +1901,6 @@ hal_CustomizedBehavior_8814AU(
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);	
 	struct led_priv	*pledpriv = &(Adapter->ledpriv);
-
 	
 	// Led mode
 	switch(pHalData->CustomerID)
@@ -2010,16 +1974,13 @@ hal_ReadUsbModeSwitch_8814AU(
 	IN	BOOLEAN		AutoloadFail
 	)
 {
-#if 0
-	if(AutoloadFail)
-	{
-		UsbModeSwitch_SetUsbModeMechOn(Adapter, _FALSE);
-	}
+  	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
+	
+	if (AutoloadFail)
+		pHalData->EEPROMUsbSwitch = _FALSE;
 	else
-	{
-		UsbModeSwitch_SetUsbModeMechOn(Adapter, ((PROMContent[8]&BIT1)>>1));
-	}
-#endif
+		/* check efuse 0x0E bit2 */
+		pHalData->EEPROMUsbSwitch = (PROMContent[EEPROM_USB_MODE_8814A] & BIT1) >> 1;
 }
 
 static VOID
@@ -2414,4 +2375,3 @@ void rtl8814au_set_hal_ops(_adapter * padapter)
 	rtl8814_set_hal_ops(pHalFunc);
 
 }
-

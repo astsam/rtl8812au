@@ -35,7 +35,6 @@ Major Change History:
 --*/
 #include <HalPwrSeqCmd.h>
 
-
 /*
  *	Description:
  *		This routine deal with the Power Configuration CMDs parsing for RTL8723/RTL8188E Series IC.
@@ -62,7 +61,6 @@ u8 HalPwrSeqCmdParsing(
 
 	do {
 		PwrCfgCmd = PwrSeqCmd[AryIdx];
-
 
 		/* 2 Only Handle the command whose FAB, CUT, and Interface are matched */
 		if ((GET_PWR_CFG_FAB_MASK(PwrCfgCmd) & FabVersion) &&
