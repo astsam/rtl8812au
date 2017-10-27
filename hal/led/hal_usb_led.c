@@ -66,7 +66,6 @@ SwLedBlink(
 			bStopBlinking = _TRUE;
 		break;
 
-
 	default:
 		bStopBlinking = _TRUE;
 		break;
@@ -141,7 +140,6 @@ SwLedBlink1(
 	} else {
 		SwLedOff(padapter, pLed);
 	}
-
 
 	if (pHalData->CustomerID == RT_CID_DEFAULT) {
 		if (check_fwstate(pmlmepriv, _FW_LINKED) == _TRUE) {
@@ -453,7 +451,6 @@ SwLedBlink3(
 				if (pLed->bLedOn)
 					SwLedOff(padapter, pLed);
 
-
 			}
 			pLed->bLedBlinkInProgress = _FALSE;
 		} else {
@@ -497,13 +494,11 @@ SwLedBlink3(
 		}
 		break;
 
-
 	default:
 		break;
 	}
 
 }
-
 
 void
 SwLedBlink4(
@@ -688,9 +683,6 @@ SwLedBlink4(
 	default:
 		break;
 	}
-
-
-
 }
 
 void
@@ -742,7 +734,6 @@ SwLedBlink5(
 		}
 		break;
 
-
 	case LED_BLINK_TXRX:
 		pLed->BlinkTimes--;
 		if (pLed->BlinkTimes == 0)
@@ -778,9 +769,6 @@ SwLedBlink5(
 	default:
 		break;
 	}
-
-
-
 }
 
 void
@@ -798,7 +786,6 @@ SwLedBlink6(
 	} else {
 		SwLedOff(padapter, pLed);
 	}
-
 }
 
 void
@@ -886,8 +873,6 @@ SwLedBlink7(
 	default:
 		break;
 	}
-
-
 }
 
 void
@@ -903,8 +888,6 @@ SwLedBlink8(
 	} else {
 		SwLedOff(Adapter, pLed);
 	}
-
-
 }
 
 /* page added for Belkin AC950. 20120813 */
@@ -924,7 +907,6 @@ SwLedBlink9(
 		SwLedOff(Adapter, pLed);
 	}
 	/* RTW_INFO("%s, pLed->CurrLedState=%d, pLed->BlinkingLedState=%d\n", __FUNCTION__, pLed->CurrLedState, pLed->BlinkingLedState); */
-
 
 	switch (pLed->CurrLedState) {
 	case RTW_LED_ON:
@@ -1140,7 +1122,6 @@ SwLedBlink9(
 	default:
 		break;
 	}
-
 }
 
 /* page added for Netgear A6200V2. 20120827 */
@@ -1159,7 +1140,6 @@ SwLedBlink10(
 	} else {
 		SwLedOff(Adapter, pLed);
 	}
-
 
 	switch (pLed->CurrLedState) {
 	case RTW_LED_ON:
@@ -1341,7 +1321,6 @@ SwLedBlink10(
 		break;
 	}
 
-
 }
 
 void
@@ -1478,9 +1457,6 @@ SwLedBlink12(
 	default:
 		break;
 	}
-
-
-
 }
 
 VOID
@@ -1540,8 +1516,6 @@ SwLedBlink13(
 		LinkBlinkCnt = 0;
 		break;
 	}
-
-
 }
 
 VOID
@@ -1598,7 +1572,6 @@ SwLedBlink14(
 		LinkBlinkCnt = 0;
 		break;
 	}
-
 }
 
 VOID
@@ -1726,7 +1699,6 @@ SwLedBlink15(
 		LinkBlinkCnt = 0;
 		break;
 	}
-
 }
 
 /*
@@ -1974,7 +1946,6 @@ SwLedControlMode0(
 		break;
 	}
 
-
 }
 
 /* ALPHA, added by chiyoko, 20090106 */
@@ -2132,7 +2103,6 @@ SwLedControlMode1(
 		}
 		break;
 
-
 	case LED_CTL_STOP_WPS:
 		if (pLed->bLedNoLinkBlinkInProgress == _TRUE) {
 			_cancel_timer_ex(&(pLed->BlinkTimer));
@@ -2211,7 +2181,6 @@ SwLedControlMode1(
 		break;
 
 	}
-
 }
 
 /* Arcadyan/Sitecom , added by chiyoko, 20090216 */
@@ -2350,7 +2319,6 @@ SwLedControlMode2(
 		break;
 
 	}
-
 }
 
 /* COREGA, added by chiyoko, 20090316 */
@@ -2504,7 +2472,6 @@ SwLedControlMode3(
 		break;
 
 	}
-
 }
 
 
@@ -2808,10 +2775,7 @@ SwLedControlMode4(
 		break;
 
 	}
-
 }
-
-
 
 /* Sercomm-Belkin, added by chiyoko, 20090415 */
 static void
@@ -2889,7 +2853,6 @@ SwLedControlMode5(
 		break;
 
 	}
-
 }
 
 /* WNC-Corega, added by chiyoko, 20090902 */
@@ -2920,7 +2883,6 @@ SwLedControlMode6(
 	default:
 		break;
 	}
-
 }
 
 /* Netgear, added by sinda, 2011/11/11 */
@@ -3014,7 +2976,6 @@ SwLedControlMode7(
 
 		break;
 
-
 	case LED_CTL_STOP_WPS_FAIL:
 	case LED_CTL_STOP_WPS_FAIL_OVERLAP:	/* WPS session overlap			 */
 		if (pLed->bLedWPSBlinkInProgress) {
@@ -3060,7 +3021,6 @@ SwLedControlMode7(
 		break;
 
 	}
-
 }
 
 void
@@ -3095,8 +3055,6 @@ SwLedControlMode8(
 	default:
 		break;
 	}
-
-
 }
 
 /* page added for Belkin AC950, 20120813 */
@@ -3287,7 +3245,6 @@ SwLedControlMode9(
 		if (pLed1->bLedOn)
 			_set_timer(&(pLed1->BlinkTimer), 0);
 
-
 		break;
 
 	case LED_CTL_STOP_WPS_FAIL:		/* WPS authentication fail	 */
@@ -3374,7 +3331,6 @@ SwLedControlMode9(
 			pLed1->bLedWPSBlinkInProgress = _FALSE;
 		}
 
-
 		pLed1->BlinkingLedState = LED_UNKNOWN;
 		SwLedOff(Adapter, pLed);
 		SwLedOff(Adapter, pLed1);
@@ -3398,7 +3354,6 @@ SwLedControlMode9(
 		break;
 
 	}
-
 }
 
 /* page added for Netgear A6200V2, 20120827 */
@@ -3537,7 +3492,6 @@ SwLedControlMode10(
 			_set_timer(&(pLed1->BlinkTimer), LED_BLINK_NORMAL_INTERVAL + LED_BLINK_LINK_INTERVAL_NETGEAR);
 		}
 
-
 		break;
 
 	case LED_CTL_STOP_WPS:	/* WPS connect success */
@@ -3591,12 +3545,10 @@ SwLedControlMode10(
 
 		break;
 
-
 	default:
 		break;
 
 	}
-
 }
 
 /* Edimax-ASUS, added by Page, 20121221 */
@@ -3651,7 +3603,6 @@ SwLedControlMode11(
 
 		break;
 
-
 	case LED_CTL_STOP_WPS:
 	case LED_CTL_STOP_WPS_FAIL:
 		if (pLed->bLedBlinkInProgress == _TRUE) {
@@ -3694,7 +3645,6 @@ SwLedControlMode11(
 		break;
 
 	}
-
 }
 
 /* page added for NEC */
@@ -3775,7 +3725,6 @@ SwLedControlMode12(
 		break;
 
 	}
-
 }
 
 /* Maddest add for NETGEAR R6100 */
@@ -3794,7 +3743,6 @@ SwLedControlMode13(
 	case LED_CTL_LINK:
 		if (pLed->bLedWPSBlinkInProgress)
 			return;
-
 
 		pLed->CurrLedState = RTW_LED_ON;
 		pLed->BlinkingLedState = RTW_LED_ON;
@@ -3849,7 +3797,6 @@ SwLedControlMode13(
 		}
 
 		break;
-
 
 	case LED_CTL_STOP_WPS_FAIL:
 	case LED_CTL_STOP_WPS_FAIL_OVERLAP: /* WPS session overlap */
@@ -3920,8 +3867,6 @@ SwLedControlMode13(
 		break;
 
 	}
-
-
 }
 
 /* Maddest add for DNI Buffalo */
@@ -4244,7 +4189,6 @@ LedControlUSB(
 	default:
 		break;
 	}
-
 }
 
 /*
@@ -4288,7 +4232,6 @@ InitLed(
 	_init_timer(&(pLed->BlinkTimer), padapter->pnetdev, BlinkTimerCallback, pLed);
 	_init_workitem(&(pLed->BlinkWorkItem), BlinkWorkItemCallback, pLed);
 }
-
 
 /*
  *	Description:

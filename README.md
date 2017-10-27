@@ -4,6 +4,10 @@
 ## TODO
 These are the problems that needs attention, any help would be appreciated.
 ```
+* "Associate", "Disassocate" & "Deauthenticate" support is missing. 
+  These should be added in order to get some functions working, like "deauth" attacks.
+  Check issue report @ https://github.com/aircrack-ng/rtl8812au/issues/35
+
 * txpower control has been added, but some issues remain.
   Check issue reports for more information.
   
