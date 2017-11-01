@@ -3732,7 +3732,7 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12 ,0))
 	mon_ndev->needs_free_netdev = true;
 #else
-	mon_ndev->destructor = rtw_ndev_destructor;
+	mon_ndev->priv_destructor = rtw_ndev_destructor;
 #endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 9))
 	mon_ndev->needs_free_netdev = false;
