@@ -3567,6 +3567,25 @@ void start_ap_mode(_adapter *padapter)
 
 }
 
+void rtw_ap_bcmc_sta_flush(_adapter *padapter)
+{
+#ifdef CONFIG_CONCURRENT_MODE
+	int cam_id = -1;
+	u8 *addr = adapter_mac_addr(padapter);
+
+	cam_id = rtw_iface_bcmc_id_get(padapter);
+	if (cam_id != INVALID_SEC_MAC_CAM_ID) {
+		RTW_PRINT("clear group key for "ADPT_FMT" addr:"MAC_FMT", camid:%d\n",
+			ADPT_ARG(padapter), MAC_ARG(addr), cam_id);
+		clear_cam_entry(padapter, cam_id);
+		rtw_camid_free(padapter, cam_id);
+		rtw_iface_bcmc_id_set(padapter, INVALID_SEC_MAC_CAM_ID);	/*init default value*/
+	}
+#else
+	invalidate_cam_all(padapter);
+#endif
+}
+
 void stop_ap_mode(_adapter *padapter)
 {
 	_irqL irqL;
@@ -3599,6 +3618,7 @@ void stop_ap_mode(_adapter *padapter)
 #endif
 
 	rtw_sta_flush(padapter, _TRUE);
+	rtw_ap_bcmc_sta_flush(padapter);
 
 	/* free_assoc_sta_resources	 */
 	rtw_free_all_stainfo(padapter);
