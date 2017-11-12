@@ -665,26 +665,7 @@ static int usb_reprobe_switch_usb_mode(PADAPTER Adapter)
 	if (registry_par->switch_usb_mode == 0)
 		goto exit;
 
-#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
-        if (IS_HIGH_SPEED_USB(Adapter)) {
-          if ((rtw_read8(Adapter, 0x74) & (BIT(2)|BIT(3))) != BIT(3)) {
-            rtw_write8(Adapter, 0x74, 0x8);
-            rtw_write8(Adapter, 0x70, 0x2);
-            rtw_write8(Adapter, 0x3e, 0x1);
-            rtw_write8(Adapter, 0x3d, 0x3);
-            /* usb disconnect */
-            rtw_write8(Adapter, 0x5, 0x80);
-            ret = _TRUE;
-          }
-
-        } else if (IS_SUPER_SPEED_USB(Adapter)) {
-          rtw_write8(Adapter, 0x70, rtw_read8(Adapter, 0x70) & (~BIT(1)));
-          rtw_write8(Adapter, 0x3e, rtw_read8(Adapter, 0x3e) & (~BIT(0)));
-        }
-#else
 	rtw_hal_set_hwreg(Adapter, HW_VAR_USB_MODE, &ret);
-#endif
-
 exit:
 	return ret;
 }
