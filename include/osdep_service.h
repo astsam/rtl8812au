@@ -58,6 +58,11 @@
 	#define BIT(x)	( 1 << (x))
 #endif
 
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#include <linux/sched/signal.h>
+#endif
+
 #define BIT0	0x00000001
 #define BIT1	0x00000002
 #define BIT2	0x00000004
