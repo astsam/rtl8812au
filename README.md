@@ -2,6 +2,8 @@
 The master branch is based on https://github.com/ulli-kroll/rtl8821au branch v4.3.22-beta/rework.
 According to rtw_version.c the real driver version is 4.3.20.
 
+My fork is fixed version for kernel versions >4.11. Succesfully build that project on 4.13.11-1-ARCH
+
 The branch v4.3.21 may be built for RTL8814AU or RTL8812AU/RTL8821AU chipset. 
 
 for building RTL8812AU/RTL8821AU driver type:
