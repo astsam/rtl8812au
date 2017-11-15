@@ -14,7 +14,7 @@ EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
 EXTRA_CFLAGS += -Wno-date-time
-EXTRA_CFLAGS += -Wno-misleading-indentation
+#EXTRA_CFLAGS += -Wno-misleading-indentation
 #EXTRA_CFLAGS += -Wno-uninitialized
 
 GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )
@@ -48,6 +48,7 @@ CONFIG_PCI_HCI = n
 CONFIG_SDIO_HCI = n
 CONFIG_GSPI_HCI = n
 ########################## Features ###########################
+CONFIG_NET_NS = y
 CONFIG_MP_INCLUDED = y
 CONFIG_POWER_SAVING = n
 CONFIG_USB_AUTOSUSPEND = n
@@ -64,7 +65,7 @@ CONFIG_CALIBRATE_TX_POWER_TO_MAX = y
 CONFIG_RTW_ADAPTIVITY_EN = disable
 CONFIG_RTW_ADAPTIVITY_MODE = normal
 CONFIG_SIGNAL_SCALE_MAPPING = n
-CONFIG_80211W = n
+CONFIG_80211W = y
 CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
 CONFIG_TDLS = n

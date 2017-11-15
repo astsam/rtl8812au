@@ -77,7 +77,6 @@
 
 #endif /* CONFIG_WAPI_SUPPORT */
 
-
 static const u32 rtw_cipher_suites[] = {
 	WLAN_CIPHER_SUITE_WEP40,
 	WLAN_CIPHER_SUITE_WEP104,
@@ -195,7 +194,6 @@ static struct ieee80211_channel rtw_5ghz_a_channels[] = {
 	CHAN5G(208, 0),		CHAN5G(212, 0),
 	CHAN5G(216, 0),
 };
-
 
 void rtw_2g_channels_init(struct ieee80211_channel *channels)
 {
@@ -471,7 +469,6 @@ struct cfg80211_bss *rtw_cfg80211_inform_bss(_adapter *padapter, struct wlan_net
 	}
 	/* _exit_critical_bh(&pwdev_priv->scan_req_lock, &irqL); */
 
-
 	channel = pnetwork->network.Configuration.DSConfig;
 	freq = rtw_ch2freq(channel);
 	notify_channel = ieee80211_get_channel(wiphy, freq);
@@ -523,7 +520,6 @@ struct cfg80211_bss *rtw_cfg80211_inform_bss(_adapter *padapter, struct wlan_net
 
 	_rtw_memcpy(pwlanhdr->addr2, pnetwork->network.MacAddress, ETH_ALEN);
 	_rtw_memcpy(pwlanhdr->addr3, pnetwork->network.MacAddress, ETH_ALEN);
-
 
 	/* pbuf += sizeof(struct rtw_ieee80211_hdr_3addr); */
 	len = sizeof(struct rtw_ieee80211_hdr_3addr);
@@ -754,10 +750,10 @@ void rtw_cfg80211_indicate_connect(_adapter *padapter)
 	}
 
 check_bss:
-	if (!rtw_cfg80211_check_bss(padapter))
+	if (!rtw_cfg80211_check_bss(padapter)){
 		RTW_PRINT(FUNC_ADPT_FMT" BSS not found !!\n", FUNC_ADPT_ARG(padapter));
 
-	if (rtw_to_roam(padapter) > 0) {
+	}else if (rtw_to_roam(padapter) > 0) {
 		#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
 		struct wiphy *wiphy = pwdev->wiphy;
 		struct ieee80211_channel *notify_channel;
@@ -893,7 +889,6 @@ void rtw_cfg80211_indicate_disconnect(_adapter *padapter, u16 reason, u8 locally
 		#endif
 	}
 }
-
 
 #ifdef CONFIG_AP_MODE
 static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
@@ -6497,6 +6492,10 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 		wiphy->bands[IEEE80211_BAND_5GHZ] = rtw_spt_band_alloc(IEEE80211_BAND_5GHZ);
 #endif
 
+#if defined(CONFIG_NET_NS)
+	wiphy->flags |= WIPHY_FLAG_NETNS_OK;
+#endif //CONFIG_NET_NS
+
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38) && LINUX_VERSION_CODE < KERNEL_VERSION(3, 0, 0))
 #if defined(CONFIG_NET_NS)
 	wiphy->flags |= WIPHY_FLAG_NETNS_OK;
@@ -6597,6 +6596,7 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 6, 0))
 	.set_channel = cfg80211_rtw_set_channel,
 #endif
+
 	/* .auth = cfg80211_rtw_auth, */
 	/* .assoc = cfg80211_rtw_assoc,	 */
 #endif /* CONFIG_AP_MODE */
