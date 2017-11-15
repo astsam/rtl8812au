@@ -4285,10 +4285,6 @@ static int rtw_wps_start(struct net_device *dev,
 	else if (u32wps_start == 3)   /* WPS Stop because of wps fail */
 		rtw_led_control(padapter, LED_CTL_STOP_WPS_FAIL);
 
-#ifdef CONFIG_INTEL_WIDI
-	process_intel_widi_wps_status(padapter, u32wps_start);
-#endif /* CONFIG_INTEL_WIDI */
-
 exit:
 
 	return ret;
@@ -5184,13 +5180,6 @@ static int rtw_p2p_connect(struct net_device *dev,
 		return ret;
 	}
 
-#ifdef CONFIG_INTEL_WIDI
-	if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == _TRUE) {
-		RTW_INFO("[%s] WiFi is under survey!\n", __FUNCTION__);
-		return ret;
-	}
-#endif /* CONFIG_INTEL_WIDI	 */
-
 	if (pwdinfo->ui_got_wps_info == P2P_NO_WPSINFO)
 		return -1;
 
@@ -5273,19 +5262,6 @@ static int rtw_p2p_connect(struct net_device *dev,
 
 	} else {
 		RTW_INFO("[%s] Not Found in Scanning Queue~\n", __FUNCTION__);
-#ifdef CONFIG_INTEL_WIDI
-		_cancel_timer_ex(&pwdinfo->restore_p2p_state_timer);
-		rtw_p2p_set_state(pwdinfo, P2P_STATE_FIND_PHASE_SEARCH);
-		rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
-		rtw_free_network_queue(padapter, _TRUE);
-		/**
-		 * For WiDi, if we can't find candidate device in scanning queue,
-		 * driver will do scanning itself
-		 */
-		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL, 0, NULL, 0);
-		_exit_critical_bh(&pmlmepriv->lock, &irqL);
-#endif /* CONFIG_INTEL_WIDI */
 		ret = -1;
 	}
 exit:
@@ -5854,13 +5830,6 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 		RTW_INFO("[%s] WiFi Direct is disable!\n", __FUNCTION__);
 		return ret;
 	} else {
-#ifdef CONFIG_INTEL_WIDI
-		if (check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == _TRUE) {
-			RTW_INFO("[%s] WiFi is under survey!\n", __FUNCTION__);
-			return ret;
-		}
-#endif /* CONFIG_INTEL_WIDI */
-
 		/*	Reset the content of struct tx_provdisc_req_info excluded the wps_config_method_request. */
 		_rtw_memset(pwdinfo->tx_prov_disc_info.peerDevAddr, 0x00, ETH_ALEN);
 		_rtw_memset(pwdinfo->tx_prov_disc_info.peerIFAddr, 0x00, ETH_ALEN);
@@ -5929,18 +5898,6 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 			}
 
 		}
-
-#ifdef CONFIG_INTEL_WIDI
-		/* Some Intel WiDi source may not provide P2P IE, */
-		/* so we could only compare mac addr by 802.11 Source Address */
-		if (pmlmepriv->widi_state == INTEL_WIDI_STATE_WFD_CONNECTION
-		    && uintPeerChannel == 0) {
-			if (_rtw_memcmp(pnetwork->network.MacAddress, peerMAC, ETH_ALEN)) {
-				uintPeerChannel = pnetwork->network.Configuration.DSConfig;
-				break;
-			}
-		}
-#endif /* CONFIG_INTEL_WIDI */
 
 		plist = get_next(plist);
 
@@ -6031,15 +5988,6 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 
 	} else {
 		RTW_INFO("[%s] NOT Found in the Scanning Queue!\n", __FUNCTION__);
-#ifdef CONFIG_INTEL_WIDI
-		_cancel_timer_ex(&pwdinfo->restore_p2p_state_timer);
-		rtw_p2p_set_state(pwdinfo, P2P_STATE_FIND_PHASE_SEARCH);
-		rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
-		rtw_free_network_queue(padapter, _TRUE);
-		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL, 0, NULL, 0);
-		_exit_critical_bh(&pmlmepriv->lock, &irqL);
-#endif /* CONFIG_INTEL_WIDI */
 	}
 exit:
 
@@ -11527,46 +11475,6 @@ static int rtw_tdls_get(struct net_device *dev,
 	return ret;
 }
 
-
-
-
-
-#ifdef CONFIG_INTEL_WIDI
-static int rtw_widi_set(struct net_device *dev,
-			struct iw_request_info *info,
-			union iwreq_data *wrqu, char *extra)
-{
-	int ret = 0;
-	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
-
-	process_intel_widi_cmd(padapter, extra);
-
-	return ret;
-}
-
-static int rtw_widi_set_probe_request(struct net_device *dev,
-				      struct iw_request_info *info,
-				      union iwreq_data *wrqu, char *extra)
-{
-	int	ret = 0;
-	u8	*pbuf = NULL;
-	_adapter	*padapter = (_adapter *)rtw_netdev_priv(dev);
-
-	pbuf = rtw_malloc(sizeof(l2_msg_t));
-	if (pbuf) {
-		if (copy_from_user(pbuf, wrqu->data.pointer, wrqu->data.length))
-			ret = -EFAULT;
-		/* _rtw_memcpy(pbuf, wrqu->data.pointer, wrqu->data.length); */
-
-		if (wrqu->data.flags == 0)
-			intel_widi_wk_cmd(padapter, INTEL_WIDI_ISSUE_PROB_WK, pbuf, sizeof(l2_msg_t));
-		else if (wrqu->data.flags == 1)
-			rtw_set_wfd_rds_sink_info(padapter, (l2_msg_t *)pbuf);
-	}
-	return ret;
-}
-#endif /* CONFIG_INTEL_WIDI */
-
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
 
 #if defined(CONFIG_RTL8188E)
@@ -12411,18 +12319,6 @@ static const struct iw_priv_args rtw_private_args[] = {
 		SIOCIWFIRSTPRIV + 0x1D,
 		IW_PRIV_TYPE_CHAR | 40, IW_PRIV_TYPE_CHAR | 0x7FF, "test"
 	},
-
-#ifdef CONFIG_INTEL_WIDI
-	{
-		SIOCIWFIRSTPRIV + 0x1E,
-		IW_PRIV_TYPE_CHAR | 1024, 0, "widi_set"
-	},
-	{
-		SIOCIWFIRSTPRIV + 0x1F,
-		IW_PRIV_TYPE_CHAR | 128, 0, "widi_prob_req"
-	},
-#endif /* CONFIG_INTEL_WIDI */
-
 	{ SIOCIWFIRSTPRIV + 0x0E, IW_PRIV_TYPE_CHAR | 1024, 0 , ""},  /* set  */
 	{ SIOCIWFIRSTPRIV + 0x0F, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK , ""},/* get
  * --- sub-ioctls definitions --- */
@@ -12547,10 +12443,6 @@ static iw_handler rtw_private_handler[] = {
 #endif
 	NULL,							/* 0x1C is reserved for hostapd */
 	rtw_test,						/* 0x1D */
-#ifdef CONFIG_INTEL_WIDI
-	rtw_widi_set,					/* 0x1E */
-	rtw_widi_set_probe_request,		/* 0x1F */
-#endif /* CONFIG_INTEL_WIDI */
 };
 
 #if WIRELESS_EXT >= 17
