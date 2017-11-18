@@ -336,7 +336,6 @@ u16 rtw_get_efuse_mask_arraylen(PADAPTER pAdapter)
 	return 0;
 }
 
-
 #ifdef RTW_HALMAC
 #include "../../hal/hal_halmac.h"
 
@@ -386,7 +385,6 @@ void EFUSE_GetEfuseDefinition(PADAPTER adapter, u8 efusetype, u8 type, void *out
 	struct dvobj_priv *d;
 	u32 v32 = 0;
 
-
 	d = adapter_to_dvobj(adapter);
 
 	if (adapter->HalFunc.EFUSEGetEfuseDefinition) {
@@ -413,7 +411,6 @@ u8 rtw_efuse_access(PADAPTER adapter, u8 write, u16 addr, u16 cnts, u8 *data)
 	u8 *efuse = NULL;
 	u32 size, i;
 	int err;
-
 
 	d = adapter_to_dvobj(adapter);
 	err = rtw_halmac_get_physical_efuse_size(d, &size);
@@ -715,7 +712,6 @@ VOID hal_ReadEFuse_BT_logic_map(
 	u16	i, total, used;
 	u8	efuse_usage;
 
-
 	/* */
 	/* Do NOT excess total size of EFuse table. Added by Roger, 2008.11.10. */
 	/* */
@@ -830,7 +826,6 @@ exit:
 		rtw_mfree(efuseTbl, EFUSE_BT_MAP_LEN);
 }
 
-
 static u8 hal_EfusePartialWriteCheck(
 	PADAPTER		padapter,
 	u8				efuseType,
@@ -872,7 +867,6 @@ static u8 hal_EfusePartialWriteCheck(
 
 	return bRet;
 }
-
 
 static u8 hal_EfusePgPacketWrite2ByteHeader(
 	PADAPTER		padapter,
@@ -940,7 +934,6 @@ static u8 hal_EfusePgPacketWrite2ByteHeader(
 	return _TRUE;
 }
 
-
 static u8 hal_EfusePgPacketWrite1ByteHeader(
 	PADAPTER		pAdapter,
 	u8				efuseType,
@@ -952,7 +945,6 @@ static u8 hal_EfusePgPacketWrite1ByteHeader(
 	u8	pg_header = 0, tmp_header = 0;
 	u16	efuse_addr = *pAddr;
 	u8	repeatcnt = 0;
-
 
 	/*	RTW_INFO("%s\n", __FUNCTION__); */
 	pg_header = ((pTargetPkt->offset << 4) & 0xf0) | pTargetPkt->word_en;
@@ -996,7 +988,6 @@ static u8 hal_EfusePgPacketWriteHeader(
 	return bRet;
 }
 
-
 static u8
 Hal_EfuseWordEnableDataWrite(
 	PADAPTER	padapter,
@@ -1009,7 +1000,6 @@ Hal_EfuseWordEnableDataWrite(
 	u16	start_addr = efuse_addr;
 	u8	badworden = 0x0F;
 	u8	tmpdata[PGPKT_DATA_SIZE];
-
 
 	/*	RTW_INFO("%s: efuse_addr=%#x word_en=%#x\n", __FUNCTION__, efuse_addr, word_en); */
 	_rtw_memset(tmpdata, 0xFF, PGPKT_DATA_SIZE);
@@ -1115,7 +1105,6 @@ u8 EfusePgPacketWrite_BT(
 
 	return _TRUE;
 }
-
 
 #else /* !RTW_HALMAC */
 /* ------------------------------------------------------------------------------ */
@@ -1469,7 +1458,6 @@ EFUSE_Write1Byte(
 	}
 } /* EFUSE_Write1Byte */
 
-
 /*  11/16/2008 MH Read one byte from real Efuse. */
 u8
 efuse_OneByteRead(
@@ -1555,7 +1543,6 @@ efuse_OneByteWrite(
 	/* -----------------e-fuse reg ctrl ---------------------------------	 */
 	/* address			 */
 
-
 	efuseValue = rtw_read32(pAdapter, EFUSE_CTRL);
 	efuseValue |= (BIT21 | BIT31);
 	efuseValue &= ~(0x3FFFF);
@@ -1627,7 +1614,6 @@ Efuse_PgPacketWrite(IN	PADAPTER	pAdapter,
 	return ret;
 }
 
-
 int
 Efuse_PgPacketWrite_BT(IN	PADAPTER	pAdapter,
 		       IN	u8			offset,
@@ -1641,7 +1627,6 @@ Efuse_PgPacketWrite_BT(IN	PADAPTER	pAdapter,
 
 	return ret;
 }
-
 
 u8
 Efuse_WordEnableDataWrite(IN	PADAPTER	pAdapter,
@@ -2087,7 +2072,6 @@ efuse_ShadowRead4Byte(
 
 }	/* efuse_ShadowRead4Byte */
 
-
 /*-----------------------------------------------------------------------------
  * Function:	efuse_ShadowWrite1Byte
  *			efuse_ShadowWrite2Byte
@@ -2135,7 +2119,6 @@ efuse_ShadowWrite2Byte(
 
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(pAdapter);
 
-
 	pHalData->efuse_eeprom_data[Offset] = Value & 0x00FF;
 	pHalData->efuse_eeprom_data[Offset + 1] = Value >> 8;
 
@@ -2156,7 +2139,6 @@ efuse_ShadowWrite4Byte(
 	pHalData->efuse_eeprom_data[Offset + 3] = (u8)((Value >> 24) & 0xFF);
 
 }	/* efuse_ShadowWrite1Byte */
-
 
 /*-----------------------------------------------------------------------------
  * Function:	EFUSE_ShadowRead
@@ -2224,7 +2206,6 @@ EFUSE_ShadowWrite(
 #endif
 	if (pAdapter->registrypriv.mp_mode == 0)
 		return;
-
 
 	if (Type == 1)
 		efuse_ShadowWrite1Byte(pAdapter, Offset, (u8)Value);
@@ -2343,7 +2324,6 @@ void EFUSE_ShadowMapUpdate(
 #ifdef RTW_HALMAC
 	u8 *efuse_map = NULL;
 	int err;
-
 
 	mapLen = EEPROM_MAX_SIZE;
 	efuse_map = pHalData->efuse_eeprom_data;

@@ -202,6 +202,7 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x2019, 0xAB32), .driver_info = RTL8821}, /* Planex - GW-450S */
 	{USB_DEVICE(0x0846, 0x9052), .driver_info = RTL8821}, /* Netgear - A6100 */
 	{USB_DEVICE(0x0411, 0x029B), .driver_info = RTL8821}, /* Buffalo - WI-U2-433DHP */
+	{USB_DEVICE(0x056E, 0x4007), .driver_info = RTL8821}, /* Elecom - WDC-433DU2HBK */
 #endif
 
 #ifdef CONFIG_RTL8192E
@@ -230,6 +231,7 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x056E, 0x400D), .driver_info = RTL8814A}, /* ELECOM - ELECOM */
 	{USB_DEVICE(0x7392, 0xA834), .driver_info = RTL8814A}, /* Edimax - Edimax */
 	{USB_DEVICE(0x7392, 0xA833), .driver_info = RTL8814A}, /* Edimax - AC1750 */
+	{USB_DEVICE(0x0BDA, 0x8813), .driver_info = RTL8814A}, /* Edimax - EDUP Adapters */
 	{USB_DEVICE(0x2357, 0x0106), .driver_info = RTL8814A}, /* TP-LINK Archer T9UH */
 	{USB_DEVICE(0x20F4, 0x809A), .driver_info = RTL8814A}, /* TRENDnet - TRENDnet */
 	{USB_DEVICE(0x20F4, 0x809B), .driver_info = RTL8814A}, /* TRENDnet TEW-809UB */
