@@ -750,10 +750,10 @@ void rtw_cfg80211_indicate_connect(_adapter *padapter)
 	}
 
 check_bss:
-	if (!rtw_cfg80211_check_bss(padapter)){
+	if (!rtw_cfg80211_check_bss(padapter))
 		RTW_PRINT(FUNC_ADPT_FMT" BSS not found !!\n", FUNC_ADPT_ARG(padapter));
 
-	}else if (rtw_to_roam(padapter) > 0) {
+	if (rtw_to_roam(padapter) > 0) {
 		#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
 		struct wiphy *wiphy = pwdev->wiphy;
 		struct ieee80211_channel *notify_channel;
