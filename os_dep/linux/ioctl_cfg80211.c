@@ -4367,9 +4367,9 @@ static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wd
 	_adapter *padapter= wiphy_to_adapter(wiphy);
 	int channel;
 	int control_freq;
-	int center_freq;
+	int center_freq=0;
 	int center_freq2=0;
-	int width;
+	int width=0;
 	int band;
 	int bandWidth;
 	int offset;
