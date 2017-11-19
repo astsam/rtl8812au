@@ -750,10 +750,10 @@ void rtw_cfg80211_indicate_connect(_adapter *padapter)
 	}
 
 check_bss:
-	if (!rtw_cfg80211_check_bss(padapter)){
+	if (!rtw_cfg80211_check_bss(padapter))
 		RTW_PRINT(FUNC_ADPT_FMT" BSS not found !!\n", FUNC_ADPT_ARG(padapter));
 
-	}else if (rtw_to_roam(padapter) > 0) {
+	if (rtw_to_roam(padapter) > 0) {
 		#if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 39) || defined(COMPAT_KERNEL_RELEASE)
 		struct wiphy *wiphy = pwdev->wiphy;
 		struct ieee80211_channel *notify_channel;
@@ -4367,9 +4367,9 @@ static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wd
 	_adapter *padapter= wiphy_to_adapter(wiphy);
 	int channel;
 	int control_freq;
-	int center_freq;
+	int center_freq=0;
 	int center_freq2=0;
-	int width;
+	int width=0;
 	int band;
 	int bandWidth;
 	int offset;
