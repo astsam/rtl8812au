@@ -895,7 +895,6 @@ ifeq ($(CONFIG_WAPI_SUPPORT), y)
 EXTRA_CFLAGS += -DCONFIG_WAPI_SUPPORT
 endif
 
-
 ifeq ($(CONFIG_EFUSE_CONFIG_FILE), y)
 EXTRA_CFLAGS += -DCONFIG_EFUSE_CONFIG_FILE
 
@@ -1077,7 +1076,6 @@ KVER:= 3.4.0
 KSRC := $(KERNEL_BUILD_PATH)
 MODULE_NAME :=wlan
 endif
-
 
 ifeq ($(CONFIG_PLATFORM_ACTIONS_ATM705X), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
@@ -1291,8 +1289,6 @@ CROSS_COMPILE := /home/share/CusEnv/FreeScale/arm-eabi-4.4.3/bin/arm-eabi-
 KSRC ?= /home/share/CusEnv/FreeScale/FS_kernel_env
 endif
 
-
-
 ifeq ($(CONFIG_PLATFORM_ACTIONS_ATJ227X), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ACTIONS_ATJ227X
 ARCH := mips
@@ -1456,7 +1452,6 @@ KVER := 2.6.32.2
 KSRC := /home/winuser/work/Plat_sLD2T_V3010/usr/src/linux-2.6.32.2
 INSTALL_PREFIX :=
 endif
-
 
 ifeq ($(CONFIG_PLATFORM_ARM_SUNxI), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
@@ -1807,7 +1802,6 @@ ifeq ($(CONFIG_PCI_HCI), y)
 MODULE_NAME := rtw_pci
 endif
 
-
 endif
 
 USER_MODULE_NAME ?=
@@ -1851,7 +1845,6 @@ endif
 
 $(MODULE_NAME)-y += $(rtk_core)
 
-
 $(MODULE_NAME)-$(CONFIG_WAPI_SUPPORT) += core/rtw_wapi.o	\
 					core/rtw_wapi_sms4.o
 
@@ -1892,7 +1885,6 @@ config_r:
 	@echo "make config"
 	/bin/bash script/Configure script/config.in
 
-
 .PHONY: modules clean
 
 clean:
@@ -1910,4 +1902,3 @@ clean:
 	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
 	rm -fr .tmp_versions
 endif
-
