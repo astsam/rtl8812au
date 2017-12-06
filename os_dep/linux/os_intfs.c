@@ -1826,19 +1826,20 @@ u8 rtw_reset_drv_sw(_adapter *padapter)
 	mlmeext_set_scan_state(&padapter->mlmeextpriv, SCAN_DISABLE);
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
+	_set_timer(&padapter->recvpriv.signal_stat_timer, padapter->recvpriv.signal_stat_sampling_interval);
+#else
 	rtw_set_signal_stat_timer(&padapter->recvpriv);
+#endif
 #endif
 
 	return ret8;
 }
 
-
 u8 rtw_init_drv_sw(_adapter *padapter)
 {
 
 	u8	ret8 = _SUCCESS;
-
-
 
 	_rtw_init_listhead(&padapter->list);
 
@@ -1956,8 +1957,6 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 
 exit:
 
-
-
 	return ret8;
 
 }
@@ -2073,7 +2072,6 @@ u8 rtw_free_drv_sw(_adapter *padapter)
 #endif
 
 	rtw_hal_free_data(padapter);
-
 
 	/* free the old_pnetdev */
 	if (padapter->rereg_nd_name_priv.old_pnetdev) {
@@ -2278,7 +2276,6 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	padapter->hw_port = HW_PORT1;
 #endif
 
-
 	/****** hook vir if into dvobj ******/
 	pdvobjpriv = adapter_to_dvobj(padapter);
 	padapter->iface_id = pdvobjpriv->iface_nums;
@@ -2295,7 +2292,6 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	/*init drv data*/
 	if (rtw_init_drv_sw(padapter) != _SUCCESS)
 		goto free_drv_sw;
-
 
 	/*get mac address from primary_padapter*/
 	_rtw_memcpy(mac, adapter_mac_addr(primary_padapter), ETH_ALEN);
@@ -2777,7 +2773,6 @@ netdev_open_error:
 	return _FAIL;
 }
 
-
 int rtw_ips_pwr_up(_adapter *padapter)
 {
 	int result;
@@ -2840,7 +2835,6 @@ void rtw_ips_dev_unload(_adapter *padapter)
 		rtw_hal_deinit(padapter);
 
 }
-
 
 int pm_netdev_open(struct net_device *pnetdev, u8 bnormal)
 {
@@ -3302,7 +3296,6 @@ void rtw_dev_unload(PADAPTER padapter)
 
 		rtw_intf_stop(padapter);
 
-
 		if (!pwrctl->bInternalAutoSuspend)
 			rtw_stop_drv_threads(padapter);
 
@@ -3316,7 +3309,6 @@ void rtw_dev_unload(PADAPTER padapter)
 				rtw_msleep_os(10);
 			}
 		}
-
 
 		/* check the status of IPS */
 		if (rtw_hal_check_ips_status(padapter) == _TRUE || pwrctl->rf_pwrstate == rf_off) { /* check HW status and SW state */
@@ -3428,7 +3420,6 @@ int rtw_suspend_wow(_adapter *padapter)
 	int ret = _SUCCESS;
 
 	RTW_INFO("==> "FUNC_ADPT_FMT" entry....\n", FUNC_ADPT_ARG(padapter));
-
 
 	RTW_INFO("wowlan_mode: %d\n", pwrpriv->wowlan_mode);
 	RTW_INFO("wowlan_pno_enable: %d\n", pwrpriv->wowlan_pno_enable);
@@ -3639,7 +3630,6 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 }
 #endif /* #ifdef CONFIG_AP_WOWLAN */
 
-
 int rtw_suspend_normal(_adapter *padapter)
 {
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -3657,7 +3647,6 @@ int rtw_suspend_normal(_adapter *padapter)
 	if ((rtw_hal_check_ips_status(padapter) == _TRUE)
 	    || (adapter_to_pwrctl(padapter)->rf_pwrstate == rf_off))
 		RTW_PRINT("%s: ### ERROR #### driver in IPS ####ERROR###!!!\n", __FUNCTION__);
-
 
 #ifdef CONFIG_CONCURRENT_MODE
 	rtw_mi_buddy_dev_unload(padapter);
@@ -3759,7 +3748,6 @@ int rtw_suspend_common(_adapter *padapter)
 	} else
 		rtw_suspend_normal(padapter);
 
-
 	RTW_PRINT("rtw suspend success in %d ms\n",
 		  rtw_get_passing_time_ms(start_time));
 
@@ -3840,7 +3828,6 @@ int rtw_resume_process_wow(_adapter *padapter)
 		psta = rtw_get_stainfo(&padapter->stapriv, get_bssid(&padapter->mlmepriv));
 		if (psta)
 			set_sta_rate(padapter, psta);
-
 
 		rtw_clr_drv_stopped(padapter);
 		RTW_INFO("%s: wowmode resuming, DriverStopped:%s\n", __func__, rtw_is_drv_stopped(padapter) ? "True" : "False");
@@ -3962,7 +3949,6 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 		ret = -1;
 		goto exit;
 	}
-
 
 #ifdef CONFIG_LPS
 	rtw_set_ps_mode(padapter, PS_MODE_ACTIVE, 0, 0, "AP-WOWLAN");
@@ -4190,7 +4176,6 @@ int rtw_resume_common(_adapter *padapter)
 	}
 	RTW_PRINT("%s:%d in %d ms\n", __FUNCTION__ , ret,
 		  rtw_get_passing_time_ms(start_time));
-
 
 	return ret;
 }
