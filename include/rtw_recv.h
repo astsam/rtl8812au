@@ -68,7 +68,6 @@
 #define PHY_RSSI_SLID_WIN_MAX				100
 #define PHY_LINKQUALITY_SLID_WIN_MAX		20
 
-
 #define SNAP_SIZE sizeof(struct ieee80211_snap_hdr)
 
 #define RX_MPDU_QUEUE				0
@@ -124,7 +123,6 @@ struct	stainfo_rxcache	{
 	unsigned short	tid15_rxseq;
 #endif
 };
-
 
 struct smooth_rssi_data {
 	u32	elements[100];	/* array to store values */
@@ -218,7 +216,6 @@ struct rx_raw_rssi {
 	u8 ofdm_snr[4];
 };
 
-
 struct rx_pkt_attrib	{
 	u16	pkt_len;
 	u8	physt;
@@ -282,7 +279,6 @@ struct rx_pkt_attrib	{
 #endif
 	struct phy_info phy_info;
 };
-
 
 /* These definition is used for Rx packet reordering. */
 #define SN_LESS(a, b)		(((a-b) & 0x800) != 0)
@@ -358,8 +354,6 @@ struct rtw_rx_ring {
 	struct sk_buff	*rx_buf[PCI_MAX_RX_COUNT];
 };
 #endif
-
-
 
 /*
 accesser of recv_priv: rtw_recv_entry(dispatch / passive level); recv_thread(passive) ; returnpkt(dispatch)
@@ -488,7 +482,9 @@ struct recv_priv {
 };
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
 #define rtw_set_signal_stat_timer(recvpriv) _set_timer(&(recvpriv)->signal_stat_timer, (recvpriv)->signal_stat_sampling_interval)
+#endif
 #endif /* CONFIG_NEW_SIGNAL_STAT_PROCESS */
 
 struct sta_recv_priv {
@@ -506,7 +502,6 @@ struct sta_recv_priv {
 	/* uint	sta_rx_fail; */
 
 };
-
 
 struct recv_buf {
 	_list list;
@@ -565,7 +560,6 @@ struct recv_buf {
 
 		tail  ----->
 
-
 	end   ----->
 
 	len = (unsigned int )(tail - data);
@@ -597,7 +591,6 @@ struct recv_frame_hdr {
 
 	void *precvbuf;
 
-
 	/*  */
 	struct sta_info *psta;
 
@@ -613,7 +606,6 @@ struct recv_frame_hdr {
 #endif
 
 };
-
 
 union recv_frame {
 
@@ -699,7 +691,6 @@ __inline static u8 *recvframe_push(union recv_frame *precvframe, sint sz)
 	if (precvframe == NULL)
 		return NULL;
 
-
 	precvframe->u.hdr.rx_data -= sz ;
 	if (precvframe->u.hdr.rx_data < precvframe->u.hdr.rx_head) {
 		precvframe->u.hdr.rx_data += sz ;
@@ -712,17 +703,14 @@ __inline static u8 *recvframe_push(union recv_frame *precvframe, sint sz)
 
 }
 
-
 __inline static u8 *recvframe_pull(union recv_frame *precvframe, sint sz)
 {
 	/* rx_data += sz; move rx_data sz bytes  hereafter */
 
 	/* used for extract sz bytes from rx_data, update rx_data and return the updated rx_data to the caller */
 
-
 	if (precvframe == NULL)
 		return NULL;
-
 
 	precvframe->u.hdr.rx_data += sz;
 
@@ -765,8 +753,6 @@ __inline static u8 *recvframe_put(union recv_frame *precvframe, sint sz)
 
 }
 
-
-
 __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 {
 	/* rmv data from rx_tail (by yitsen) */
@@ -790,8 +776,6 @@ __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 
 }
 
-
-
 __inline static _buffer *get_rxbuf_desc(union recv_frame *precvframe)
 {
 	_buffer *buf_desc;
@@ -804,7 +788,6 @@ __inline static _buffer *get_rxbuf_desc(union recv_frame *precvframe)
 
 	return buf_desc;
 }
-
 
 __inline static union recv_frame *rxmem_to_recvframe(u8 *rxmem)
 {
@@ -875,7 +858,6 @@ __inline static s32 translate_percentage_to_dbm(u32 SignalStrengthIndex)
 
 	return SignalPower;
 }
-
 
 struct sta_info;
 
