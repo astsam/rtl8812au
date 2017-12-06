@@ -20,7 +20,6 @@
 #ifndef __RTW_MLME_H_
 #define __RTW_MLME_H_
 
-
 #define	MAX_BSS_CNT	128
 /* #define   MAX_JOIN_TIMEOUT	2000 */
 /* #define   MAX_JOIN_TIMEOUT	2500 */
@@ -162,7 +161,6 @@ enum SCAN_RESULT_TYPE {
 };
 
 /*
-
 there are several "locks" in mlme_priv,
 since mlme_priv is a shared resource between many threads,
 like ISR/Call-Back functions, the OID handlers, and even timer functions.
@@ -173,9 +171,7 @@ Other items are protected by mlme_priv.lock.
 
 To avoid possible dead lock, any thread trying to modifiying mlme_priv
 SHALL not lock up more than one locks at a time!
-
 */
-
 
 #define traffic_threshold	10
 #define	traffic_scan_period	500
@@ -761,7 +757,6 @@ extern int hostapd_mode_init(_adapter *padapter);
 extern void hostapd_mode_unload(_adapter *padapter);
 #endif
 
-
 extern void rtw_joinbss_event_prehandle(_adapter *adapter, u8 *pbuf);
 extern void rtw_survey_event_callback(_adapter *adapter, u8 *pbuf);
 extern void rtw_surveydone_event_callback(_adapter *adapter, u8 *pbuf);
@@ -775,8 +770,14 @@ extern void rtw_wmm_event_callback(PADAPTER padapter, u8 *pbuf);
 #ifdef CONFIG_IEEE80211W
 void rtw_sta_timeout_event_callback(_adapter *adapter, u8 *pbuf);
 #endif /* CONFIG_IEEE80211W */
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
+void rtw_join_timeout_handler(struct timer_list *t);
+void _rtw_scan_timeout_handler(struct timer_list *t);
+#else
 extern void rtw_join_timeout_handler(RTW_TIMER_HDL_ARGS);
 extern void _rtw_scan_timeout_handler(RTW_TIMER_HDL_ARGS);
+#endif
 
 thread_return event_thread(thread_context context);
 
@@ -956,15 +957,12 @@ void rtw_free_mlme_priv_ie_data(struct mlme_priv *pmlmepriv);
 int rtw_mlme_update_wfd_ie_data(struct mlme_priv *mlme, u8 type, u8 *ie, u32 ie_len);
 #endif
 
-
 /* extern struct wlan_network* _rtw_dequeue_network(_queue *queue); */
 
 extern struct wlan_network *_rtw_alloc_network(struct mlme_priv *pmlmepriv);
 
-
 extern void _rtw_free_network(struct mlme_priv *pmlmepriv, struct wlan_network *pnetwork, u8 isfreeall);
 extern void _rtw_free_network_nolock(struct mlme_priv *pmlmepriv, struct wlan_network *pnetwork);
-
 
 extern struct wlan_network *_rtw_find_network(_queue *scanned_queue, u8 *addr);
 
@@ -977,7 +975,6 @@ sint rtw_linked_check(_adapter *padapter);
 u8 *rtw_get_capability_from_ie(u8 *ie);
 u8 *rtw_get_timestampe_from_ie(u8 *ie);
 u8 *rtw_get_beacon_interval_from_ie(u8 *ie);
-
 
 void rtw_joinbss_reset(_adapter *padapter);
 
