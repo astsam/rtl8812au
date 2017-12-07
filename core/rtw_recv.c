@@ -498,7 +498,6 @@ sint recvframe_chkmic(_adapter *adapter,  union recv_frame *precvframe)
 			pframe = precvframe->u.hdr.rx_data;
 			payload = pframe + prxattrib->hdrlen + prxattrib->iv_len;
 
-
 			/* rtw_seccalctkipmic(&stainfo->dot11tkiprxmickey.skey[0],pframe,payload, datalen ,&miccode[0],(unsigned char)prxattrib->priority); */ /* care the length of the data */
 
 			rtw_seccalctkipmic(mickey, pframe, payload, datalen , &miccode[0], (unsigned char)prxattrib->priority); /* care the length of the data */
@@ -874,7 +873,6 @@ void process_wmmps_data(_adapter *padapter, union recv_frame *precv_frame)
 		}
 
 	}
-
 
 #endif
 
@@ -4231,8 +4229,8 @@ void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS)
 		}
 
 		if (num_signal_strength == 0) {
-			if (rtw_get_on_cur_ch_time(adapter) == 0
-			    || rtw_get_passing_time_ms(rtw_get_on_cur_ch_time(adapter)) < 2 * adapter->mlmeextpriv.mlmext_info.bcn_interval
+			if (rtw_get_on_cur_ch_time(padapter) == 0
+			    || rtw_get_passing_time_ms(rtw_get_on_cur_ch_time(padapter)) < 2 * padapter->mlmeextpriv.mlmext_info.bcn_interval
 			   )
 				goto set_timer;
 		}
@@ -4295,9 +4293,8 @@ set_timer:
 	_set_timer(&recvpriv->signal_stat_timer, recvpriv->signal_stat_sampling_interval);
 #else
 	rtw_set_signal_stat_timer(recvpriv);
-#endif
-}
 #endif /* CONFIG_NEW_SIGNAL_STAT_PROCESS */
+}
 
 static void rx_process_rssi(_adapter *padapter, union recv_frame *prframe)
 {
