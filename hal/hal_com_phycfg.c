@@ -3491,9 +3491,8 @@ PHY_SetTxPowerLimit(
 		if (powerLimit < prevPowerLimit)
 			pHalData->TxPwrLimit_2_4G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A] = powerLimit;
 
-		if (0)
-			RTW_INFO("2.4G Band value : [regulation %d][bw %d][rate_section %d][chnl %d][val %d]\n"
-				, regulation, bandwidth, rateSection, channelIndex, pHalData->TxPwrLimit_2_4G[regulation][bandwidth][rateSection][channelIndex][ODM_RF_PATH_A]);
+		RTW_INFO("2.4G Band value : [regulation %d][bw %d][rate_section %d][chnl %d][val %d]\n"
+			, regulation, bandwidth, rateSection, channelIndex, pHalData->TxPwrLimit_2_4G[regulation][bandwidth][rateSection][channelIndex][ODM_RF_PATH_A]);
 	} else if (eqNByte(Band, (u8 *)("5G"), 2)) {
 
 		channelIndex = phy_GetChannelIndexOfTxPowerLimit(BAND_ON_5G, channel);
@@ -3512,9 +3511,8 @@ PHY_SetTxPowerLimit(
 		if (powerLimit < prevPowerLimit)
 			pHalData->TxPwrLimit_5G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A] = powerLimit;
 
-		if (0)
-			RTW_INFO("5G Band value : [regulation %d][bw %d][rate_section %d][chnl %d][val %d]\n"
-				, regulation, bandwidth, rateSection, channel, pHalData->TxPwrLimit_5G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A]);
+		RTW_INFO("5G Band value : [regulation %d][bw %d][rate_section %d][chnl %d][val %d]\n"
+			, regulation, bandwidth, rateSection, channel, pHalData->TxPwrLimit_5G[regulation][bandwidth][rateSection][channelIndex][RF_PATH_A]);
 	} else {
 		RTW_PRINT("Cannot recognize the band info in %s\n", Band);
 		return;
