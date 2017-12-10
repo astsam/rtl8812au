@@ -985,8 +985,9 @@ void mpt_SetRFPath_8812A(PADAPTER pAdapter)
 	}
 
 	switch (ulAntennaRx) {
-		u32 reg0xC50 = 0;
+		u32 reg0xC50;
 	case ANTENNA_A:
+		reg0xC50 = 0;
 		PHY_SetBBReg(pAdapter, rRxPath_Jaguar, bMaskByte0, 0x11);
 		PHY_SetRFReg(pAdapter, ODM_RF_PATH_B, RF_AC_Jaguar, 0xF0000, 0x1); /*/ RF_B_0x0[19:16] = 1, Standby mode*/
 		PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, bCCK_RX_Jaguar, 0x0);
@@ -1013,6 +1014,7 @@ void mpt_SetRFPath_8812A(PADAPTER pAdapter)
 		}
 		break;
 	case ANTENNA_B:
+		reg0xC50 = 0;
 		PHY_SetBBReg(pAdapter, rRxPath_Jaguar, bMaskByte0, 0x22);
 		PHY_SetRFReg(pAdapter, ODM_RF_PATH_A, RF_AC_Jaguar, 0xF0000, 0x1);/*/ RF_A_0x0[19:16] = 1, Standby mode */
 		PHY_SetBBReg(pAdapter, rCCK_RX_Jaguar, bCCK_RX_Jaguar, 0x1);
