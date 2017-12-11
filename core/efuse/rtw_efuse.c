@@ -336,6 +336,62 @@ u16 rtw_get_efuse_mask_arraylen(PADAPTER pAdapter)
 	return 0;
 }
 
+
+VOID efuse_PreUpdateAction(
+	PADAPTER	pAdapter,
+	pu4Byte	BackupRegs)
+{
+	if (IS_HARDWARE_TYPE_8812AU(pAdapter)) {
+		/* <20131115, Kordan> Turn off Rx to prevent from being busy when writing the EFUSE. (Asked by Chunchu.)*/
+		BackupRegs[0] = PHY_QueryMacReg(pAdapter, REG_RCR, bMaskDWord);
+		BackupRegs[1] = PHY_QueryMacReg(pAdapter, REG_RXFLTMAP0, bMaskDWord);
+		BackupRegs[2] = PHY_QueryMacReg(pAdapter, REG_RXFLTMAP0+4, bMaskDWord);
+		BackupRegs[3] = PHY_QueryMacReg(pAdapter, REG_AFE_MISC, bMaskDWord);
+
+		PlatformEFIOWrite4Byte(pAdapter, REG_RCR, 0x1);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+1, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+2, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+3, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+4, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+5, 0);
+
+		/* <20140410, Kordan> 0x11 = 0x4E, lower down LX_SPS0 voltage. (Asked by Chunchu)*/
+		PHY_SetMacReg(pAdapter, REG_AFE_MISC, bMaskByte1, 0x4E);
+		}
+	if (IS_HARDWARE_TYPE_8814AU(pAdapter)) {
+		/* <20131115, Kordan> Turn off Rx to prevent from being busy when writing the EFUSE. (Asked by Chunchu.)*/
+		BackupRegs[0] = PHY_QueryMacReg(pAdapter, REG_RCR, bMaskDWord);
+		BackupRegs[1] = PHY_QueryMacReg(pAdapter, REG_RXFLTMAP0, bMaskDWord);
+		BackupRegs[2] = PHY_QueryMacReg(pAdapter, REG_RXFLTMAP0+4, bMaskDWord);
+		BackupRegs[3] = PHY_QueryMacReg(pAdapter, REG_AFE_MISC, bMaskDWord);
+
+		PlatformEFIOWrite4Byte(pAdapter, REG_RCR, 0x1);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+1, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+2, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+3, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+4, 0);
+		PlatformEFIOWrite1Byte(pAdapter, REG_RXFLTMAP0+5, 0);
+
+		/* <20140410, Kordan> 0x11 = 0x4E, lower down LX_SPS0 voltage. (Asked by Chunchu)*/
+		PHY_SetMacReg(pAdapter, REG_AFE_MISC, bMaskByte1, 0x4E);
+		}
+}
+
+VOID efuse_PostUpdateAction(
+	PADAPTER	pAdapter,
+	pu4Byte	BackupRegs)
+{
+	if (IS_HARDWARE_TYPE_8812AU(pAdapter)) {
+		/* <20131115, Kordan> Turn on Rx and restore the registers. (Asked by Chunchu.)*/
+		PHY_SetMacReg(pAdapter, REG_RCR, bMaskDWord, BackupRegs[0]);
+		PHY_SetMacReg(pAdapter, REG_RXFLTMAP0, bMaskDWord, BackupRegs[1]);
+		PHY_SetMacReg(pAdapter, REG_RXFLTMAP0+4, bMaskDWord, BackupRegs[2]);
+		PHY_SetMacReg(pAdapter, REG_AFE_MISC, bMaskDWord, BackupRegs[3]);
+	}
+}
+
 #ifdef RTW_HALMAC
 #include "../../hal/hal_halmac.h"
 
@@ -1561,6 +1617,8 @@ efuse_OneByteWrite(
 	} else
 		rtw_write32(pAdapter, EFUSE_CTRL, efuseValue);
 
+	rtw_mdelay_os(1);
+
 	while ((0x80 &  rtw_read8(pAdapter, EFUSE_CTRL + 3)) && (tmpidx < 100)) {
 		rtw_mdelay_os(1);
 		tmpidx++;
@@ -1661,6 +1719,9 @@ u8 rtw_efuse_access(PADAPTER padapter, u8 bWrite, u16 start_addr, u16 cnts, u8 *
 	u16	real_content_len = 0, max_available_size = 0;
 	u8 res = _FAIL ;
 	u8(*rw8)(PADAPTER, u16, u8 *);
+	u32	backupRegs[4] = {0};
+
+	efuse_PreUpdateAction(padapter, backupRegs);
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&real_content_len, _FALSE);
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_available_size, _FALSE);
@@ -1690,6 +1751,8 @@ u8 rtw_efuse_access(PADAPTER padapter, u8 bWrite, u16 start_addr, u16 cnts, u8 *
 	}
 
 	Efuse_PowerSwitch(padapter, bWrite, _FALSE);
+
+	efuse_PostUpdateAction(padapter, backupRegs);
 
 	return res;
 }
@@ -1782,7 +1845,10 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	s32	i, j, idx;
 	u8	ret = _SUCCESS;
 	u16	mapLen = 0;
+	u32	backupRegs[4] = {0};
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+
+	efuse_PreUpdateAction(padapter, backupRegs);
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN, (PVOID)&mapLen, _FALSE);
 
@@ -1856,6 +1922,7 @@ u8 rtw_efuse_map_write(PADAPTER padapter, u16 addr, u16 cnts, u8 *data)
 	/*Efuse_PowerSwitch(padapter, _TRUE, _FALSE);*/
 
 exit:
+	efuse_PostUpdateAction(padapter, backupRegs);
 
 	rtw_mfree(map, mapLen);
 
