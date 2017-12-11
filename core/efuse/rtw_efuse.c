@@ -1721,7 +1721,7 @@ u8 rtw_efuse_access(PADAPTER padapter, u8 bWrite, u16 start_addr, u16 cnts, u8 *
 	u8(*rw8)(PADAPTER, u16, u8 *);
 	u32	backupRegs[4] = {0};
 
-	efuse_PreUpdateAction(padapter, backupRegs)
+	efuse_PreUpdateAction(padapter, backupRegs);
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_REAL_CONTENT_LEN, (PVOID)&real_content_len, _FALSE);
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_AVAILABLE_EFUSE_BYTES_TOTAL, (PVOID)&max_available_size, _FALSE);
