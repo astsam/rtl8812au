@@ -69,8 +69,8 @@ or
 ```
 sudo iw wlan0 set txpower fixed 3000
 ```
-Newer versions of NetworkManager switches to random MAC address
-Some users would prefer to use a fixed address. Simply add these lines below
+Newer versions of NetworkManager switches to random MAC address. Some users would prefer to use a fixed address. 
+Simply add these lines below
 ```
 [device]
 wifi.scan-rand-mac-address=no
