@@ -482,9 +482,7 @@ struct recv_priv {
 };
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
 #define rtw_set_signal_stat_timer(recvpriv) _set_timer(&(recvpriv)->signal_stat_timer, (recvpriv)->signal_stat_sampling_interval)
-#endif
 #endif /* CONFIG_NEW_SIGNAL_STAT_PROCESS */
 
 struct sta_recv_priv {
