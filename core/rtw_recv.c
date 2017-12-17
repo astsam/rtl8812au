@@ -4210,8 +4210,8 @@ void rtw_signal_stat_timer_hdl(RTW_TIMER_HDL_ARGS)
 		}
 
 		if (num_signal_strength == 0) {
-			if (rtw_get_on_cur_ch_time(padapter) == 0
-			    || rtw_get_passing_time_ms(rtw_get_on_cur_ch_time(padapter)) < 2 * padapter->mlmeextpriv.mlmext_info.bcn_interval
+			if (rtw_get_on_cur_ch_time(adapter) == 0
+			    || rtw_get_passing_time_ms(rtw_get_on_cur_ch_time(adapter)) < 2 * adapter->mlmeextpriv.mlmext_info.bcn_interval
 			   )
 				goto set_timer;
 		}
