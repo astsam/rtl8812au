@@ -3141,17 +3141,9 @@ void rtw_build_tunneled_probe_rsp_ies(_adapter *padapter, struct xmit_frame *pxm
 }
 #endif /* CONFIG_WFD */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-void _tdls_tpk_timer_hdl(struct timer_list *t)
-#else
 void _tdls_tpk_timer_hdl(void *FunctionContext)
-#endif
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-	struct sta_info *ptdls_sta = from_timer(ptdls_sta, t, sta.TPK_timer);
-#else
 	struct sta_info *ptdls_sta = (struct sta_info *)FunctionContext;
-#endif
 	struct tdls_txmgmt txmgmt;
 
 	_rtw_memset(&txmgmt, 0x00, sizeof(struct tdls_txmgmt));
@@ -3254,11 +3246,7 @@ void _tdls_pti_timer_hdl(void *FunctionContext)
 void rtw_init_tdls_timer(_adapter *padapter, struct sta_info *psta)
 {
 	psta->padapter = padapter;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-	timer_setup(&psta->TPK_timer, _TPK_timer_hdl, 0);
-#else
 	_init_timer(&psta->TPK_timer, padapter->pnetdev, _tdls_tpk_timer_hdl, psta);
-#endif
 #ifdef CONFIG_TDLS_CH_SW
 	_init_timer(&psta->ch_sw_timer, padapter->pnetdev, _tdls_ch_switch_timer_hdl, psta);
 	_init_timer(&psta->delay_timer, padapter->pnetdev, _tdls_delay_timer_hdl, psta);
