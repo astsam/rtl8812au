@@ -1228,11 +1228,7 @@ void rtw_surveydone_event_callback(_adapter	*adapter, u8 *pbuf)
 	_enter_critical_bh(&pmlmepriv->lock, &irqL);
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-	_set_timer(&adapter->recvpriv.signal_stat_timer, adapter->recvpriv.signal_stat_sampling_interval);
-#else
 	rtw_set_signal_stat_timer(&adapter->recvpriv);
-#endif
 #endif
 
 	if (pmlmepriv->to_join == _TRUE) {
@@ -1829,11 +1825,7 @@ static void rtw_joinbss_update_network(_adapter *padapter, struct wlan_network *
 
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-	_set_timer(&padapter->recvpriv.signal_stat_timer, padapter->recvpriv.signal_stat_sampling_interval);
-#else
 	rtw_set_signal_stat_timer(&padapter->recvpriv);
-#endif
 #endif
 	padapter->recvpriv.signal_strength = ptarget_wlan->network.PhyInfo.SignalStrength;
 	padapter->recvpriv.signal_qual = ptarget_wlan->network.PhyInfo.SignalQuality;
@@ -1849,11 +1841,7 @@ static void rtw_joinbss_update_network(_adapter *padapter, struct wlan_network *
 		);
 #endif
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0)
-	_set_timer(&padapter->recvpriv.signal_stat_timer, padapter->recvpriv.signal_stat_sampling_interval);
-#else
 	rtw_set_signal_stat_timer(&padapter->recvpriv);
-#endif
 #endif
 
 	/* update fw_state */ /* will clr _FW_UNDER_LINKING here indirectly */
