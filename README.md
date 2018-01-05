@@ -40,6 +40,7 @@ cd rtl*
 Package / Build dependencies
 ```
 sudo apt-get install build-essential
+sudo apt-get install bc
 sudo apt-get install linux-headers-`uname -r`
 ```
 For setting monitor mode
