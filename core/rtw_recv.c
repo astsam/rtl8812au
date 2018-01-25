@@ -3608,7 +3608,7 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe)
 		hdr_buf[rt_len] |= IEEE80211_RADIOTAP_F_FRAG;
 
 	/* always append FCS */
-	hdr_buf[rt_len] |= IEEE80211_RADIOTAP_F_FCS;
+	/* hdr_buf[rt_len] |= IEEE80211_RADIOTAP_F_FCS; */
 
 	if (0)
 		hdr_buf[rt_len] |= IEEE80211_RADIOTAP_F_DATAPAD;
