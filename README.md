@@ -94,6 +94,10 @@ $ sudo modprobe 8812au rtw_led_ctrl=1
 
 ## Credits
 ```
-astsam    - for the main work + monitor/injection support        - https://github.com/astsam
-evilphish - for great patching (USB3, VHT + txpower control +++) - https://github.com/evilphish
+astsam    - for the main work + monitor/injection support            - https://github.com/astsam
+evilphish - for great patching (USB3, VHT + txpower control +++)     - https://github.com/evilphish
+jcard0na  - for fixing the "sluggish" / broken injection	     - https://github.com/jcard0na
+dpShaker  - for adding support for pre-configured SeqNum (RadioTap)
+CGarces   - for providing kernel support patch (v4.15)
+brimstone - for providing kernel support patch (v4.14)
 ```

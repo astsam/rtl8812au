@@ -172,7 +172,6 @@ InsertEMContent_8814(
 }
 
 
-
 void UpdateEarlyModeInfo8814(struct xmit_priv *pxmitpriv,struct xmit_buf *pxmitbuf )
 {
 	//_adapter *padapter, struct xmit_frame *pxmitframe,struct tx_servq	*ptxservq
@@ -253,7 +252,6 @@ void rtl8814a_cal_txdesc_chksum(u8 *ptxdesc)
 	u32 count;
 	u32 index;
 	u16 checksum = 0;
-
 
 	usPtr = (u16*)ptxdesc;
 	// checksume is always calculated by first 32 bytes,
@@ -439,7 +437,7 @@ BWMapping_8814(
 		else
 			BWSettingOfDesc = 0;
 	}
-	else if(pHalData->CurrentChannelBW== CHANNEL_WIDTH_40) {
+	else if (pHalData->CurrentChannelBW== CHANNEL_WIDTH_40) {
 		if ((pattrib->bwmode == CHANNEL_WIDTH_40) || (pattrib->bwmode == CHANNEL_WIDTH_80))
 			BWSettingOfDesc = 1;
 		else

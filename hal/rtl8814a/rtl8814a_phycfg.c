@@ -554,7 +554,6 @@ PHY_ConfigBB_8814A(
 }
 
 
-
 //2 3.3 RF Config
 
 s32
@@ -1157,7 +1156,7 @@ PHY_GetTxPowerIndex_8814A(
 	tpt_offset = PHY_GetTxPowerTrackingOffset(pAdapter, RFPath, Rate);
 
 	powerDiffByRate = powerDiffByRate > limit ? limit : powerDiffByRate;
-	/*RTW_INFO("Rate-0x%x: (TxPower, PowerDiffByRate Path-%c) = (0x%X, %d)\n", Rate, ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), txPower, powerDiffByRate);*/
+	RTW_INFO("Rate-0x%x: (TxPower, PowerDiffByRate Path-%c) = (0x%X, %d)\n", Rate, ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), txPower, powerDiffByRate);
 
 	txPower += powerDiffByRate;
 
@@ -1184,8 +1183,8 @@ PHY_GetTxPowerIndex_8814A(
 		//(pHalData->bautoload_fail_flag || pHalData->EfuseMap[EFUSE_INIT_MAP][EEPROM_TX_PWR_INX_JAGUAR] == 0xFF))
 		//txPower = 0x12;
 
-	/*RTW_INFO("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), Channel,
-		txPower, txPower);*/
+	RTW_INFO("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), Channel,
+		txPower, txPower);
 
 	return (u8) txPower;
 }

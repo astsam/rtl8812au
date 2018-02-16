@@ -93,7 +93,7 @@ void rtl8814_sreset_linked_status_check(_adapter *padapter)
 	regc58 = rtw_read32(padapter,0xc58);
 	reg824 = rtw_read32(padapter,0x824);
 	reg800 = rtw_read32(padapter,0x800);
-	if(	((regc50&0xFFFFFF00)!= 0x69543400)||
+	if (	((regc50&0xFFFFFF00)!= 0x69543400)||
 		((regc58&0xFFFFFF00)!= 0x69543400)||
 		(((reg824&0xFFFFFF00)!= 0x00390000)&&(((reg824&0xFFFFFF00)!= 0x80390000)))||
 		( ((reg800&0xFFFFFF00)!= 0x03040000)&&((reg800&0xFFFFFF00)!= 0x83040000)))

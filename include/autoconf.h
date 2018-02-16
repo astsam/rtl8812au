@@ -355,4 +355,4 @@
 
 /*#define DBG_MEMORY_LEAK*/
 #define	DBG_RX_DFRAME_RAW_DATA
-/*#define CONFIG_USE_EXTERNAL_POWER  */        /* NOT USB2.0 power, so no 500mA power constraint, no limitation in Power by Rate*/
+#define CONFIG_USE_EXTERNAL_POWER        /* NOT USB2.0 power, so no 500mA power constraint, no limitation in Power by Rate */
