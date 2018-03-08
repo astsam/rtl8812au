@@ -146,7 +146,7 @@ typedef enum _BTC_WIFI_ROLE{
 typedef enum _BTC_WIRELESS_FREQ{
 	BTC_FREQ_2_4G					= 0x0,
 	BTC_FREQ_5G						= 0x1,
-	BTC_FREQ_MAX	
+	BTC_FREQ_MAX
 }BTC_WIRELESS_FREQ,*PBTC_WIRELESS_FREQ;
 
 typedef enum _BTC_WIFI_BW_MODE{
@@ -155,13 +155,13 @@ typedef enum _BTC_WIFI_BW_MODE{
 	BTC_WIFI_BW_HT40					= 0x2,
 	BTC_WIFI_BW_HT80					= 0x3,
 	BTC_WIFI_BW_HT160					= 0x4,
-	BTC_WIFI_BW_MAX	
+	BTC_WIFI_BW_MAX
 }BTC_WIFI_BW_MODE,*PBTC_WIFI_BW_MODE;
 
 typedef enum _BTC_WIFI_TRAFFIC_DIR{
 	BTC_WIFI_TRAFFIC_TX					= 0x0,
 	BTC_WIFI_TRAFFIC_RX					= 0x1,
-	BTC_WIFI_TRAFFIC_MAX	
+	BTC_WIFI_TRAFFIC_MAX
 }BTC_WIFI_TRAFFIC_DIR,*PBTC_WIFI_TRAFFIC_DIR;
 
 typedef enum _BTC_WIFI_PNP{
@@ -179,14 +179,14 @@ typedef enum _BTC_IOT_PEER
 	BTC_IOT_PEER_RALINK = 4,
 	BTC_IOT_PEER_ATHEROS = 5,
 	BTC_IOT_PEER_CISCO = 6,
-	BTC_IOT_PEER_MERU = 7,	
+	BTC_IOT_PEER_MERU = 7,
 	BTC_IOT_PEER_MARVELL = 8,
 	BTC_IOT_PEER_REALTEK_SOFTAP = 9,// peer is RealTek SOFT_AP, by Bohn, 2009.12.17
 	BTC_IOT_PEER_SELF_SOFTAP = 10, // Self is SoftAP
 	BTC_IOT_PEER_AIRGO = 11,
-	BTC_IOT_PEER_INTEL 				= 12, 
-	BTC_IOT_PEER_RTK_APCLIENT 		= 13, 
-	BTC_IOT_PEER_REALTEK_81XX 		= 14,	
+	BTC_IOT_PEER_INTEL 				= 12,
+	BTC_IOT_PEER_RTK_APCLIENT 		= 13,
+	BTC_IOT_PEER_REALTEK_81XX 		= 14,
 	BTC_IOT_PEER_REALTEK_WOW 		= 15,
 	BTC_IOT_PEER_REALTEK_JAGUAR_BCUTAP = 16,
 	BTC_IOT_PEER_REALTEK_JAGUAR_CCUTAP = 17,
@@ -215,7 +215,7 @@ typedef enum _BTC_ANT_TYPE{
 
 typedef enum _BTC_VENDOR{
 	BTC_VENDOR_LENOVO,
-	BTC_VENDOR_ASUS,	
+	BTC_VENDOR_ASUS,
 	BTC_VENDOR_OTHER
 }BTC_VENDOR,*PBTC_VENDOR;
 
@@ -242,7 +242,7 @@ typedef enum _BTC_GET_TYPE{
 	// type s4Byte
 	BTC_GET_S4_WIFI_RSSI,
 	BTC_GET_S4_HS_RSSI,
-	
+
 	// type u4Byte
 	BTC_GET_U4_WIFI_BW,
 	BTC_GET_U4_WIFI_TRAFFIC_DIRECTION,
@@ -543,21 +543,21 @@ typedef VOID
 	IN	u4Byte			BitMask,
 	IN	u4Byte			Data
 	);
-typedef u4Byte 
+typedef u4Byte
 (*BFP_BTC_GET_BB_REG)(
 	IN 	PVOID			pBtcContext,
 	IN	u4Byte			RegAddr,
 	IN	u4Byte			BitMask
 	);
 typedef VOID
-(*BFP_BTC_SET_RF_REG)(	
+(*BFP_BTC_SET_RF_REG)(
 	IN 	PVOID			pBtcContext,
 	IN	u1Byte			eRFPath,
 	IN	u4Byte			RegAddr,
 	IN	u4Byte			BitMask,
 	IN	u4Byte			Data
 	);
-typedef u4Byte 
+typedef u4Byte
 (*BFP_BTC_GET_RF_REG)(
 	IN 	PVOID			pBtcContext,
 	IN	u1Byte			eRFPath,
@@ -598,7 +598,7 @@ typedef BOOLEAN
 	IN	u1Byte			txTime,
 	IN	u1Byte			btChnl
 	);
-typedef u2Byte 
+typedef u2Byte
 (*BFP_BTC_GET_BT_REG)(
 	IN 	PVOID			pBtcContext,
 	IN	u1Byte			regType,
@@ -620,17 +620,17 @@ typedef COL_H2C_STATUS
 	IN	u1Byte			h2c_par_len
 	);
 
-typedef u4Byte 
+typedef u4Byte
 (*BFP_BTC_GET_BT_COEX_SUPPORTED_FEATURE)(
 	IN 	PVOID			pBtcContext
 	);
 
-typedef u4Byte 
+typedef u4Byte
 (*BFP_BTC_GET_BT_COEX_SUPPORTED_VERSION)(
 	IN 	PVOID			pBtcContext
 	);
 
-typedef u4Byte 
+typedef u4Byte
 (*BFP_BTC_GET_PHYDM_VERSION)(
 	IN 	PVOID			pBtcContext
 	);
@@ -775,7 +775,7 @@ extern struct btc_coexist	GLBtCoexist;
 
 BOOLEAN
 EXhalbtcoutsrc_InitlizeVariables(
-	IN	PVOID		Adapter	
+	IN	PVOID		Adapter
 	);
 VOID
 EXhalbtcoutsrc_PowerOnSetting(
