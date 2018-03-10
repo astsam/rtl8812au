@@ -72,6 +72,7 @@ CONFIG_TDLS = n
 CONFIG_WIFI_MONITOR = y
 CONFIG_MCC_MODE = n
 CONFIG_APPEND_VENDOR_IE_ENABLE = n
+CONFIG_USB2_EXTERNAL_POWER = n
 ########################## Debug ###########################
 CONFIG_RTW_DEBUG = n
 # default log level is _DRV_INFO_ = 4,
@@ -183,6 +184,10 @@ EXTRA_CFLAGS += -DCONFIG_DEBUG_RTL871X
 EXTRA_CFLAGS += -DCONFIG_RADIOTAP_WITH_RXDESC
 else
 EXTRA_CFLAGS += -DDBG=0
+endif
+
+ifeq ($(CONFIG_USB2_EXTERNAL_POWER), y)
+EXTRA_CFLAGS += -DCONFIG_USE_EXTERNAL_POWER
 endif
 
 _OS_INTFS_FILES :=	os_dep/osdep_service.o \
