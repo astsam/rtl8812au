@@ -8,7 +8,7 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License forEVM = 100
  * more details.
  *
  * You should have received a copy of the GNU General Public License along with
@@ -1279,7 +1279,9 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 							EVM += 20;
 							if (EVM > 100)
 								EVM = 100;
-						}
+						} else {
+							// it's a made up value, but Realtek apparently assumed 'this would never happen'
+							EVM = 0;
 					} else {
 						if (i < ODM_RF_PATH_C) {
 							if (pPhyStaRpt->rxevm[i] == -128)
