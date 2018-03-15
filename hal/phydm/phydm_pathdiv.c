@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -37,34 +37,28 @@ phydm_dtp_fix_tx_path(
 	pPATHDIV_T		pDM_PathDiv = &pDM_Odm->DM_PathDiv;
 	u1Byte			i,num_enable_path=0;
 
-	if(path==pDM_PathDiv->pre_tx_path)
-	{
+	if (path==pDM_PathDiv->pre_tx_path) {
 		return;
-	}
-	else
-	{
+	} else {
 		pDM_PathDiv->pre_tx_path=path;
 	}
 
 	ODM_SetBBReg( pDM_Odm, 0x93c, BIT18|BIT19, 3);
 
-	for(i=0; i<4; i++)
-	{
-		if(path&BIT(i))
+	for (i=0; i<4; i++) {
+		if (path&BIT(i))
 			num_enable_path++;
 	}
 	ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" Number of trun-on path : (( %d ))\n", num_enable_path));
 
-	if(num_enable_path == 1)
-	{
+	if (num_enable_path == 1) {
 		ODM_SetBBReg( pDM_Odm, 0x93c, 0xf00000, path);
-	
-		if(path==PHYDM_A)//1-1
-		{
+
+		if (path==PHYDM_A) { //1-1
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" Trun on path (( A ))\n"));
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT25|BIT24, 0);
 		}
-		else 	if(path==PHYDM_B)//1-2
+		else 	if (path==PHYDM_B)//1-2
 		{
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" Trun on path (( B ))\n"));
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT27|BIT26, 0);
@@ -82,20 +76,19 @@ phydm_dtp_fix_tx_path(
 		}
 
 	}
-	else 	if(num_enable_path == 2)
+	else 	if (num_enable_path == 2)
 	{
 		ODM_SetBBReg( pDM_Odm, 0x93c, 0xf00000, path);
 		ODM_SetBBReg( pDM_Odm, 0x940, 0xf0, path);
-	
-		if(path==PHYDM_AB)//2-1
-		{
+
+		if (path==PHYDM_AB) { //2-1
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" Trun on path (( A B ))\n"));
 			//set for 1ss
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT25|BIT24, 0);
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT27|BIT26, 1);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT9|BIT8, 0);
-			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 1);			
+			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 1);
 		}
 		else 	if(path==PHYDM_AC)//2-2
 		{
@@ -105,7 +98,7 @@ phydm_dtp_fix_tx_path(
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT29|BIT28, 1);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT9|BIT8, 0);
-			ODM_SetBBReg( pDM_Odm, 0x940, BIT13|BIT12, 1);	
+			ODM_SetBBReg( pDM_Odm, 0x940, BIT13|BIT12, 1);
 		}
 		else 	if(path==PHYDM_AD)//2-3
 		{
@@ -115,7 +108,7 @@ phydm_dtp_fix_tx_path(
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 1);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT9|BIT8, 0);
-			ODM_SetBBReg( pDM_Odm, 0x940, BIT15|BIT14, 1);	
+			ODM_SetBBReg( pDM_Odm, 0x940, BIT15|BIT14, 1);
 		}
 		else 	if(path==PHYDM_BC)//2-4
 		{
@@ -125,7 +118,7 @@ phydm_dtp_fix_tx_path(
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT29|BIT28, 1);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 0);
-			ODM_SetBBReg( pDM_Odm, 0x940, BIT13|BIT12, 1);	
+			ODM_SetBBReg( pDM_Odm, 0x940, BIT13|BIT12, 1);
 		}
 		else 	if(path==PHYDM_BD)//2-5
 		{
@@ -135,7 +128,7 @@ phydm_dtp_fix_tx_path(
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 1);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 0);
-			ODM_SetBBReg( pDM_Odm, 0x940, BIT15|BIT14, 1);	
+			ODM_SetBBReg( pDM_Odm, 0x940, BIT15|BIT14, 1);
 		}
 		else 	if(path==PHYDM_CD)//2-6
 		{
@@ -145,7 +138,7 @@ phydm_dtp_fix_tx_path(
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 1);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT13|BIT12, 0);
-			ODM_SetBBReg( pDM_Odm, 0x940, BIT15|BIT14, 1);	
+			ODM_SetBBReg( pDM_Odm, 0x940, BIT15|BIT14, 1);
 		}
 
 	}
@@ -154,14 +147,13 @@ phydm_dtp_fix_tx_path(
 		ODM_SetBBReg( pDM_Odm, 0x93c, 0xf00000, path);
 		ODM_SetBBReg( pDM_Odm, 0x940, 0xf0, path);
 		ODM_SetBBReg( pDM_Odm, 0x940, 0xf0000, path);
-	
-		if(path==PHYDM_ABC)//3-1
-		{
+
+		if(path==PHYDM_ABC) { //3-1
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" Trun on path (( A B C))\n"));
 			//set for 1ss
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT25|BIT24, 0);
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT27|BIT26, 1);
-			ODM_SetBBReg( pDM_Odm, 0x93c, BIT29|BIT28, 2);			
+			ODM_SetBBReg( pDM_Odm, 0x93c, BIT29|BIT28, 2);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT9|BIT8, 0);
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 1);
@@ -176,11 +168,11 @@ phydm_dtp_fix_tx_path(
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" Trun on path (( A B D ))\n"));
 			//set for 1ss
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT25|BIT24, 0);
-			ODM_SetBBReg( pDM_Odm, 0x93c, BIT27|BIT26, 1);		
+			ODM_SetBBReg( pDM_Odm, 0x93c, BIT27|BIT26, 1);
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 2);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT9|BIT8, 0);
-			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 1);		
+			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 1);
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT15|BIT14, 2);
 			//set for 3ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT21|BIT20, 0);
@@ -194,7 +186,7 @@ phydm_dtp_fix_tx_path(
 			//set for 1ss
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT25|BIT24, 0);
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT29|BIT28, 1);
-			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 2);			
+			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 2);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT9|BIT8, 0);
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT13|BIT12, 1);
@@ -210,7 +202,7 @@ phydm_dtp_fix_tx_path(
 			//set for 1ss
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT27|BIT26, 0);
 			ODM_SetBBReg( pDM_Odm, 0x93c, BIT29|BIT28, 1);
-			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 2);			
+			ODM_SetBBReg( pDM_Odm, 0x93c, BIT31|BIT30, 2);
 			//set for 2ss
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT11|BIT10, 0);
 			ODM_SetBBReg( pDM_Odm, 0x940, BIT13|BIT12, 1);
@@ -268,9 +260,7 @@ phydm_find_default_path(
 		{
 			pDM_PathDiv->is_pathA_exist=FALSE;
 		}
-	}
-	else
-	{
+	} else {
 		if( (rssi_avg_a >=rssi_avg_b) && (rssi_avg_a >=rssi_avg_c)&&(rssi_avg_a >=rssi_avg_d))
 			pDM_PathDiv->default_path=PATH_A;
 		else if(  (rssi_avg_b >=rssi_avg_c)&&(rssi_avg_b >=rssi_avg_d))
@@ -294,19 +284,14 @@ phydm_candidate_dtp_update(
 	pPATHDIV_T		pDM_PathDiv = &pDM_Odm->DM_PathDiv;
 
 	pDM_PathDiv->num_candidate=3;
-	
-	if(pDM_PathDiv->use_path_a_as_default_ant == 1)
-	{
-		if(pDM_PathDiv->num_tx_path==3)
-		{
-			if(pDM_PathDiv->is_pathA_exist)
-			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_ABD; 
+
+	if(pDM_PathDiv->use_path_a_as_default_ant == 1) {
+		if(pDM_PathDiv->num_tx_path==3) {
+			if(pDM_PathDiv->is_pathA_exist) {
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_ABD;
 				pDM_PathDiv->ant_candidate_3 =  PHYDM_ACD;
-			}
-			else // use path BCD 
-			{
+			} else { // use path BCD
 				pDM_PathDiv->num_candidate=1;
 				phydm_dtp_fix_tx_path(pDM_Odm, PHYDM_BCD);
 				return;
@@ -316,75 +301,69 @@ phydm_candidate_dtp_update(
 		{
 			if(pDM_PathDiv->is_pathA_exist)
 			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_AB; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_AC; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_AD; 
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_AB;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_AC;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_AD;
+			} else {
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_BC;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_BD;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_CD;
 			}
-			else
-			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_BC; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_BD; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_CD; 
-			}	
 		}
-	}
-	else
-	{
-		//2 3 TX Mode 
-		if(pDM_PathDiv->num_tx_path==3)//choose 3 ant form 4 
-		{
-			if(pDM_PathDiv->default_path == PATH_A) //choose 2 ant form 3
-			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_ABD; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_ACD; 
+	} else {
+		//2 3 TX Mode
+		if(pDM_PathDiv->num_tx_path==3) { //choose 3 ant form 4
+			if(pDM_PathDiv->default_path == PATH_A) { //choose 2 ant form 3
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_ABD;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_ACD;
 			}
 			else if(pDM_PathDiv->default_path==PATH_B)
 			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_ABD; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_BCD; 
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_ABD;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_BCD;
 			}
 			else if(pDM_PathDiv->default_path == PATH_C)
 			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_ACD; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_BCD; 
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABC;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_ACD;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_BCD;
 			}
 			else if(pDM_PathDiv->default_path == PATH_D)
 			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABD; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_ACD; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_BCD; 
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_ABD;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_ACD;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_BCD;
 			}
 		}
-		
-		//2 2 TX Mode 
-		else if(pDM_PathDiv->num_tx_path==2)//choose 2 ant form 4 
+
+		//2 2 TX Mode
+		else if(pDM_PathDiv->num_tx_path==2)//choose 2 ant form 4
 		{
 			if(pDM_PathDiv->default_path == PATH_A) //choose 2 ant form 3
 			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_AB; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_AC; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_AD; 
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_AB;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_AC;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_AD;
 			}
 			else if(pDM_PathDiv->default_path==PATH_B)
 			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_AB; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_BC; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_BD; 
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_AB;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_BC;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_BD;
 			}
 			else if(pDM_PathDiv->default_path == PATH_C)
 			{
-				pDM_PathDiv->ant_candidate_1 =  PHYDM_AC; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_BC; 
-				pDM_PathDiv->ant_candidate_3 =  PHYDM_CD; 
+				pDM_PathDiv->ant_candidate_1 =  PHYDM_AC;
+				pDM_PathDiv->ant_candidate_2 =  PHYDM_BC;
+				pDM_PathDiv->ant_candidate_3 =  PHYDM_CD;
 			}
 			else if(pDM_PathDiv->default_path == PATH_D)
 			{
-				pDM_PathDiv->ant_candidate_1=  PHYDM_AD; 
-				pDM_PathDiv->ant_candidate_2 =  PHYDM_BD; 
-				pDM_PathDiv->ant_candidate_3=  PHYDM_CD; 
+				pDM_PathDiv->ant_candidate_1=  PHYDM_AD;
+				pDM_PathDiv->ant_candidate_2=  PHYDM_BD;
+				pDM_PathDiv->ant_candidate_3=  PHYDM_CD;
 			}
 		}
 	}
@@ -397,108 +376,96 @@ phydm_dynamic_tx_path(
 )
 {
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	pPATHDIV_T		pDM_PathDiv = &pDM_Odm->DM_PathDiv;	
-	
+	pPATHDIV_T		pDM_PathDiv = &pDM_Odm->DM_PathDiv;
+
 	PSTA_INFO_T   	pEntry;
 	u4Byte	i;
 	u1Byte	num_client=0;
 	u1Byte	H2C_Parameter[6] ={0};
 
 
-	if(!pDM_Odm->bLinked) //bLinked==False
-	{
+	if(!pDM_Odm->bLinked) { //bLinked==False
 		ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, ("DTP_8814 [No Link!!!]\n"));
-		
-		if(pDM_PathDiv->bBecomeLinked == TRUE)
-		{
+
+		if(pDM_PathDiv->bBecomeLinked == TRUE) {
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" [Be disconnected]----->\n"));
 			pDM_PathDiv->bBecomeLinked = pDM_Odm->bLinked;
 		}
 		return;
-	}	
-	else
-	{
-		if(pDM_PathDiv->bBecomeLinked ==FALSE)
-		{
+	} else {
+		if(pDM_PathDiv->bBecomeLinked ==FALSE) {
 			ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, (" [Be Linked !!!]----->\n"));
 			pDM_PathDiv->bBecomeLinked = pDM_Odm->bLinked;
-		}	
-	}	
-	
-	//2 [Period CTRL]
-	if(pDM_PathDiv->dtp_period >=2)
-	{
-		pDM_PathDiv->dtp_period=0;	
+		}
 	}
-	else
-	{	
+
+	//2 [Period CTRL]
+	if(pDM_PathDiv->dtp_period >=2) {
+		pDM_PathDiv->dtp_period=0;
+	} else {
 		//ODM_RT_TRACE(pDM_Odm,ODM_COMP_PATH_DIV, ODM_DBG_LOUD, ("Phydm_Dynamic_Tx_Path_8814A()  Stay = (( %d ))\n",pDM_PathDiv->dtp_period));
-		pDM_PathDiv->dtp_period++;		
+		pDM_PathDiv->dtp_period++;
 		return;
 	}
-	
+
 
 	//2 [Fix Path]
 	if (pDM_Odm->path_select != PHYDM_AUTO_PATH)
 	{
 		return;
 	}
-	
-	//2 [Check Bfer]	
+
+	//2 [Check Bfer]
 	#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	#if (BEAMFORMING_SUPPORT == 1)
 	{
 		BEAMFORMING_CAP		BeamformCap = (pDM_Odm->BeamformingInfo.BeamformCap);
 
 		if( BeamformCap & BEAMFORMER_CAP ) //  BFmer On  &&   Div On ->  Div Off
-		{	
-			if( pDM_PathDiv->fix_path_bfer == 0) 
+		{
+			if( pDM_PathDiv->fix_path_bfer == 0)
 			{
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_PATH_DIV,ODM_DBG_LOUD,("[ PathDiv : OFF ]   BFmer ==1  \n"));
-				pDM_PathDiv->fix_path_bfer = 1 ;			
+				pDM_PathDiv->fix_path_bfer = 1 ;
 			}
 			return;
 		}
 		else // BFmer Off   &&   Div Off ->  Div On
 		{
-			if( pDM_PathDiv->fix_path_bfer == 1 ) 
+			if( pDM_PathDiv->fix_path_bfer == 1 )
 			{
 				ODM_RT_TRACE(pDM_Odm, ODM_COMP_PATH_DIV,ODM_DBG_LOUD,("[ PathDiv : ON ]   BFmer ==0 \n"));
 				pDM_PathDiv->fix_path_bfer = 0;
 			}
 		}
 	}
-	#endif	
+	#endif
 	#endif
 
-	if(pDM_PathDiv->use_path_a_as_default_ant ==1)
-	{
+	if(pDM_PathDiv->use_path_a_as_default_ant ==1) {
 		phydm_find_default_path(pDM_Odm);
-		phydm_candidate_dtp_update(pDM_Odm);	
-	}
-	else
-	{
-		if( pDM_PathDiv->dtp_state == PHYDM_DTP_INIT)
-		{
+		phydm_candidate_dtp_update(pDM_Odm);
+	} else {
+		if( pDM_PathDiv->dtp_state == PHYDM_DTP_INIT) {
 			phydm_find_default_path(pDM_Odm);
 			phydm_candidate_dtp_update(pDM_Odm);
 			pDM_PathDiv->dtp_state = PHYDM_DTP_RUNNING_1;
 		}
-		
+
 		else 	if( pDM_PathDiv->dtp_state == PHYDM_DTP_RUNNING_1)
 		{
 			pDM_PathDiv->dtp_check_patha_counter++;
-			
+
 			if(pDM_PathDiv->dtp_check_patha_counter>=NUM_RESET_DTP_PERIOD)
 			{
 				pDM_PathDiv->dtp_check_patha_counter=0;
 				pDM_PathDiv->dtp_state = PHYDM_DTP_INIT;
 			}
-			//2 Search space update		
+			//2 Search space update
 			else
 			{
 				// 1.  find the worst candidate
-				
+
 
 				// 2. repalce the worst candidate
 			}
@@ -507,23 +474,19 @@ phydm_dynamic_tx_path(
 
 	//2 Dynamic Path Selection H2C
 
-	if(pDM_PathDiv->num_candidate == 1)
-	{
+	if(pDM_PathDiv->num_candidate == 1) {
 		return;
-	}
-	else
-	{	
+	} else {
 		H2C_Parameter[0] =  pDM_PathDiv->num_candidate;
-		H2C_Parameter[1] =  pDM_PathDiv->num_tx_path;	
-		H2C_Parameter[2] =  pDM_PathDiv->ant_candidate_1; 
-		H2C_Parameter[3] =  pDM_PathDiv->ant_candidate_2; 
-		H2C_Parameter[4] =  pDM_PathDiv->ant_candidate_3; 
+		H2C_Parameter[1] =  pDM_PathDiv->num_tx_path;
+		H2C_Parameter[2] =  pDM_PathDiv->ant_candidate_1;
+		H2C_Parameter[3] =  pDM_PathDiv->ant_candidate_2;
+		H2C_Parameter[4] =  pDM_PathDiv->ant_candidate_3;
 
 		ODM_FillH2CCmd(pDM_Odm, PHYDM_H2C_DYNAMIC_TX_PATH, 6, H2C_Parameter);
 	}
 
 }
-
 
 
 VOID
@@ -552,29 +515,25 @@ phydm_dynamic_tx_path_init(
 	memcpy(&(pDM_PathDiv->search_space_3[0]), &(search_space_3[0]), NUM_CHOOSE3_FROM4);
 
 	pDM_PathDiv->use_path_a_as_default_ant= 1;
-	pDM_PathDiv->dtp_state = PHYDM_DTP_INIT;	
+	pDM_PathDiv->dtp_state = PHYDM_DTP_INIT;
 	pDM_Odm->path_select = PHYDM_AUTO_PATH;
 	pDM_PathDiv->path_div_type = PHYDM_4R_PATH_DIV;
 
-	
-	if(pDM_PathDiv->is_u3_mode )
-	{
+
+	if(pDM_PathDiv->is_u3_mode ) {
 		pDM_PathDiv->num_tx_path=3;
 		phydm_dtp_fix_tx_path(pDM_Odm, PHYDM_BCD);/* 3TX  Set Init TX Path*/
-		
-	}
-	else
-	{
+	} else {
 		pDM_PathDiv->num_tx_path=2;
 		phydm_dtp_fix_tx_path(pDM_Odm, PHYDM_BC);/* 2TX // Set Init TX Path*/
 	}
-	
+
 }
 
 
 VOID
-phydm_process_rssi_for_path_div(	
-	IN OUT		PVOID			pDM_VOID,	
+phydm_process_rssi_for_path_div(
+	IN OUT		PVOID			pDM_VOID,
 	IN			PVOID			p_phy_info_void,
 	IN			PVOID			p_pkt_info_void
 	)
@@ -595,20 +554,18 @@ phydm_process_rssi_for_path_div(
 				{
 					pDM_PathDiv->path_a_sum_all+=pPhyInfo->RxMIMOSignalStrength[0];
 					pDM_PathDiv->path_a_cnt_all++;
-					
+
 					pDM_PathDiv->path_b_sum_all+=pPhyInfo->RxMIMOSignalStrength[1];
 					pDM_PathDiv->path_b_cnt_all++;
-					
+
 					pDM_PathDiv->path_c_sum_all+=pPhyInfo->RxMIMOSignalStrength[2];
 					pDM_PathDiv->path_c_cnt_all++;
-					
+
 					pDM_PathDiv->path_d_sum_all+=pPhyInfo->RxMIMOSignalStrength[3];
 					pDM_PathDiv->path_d_cnt_all++;
 				}
 				#endif
-			}
-			else
-			{
+			} else {
 				pDM_PathDiv->PathA_Sum[pPktinfo->StationID]+=pPhyInfo->RxMIMOSignalStrength[0];
 				pDM_PathDiv->PathA_Cnt[pPktinfo->StationID]++;
 
@@ -617,8 +574,6 @@ phydm_process_rssi_for_path_div(
 			}
 		}
 	}
-	
-	
 }
 
 #endif //#if RTL8814A_SUPPORT
@@ -636,10 +591,10 @@ odm_pathdiv_debug(
 	pPATHDIV_T			pDM_PathDiv  = &(pDM_Odm->DM_PathDiv);
 	u4Byte used = *_used;
 	u4Byte out_len = *_out_len;
-	
+
 	pDM_Odm->path_select = (dm_value[0] & 0xf);
 	PHYDM_SNPRINTF((output+used, out_len-used,"Path_select = (( 0x%x ))\n",pDM_Odm->path_select ));
-	
+
 	//2 [Fix Path]
 	if (pDM_Odm->path_select != PHYDM_AUTO_PATH)
 	{
@@ -648,11 +603,9 @@ odm_pathdiv_debug(
 			((pDM_Odm->path_select) & 0x2)?"B":"",
 			((pDM_Odm->path_select) & 0x4)?"C":"",
 			((pDM_Odm->path_select) & 0x8)?"D":"" ));
-		
+
 		phydm_dtp_fix_tx_path( pDM_Odm, pDM_Odm->path_select );
-	}
-	else
-	{
+	} else {
 		PHYDM_SNPRINTF((output+used, out_len-used,"%s\n","Auto Path"));
 	}
 }
@@ -670,8 +623,8 @@ phydm_c2h_dtp_handler(
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	pPATHDIV_T		pDM_PathDiv  = &(pDM_Odm->DM_PathDiv);
 
-	u1Byte  macid = CmdBuf[0]; 
-	u1Byte  target = CmdBuf[1];	
+	u1Byte  macid = CmdBuf[0];
+	u1Byte  target = CmdBuf[1];
 	u1Byte  nsc_1 = CmdBuf[2];
 	u1Byte  nsc_2 = CmdBuf[3];
 	u1Byte  nsc_3 = CmdBuf[4];
@@ -688,10 +641,10 @@ phydm_c2h_dtp_handler(
 	}
 	else
 	{
-		phydm_dtp_fix_tx_path(pDM_Odm, pDM_PathDiv->ant_candidate_3);	
+		phydm_dtp_fix_tx_path(pDM_Odm, pDM_PathDiv->ant_candidate_3);
 	}
 	*/
-#endif	
+#endif
 }
 
 VOID
@@ -732,7 +685,7 @@ odm_PathDiversityInit(
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
 	/*pDM_Odm->SupportAbility |= ODM_BB_PATH_DIV;*/
-	
+
 	if(pDM_Odm->mp_mode == TRUE)
 		return;
 
@@ -752,7 +705,7 @@ odm_PathDiversityInit(
 		if(pDM_Odm->SupportICType & ODM_RTL8814A)
 			phydm_dynamic_tx_path_init(pDM_Odm);
 		else
-	#endif	
+	#endif
 		{}
 #endif
 }
@@ -807,4 +760,3 @@ odm_SwAntDivConstructScanChnl(
 }
 
 #endif	// #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-

@@ -324,7 +324,7 @@ phydm_Beamforming_GetFirstMUBFeeEntryIdx(
 	BOOLEAN					bFound = FALSE;
 
 	for (idx = 0; idx < BEAMFORMEE_ENTRY_NUM; idx++) {
-		if (pBeamInfo->BeamformeeEntry[idx].bUsed && pBeamInfo->BeamformeeEntry[idx].is_mu_sta) {			
+		if (pBeamInfo->BeamformeeEntry[idx].bUsed && pBeamInfo->BeamformeeEntry[idx].is_mu_sta) {
 			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] idx=%d!\n", __func__, idx));
 			bFound = TRUE;
 			break;
@@ -605,9 +605,9 @@ Beamforming_DymPeriod(
 			SoundPeriod_FW = 400;
 		}
 
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Period = %d\n", __func__, SoundPeriod_SW));		
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Period = %d\n", __func__, SoundPeriod_SW));
 		if (pBeamformEntry->BeamformEntryCap & (BEAMFORMER_CAP_HT_EXPLICIT | BEAMFORMER_CAP_VHT_SU)) {
-			if (pSoundInfo->SoundMode == SOUNDING_FW_VHT_TIMER || pSoundInfo->SoundMode == SOUNDING_FW_HT_TIMER) {				
+			if (pSoundInfo->SoundMode == SOUNDING_FW_VHT_TIMER || pSoundInfo->SoundMode == SOUNDING_FW_HT_TIMER) {
 				if (pBeamformEntry->SoundPeriod != SoundPeriod_FW) {
 					pBeamformEntry->SoundPeriod = SoundPeriod_FW;
 					bChangePeriod = TRUE;		/*Only FW sounding need to send H2C packet to change sound period. */
@@ -621,8 +621,6 @@ Beamforming_DymPeriod(
 	if (bChangePeriod)
 		HalComTxbf_Set(pDM_Odm, TXBF_SET_SOUNDING_FW_NDPA, (pu1Byte)&Idx);
 }
-
-
 
 
 BOOLEAN
@@ -643,7 +641,6 @@ Beamforming_SendHTNDPAPacket(
 
 	return ret;
 }
-
 
 
 BOOLEAN
@@ -927,7 +924,7 @@ phydm_beamforming_StartPeriod(
 	else
 		Ret = FALSE;
 
-	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] SoundIdx=%d, SoundMode=%d, SoundBW=%d, SoundPeriod=%d\n", __func__, 
+	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] SoundIdx=%d, SoundMode=%d, SoundBW=%d, SoundPeriod=%d\n", __func__,
 			pSoundInfo->SoundIdx, pSoundInfo->SoundMode, pSoundInfo->SoundBW, pSoundInfo->SoundPeriod));
 
 	return Ret;
@@ -1151,7 +1148,7 @@ phydm_Beamforming_Notify(
 	break;
 
 	case BEAMFORMING_NOTIFY_RESET:
-		if (pSoundInfo->SoundMode == SOUNDING_FW_HT_TIMER || pSoundInfo->SoundMode == SOUNDING_FW_VHT_TIMER) {	
+		if (pSoundInfo->SoundMode == SOUNDING_FW_HT_TIMER || pSoundInfo->SoundMode == SOUNDING_FW_VHT_TIMER) {
 			phydm_beamforming_ClearEntry_FW(pDM_Odm, FALSE, Idx);
 			phydm_beamforming_EndPeriod_FW(pDM_Odm);
 		} else {
@@ -1166,7 +1163,6 @@ phydm_Beamforming_Notify(
 	}
 
 }
-
 
 
 BOOLEAN
@@ -1188,7 +1184,7 @@ Beamforming_InitEntry(
 
 	/*The current setting does not support Beaforming*/
 	if (BEAMFORMING_CAP_NONE == pSTA->HtBeamformCap && BEAMFORMING_CAP_NONE == pSTA->VhtBeamformCap) {
-		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("The configuration disabled Beamforming! Skip...\n"));		
+		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("The configuration disabled Beamforming! Skip...\n"));
 		return FALSE;
 	}
 
@@ -1210,7 +1206,7 @@ Beamforming_InitEntry(
 			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] HT NumofSoundingDim=%d, CompSteeringNumofBFer=%d\n", __func__, NumofSoundingDim, CompSteeringNumofBFer));
 		}
 #if	(ODM_IC_11AC_SERIES_SUPPORT == 1)
-		if (pSTA->WirelessMode & WIRELESS_MODE_AC_5G || pSTA->WirelessMode & WIRELESS_MODE_AC_24G) {	/*VHT*/	
+		if (pSTA->WirelessMode & WIRELESS_MODE_AC_5G || pSTA->WirelessMode & WIRELESS_MODE_AC_24G) {	/*VHT*/
 
 			/* We are Beamformee because the STA is SU Beamformer*/
 			if (TEST_FLAG(pSTA->CurBeamformVHT, BEAMFORMING_VHT_BEAMFORMER_ENABLE)) {
@@ -1448,7 +1444,7 @@ BeamformingStart_SW(
 			pEntry->bBeamformingInProgress = TRUE;
 			RA = pEntry->MacAddr;
 
-			if (Mode == SOUNDING_SW_HT_TIMER || Mode == SOUNDING_HW_HT_TIMER || Mode == SOUNDING_AUTO_HT_TIMER) {	
+			if (Mode == SOUNDING_SW_HT_TIMER || Mode == SOUNDING_HW_HT_TIMER || Mode == SOUNDING_AUTO_HT_TIMER) {
 				if (!(pEntry->BeamformEntryCap & BEAMFORMER_CAP_HT_EXPLICIT)) {
 					pEntry->bBeamformingInProgress = FALSE;
 					ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Return by not support BEAMFORMER_CAP_HT_EXPLICIT <==\n", __func__));
@@ -1541,7 +1537,7 @@ BeamformingStart_FW(
 	pEntry->BeamformEntryState = BEAMFORMING_ENTRY_STATE_PROGRESSING;
 	pEntry->bSound = TRUE;
 	HalComTxbf_Set(pDM_Odm, TXBF_SET_SOUNDING_FW_NDPA, (pu1Byte)&Idx);
-	
+
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] End, Idx=0x%X\n", __func__, Idx));
 	return TRUE;
 }
@@ -1549,7 +1545,7 @@ BeamformingStart_FW(
 VOID
 Beamforming_CheckSoundingSuccess(
 	IN PVOID			pDM_VOID,
-	BOOLEAN			Status	
+	BOOLEAN			Status
 )
 {
 	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
@@ -1576,7 +1572,7 @@ Beamforming_CheckSoundingSuccess(
 VOID
 phydm_Beamforming_End_SW(
 	IN PVOID		pDM_VOID,
-	BOOLEAN			Status	
+	BOOLEAN			Status
 	)
 {
 	PDM_ODM_T				pDM_Odm = (PDM_ODM_T)pDM_VOID;
@@ -1607,20 +1603,20 @@ phydm_Beamforming_End_SW(
 			HalComTxbf_Set(pDM_Odm, TXBF_SET_TX_PATH_RESET, (pu1Byte)&(pBeamInfo->BeamformeeCurIdx));
 			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] LogStatusFailCnt %d\n", __func__, pEntry->LogStatusFailCnt));
 		}
-		
+
 		if (pEntry->LogStatusFailCnt > 50) {
 			ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s LogStatusFailCnt > 50, Stop SOUNDING\n", __func__));
 			pEntry->bSound = FALSE;
-			Beamforming_DeInitEntry(pDM_Odm, pEntry->MacAddr); 
+			Beamforming_DeInitEntry(pDM_Odm, pEntry->MacAddr);
 
 			/*Modified by David - Every action of deleting entry should follow by Notify*/
 			phydm_Beamforming_Notify(pDM_Odm);
-		}	
-		
+		}
+
 		pEntry->bBeamformingInProgress = FALSE;
 	}
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s: Status=%d\n", __func__, Status));
-}	
+}
 
 
 VOID
@@ -1648,28 +1644,29 @@ Beamforming_TimerCallback(
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Start!\n", __func__));
 
-	if (pBeamInfo->is_mu_sounding)
+	if (pBeamInfo->is_mu_sounding) {
 		bBeamformingInProgress = pBeamInfo->is_mu_sounding_in_progress;
-	else
+	} else {
 		bBeamformingInProgress = pEntry->bBeamformingInProgress;
-
+	}
 	if (bBeamformingInProgress) {
 	 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("bBeamformingInProgress, reset it\n"));
 		phydm_Beamforming_End_SW(pDM_Odm, 0);
-	 }
+	}
 
 	ret = phydm_Beamforming_SelectBeamEntry(pDM_Odm, pBeamInfo);
 #if (SUPPORT_MU_BF == 1)
-	if (ret && pBeamInfo->beamformee_mu_cnt > 1)
+	if (ret && pBeamInfo->beamformee_mu_cnt > 1) {
 		ret = 1;
-	else
+	} else {
 		ret = 0;
+	}
 #endif
-	if (ret)
+	if (ret) {
 		ret = BeamformingStart_SW(pDM_Odm, pSoundInfo->SoundIdx, pSoundInfo->SoundMode, pSoundInfo->SoundBW);
-	else
+	} else {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s, Error value return from BeamformingStart_V2\n", __func__));
-
+	}
 	if ((pBeamInfo->beamformee_su_cnt != 0) || (pBeamInfo->beamformee_mu_cnt > 1)) {
 		if (pSoundInfo->SoundMode == SOUNDING_SW_VHT_TIMER || pSoundInfo->SoundMode == SOUNDING_SW_HT_TIMER)
 			ODM_SetTimer(pDM_Odm, &pBeamInfo->BeamformingTimer, pSoundInfo->SoundPeriod);
@@ -1694,7 +1691,7 @@ Beamforming_SWTimerCallback(
 	PADAPTER		Adapter = (PADAPTER)pTimer->Adapter;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc;
-	
+
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 	Beamforming_TimerCallback(pDM_Odm);
 #elif(DM_ODM_SUPPORT_TYPE == ODM_CE)
