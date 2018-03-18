@@ -410,9 +410,9 @@ halComTxbf_ResetTxPathWorkItemCallback(
 
 	u1Byte			Idx = pTxbfInfo->TXBFIdx;
 
-	if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_ResetTxPath(pDM_Odm, Idx);
-
+	}
 }
 
 VOID
@@ -431,8 +431,9 @@ halComTxbf_GetTxRateWorkItemCallback(
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #endif
 
-	if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_GetTxRate(pDM_Odm);
+	}
 }
 
 
