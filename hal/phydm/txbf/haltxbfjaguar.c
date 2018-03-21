@@ -17,8 +17,8 @@ HalTxbf8812A_setNDPArate(
 )
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	
-	ODM_Write1Byte(pDM_Odm, REG_NDPA_OPT_CTRL_8812A,  (Rate << 2 | BW));	
+
+	ODM_Write1Byte(pDM_Odm, REG_NDPA_OPT_CTRL_8812A,  (Rate << 2 | BW));
 
 }
 
@@ -29,7 +29,7 @@ halTxbfJaguar_RfMode(
 )
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	
+
 	if (pDM_Odm->RFType == ODM_1T1R)
 		return;
 
@@ -133,9 +133,9 @@ halTxbfJaguar_DownloadNDPA(
 		DLBcnCount++;
 	} while (!(BcnValidReg & BIT0) && DLBcnCount < 5);
 
-	if (!(BcnValidReg & BIT0))
+	if (!(BcnValidReg & BIT0)) {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("%s Download RSVD page failed!\n", __func__));
-
+	}
 	/*TDECTRL[15:8] 0x209[7:0] = 0xF6	Beacon Head for TXDMA*/
 	ODM_Write1Byte(pDM_Odm, REG_TDECTRL_8812A + 1, TxPageBndy);
 
@@ -306,7 +306,7 @@ HalTxbfJaguar_Leave(
 	PRT_BEAMFORMING_INFO	pBeamformingInfo = &pDM_Odm->BeamformingInfo;
 	RT_BEAMFORMER_ENTRY	BeamformerEntry;
 	RT_BEAMFORMEE_ENTRY	BeamformeeEntry;
-	
+
 	if (Idx < BEAMFORMER_ENTRY_NUM) {
 		BeamformerEntry = pBeamformingInfo->BeamformerEntry[Idx];
 		BeamformeeEntry = pBeamformingInfo->BeamformeeEntry[Idx];
@@ -318,7 +318,7 @@ HalTxbfJaguar_Leave(
 	/*Clear P_AID of Beamformee*/
 	/*Clear MAC address of Beamformer*/
 	/*Clear Associated Bfmee Sel*/
-	
+
 	if (BeamformerEntry.BeamformEntryCap == BEAMFORMING_CAP_NONE) {
 		ODM_Write1Byte(pDM_Odm, REG_SND_PTCL_CTRL_8812A, 0xC8);
 		if (Idx == 0) {
@@ -346,7 +346,7 @@ HalTxbfJaguar_Leave(
 			ODM_Write2Byte(pDM_Odm, REG_BFMEE_SEL_8812A + 2, ODM_Read2Byte(pDM_Odm, REG_BFMEE_SEL_8812A + 2) & 0x60);
 		}
 	}
-	
+
 }
 
 
@@ -440,14 +440,14 @@ HalTxbfJaguar_Clk_8812A(
 	u2Byte	u2btmp;
 	u1Byte	Count = 0, u1btmp;
 	PADAPTER	Adapter = pDM_Odm->Adapter;
-	
+
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
 	if (*(pDM_Odm->pbScanInProcess)) {
 		ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] return by Scan\n", __func__));
 		return;
 	}
-#if DEV_BUS_TYPE == RT_PCI_INTERFACE	
+#if DEV_BUS_TYPE == RT_PCI_INTERFACE
 	/*Stop PCIe TxDMA*/
 	ODM_Write1Byte(pDM_Odm, REG_PCIE_CTRL_REG_8812A + 1, 0xFE);
 #endif
@@ -521,7 +521,4 @@ HalTxbfJaguar_Clk_8812A(
 
 #endif
 
-
-
 #endif
-
