@@ -12,7 +12,7 @@
 
 void rtw_reg_notify_by_driver(_adapter *adapter)
 {
-	return 0;
+	return;
 }
 
 int rtw_regd_init(_adapter * padapter)
