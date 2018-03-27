@@ -118,10 +118,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 
 	if (!pattrib->qos_en) {
 		/* HW sequence, to fix to use 0 queue. todo: 4AC packets to use auto queue select */
-		if (pattrib->sw_seq == _FALSE)
-			SET_TX_DESC_HWSEQ_EN_8814A(ptxdesc, 1); // Hw set sequence number
-		else
-			SET_TX_DESC_SEQ_8814A(ptxdesc, pattrib->seqnum);
+		SET_TX_DESC_HWSEQ_EN_8814A(ptxdesc, 1); // Hw set sequence number
 		SET_TX_DESC_EN_HWEXSEQ_8814A(ptxdesc, 0);
 		SET_TX_DESC_DISQSELSEQ_8814A(ptxdesc, 1);
 		SET_TX_DESC_HW_SSN_SEL_8814A(ptxdesc, 0);
