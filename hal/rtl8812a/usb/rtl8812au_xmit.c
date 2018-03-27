@@ -112,7 +112,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 
 	/* offset 12 */
 
-	if (!pattrib->qos_en && pattrib->sw_seq == _FALSE) {
+	if (!pattrib->qos_en) {
 		SET_TX_DESC_HWSEQ_EN_8812(ptxdesc, 1); /* Hw set sequence number */
 	} else
 		SET_TX_DESC_SEQ_8812(ptxdesc, pattrib->seqnum);

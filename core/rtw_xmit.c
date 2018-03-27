@@ -3875,7 +3875,7 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 	u32 len = skb->len;
 	u8 category, action;
 	int type = -1;
-	
+
 	//RTW_INFO(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
 	if (skb)
@@ -3923,17 +3923,17 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 					fixed_rate = 0;
 				fixed_rate += MGN_MCS0;
 			}
-			if ((mcs_have & 4) && 
+			if ((mcs_have & 4) &&
 			    (iterator.this_arg[1] & 4))
 				sgi = 1;
-			if ((mcs_have & 1) && 
+			if ((mcs_have & 1) &&
 			    (iterator.this_arg[1] & 1))
 				bwidth = 1;
-			if ((mcs_have & 0x10) && 
+			if ((mcs_have & 0x10) &&
 			    (iterator.this_arg[1] & 0x10))
 				ldpc = 1;
 			if ((mcs_have & 0x20))
-				stbc = (iterator.this_arg[1] >> 5) & 3;	
+				stbc = (iterator.this_arg[1] >> 5) & 3;
 		}
 		break;
 
@@ -3995,9 +3995,9 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 	pattrib->ldpc = ldpc;
 	pattrib->stbc = stbc;
 	pattrib->retry_ctrl = (txflags & 0x08)?_FALSE:_TRUE;
-	pattrib->sw_seq = (txflags & 0x10)?_TRUE:_FALSE;
+	// pattrib->sw_seq = (txflags & 0x10)?_TRUE:_FALSE;  // Adds support for pre-configured SeqNum via RadioTap
 
-	
+
 	pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
 
 	pmlmeext->mgnt_seq = GetSequence(pwlanhdr);
