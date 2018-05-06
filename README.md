@@ -64,10 +64,6 @@ For setting monitor mode
   ```
 For setting TX power
 ```
-sudo iwconfig wlan0 txpower 30
-```
-or
-```
 sudo iw wlan0 set txpower fixed 3000
 ```
 Newer versions of NetworkManager switches to random MAC address. Some users would prefer to use a fixed address. 

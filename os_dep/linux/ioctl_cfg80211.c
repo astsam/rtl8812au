@@ -921,7 +921,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff) {
 		if (param->u.crypt.idx >= WEP_KEYS
 #ifdef CONFIG_IEEE80211W
-			|| param->u.crypt.idx >= BIP_MAX_KEYID
+			&& param->u.crypt.idx >= BIP_MAX_KEYID
 #endif /* CONFIG_IEEE80211W */
 		) {
 			ret = -EINVAL;
@@ -1628,6 +1628,15 @@ static int cfg80211_rtw_set_default_key(struct wiphy *wiphy,
 	return 0;
 
 }
+
+static int cfg80211_rtw_set_default_mgmt_key(struct wiphy *wiphy,
+	struct net_device *ndev, u8 key_index
+)
+{
+	RTW_INFO(FUNC_NDEV_FMT " key index: %d\n", FUNC_NDEV_ARG(ndev), key_index);
+	return 0;
+}
+
 #if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 1, 0))
 static int cfg80211_rtw_set_rekey_data(struct wiphy *wiphy,
 	struct net_device *ndev,
@@ -6558,6 +6567,9 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	.get_key = cfg80211_rtw_get_key,
 	.del_key = cfg80211_rtw_del_key,
 	.set_default_key = cfg80211_rtw_set_default_key,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 30))
+	.set_default_mgmt_key = cfg80211_rtw_set_default_mgmt_key,
+#endif
 #if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 1, 0))
 	.set_rekey_data = cfg80211_rtw_set_rekey_data,
 #endif /*CONFIG_GTK_OL*/
