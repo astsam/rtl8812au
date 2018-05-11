@@ -37,11 +37,15 @@ Download
 git clone -b v5.1.5 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
-Package / Build dependencies
+Package / Build dependencies (Kali)
 ```
 sudo apt-get install build-essential
 sudo apt-get install bc
 sudo apt-get install linux-headers-`uname -r`
+```
+For Raspberry (RPI)
+```
+sudo apt install raspberrypi-kernel-headers
 ```
 For setting monitor mode
   1. Fix problematic interference in monitor mode. 
@@ -75,6 +79,13 @@ wifi.scan-rand-mac-address=no
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
 sudo service NetworkManager restart
+```
+
+## Tested / Working
+```
+Tested and working on
+  * Kali Linux
+  * Raspberry PI
 ```
 
 ## LED Parameter
