@@ -2256,8 +2256,8 @@ u8 traffic_status_watchdog(_adapter *padapter, u8 from_timer)
 	} else
 #endif /* CONFIG_BT_COEXIST */
 	{
-		BusyThresholdHigh = 100;
-		BusyThresholdLow = 75;
+		BusyThresholdHigh = 25;
+		BusyThresholdLow = 15;
 	}
 	BusyThreshold = BusyThresholdHigh;
 
