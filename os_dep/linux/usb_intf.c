@@ -174,7 +174,6 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x0BDA, 0x8812), .driver_info = RTL8812}, /* Alfa - AWUS036AC, AWUS036ACH & AWUS036EAC */
 	{USB_DEVICE(0x2604, 0x0012), .driver_info = RTL8812}, /* Tenda U12 */
 	{USB_DEVICE(0x0BDA, 0x881A), .driver_info = RTL8812}, /* Unex DAUK-W8812 */
-	{USB_DEVICE(0x0BDA, 0xB812), .driver_info = RTL8812}, /* Kodi AC1200 */
 #endif
 
 #ifdef CONFIG_RTL8821A
