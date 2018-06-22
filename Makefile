@@ -151,6 +151,7 @@ CONFIG_PLATFORM_NOVATEK_NT72668 = n
 CONFIG_PLATFORM_HISILICON = n
 CONFIG_PLATFORM_NV_TK1 = n
 CONFIG_PLATFORM_RTL8197D = n
+CONFIG_PLATFORM_ARM_ODROIDC2 = n
 ###############################################################
 
 CONFIG_DRVEXT_MODULE = n
@@ -1740,6 +1741,17 @@ export DIR_LINUX=$(shell pwd)/../SDK/rlxlinux-sdk321-v50/linux-2.6.30
 ARCH ?= rlx
 CROSS_COMPILE:= $(DIR_LINUX)/../toolchain/rsdk-1.5.5-5281-EB-2.6.30-0.9.30.3-110714/bin/rsdk-linux-
 KSRC := $(DIR_LINUX)
+endif
+
+ifeq ($(CONFIG_PLATFORM_ARM_ODROIDC2), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+ARCH ?= arm64
+CROSS_COMPILE ?=
+KVER ?= $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
 endif
 
 ifeq ($(CONFIG_MULTIDRV), y)
