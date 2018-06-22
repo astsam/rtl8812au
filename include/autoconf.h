@@ -323,7 +323,7 @@
 /*
  * Debug Related Config
  */
-#define DBG	1
+#define DBG 1
 
 #define CONFIG_PROC_DEBUG
 
@@ -345,6 +345,9 @@
 /* #define DBG_RX_SEQ */
 /* #define DBG_RX_SIGNAL_DISPLAY_PROCESSING */
 /* #define DBG_RX_SIGNAL_DISPLAY_SSID_MONITORED "jeff-ap" */
+
+#define DBG_TX_POWER_IDX 1
+#define DBG_PG_TXPWR_READ 1
 
 
 
