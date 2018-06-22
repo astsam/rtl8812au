@@ -452,7 +452,7 @@ endif
 EXTRA_CFLAGS += -DCONFIG_RTL8821A
 
 _HAL_INTFS_FILES +=	hal/rtl8812a/hal8821a_fw.o
-		
+
 endif
 
 endif
@@ -1732,7 +1732,7 @@ ARCH := arm
 CROSS_COMPILE := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_build/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
 KSRC := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_build/kernel
 MODULE_NAME := wlan
-endif 
+endif
 
 ifeq ($(CONFIG_PLATFORM_RTL8197D), y)
 EXTRA_CFLAGS += -DCONFIG_BIG_ENDIAN -DCONFIG_PLATFORM_RTL8197D
@@ -1794,7 +1794,7 @@ rtk_core :=	core/rtw_cmd.o \
 		core/rtw_btcoex.o \
 		core/rtw_beamforming.o \
 		core/rtw_odm.o \
-		core/efuse/rtw_efuse.o 
+		core/efuse/rtw_efuse.o
 
 ifeq ($(CONFIG_SDIO_HCI), y)
 rtk_core += core/rtw_sdio.o
@@ -1828,7 +1828,7 @@ export CONFIG_RTL8812AU = m
 all: modules
 
 modules:
-	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
+	$(MAKE) -j $(shell nproc || echo 1) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
 
 strip:
 	$(CROSS_COMPILE)strip $(MODULE_NAME).ko --strip-unneeded
@@ -1890,7 +1890,7 @@ clean:
 	cd hal ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
 	cd core/efuse ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
 	cd core ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
+	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko .rtw_radiotap.o.d
 	cd os_dep ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
 	cd platform ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
 	rm -fr Module.symvers ; rm -fr Module.markers ; rm -fr modules.order
@@ -1898,4 +1898,3 @@ clean:
 	rm -fr .tmp_versions
 	rm -fr .cache.mk
 endif
-

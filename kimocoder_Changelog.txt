@@ -3,7 +3,6 @@
   ----------------------------------------------------------------------------------------
 
   TODO:
-  - Makefile should increase the speed of compilation
   - Enable TX queue in monitor mode
   - Place signal quality and per antenna rssi into radiotap header
   - Calculate signal quality in the monitor mode
@@ -19,6 +18,7 @@
   - Fix is_compat_task() issue
   - Use in_compat_syscall() instead of is_compat_task() if available
   - Add support mode more adapters
+  - Add a more informational README
 
   +++ And propably alot more. We'll see.
 
@@ -29,3 +29,10 @@
   - Enabled monitor mode
   - Parse radiotap headers for proper frame injection
   - RadioTap iterator from kernel 4.9 was added due to VHT field bug in kernels before 4.6
+  - Tweaked & optimized Makefile to compile with all cores available. Decreasing the compile time.
+  - Fixed dkms.conf and added dkms-install.sh and dkms-remove.sh
+  - Cleaned up some files & execution permissions.
+
+
+
+
