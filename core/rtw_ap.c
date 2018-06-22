@@ -1368,7 +1368,7 @@ static void rtw_ap_check_scan(_adapter *padapter)
 
 					if (_FALSE == ATOMIC_READ(&pmlmepriv->olbc_ht))
 						ATOMIC_SET(&pmlmepriv->olbc_ht, _TRUE);
-					
+
 					if (padapter->registrypriv.wifi_spec)
 						RTW_INFO("%s: %s is a/b/g ap\n", __func__, pnetwork->network.Ssid.Ssid);
 				}
@@ -1523,6 +1523,8 @@ void start_bss_network(_adapter *padapter, struct createbss_parm *parm)
 chbw_decision:
 	ch_setting_changed = rtw_ap_chbw_decision(padapter, req_ch, req_bw, req_offset
 		     , &ch_to_set, &bw_to_set, &offset_to_set, &chbw_allow);
+	RTW_INFO(FUNC_ADPT_FMT": channel setting changed: %d\n"
+		, FUNC_ADPT_ARG(padapter), ch_setting_changed);
 
 	/* let pnetwork_mlme == pnetwork_mlmeext */
 	_rtw_memcpy(pnetwork, pnetwork_mlmeext, pnetwork_mlmeext->Length);
@@ -1536,7 +1538,7 @@ chbw_decision:
 
 #ifdef CONFIG_MCC_MODE
 	if (MCC_EN(padapter)) {
-		/* 
+		/*
 		* due to check under rtw_ap_chbw_decision
 		* if under MCC mode, means req channel setting is the same as current channel setting
 		* if not under MCC mode, mean req channel setting is not the same as current channel setting
@@ -3989,7 +3991,7 @@ bool rtw_ap_chbw_decision(_adapter *adapter, s16 req_ch, s8 req_bw, s8 req_offse
 
 				rtw_hal_set_mcc_setting_disconnect(adapter);
 			}
-		}	
+		}
 	}
 #endif /* CONFIG_MCC_MODE */
 
@@ -4095,16 +4097,16 @@ bool rtw_ap_chbw_decision(_adapter *adapter, s16 req_ch, s8 req_bw, s8 req_offse
 			goto exit;
 		}
 
-		if (rtw_odm_dfs_domain_unknown(adapter) && rtw_is_dfs_chbw(dec_ch, dec_bw, dec_offset)) {
-			if (req_ch >= 0)
-				RTW_WARN(FUNC_ADPT_FMT" DFS channel %u,%u,%u can't be used\n", FUNC_ADPT_ARG(adapter), dec_ch, dec_bw, dec_offset);
-			if (req_ch > 0) {
-				/* specific channel and not from IE => don't change channel setting */
-				*chbw_allow = _FALSE;
-				goto exit;
-			}
-			goto choose_chbw;
-		}
+		/* if (rtw_odm_dfs_domain_unknown(adapter) && rtw_is_dfs_chbw(dec_ch, dec_bw, dec_offset)) { */
+		/* 	if (req_ch >= 0) */
+		/* 		RTW_WARN(FUNC_ADPT_FMT" DFS channel %u,%u,%u can't be used\n", FUNC_ADPT_ARG(adapter), dec_ch, dec_bw, dec_offset); */
+		/* 	if (req_ch > 0) { */
+		/* 		/\* specific channel and not from IE => don't change channel setting *\/ */
+		/* 		*chbw_allow = _FALSE; */
+		/* 		goto exit; */
+		/* 	} */
+		/* 	goto choose_chbw; */
+		/* } */
 
 		if (rtw_chset_is_ch_non_ocp(adapter_to_chset(adapter), dec_ch, dec_bw, dec_offset) == _FALSE)
 			goto update_bss_chbw;
