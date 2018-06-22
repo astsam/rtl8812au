@@ -483,6 +483,7 @@ struct pkt_attrib {
 	 */
 	u8 bf_pkt_type;
 #endif
+    u8  inject; /* == a5 if injected */
 
 };
 #endif
