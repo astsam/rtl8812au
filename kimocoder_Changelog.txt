@@ -1,0 +1,31 @@
+
+  kimocoder's changelog (goes beyond the Realtek changelog)
+  ----------------------------------------------------------------------------------------
+
+  TODO:
+  - Makefile should increase the speed of compilation
+  - Enable TX queue in monitor mode
+  - Place signal quality and per antenna rssi into radiotap header
+  - Calculate signal quality in the monitor mode
+  - Add channels 151 and 153
+  - Unmask all available channels
+  - Disable power saving mode
+  - Switch channels to 80 MHz widt in monitor mode
+  - Enable channel 14 and 80 MHz width in the regdom
+  - Switch channel in monitor mode
+  - Fix error switching to 80MHz channels under certain conditions
+  - Use configured driver name
+  - Disable driver debug output by default
+  - Fix is_compat_task() issue
+  - Use in_compat_syscall() instead of is_compat_task() if available
+  - Add support mode more adapters
+
+  +++ And propably alot more. We'll see.
+
+
+
+
+  [2018.06.22]
+  - Enabled monitor mode
+  - Parse radiotap headers for proper frame injection
+  - RadioTap iterator from kernel 4.9 was added due to VHT field bug in kernels before 4.6
