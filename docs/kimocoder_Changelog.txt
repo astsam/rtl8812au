@@ -3,12 +3,13 @@
   ----------------------------------------------------------------------------------------
 
   TODO:
+  - Add support for namespaces (NS)
+  - Fix count for frames in RadioTap header (add to stats)
   - Enable TX queue in monitor mode
   - Place signal quality and per antenna rssi into radiotap header
   - Calculate signal quality in the monitor mode
   - Add channels 151 and 153
   - Unmask all available channels
-  - Disable power saving mode
   - Switch channels to 80 MHz widt in monitor mode
   - Enable channel 14 and 80 MHz width in the regdom
   - Switch channel in monitor mode
@@ -22,8 +23,15 @@
 
   +++ And propably alot more. We'll see.
 
+  [2018.06.25]
+  - Fix injected frames drop
+  - Fixed compilation on some ARM platforms
+  - Added support for PPC platform
+  - Minor cleanups
 
-
+  [2018.06.23]
+  - Added more VID/PID's + moved 1 to correct place
+  - Moved changelogs into "docs/" folder
 
   [2018.06.22]
   - Enabled monitor mode
