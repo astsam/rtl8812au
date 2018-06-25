@@ -1,17 +1,9 @@
 # rtl8812au
 
-## Realtek 8812AU driver version 5.2.20
+## Realtek 8812AU driver v5.2.20 with monitor mode and packet injection
 
-Only supports 8812AU chipset. 
+Only supports 8812AU chipset, not the 8814AU or the 8821AU.
 
-Works fine with 4.15 kernel. Source now builds with no warnings or errors.
-
-Added (cosmeticly edited) original Realtek_Changelog.txt, this README.md and dkms.conf.
-
-Added device USB IDs, sorted by ID number.
-Added LED control by Makefile, module parameter and dynamic /proc writing.
-Added VHT extras.
-Added regdb files.
 
 ### Building
 
@@ -24,24 +16,16 @@ $ sudo make install
 To use dkms install:
 
 ```sh
-  (as root, or sudo) copy source folder contents to /usr/src/rtl8812au-5.2.20
-```
-
-```sh
-$ sudo dkms add -m rtl8812au -v 5.2.20
-$ sudo dkms build -m rtl8812au -v 5.2.20
-$ sudo dkms install -m rtl8812au -v 5.2.20 
+$ sudo ./dkms-install.sh
 ```
 
 To use dkms uninstall and remove:
 
 ```sh
-$ sudo dkms remove -m rtl8812au -v 5.2.20 --all
+$ sudo ./dkms-remove.sh
 ```
 
 ### LED control
-
-Thanks to @dkadioglu and others for a start on this.
 
 #### You can now control LED behaviour statically by Makefile, for example:
 
@@ -77,12 +61,4 @@ As others have noted, people using NetworkManager need to add this stanza to /et
 ```sh
   [device]
   wifi.scan-rand-mac-address=no
-```
-
-### Regdb files
-
-If needed, copy the regulatory database files in regdb/ to /lib/firmware/
-
-```sh
-$ sudo cp ./regdb/* /lib/firmware/
 ```
