@@ -18,7 +18,6 @@
  *
  ******************************************************************************/
 
-
 #define _OSDEP_SERVICE_C_
 
 #include <drv_types.h>
@@ -31,7 +30,6 @@ atomic_t _malloc_cnt = ATOMIC_INIT(0);
 atomic_t _malloc_size = ATOMIC_INIT(0);
 #endif
 #endif /* DBG_MEMORY_LEAK */
-
 
 #if defined(PLATFORM_LINUX)
 /*
@@ -1011,6 +1009,7 @@ void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc)
 #ifdef PLATFORM_WINDOWS
 	_init_timer(ptimer, adapter->hndis_adapter, pfunc, adapter->mlmepriv.nic_hdl);
 #endif
+
 }
 
 /*
@@ -1018,7 +1017,6 @@ void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc)
 Caller must check if the list is empty before calling rtw_list_delete
 
 */
-
 
 void _rtw_init_sema(_sema	*sema, int init_val)
 {
@@ -1212,7 +1210,6 @@ void rtw_mtx_unlock(_lock *plock)
 }
 #endif /* PLATFORM_FREEBSD */
 
-
 void	_rtw_spinlock(_lock	*plock)
 {
 
@@ -1287,8 +1284,6 @@ void	_rtw_spinunlock_ex(_lock *plock)
 
 #endif
 }
-
-
 
 void _rtw_init_queue(_queue *pqueue)
 {
@@ -1389,7 +1384,6 @@ inline s32 rtw_get_time_interval_ms(u32 start, u32 end)
 #endif
 }
 
-
 void rtw_sleep_schedulable(int ms)
 {
 
@@ -1420,7 +1414,6 @@ void rtw_sleep_schedulable(int ms)
 
 }
 
-
 void rtw_msleep_os(int ms)
 {
 
@@ -1444,7 +1437,6 @@ void rtw_msleep_os(int ms)
 	NdisMSleep(ms * 1000); /* (us)*1000=(ms) */
 
 #endif
-
 
 }
 void rtw_usleep_os(int us)
@@ -1474,9 +1466,7 @@ void rtw_usleep_os(int us)
 
 #endif
 
-
 }
-
 
 #ifdef DBG_DELAY_OS
 void _rtw_mdelay_os(int ms, const char *func, const int line)
@@ -1487,7 +1477,6 @@ void _rtw_mdelay_os(int ms, const char *func, const int line)
 	rtw_msleep_os(ms);
 	return;
 #endif
-
 
 	RTW_INFO("%s:%d %s(%d)\n", func, line, __FUNCTION__, ms);
 
@@ -1500,7 +1489,6 @@ void _rtw_mdelay_os(int ms, const char *func, const int line)
 	NdisStallExecution(ms * 1000); /* (us)*1000=(ms) */
 
 #endif
-
 
 }
 void _rtw_udelay_os(int us, const char *func, const int line)
@@ -1516,7 +1504,6 @@ void _rtw_udelay_os(int us, const char *func, const int line)
 
 
 	RTW_INFO("%s:%d %s(%d)\n", func, line, __FUNCTION__, us);
-
 
 #if defined(PLATFORM_LINUX)
 
@@ -1547,7 +1534,6 @@ void rtw_mdelay_os(int ms)
 	NdisStallExecution(ms * 1000); /* (us)*1000=(ms) */
 
 #endif
-
 
 }
 void rtw_udelay_os(int us)
@@ -1872,7 +1858,6 @@ inline int ATOMIC_DEC_RETURN(ATOMIC_T *v)
 #endif
 }
 
-
 #ifdef PLATFORM_LINUX
 /*
 * Open a file with the specific @param path, @param flag, @param mode
@@ -1919,7 +1904,9 @@ static int readFile(struct file *fp, char *buf, int len)
 		return -EPERM;
 
 	while (sum < len) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
 		rlen = __vfs_read(fp, buf + sum, len - sum, &fp->f_pos);
 #else
 		rlen = fp->f_op->read(fp, buf + sum, len - sum, &fp->f_pos);
@@ -2278,7 +2265,6 @@ copy_to_user(void *to, const void *from, unsigned long n)
 	return 0;
 }
 
-
 /*
  * The usb_register and usb_deregister functions are used to register
  * usb drivers with the usb subsystem. In this compatibility layer
@@ -2293,7 +2279,6 @@ usb_register(struct usb_driver *driver)
 	rtw_usb_linux_register(driver);
 	return 0;
 }
-
 
 int
 usb_deregister(struct usb_driver *driver)
@@ -2409,7 +2394,6 @@ keep_ori:
 	if (ori && ori_len > 0)
 		rtw_mfree(ori, ori_len);
 }
-
 
 /**
  * rtw_cbuf_full - test if cbuf is full

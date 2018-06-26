@@ -33,7 +33,6 @@ int platform_wifi_power_on(void)
 {
 	int ret = 0;
 
-
 #ifdef CONFIG_RTL8188E
 	rtw_wifi_gpio_wlan_ctrl(WLAN_POWER_ON);
 #endif /* CONFIG_RTL8188E */

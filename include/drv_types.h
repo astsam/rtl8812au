@@ -73,10 +73,6 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 	#include <rtw_vht.h>
 #endif
 
-#ifdef CONFIG_INTEL_WIDI
-	#include <rtw_intel_widi.h>
-#endif
-
 #include <rtw_cmd.h>
 #include <cmd_osdep.h>
 #include <rtw_security.h>
@@ -397,6 +393,10 @@ struct registry_priv {
 	u8 trx_share_mode;
 #endif
 	u8 check_hw_status;
+	
+#ifdef CONFIG_SW_LED
+	u8 led_ctrl;
+#endif
 };
 
 /* For registry parameters */

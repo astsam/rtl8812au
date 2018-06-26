@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -24,17 +24,16 @@
 
 #ifdef CONFIG_SUPPORT_USB_INT
 void interrupt_handler_8814au(_adapter *padapter,u16 pkt_len,u8 *pbuf)
-{	
+{
 	HAL_DATA_TYPE	*pHalData=GET_HAL_DATA(padapter);
 	struct reportpwrstate_parm pwr_rpt;
-	
-	if ( pkt_len != INTERRUPT_MSG_FORMAT_LEN )
-	{
+
+	if ( pkt_len != INTERRUPT_MSG_FORMAT_LEN ) {
 		RTW_INFO("%s Invalid interrupt content length (%d)!\n", __FUNCTION__, pkt_len);
 		return ;
 	}
 
-	// HISR 
+	// HISR
 	_rtw_memcpy(&(pHalData->IntArray[0]), &(pbuf[USB_INTR_CONTENT_HISR_OFFSET]), 4);
 	_rtw_memcpy(&(pHalData->IntArray[1]), &(pbuf[USB_INTR_CONTENT_HISRE_OFFSET]), 4);
 
@@ -42,25 +41,24 @@ void interrupt_handler_8814au(_adapter *padapter,u16 pkt_len,u8 *pbuf)
 	{
 		u32 hisr=0 ,hisr_ex=0;
 		_rtw_memcpy(&hisr,&(pHalData->IntArray[0]),4);
-		hisr = le32_to_cpu(hisr);	
-		
+		hisr = le32_to_cpu(hisr);
+
 		_rtw_memcpy(&hisr_ex,&(pHalData->IntArray[1]),4);
 		hisr_ex = le32_to_cpu(hisr_ex);
-		
-		if((hisr != 0) || (hisr_ex!=0))
+
+		if ((hisr != 0) || (hisr_ex!=0))
 			RTW_INFO("===> %s hisr:0x%08x ,hisr_ex:0x%08x \n",__FUNCTION__,hisr,hisr_ex);
 	}
 	#endif
 
 
 #ifdef CONFIG_LPS_LCLK
-	if(  pHalData->IntArray[0]  & IMR_CPWM_88E )
-	{
+	if (  pHalData->IntArray[0]  & IMR_CPWM_88E ) {
 		_rtw_memcpy(&pwr_rpt.state, &(pbuf[USB_INTR_CONTENT_CPWM1_OFFSET]), 1);
 		//_rtw_memcpy(&pwr_rpt.state2, &(pbuf[USB_INTR_CONTENT_CPWM2_OFFSET]), 1);
 
-		//88e's cpwm value only change BIT0, so driver need to add PS_STATE_S2 for LPS flow.		
-		pwr_rpt.state |= PS_STATE_S2;		
+		//88e's cpwm value only change BIT0, so driver need to add PS_STATE_S2 for LPS flow.
+		pwr_rpt.state |= PS_STATE_S2;
 		_set_workitem(&(adapter_to_pwrctl(padapter)->cpwm_event));
 	}
 #endif//CONFIG_LPS_LCLK
@@ -72,40 +70,38 @@ void interrupt_handler_8814au(_adapter *padapter,u16 pkt_len,u8 *pbuf)
 	#endif
 	#ifdef  CONFIG_INTERRUPT_BASED_TXBCN_BCN_OK_ERR
 	if (pHalData->IntArray[0] & (IMR_TBDER_88E|IMR_TBDOK_88E))
-	#endif	
-	{		
+	#endif
+	{
 		struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 		#if 0
-		if(pHalData->IntArray[0] & IMR_BCNDMAINT0_88E)
+		if (pHalData->IntArray[0] & IMR_BCNDMAINT0_88E)
 			RTW_INFO("%s: HISR_BCNERLY_INT\n", __func__);
-		if(pHalData->IntArray[0] & IMR_TBDOK_88E)
+		if (pHalData->IntArray[0] & IMR_TBDOK_88E)
 			RTW_INFO("%s: HISR_TXBCNOK\n", __func__);
-		if(pHalData->IntArray[0] & IMR_TBDER_88E)
+		if (pHalData->IntArray[0] & IMR_TBDER_88E)
 			RTW_INFO("%s: HISR_TXBCNERR\n", __func__);
 		#endif
-		
 
-		if(check_fwstate(pmlmepriv, WIFI_AP_STATE))
-		{
+
+		if (check_fwstate(pmlmepriv, WIFI_AP_STATE)) {
 			//send_beacon(padapter);
-			if(pmlmepriv->update_bcn == _TRUE)
+			if (pmlmepriv->update_bcn == _TRUE)
 			{
 				//tx_beacon_hdl(padapter, NULL);
 				set_tx_beacon_cmd(padapter);
 			}
 		}
 #ifdef CONFIG_CONCURRENT_MODE
-		if(check_buddy_fwstate(padapter, WIFI_AP_STATE))
-		{
+		if (check_buddy_fwstate(padapter, WIFI_AP_STATE)) {
 			//send_beacon(padapter);
-			if(padapter->pbuddy_adapter->mlmepriv.update_bcn == _TRUE)
+			if (padapter->pbuddy_adapter->mlmepriv.update_bcn == _TRUE)
 			{
 				//tx_beacon_hdl(padapter, NULL);
 				set_tx_beacon_cmd(padapter->pbuddy_adapter);
 			}
 		}
 #endif
-		
+
 	}
 #endif //CONFIG_INTERRUPT_BASED_TXBCN
 
@@ -361,8 +357,9 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 		}
 
 #ifdef CONFIG_RX_PACKET_APPEND_FCS
-		if(pattrib->pkt_rpt_type == NORMAL_RX)
-			pattrib->pkt_len -= IEEE80211_FCS_LEN;
+                if (check_fwstate(&padapter->mlmepriv, WIFI_MONITOR_STATE) == _FALSE)
+                        if ((pattrib->pkt_rpt_type == NORMAL_RX) && (pHalData->ReceiveConfig & RCR_APPFCS))
+                                pattrib->pkt_len -= IEEE80211_FCS_LEN;
 #endif
 		if(rtw_os_alloc_recvframe(padapter, precvframe, 
 			(pbuf + pattrib->shift_sz + pattrib->drvinfo_sz + RXDESC_SIZE), pskb) == _FAIL)

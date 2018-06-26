@@ -27,7 +27,7 @@
  *	So, this driver tried to extend the dwell time for each scanning channel.
  *	This will increase the chance to receive the probe response from SoftAP. */
 
-#define SURVEY_TO		(100)
+#define SURVEY_TO		(0)
 #define REAUTH_TO		(300) /* (50) */
 #define REASSOC_TO		(300) /* (50) */
 /* #define DISCONNECT_TO	(3000) */
@@ -1153,21 +1153,17 @@ struct cmd_hdl wlancmds[] = {
 
 struct C2HEvent_Header {
 
-#ifdef CONFIG_LITTLE_ENDIAN
+#ifdef __LITTLE_ENDIAN
 
 	unsigned int len:16;
 	unsigned int ID:8;
 	unsigned int seq:8;
-
-#elif defined(CONFIG_BIG_ENDIAN)
-
-	unsigned int seq:8;
-	unsigned int ID:8;
-	unsigned int len:16;
 
 #else
 
-#  error "Must be LITTLE or BIG Endian"
+	unsigned int seq:8;
+	unsigned int ID:8;
+	unsigned int len:16;
 
 #endif
 

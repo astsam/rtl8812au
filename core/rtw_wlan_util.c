@@ -2353,8 +2353,7 @@ int rtw_get_bcn_keys(ADAPTER *Adapter, u8 *pframe, u32 packet_len,
 
 		_rtw_memcpy(recv_beacon->ssid, elems.ssid, elems.ssid_len);
 		recv_beacon->ssid_len = elems.ssid_len;
-	} else
-		; /* means hidden ssid */
+	} else { ; } /* means hidden ssid */
 
 	/* checking RSN first */
 	if (elems.rsn_ie && elems.rsn_ie_len) {
@@ -3038,11 +3037,6 @@ void update_tx_basic_rate(_adapter *padapter, u8 wirelessmode)
 	if (!rtw_p2p_chk_state(pwdinfo, P2P_STATE_NONE))
 		return;
 #endif /* CONFIG_P2P */
-#ifdef CONFIG_INTEL_WIDI
-	if (padapter->mlmepriv.widi_state != INTEL_WIDI_STATE_NONE)
-		return;
-#endif /* CONFIG_INTEL_WIDI */
-
 	_rtw_memset(supported_rates, 0, NDIS_802_11_LENGTH_RATES_EX);
 
 	/* clear B mod if current channel is in 5G band, avoid tx cck rate in 5G band. */
@@ -4475,7 +4469,11 @@ int rtw_dev_nlo_info_set(struct pno_nlo_info *nlo_info, pno_ssid_t *ssid,
 	source = rtw_zmalloc(2048);
 
 	if (source != NULL) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		len = kernel_read(fp, source, len, &pos);
+#else
 		len = vfs_read(fp, source, len, &pos);
+#endif
 		rtw_parse_cipher_list(nlo_info, source);
 		rtw_mfree(source, 2048);
 	}

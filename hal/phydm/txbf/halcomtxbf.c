@@ -17,8 +17,9 @@ halComTxbf_beamformInit(
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
-	if (pDM_Odm->SupportICType & ODM_RTL8822B)
+	if (pDM_Odm->SupportICType & ODM_RTL8822B) {
 		HalTxbf8822B_Init(pDM_Odm);
+	}
 }
 
 /*Only used for MU BFer Entry when get GID management frame (self is as MU STA)*/
@@ -29,8 +30,9 @@ halComTxbf_ConfigGtab(
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
 
-	if (pDM_Odm->SupportICType & ODM_RTL8822B)
+	if (pDM_Odm->SupportICType & ODM_RTL8822B) {
 		HalTxbf8822B_ConfigGtab(pDM_Odm);
+	}
 }
 
 VOID
@@ -167,7 +169,7 @@ phydm_beamformSetGetTxRate(
 #endif
 }
 
-VOID 
+VOID
 halComTxbf_EnterWorkItemCallback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	IN	PADAPTER		Adapter
@@ -184,20 +186,24 @@ halComTxbf_EnterWorkItemCallback(
 #endif
 	PHAL_TXBF_INFO	pTxbfInfo = &pDM_Odm->BeamformingInfo.TxbfInfo;
 	u1Byte			Idx = pTxbfInfo->TXBFIdx;
-	
+
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
-	
-	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821))
+
+	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821)) {
 		HalTxbfJaguar_Enter(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8192E)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8192E) {
 		HalTxbf8192E_Enter(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_Enter(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8822B) {
 		HalTxbf8822B_Enter(pDM_Odm, Idx);
+	}
 }
 
-VOID 
+VOID
 halComTxbf_LeaveWorkItemCallback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	IN	PADAPTER		Adapter
@@ -218,18 +224,22 @@ halComTxbf_LeaveWorkItemCallback(
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
-	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821))
+	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821)) {
 		HalTxbfJaguar_Leave(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8192E)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8192E) {
 		HalTxbf8192E_Leave(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_Leave(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8822B) {
 		HalTxbf8822B_Leave(pDM_Odm, Idx);
+	}
 }
 
 
-VOID 
+VOID
 halComTxbf_FwNdpaWorkItemCallback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	IN	PADAPTER		Adapter
@@ -249,14 +259,18 @@ halComTxbf_FwNdpaWorkItemCallback(
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
-	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821))
+	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821)) {
 		HalTxbfJaguar_FwTxBF(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8192E)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8192E) {
 		HalTxbf8192E_FwTxBF(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_FwTxBF(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8822B) {
 		HalTxbf8822B_FwTxBF(pDM_Odm, Idx);
+	}
 }
 
 VOID
@@ -277,14 +291,15 @@ halComTxbf_ClkWorkItemCallback(
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
-	if (pDM_Odm->SupportICType & ODM_RTL8812)
+	if (pDM_Odm->SupportICType & ODM_RTL8812) {
 		HalTxbfJaguar_Clk_8812A(pDM_Odm);
+	}
 }
 
 
 
 VOID
-halComTxbf_RateWorkItemCallback(	
+halComTxbf_RateWorkItemCallback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	IN	PADAPTER		Adapter
 #else
@@ -300,22 +315,24 @@ halComTxbf_RateWorkItemCallback(
 #endif
 	PHAL_TXBF_INFO	pTxbfInfo = &pDM_Odm->BeamformingInfo.TxbfInfo;
 	u1Byte			BW = pTxbfInfo->BW;
-	u1Byte			Rate = pTxbfInfo->Rate;	
-	
+	u1Byte			Rate = pTxbfInfo->Rate;
+
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
-	if (pDM_Odm->SupportICType & ODM_RTL8812)
+	if (pDM_Odm->SupportICType & ODM_RTL8812) {
 		HalTxbf8812A_setNDPArate(pDM_Odm, BW, Rate);
-	else if (pDM_Odm->SupportICType & ODM_RTL8192E)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8192E) {
 		HalTxbf8192E_setNDPArate(pDM_Odm, BW, Rate);
-	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_setNDPArate(pDM_Odm, BW, Rate);
-	
+	}
 }
 
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-VOID 
+VOID
 halComTxbf_FwNdpaTimerCallback(
 	IN	PRT_TIMER		pTimer
 	)
@@ -327,13 +344,14 @@ halComTxbf_FwNdpaTimerCallback(
 
 	PHAL_TXBF_INFO	pTxbfInfo = &pDM_Odm->BeamformingInfo.TxbfInfo;
 
-	
+
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
-	if (*pDM_Odm->pbFwDwRsvdPageInProgress)
+	if (*pDM_Odm->pbFwDwRsvdPageInProgress) {
 		ODM_SetTimer(pDM_Odm, &(pTxbfInfo->Txbf_FwNdpaTimer), 5);
-	else
+	} else {
 		PlatformScheduleWorkItem(&(pTxbfInfo->Txbf_FwNdpaWorkItem));
+	}
 }
 #endif
 
@@ -359,14 +377,18 @@ halComTxbf_StatusWorkItemCallback(
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] Start!\n", __func__));
 
-	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821))
+	if (pDM_Odm->SupportICType & (ODM_RTL8812|ODM_RTL8821)) {
 		HalTxbfJaguar_Status(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8192E)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8192E) {
 		HalTxbf8192E_Status(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_Status(pDM_Odm, Idx);
-	else if (pDM_Odm->SupportICType & ODM_RTL8822B)
+	}
+	else if (pDM_Odm->SupportICType & ODM_RTL8822B) {
 		HalTxbf8822B_Status(pDM_Odm, Idx);
+	}
 }
 
 VOID
@@ -388,9 +410,9 @@ halComTxbf_ResetTxPathWorkItemCallback(
 
 	u1Byte			Idx = pTxbfInfo->TXBFIdx;
 
-	if (pDM_Odm->SupportICType & ODM_RTL8814A)
+	if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_ResetTxPath(pDM_Odm, Idx);
-	
+	}
 }
 
 VOID
@@ -408,9 +430,10 @@ halComTxbf_GetTxRateWorkItemCallback(
 #else
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
 #endif
-	
-	if (pDM_Odm->SupportICType & ODM_RTL8814A)
+
+	if (pDM_Odm->SupportICType & ODM_RTL8814A) {
 		HalTxbf8814A_GetTxRate(pDM_Odm);
+	}
 }
 
 
@@ -426,7 +449,7 @@ HalComTxbf_Set(
 	PHAL_TXBF_INFO	pTxbfInfo = &pDM_Odm->BeamformingInfo.TxbfInfo;
 
 	ODM_RT_TRACE(pDM_Odm, PHYDM_COMP_TXBF, ODM_DBG_LOUD, ("[%s] setType = 0x%X\n", __func__, setType));
-	
+
 	switch(setType){
 	case TXBF_SET_SOUNDING_ENTER:
 	pTxbfInfo->TXBFIdx = *pU1Tmp;
@@ -457,7 +480,7 @@ HalComTxbf_Set(
 	case TXBF_SET_SOUNDING_CLK:
 	phydm_beamformSetSoundingClk(pDM_Odm);
 	break;
-		
+
 	case TXBF_SET_TX_PATH_RESET:
 	pTxbfInfo->TXBFIdx = *pU1Tmp;
 	phydm_beamformSetResetTxPath(pDM_Odm);
@@ -466,7 +489,7 @@ HalComTxbf_Set(
 	case TXBF_SET_GET_TX_RATE:
 	phydm_beamformSetGetTxRate(pDM_Odm);
 	break;
-	
+
 	}
 
 	return TRUE;
@@ -498,7 +521,7 @@ HalComTxbf_Get(
 			*pBoolean = FALSE;
 	} else if (getType == TXBF_GET_EXPLICIT_BEAMFORMER) {
 		if (IS_HARDWARE_TYPE_OLDER_THAN_8812A(Adapter))
-			*pBoolean = FALSE;		
+			*pBoolean = FALSE;
 		else	if (/*IS_HARDWARE_TYPE_8822B(Adapter)	||*/
 				IS_HARDWARE_TYPE_8821B(Adapter) 	||
 				IS_HARDWARE_TYPE_8192E(Adapter) 	||
@@ -519,18 +542,18 @@ HalComTxbf_Get(
 
 
 	} else if (getType == TXBF_GET_MU_MIMO_AP) {
-#if (RTL8822B_SUPPORT == 1)	
+#if (RTL8822B_SUPPORT == 1)
 		if (IS_HARDWARE_TYPE_8822B(Adapter))
 			*pBoolean = TRUE;
 		else
 #endif
 			*pBoolean = FALSE;
 	}
-	
+
 	return TRUE;
-}	
+}
 #endif
 
 
-#endif 
+#endif
 

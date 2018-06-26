@@ -38,7 +38,7 @@ phydm_SetKfreeToRF_8814A(
 	PDM_ODM_T		pDM_Odm = (PDM_ODM_T)pDM_VOID;
 	PODM_RF_CAL_T	pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
 	BOOLEAN bOdd;
-	
+
 	if ((Data%2) != 0) {	/*odd -> positive*/
 		Data = Data - 1;
 		ODM_SetRFReg(pDM_Odm, eRFPath, rRF_TxGainOffset, BIT19, 1);
@@ -113,9 +113,9 @@ phydm_SetKfreeToRF_8814A(
 	/*that means Kfree offset is negative, we need to record it.*/
 		pRFCalibrateInfo->KfreeOffset[eRFPath] = (-1)*pRFCalibrateInfo->KfreeOffset[eRFPath];
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_MP, ODM_DBG_LOUD, ("phy_ConfigKFree8814A(): KfreeOffset = %d\n", pRFCalibrateInfo->KfreeOffset[eRFPath]));
-	} else
+	} else {
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_MP, ODM_DBG_LOUD, ("phy_ConfigKFree8814A(): KfreeOffset = %d\n", pRFCalibrateInfo->KfreeOffset[eRFPath]));
-	
+	}
 }
 
 
@@ -127,7 +127,7 @@ phydm_SetKfreeToRF(
 	)
 {
 	PDM_ODM_T	pDM_Odm = (PDM_ODM_T)pDM_VOID;
-	
+
 	if (pDM_Odm->SupportICType & ODM_RTL8814A)
 		phydm_SetKfreeToRF_8814A(pDM_Odm, eRFPath, Data);
 }
@@ -150,9 +150,9 @@ phydm_ConfigKFree(
 		maxRFpath = 2;	/*0~1*/
 	else
 		maxRFpath = 1;
-	
+
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_MP, ODM_DBG_LOUD, ("===>phy_ConfigKFree8814A()\n"));
-	
+
 	if (pRFCalibrateInfo->RegRfKFreeEnable == 2) {
 		ODM_RT_TRACE(pDM_Odm, ODM_COMP_MP, ODM_DBG_LOUD, ("phy_ConfigKFree8814A(): RegRfKFreeEnable == 2, Disable\n"));
 		return;
@@ -188,4 +188,3 @@ phydm_ConfigKFree(
 	}
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_MP, ODM_DBG_LOUD, ("<===phy_ConfigKFree8814A()\n"));
 }
-

@@ -6,3 +6,4 @@ Module.symvers
 modules.order
 *.mod.c
 .tmp_versions
+.cache.mk

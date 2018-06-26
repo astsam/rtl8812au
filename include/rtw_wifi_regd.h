@@ -30,3 +30,4 @@ void rtw_reg_notify_by_driver(_adapter *adapter);
 #endif
 
 #endif /* __RTW_WIFI_REGD_H__ */
+

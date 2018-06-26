@@ -183,8 +183,6 @@ static void find_ns(struct ieee80211_radiotap_iterator *iterator,
 	}
 }
 
-
-
 /**
  * ieee80211_radiotap_iterator_next - return next radiotap parser iterator arg
  * @iterator: radiotap_iterator to move to next arg (if any)
@@ -366,4 +364,3 @@ int rtw_ieee80211_radiotap_iterator_next(
 			return 0;
 	}
 }
-

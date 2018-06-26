@@ -309,7 +309,6 @@
 #endif /* !CONFIG_BT_COEXIST */
 
 
-
 #ifdef CONFIG_USB_TX_AGGREGATION
 /* #define	CONFIG_TX_EARLY_MODE */
 #endif
@@ -347,12 +346,11 @@
 /* #define DBG_RX_SIGNAL_DISPLAY_SSID_MONITORED "jeff-ap" */
 
 
-
 /* #define DBG_SHOW_MCUFWDL_BEFORE_51_ENABLE */
 /* #define DBG_ROAMING_TEST */
 
 /* #define DBG_HAL_INIT_PROFILING */
 
-/*#define DBG_MEMORY_LEAK*/
+/* #define DBG_MEMORY_LEAK*/
 #define	DBG_RX_DFRAME_RAW_DATA
-/*#define CONFIG_USE_EXTERNAL_POWER  */        /* NOT USB2.0 power, so no 500mA power constraint, no limitation in Power by Rate*/
+/* #define CONFIG_USE_EXTERNAL_POWER */        /* NOT USB2.0 power, so no 500mA power constraint, no limitation in Power by Rate */

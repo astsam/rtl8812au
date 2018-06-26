@@ -227,7 +227,7 @@ int rtw_antdiv_type = 0
 int rtw_drv_ant_band_switch = 1; /* 0:OFF , 1:ON, Driver control antenna band switch*/
 
 /* 0: doesn't switch, 1: switch from usb2.0 to usb 3.0 2: switch from usb3.0 to usb 2.0 */
-int rtw_switch_usb_mode = 0;
+int rtw_switch_usb_mode = 1;
 
 #ifdef CONFIG_USB_AUTOSUSPEND
 int rtw_enusbss = 1;/* 0:disable,1:enable */
@@ -622,6 +622,12 @@ module_param(rtw_mcc_sta_bw40_target_tx_tp, int, 0644);
 module_param(rtw_mcc_sta_bw80_target_tx_tp, int, 0644);
 #endif /*CONFIG_MCC_MODE */
 
+#ifdef CONFIG_SW_LED
+int rtw_led_ctrl = 1;  /* Default to normal blink */
+module_param(rtw_led_ctrl, int, 0644);
+MODULE_PARM_DESC(rtw_led_ctrl,"Led Control: 0=Always off, 1=Normal blink, 2=Always on");
+#endif /* CONFIG_SW_LED */
+
 void rtw_regsty_load_target_tx_power(struct registry_priv *regsty)
 {
 	int path, rs;
@@ -820,9 +826,6 @@ uint loadparam(_adapter *padapter)
 
 #ifdef CONFIG_LAYER2_ROAMING
 	registry_par->max_roaming_times = (u8)rtw_max_roaming_times;
-#ifdef CONFIG_INTEL_WIDI
-	registry_par->max_roaming_times = (u8)rtw_max_roaming_times + 2;
-#endif /* CONFIG_INTEL_WIDI */
 #endif
 
 #ifdef CONFIG_IOL
@@ -913,7 +916,10 @@ uint loadparam(_adapter *padapter)
 	registry_par->trx_share_mode = rtw_trx_share_mode;
 #endif
 
-
+#ifdef CONFIG_SW_LED
+	registry_par->led_ctrl = (u8)rtw_led_ctrl;
+#endif /* CONFIG_SW_LED */
+	
 	return status;
 }
 
@@ -1826,13 +1832,10 @@ u8 rtw_reset_drv_sw(_adapter *padapter)
 	return ret8;
 }
 
-
 u8 rtw_init_drv_sw(_adapter *padapter)
 {
 
 	u8	ret8 = _SUCCESS;
-
-
 
 	_rtw_init_listhead(&padapter->list);
 
@@ -1939,14 +1942,6 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 	rtw_hal_sreset_init(padapter);
 #endif
 
-#ifdef CONFIG_INTEL_WIDI
-	if (rtw_init_intel_widi(padapter) == _FAIL) {
-		RTW_INFO("Can't rtw_init_intel_widi\n");
-		ret8 = _FAIL;
-		goto exit;
-	}
-#endif /* CONFIG_INTEL_WIDI */
-
 #ifdef CONFIG_WAPI_SUPPORT
 	padapter->WapiSupport = true; /* set true temp, will revise according to Efuse or Registry value later. */
 	rtw_wapi_init(padapter);
@@ -1957,8 +1952,6 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 #endif /* CONFIG_BR_EXT */
 
 exit:
-
-
 
 	return ret8;
 
@@ -2046,10 +2039,6 @@ u8 rtw_free_drv_sw(_adapter *padapter)
 	_rtw_spinlock_free(&padapter->br_ext_lock);
 #endif /* CONFIG_BR_EXT */
 
-#ifdef CONFIG_INTEL_WIDI
-	rtw_free_intel_widi(padapter);
-#endif /* CONFIG_INTEL_WIDI */
-
 	free_mlme_ext_priv(&padapter->mlmeextpriv);
 
 #ifdef CONFIG_TDLS
@@ -2079,7 +2068,6 @@ u8 rtw_free_drv_sw(_adapter *padapter)
 #endif
 
 	rtw_hal_free_data(padapter);
-
 
 	/* free the old_pnetdev */
 	if (padapter->rereg_nd_name_priv.old_pnetdev) {
@@ -2284,7 +2272,6 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	padapter->hw_port = HW_PORT1;
 #endif
 
-
 	/****** hook vir if into dvobj ******/
 	pdvobjpriv = adapter_to_dvobj(padapter);
 	padapter->iface_id = pdvobjpriv->iface_nums;
@@ -2301,7 +2288,6 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	/*init drv data*/
 	if (rtw_init_drv_sw(padapter) != _SUCCESS)
 		goto free_drv_sw;
-
 
 	/*get mac address from primary_padapter*/
 	_rtw_memcpy(mac, adapter_mac_addr(primary_padapter), ETH_ALEN);
@@ -2783,7 +2769,6 @@ netdev_open_error:
 	return _FAIL;
 }
 
-
 int rtw_ips_pwr_up(_adapter *padapter)
 {
 	int result;
@@ -2846,7 +2831,6 @@ void rtw_ips_dev_unload(_adapter *padapter)
 		rtw_hal_deinit(padapter);
 
 }
-
 
 int pm_netdev_open(struct net_device *pnetdev, u8 bnormal)
 {
@@ -3308,7 +3292,6 @@ void rtw_dev_unload(PADAPTER padapter)
 
 		rtw_intf_stop(padapter);
 
-
 		if (!pwrctl->bInternalAutoSuspend)
 			rtw_stop_drv_threads(padapter);
 
@@ -3322,7 +3305,6 @@ void rtw_dev_unload(PADAPTER padapter)
 				rtw_msleep_os(10);
 			}
 		}
-
 
 		/* check the status of IPS */
 		if (rtw_hal_check_ips_status(padapter) == _TRUE || pwrctl->rf_pwrstate == rf_off) { /* check HW status and SW state */
@@ -3434,7 +3416,6 @@ int rtw_suspend_wow(_adapter *padapter)
 	int ret = _SUCCESS;
 
 	RTW_INFO("==> "FUNC_ADPT_FMT" entry....\n", FUNC_ADPT_ARG(padapter));
-
 
 	RTW_INFO("wowlan_mode: %d\n", pwrpriv->wowlan_mode);
 	RTW_INFO("wowlan_pno_enable: %d\n", pwrpriv->wowlan_pno_enable);
@@ -3645,7 +3626,6 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 }
 #endif /* #ifdef CONFIG_AP_WOWLAN */
 
-
 int rtw_suspend_normal(_adapter *padapter)
 {
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
@@ -3663,7 +3643,6 @@ int rtw_suspend_normal(_adapter *padapter)
 	if ((rtw_hal_check_ips_status(padapter) == _TRUE)
 	    || (adapter_to_pwrctl(padapter)->rf_pwrstate == rf_off))
 		RTW_PRINT("%s: ### ERROR #### driver in IPS ####ERROR###!!!\n", __FUNCTION__);
-
 
 #ifdef CONFIG_CONCURRENT_MODE
 	rtw_mi_buddy_dev_unload(padapter);
@@ -3765,7 +3744,6 @@ int rtw_suspend_common(_adapter *padapter)
 	} else
 		rtw_suspend_normal(padapter);
 
-
 	RTW_PRINT("rtw suspend success in %d ms\n",
 		  rtw_get_passing_time_ms(start_time));
 
@@ -3846,7 +3824,6 @@ int rtw_resume_process_wow(_adapter *padapter)
 		psta = rtw_get_stainfo(&padapter->stapriv, get_bssid(&padapter->mlmepriv));
 		if (psta)
 			set_sta_rate(padapter, psta);
-
 
 		rtw_clr_drv_stopped(padapter);
 		RTW_INFO("%s: wowmode resuming, DriverStopped:%s\n", __func__, rtw_is_drv_stopped(padapter) ? "True" : "False");
@@ -3968,7 +3945,6 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 		ret = -1;
 		goto exit;
 	}
-
 
 #ifdef CONFIG_LPS
 	rtw_set_ps_mode(padapter, PS_MODE_ACTIVE, 0, 0, "AP-WOWLAN");
@@ -4196,7 +4172,6 @@ int rtw_resume_common(_adapter *padapter)
 	}
 	RTW_PRINT("%s:%d in %d ms\n", __FUNCTION__ , ret,
 		  rtw_get_passing_time_ms(start_time));
-
 
 	return ret;
 }

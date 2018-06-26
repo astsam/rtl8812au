@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -42,7 +42,7 @@
 
 
 #define READ_FIRMWARE_MP(ic, txt) 		(ODM_ReadFirmware_MP_##ic##txt(pDM_Odm, pFirmware, pSize))
-#define READ_FIRMWARE_TC(ic, txt) 		(ODM_ReadFirmware_TC_##ic##txt(pDM_Odm, pFirmware, pSize))		
+#define READ_FIRMWARE_TC(ic, txt) 		(ODM_ReadFirmware_TC_##ic##txt(pDM_Odm, pFirmware, pSize))
 
 #if (PHYDM_TESTCHIP_SUPPORT == 1)
 #define READ_FIRMWARE(ic, txt) do {\
@@ -50,11 +50,11 @@
 							READ_FIRMWARE_MP(ic,txt);\
 						else\
 							READ_FIRMWARE_TC(ic,txt);\
-					} while(0) 
+					} while(0)
 #else
 #define READ_FIRMWARE     READ_FIRMWARE_MP
 #endif
-						
+
 #define GET_VERSION_MP(ic, txt) 		(ODM_GetVersion_MP_##ic##txt())
 #define GET_VERSION_TC(ic, txt) 		(ODM_GetVersion_TC_##ic##txt())
 #define GET_VERSION(ic, txt) (pDM_Odm->bIsMPChip?GET_VERSION_MP(ic,txt):GET_VERSION_TC(ic,txt))
@@ -78,14 +78,14 @@ odm_QueryRxPwrPercentage(
 // IF other SW team do not support the feature, remove this section.??
 //
 s4Byte
-odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Lenovo(	
+odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Lenovo(
 	IN OUT PDM_ODM_T pDM_Odm,
-	s4Byte CurrSig 
+	s4Byte CurrSig
 )
-{	
+{
 	s4Byte RetSig = 0;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	//if(pDM_Odm->SupportInterface  == ODM_ITRF_PCIE) 
+	//if(pDM_Odm->SupportInterface  == ODM_ITRF_PCIE)
 	{
 		// Step 1. Scale mapping.
 		// 20100611 Joseph: Re-tunning RSSI presentation for Lenovo.
@@ -116,16 +116,16 @@ odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Lenovo(
 }
 
 s4Byte
-odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Netcore(	
+odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Netcore(
 	IN OUT PDM_ODM_T pDM_Odm,
-	s4Byte CurrSig 
+	s4Byte CurrSig
 )
 {
 	s4Byte RetSig = 0;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	//if(pDM_Odm->SupportInterface  == ODM_ITRF_USB)
 	{
-		// Netcore request this modification because 2009.04.13 SU driver use it. 
+		// Netcore request this modification because 2009.04.13 SU driver use it.
 		if (CurrSig >= 31 && CurrSig <= 100)
 			RetSig = 100;
 		else if (CurrSig >= 21 && CurrSig <= 30)
@@ -155,14 +155,14 @@ odm_SignalScaleMapping_92CSeries_patch_RT_CID_819x_Netcore(
 
 
 s4Byte
-odm_SignalScaleMapping_92CSeries(	
+odm_SignalScaleMapping_92CSeries(
 	IN OUT PDM_ODM_T pDM_Odm,
-	IN s4Byte CurrSig 
+	IN s4Byte CurrSig
 )
 {
-	s4Byte RetSig = 0; 
-#if (DEV_BUS_TYPE == RT_PCI_INTERFACE) 
-	if (pDM_Odm->SupportInterface  == ODM_ITRF_PCIE) 
+	s4Byte RetSig = 0;
+#if (DEV_BUS_TYPE == RT_PCI_INTERFACE)
+	if (pDM_Odm->SupportInterface  == ODM_ITRF_PCIE)
 	{
 		// Step 1. Scale mapping.
 		if(CurrSig >= 61 && CurrSig <= 100)
@@ -1279,6 +1279,9 @@ odm_RxPhyStatusJaguarSeries_Parsing(
 							EVM += 20;
 							if (EVM > 100)
 								EVM = 100;
+						} else {
+							// it's a made up value, but Realtek apparently assumed 'this would never happen'
+							EVM = 0;
 						}
 					} else {
 						if (i < ODM_RF_PATH_C) {
