@@ -3,7 +3,6 @@
   ----------------------------------------------------------------------------------------
 
   TODO:
-  - Add support for namespaces (NS)
   - Fix count for frames in RadioTap header (add to stats)
   - Place signal quality and per antenna rssi into radiotap header
   - Calculate signal quality in the monitor mode
@@ -24,6 +23,7 @@
 
   [2018.06.26]
   - Enable TX queue in the monitor mode
+  - Add support for namespaces (CONFIG_NET_NS)
 
   [2018.06.25]
   - Fix injected frames drop
