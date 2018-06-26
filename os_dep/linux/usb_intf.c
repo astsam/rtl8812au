@@ -234,6 +234,7 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x20F4, 0x809A), .driver_info = RTL8814A}, /* TRENDnet - TRENDnet */
 	{USB_DEVICE(0x20F4, 0x809B), .driver_info = RTL8814A}, /* TRENDnet TEW-809UB */
 	{USB_DEVICE(0x0846, 0x9054), .driver_info = RTL8814A}, /* Netgear A7000 */
+	{USB_DEVICE(0x0E66, 0x0026), .driver_info = RTL8814A}, /* Hawking HW17ACU 1750AC */
 #endif /* CONFIG_RTL8814A */
 
 #ifdef CONFIG_RTL8188F
