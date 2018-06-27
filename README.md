@@ -1,19 +1,14 @@
 # rtl8812au
 
-## Realtek 8812AU driver version 5.2.20
+## Realtek 8812AU driver v5.2.20 with monitor mode and frame injection
 
-Only supports 8812AU chipset. 
+Only supports 8812AU chipset, not the 8814AU or the 8821AU at this point.
 
-Works fine with 4.15 kernel. Source now builds with no warnings or errors.
+### Changelogs and TODO
+Check the "docs/" folder for more information. 
+Both Realtek changelog is added and our personal changelog and TODO is in there.
 
-Added (cosmeticly edited) original Realtek_Changelog.txt, this README.md and dkms.conf.
-
-Added device USB IDs, sorted by ID number.
-Added LED control by Makefile, module parameter and dynamic /proc writing.
-Added VHT extras.
-Added regdb files.
-
-### Building
+### Building / Installing
 
 To build and install module manually:
 ```sh
@@ -24,24 +19,54 @@ $ sudo make install
 To use dkms install:
 
 ```sh
-  (as root, or sudo) copy source folder contents to /usr/src/rtl8812au-5.2.20
-```
-
-```sh
-$ sudo dkms add -m rtl8812au -v 5.2.20
-$ sudo dkms build -m rtl8812au -v 5.2.20
-$ sudo dkms install -m rtl8812au -v 5.2.20 
+$ sudo ./dkms-install.sh
 ```
 
 To use dkms uninstall and remove:
 
 ```sh
-$ sudo dkms remove -m rtl8812au -v 5.2.20 --all
+$ sudo ./dkms-remove.sh
+```
+
+### Notes
+Download
+```
+git clone -b v5.1.5 https://github.com/aircrack-ng/rtl8812au.git
+cd rtl*
+```
+Package / Build dependencies (Kali)
+```
+sudo apt-get install build-essential
+sudo apt-get install bc
+sudo apt-get install libelf-dev
+sudo apt-get install linux-headers-`uname -r`
+```
+For Raspberry (RPI) also
+```
+sudo apt install raspberrypi-kernel-headers
+```
+
+### For setting monitor mode
+1. Fix problematic interference in monitor mode. 
+```
+airmon-ng check kill
+```
+You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
+
+2. Set interface down
+```
+sudo ip link set wlan0 down
+``` 
+3. Set monitor mode
+```
+sudo iw dev wlan0 set type monitor
+```
+4. Set interface up
+```
+sudo ip link set wlan0 up
 ```
 
 ### LED control
-
-Thanks to @dkadioglu and others for a start on this.
 
 #### You can now control LED behaviour statically by Makefile, for example:
 
@@ -72,17 +97,12 @@ $ cat /proc/net/rtl8812au/$(your interface name)/led_enable
 
 ### NetworkManager
 
-As others have noted, people using NetworkManager need to add this stanza to /etc/NetworkManager/NetworkManager.conf
-
-```sh
-  [device]
-  wifi.scan-rand-mac-address=no
+Newer versions of NetworkManager switches to random MAC address. Some users would prefer to use a fixed address. 
+Simply add these lines below
 ```
-
-### Regdb files
-
-If needed, copy the regulatory database files in regdb/ to /lib/firmware/
-
-```sh
-$ sudo cp ./regdb/* /lib/firmware/
+[device]
+wifi.scan-rand-mac-address=no
 ```
+at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
+```
+sudo service NetworkManager restart

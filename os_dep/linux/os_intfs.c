@@ -1605,6 +1605,9 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
 	rtw_init_netdev_name(ndev, name);
 
 	_rtw_memcpy(ndev->dev_addr, adapter_mac_addr(adapter), ETH_ALEN);
+#if defined(CONFIG_NET_NS)
+	dev_net_set(ndev, wiphy_net(adapter_to_wiphy(adapter)));
+#endif //defined(CONFIG_NET_NS)
 
 	/* Tell the network stack we exist */
 
@@ -3211,7 +3214,7 @@ int _netdev_open(struct net_device *pnetdev)
 	rtw_set_pwr_state_check_timer(pwrctrlpriv);
 #endif
 
-	/* rtw_netif_carrier_on(pnetdev); */ /* call this func when rtw_joinbss_event_callback return success */
+	rtw_netif_carrier_on(pnetdev); /* call this func when rtw_joinbss_event_callback return success */
 	rtw_netif_wake_queue(pnetdev);
 
 #ifdef CONFIG_BR_EXT
