@@ -21,6 +21,9 @@
 
   +++ And propably alot more. We'll see.
 
+  [2018.07.01]
+  - Fixed compilation warnings (brackets missing etc)
+
   [2018.06.26]
   - Enable TX queue in the monitor mode
   - Add support for namespaces (CONFIG_NET_NS)
