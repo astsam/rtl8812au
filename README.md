@@ -39,6 +39,7 @@ Package / Build dependencies (Kali)
 sudo apt-get install build-essential
 sudo apt-get install bc
 sudo apt-get install libelf-dev
+sudo apt-get install dkms
 sudo apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI) also
