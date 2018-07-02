@@ -80,7 +80,7 @@
 #ifdef CONFIG_SINGLE_XMIT_BUF
 	#define NR_XMIT_EXTBUFF	(1)
 #else
-	#define NR_XMIT_EXTBUFF	(64)
+	#define NR_XMIT_EXTBUFF	(32)
 #endif
 
 #ifdef CONFIG_RTL8812A
@@ -483,7 +483,6 @@ struct pkt_attrib {
 	 */
 	u8 bf_pkt_type;
 #endif
-    u8  inject; /* == a5 if injected */
 
 };
 #endif

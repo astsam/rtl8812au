@@ -1605,9 +1605,6 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
 	rtw_init_netdev_name(ndev, name);
 
 	_rtw_memcpy(ndev->dev_addr, adapter_mac_addr(adapter), ETH_ALEN);
-#if defined(CONFIG_NET_NS)
-	dev_net_set(ndev, wiphy_net(adapter_to_wiphy(adapter)));
-#endif //defined(CONFIG_NET_NS)
 
 	/* Tell the network stack we exist */
 
@@ -3214,7 +3211,7 @@ int _netdev_open(struct net_device *pnetdev)
 	rtw_set_pwr_state_check_timer(pwrctrlpriv);
 #endif
 
-	rtw_netif_carrier_on(pnetdev); /* call this func when rtw_joinbss_event_callback return success */
+	/* rtw_netif_carrier_on(pnetdev); */ /* call this func when rtw_joinbss_event_callback return success */
 	rtw_netif_wake_queue(pnetdev);
 
 #ifdef CONFIG_BR_EXT
@@ -3243,6 +3240,15 @@ netdev_open_normal_process:
 		#endif
 	}
 #endif
+
+#ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
+	pwrctrlpriv->radio_on_start_time = rtw_get_current_time();
+	pwrctrlpriv->pwr_saving_start_time = rtw_get_current_time();
+	pwrctrlpriv->pwr_saving_time = 0;
+	pwrctrlpriv->on_time = 0;
+	pwrctrlpriv->tx_time = 0;
+	pwrctrlpriv->rx_time = 0;
+#endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 
 	RTW_INFO("-871x_drv - drv_open, bup=%d\n", padapter->bup);
 

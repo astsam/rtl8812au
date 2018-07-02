@@ -1,7 +1,15 @@
 Product: RTL8812A USB Software Package - Linux Driver
-Version: v5.2.20_25672.20171213
+Version: v5.2.20.2_28373.20180619
 
 Release History:
+
+v5.2.20.2_28373.20180619
+
+	Update phydm to improve TP stability
+
+v5.2.20.1_27761.20180508
+
+	Support WiFi-HAL for Android 8
 
 v5.2.20_25672.20171213
 

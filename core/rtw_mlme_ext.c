@@ -1639,7 +1639,7 @@ void mgt_dispatcher(_adapter *padapter, union recv_frame *precv_frame)
 			ptable->func = &OnAuth;
 		else
 			ptable->func = &OnAuthClient;
-	/* Intentional fallthrough */
+	/* pass through */
 	case WIFI_ASSOCREQ:
 	case WIFI_REASSOCREQ:
 		_mgt_dispatcher(padapter, ptable, precv_frame);
@@ -2435,15 +2435,14 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 			if (rtw_is_list_empty(&pstat->asoc_list) == _FALSE) {
 				rtw_list_delete(&pstat->asoc_list);
 				pstapriv->asoc_list_cnt--;
-				if (pstat->expire_to > 0) {
+				if (pstat->expire_to > 0)
 					;/* TODO: STA re_auth within expire_to */
-				}
 			}
 			_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 
-			if (seq == 1) {
+			if (seq == 1)
 				; /* TODO: STA re_auth and auth timeout */
-			}
+
 		}
 	}
 
@@ -7212,15 +7211,14 @@ void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 	u8	wireless_mode;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 	struct xmit_priv		*pxmitpriv = &padapter->xmitpriv;
-//	struct sta_info		*psta = NULL;
-//	struct sta_priv		*pstapriv = &padapter->stapriv;
+	struct sta_info		*psta = NULL;
+	struct sta_priv		*pstapriv = &padapter->stapriv;
 
-//	psta = rtw_get_stainfo(pstapriv, pattrib->ra);
+	psta = rtw_get_stainfo(pstapriv, pattrib->ra);
 
 	pattrib->hdrlen = 24;
 	pattrib->nr_frags = 1;
 	pattrib->priority = 7;
-	pattrib->inject = 0xa5;
 	pattrib->mac_id = RTW_DEFAULT_MGMT_MACID;
 	pattrib->qsel = QSLT_MGNT;
 
@@ -7260,7 +7258,7 @@ void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 
 	pattrib->seqnum = pmlmeext->mgnt_seq;
 
-	pattrib->retry_ctrl = _FALSE;
+	pattrib->retry_ctrl = _TRUE;
 
 	pattrib->mbssid = 0;
 	pattrib->hw_ssn_sel = pxmitpriv->hw_ssn_seq_no;

@@ -184,12 +184,11 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
   {USB_DEVICE(0x2001, 0x3316), .driver_info = RTL8812}, /* D-Link - Cameo */
   {USB_DEVICE(0x2019, 0xAB30), .driver_info = RTL8812}, /* Planex - Abocom */
   {USB_DEVICE(0x20F4, 0x805B), .driver_info = RTL8812}, /* TRENDnet - Cameo */
-  {USB_DEVICE(0x2357, 0x0101), .driver_info = RTL8812}, /* TP-Link - Archer T4U AC1200 */
-  {USB_DEVICE(0x2357, 0x0103), .driver_info = RTL8812}, /* TP-Link - T4UH */
+  {USB_DEVICE(0x2357, 0x0101), .driver_info = RTL8812}, /* TP-Link - Archer T4U */
+  {USB_DEVICE(0x2357, 0x0103), .driver_info = RTL8812}, /* TP-Link - Archer T4UH */
   {USB_DEVICE(0x2357, 0x010D), .driver_info = RTL8812}, /* TP-Link - Archer T4U AC1300 */
   {USB_DEVICE(0x2357, 0x010E), .driver_info = RTL8812}, /* TP-Link - Archer T4UH AC1300 */
   {USB_DEVICE(0x2357, 0x010F), .driver_info = RTL8812}, /* TP-Link - T4UHP */
-  {USB_DEVICE(0x2357, 0x0122), .driver_info = RTL8812}, /* TP-Link - T4UHP (other) */
   {USB_DEVICE(0x2604, 0x0012), .driver_info = RTL8812}, /* Tenda - U12 */
   {USB_DEVICE(0x7392, 0xA812), .driver_info = RTL8812}, /* Edimax - EW-7811UTC */
   {USB_DEVICE(0x7392, 0xA822), .driver_info = RTL8812}, /* Edimax - Edimax */
@@ -200,27 +199,17 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x0811), .driver_info = RTL8821}, /* Default ID */
 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x0821), .driver_info = RTL8821}, /* Default ID */
 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x8822), .driver_info = RTL8821}, /* Default ID */
-	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xA811), .driver_info = RTL8821},/* Default ID */
+	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0xA811) , .driver_info = RTL8821},/* Default ID */
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x0820, 0xff, 0xff, 0xff), .driver_info = RTL8821}, /* 8821AU */
 	{USB_DEVICE_AND_INTERFACE_INFO(USB_VENDER_ID_REALTEK, 0x0823, 0xff, 0xff, 0xff), .driver_info = RTL8821}, /* 8821AU */
 	/*=== Customer ID ===*/
 	{USB_DEVICE(0x7392, 0xA811), .driver_info = RTL8821}, /* Edimax - Edimax */
-	{USB_DEVICE(0x7392, 0xA812), .driver_info = RTL8821}, /* Edimax - EW-7811UTC */
-	{USB_DEVICE(0x7392, 0xA813), .driver_info = RTL8821}, /* Edimax - EW-7811UAC */
-	{USB_DEVICE(0x0BDA, 0xA811), .driver_info = RTL8821}, /* OUTLINK - Edimax */
 	{USB_DEVICE(0x04BB, 0x0953), .driver_info = RTL8821}, /* I-O DATA - Edimax */
 	{USB_DEVICE(0x2001, 0x3314), .driver_info = RTL8821}, /* D-Link - Cameo */
 	{USB_DEVICE(0x2001, 0x3318), .driver_info = RTL8821}, /* D-Link - Cameo */
 	{USB_DEVICE(0x0E66, 0x0023), .driver_info = RTL8821}, /* HAWKING - Edimax */
-	{USB_DEVICE(0x056E, 0x400E), .driver_info = RTL8821}, /* ELECOM -  ELECOM */
-	{USB_DEVICE(0x056E, 0x400F), .driver_info = RTL8821}, /* ELECOM -  ELECOM */
-	{USB_DEVICE(0x0846, 0x9052), .driver_info = RTL8821}, /* Netgear - A6100 */
-	{USB_DEVICE(0x2019, 0xAB32), .driver_info = RTL8821}, /* Planex - GW-450S */
-	{USB_DEVICE(0x0411, 0x0242), .driver_info = RTL8821}, /* BUFFALO - Edimax */
-	{USB_DEVICE(0x0411, 0x025D), .driver_info = RTL8821}, /* BUFFALO - WI-U3-866D */
-	{USB_DEVICE(0x0411, 0x029B), .driver_info = RTL8821}, /* BUFFALO - WI-U2-433DHP */
-	{USB_DEVICE(0x0BDA, 0xA811), .driver_info = RTL8821}, /* Comfast - CF-915AC, CF-916AC */
-	{USB_DEVICE(0x056E, 0x4007), .driver_info = RTL8821}, /* Elecom - WDC-433DU2HBK */
+	{USB_DEVICE(0x056E, 0x400E) , .driver_info = RTL8821}, /* ELECOM -  ELECOM */
+	{USB_DEVICE(0x056E, 0x400F) , .driver_info = RTL8821}, /* ELECOM -  ELECOM */
 #endif
 
 #ifdef CONFIG_RTL8192E
@@ -242,21 +231,13 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 #endif /* CONFIG_RTL8703B */
 
 #ifdef CONFIG_RTL8814A
+
 	{USB_DEVICE(USB_VENDER_ID_REALTEK, 0x8813), .driver_info = RTL8814A},
-	{USB_DEVICE(0x2001, 0x331A), .driver_info = RTL8814A}, /* D-Link - D-Link */
-	{USB_DEVICE(0x0B05, 0x1817), .driver_info = RTL8814A}, /* ASUS - ASUSTeK */
-	{USB_DEVICE(0x0B05, 0x1852), .driver_info = RTL8814A}, /* ASUS - ASUSTeK */
-	{USB_DEVICE(0x0B05, 0x1853), .driver_info = RTL8814A}, /* ASUS - ASUSTeK */
+	{USB_DEVICE(0x2001, 0x331a), .driver_info = RTL8814A}, /* D-Link - D-Link */
+	{USB_DEVICE(0x0b05, 0x1817), .driver_info = RTL8814A}, /* ASUS - ASUSTeK */
 	{USB_DEVICE(0x056E, 0x400B), .driver_info = RTL8814A}, /* ELECOM - ELECOM */
 	{USB_DEVICE(0x056E, 0x400D), .driver_info = RTL8814A}, /* ELECOM - ELECOM */
 	{USB_DEVICE(0x7392, 0xA834), .driver_info = RTL8814A}, /* Edimax - Edimax */
-	{USB_DEVICE(0x7392, 0xA833), .driver_info = RTL8814A}, /* Edimax - AC1750 */
-	{USB_DEVICE(0x0BDA, 0x8813), .driver_info = RTL8814A}, /* Edimax - EDUP Adapters */
-	{USB_DEVICE(0x2357, 0x0106), .driver_info = RTL8814A}, /* TP-LINK Archer T9UH */
-	{USB_DEVICE(0x20F4, 0x809A), .driver_info = RTL8814A}, /* TRENDnet - TRENDnet */
-	{USB_DEVICE(0x20F4, 0x809B), .driver_info = RTL8814A}, /* TRENDnet TEW-809UB */
-	{USB_DEVICE(0x0846, 0x9054), .driver_info = RTL8814A}, /* Netgear A7000 */
-	{USB_DEVICE(0x0E66, 0x0026), .driver_info = RTL8814A}, /* Hawking HW17ACU 1750AC */
 #endif /* CONFIG_RTL8814A */
 
 #ifdef CONFIG_RTL8188F
