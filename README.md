@@ -4,10 +4,6 @@
 
 Only supports 8812AU chipset, not the 8814AU or the 8821AU at this point.
 
-### Changelogs and TODO
-Check the "docs/" folder for more information. 
-Both Realtek changelog is added and our personal changelog and TODO is in there.
-
 ### Building / Installing
 
 To build and install module manually:
