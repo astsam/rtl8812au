@@ -307,8 +307,9 @@ hal_com_txbf_clk_work_item_callback(
 
 	PHYDM_DBG(p_dm, DBG_TXBF, ("[%s] Start!\n", __func__));
 
-	if (p_dm->support_ic_type & ODM_RTL8812)
+	if (p_dm->support_ic_type & ODM_RTL8812) {
 		hal_txbf_jaguar_clk_8812a(p_dm);
+	}
 }
 
 
@@ -343,7 +344,6 @@ hal_com_txbf_rate_work_item_callback(
 	else if (p_dm->support_ic_type & ODM_RTL8814A) {
 		hal_txbf_8814a_set_ndpa_rate(p_dm, BW, rate);
 	}
-
 }
 
 

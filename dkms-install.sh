@@ -9,7 +9,7 @@ fi
 
 DRV_DIR=rtl8812au
 DRV_NAME=rtl8812au
-DRV_VERSION=5.2.20
+DRV_VERSION=5.2.20.2
 
 cp -r ../${DRV_DIR} /usr/src/${DRV_NAME}-${DRV_VERSION}
 

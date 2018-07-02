@@ -2662,7 +2662,6 @@ PHY_SetTxPowerByRate(
 		RTW_INFO("Invalid RateIndex %d in %s\n", rateIndex, __FUNCTION__);
 		return;
 	}
-
 	if (DBG_TX_POWER_IDX)
 		RTW_INFO( "TXPWR: by-rate-base [%sG][%c] Rate:%s = %d\n",
 			(Band == BAND_ON_2_4G) ? "2.4" : "5", rf_path_char(RFPath),
@@ -2722,6 +2721,7 @@ PHY_SetTxPowerIndexByRateArray(
 	for (i = 0; i < RateArraySize; ++i) {
 #if DBG_TX_POWER_IDX
 		struct txpwr_idx_comp tic;
+
 		powerIndex = rtw_hal_get_tx_power_index(pAdapter, RFPath, Rates[i], BandWidth, Channel, &tic);
 		RTW_INFO("TXPWR: [%c][%s]ch:%u, %s %uT, pwr_idx:%u = %u + (%d=%d:%d) + (%d) + (%d)\n"
 			, rf_path_char(RFPath), ch_width_str(BandWidth), Channel, MGN_RATE_STR(Rates[i]), tic.ntx_idx + 1

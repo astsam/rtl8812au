@@ -87,6 +87,7 @@ CONFIG_RTW_NAPI = y
 CONFIG_RTW_GRO = y
 CONFIG_RTW_IPCAM_APPLICATION = n
 CONFIG_RTW_REPEATER_SON = n
+CONFIG_RTW_WIFI_HAL = y
 CONFIG_VHT_EXTRAS = y
 CONFIG_LED_CONTROL = y
 CONFIG_LED_ENABLE = y
@@ -470,7 +471,7 @@ endif
 EXTRA_CFLAGS += -DCONFIG_RTL8821A
 
 _HAL_INTFS_FILES +=	hal/rtl8812a/hal8821a_fw.o
-
+		
 endif
 
 endif
@@ -976,6 +977,12 @@ EXTRA_CFLAGS += -DCONFIG_RTW_IPCAM_APPLICATION
 ifeq ($(CONFIG_WIFI_MONITOR), n)
 EXTRA_CFLAGS += -DCONFIG_WIFI_MONITOR
 endif
+endif
+
+ifeq ($(CONFIG_RTW_WIFI_HAL), y)
+#EXTRA_CFLAGS += -DCONFIG_RTW_WIFI_HAL_DEBUG
+EXTRA_CFLAGS += -DCONFIG_RTW_WIFI_HAL
+EXTRA_CFLAGS += -DCONFIG_RTW_CFGVEDNOR_LLSTATS
 endif
 
 ifeq ($(CONFIG_VHT_EXTRAS), y)
@@ -1836,7 +1843,7 @@ rtk_core :=	core/rtw_cmd.o \
 		core/rtw_btcoex.o \
 		core/rtw_beamforming.o \
 		core/rtw_odm.o \
-		core/efuse/rtw_efuse.o
+		core/efuse/rtw_efuse.o 
 
 ifeq ($(CONFIG_SDIO_HCI), y)
 rtk_core += core/rtw_sdio.o
@@ -1926,17 +1933,18 @@ config_r:
 
 clean:
 	#$(MAKE) -C $(KSRC) M=$(shell pwd) clean
-	cd hal ; rm -fr */*/*/*.mod.c */*/*/*.mod */*/*/*.o */*/*/.*.cmd */*/*/*.ko
-	cd hal ; rm -fr */*/*.mod.c */*/*.mod */*/*.o */*/.*.cmd */*/*.ko
-	cd hal ; rm -fr */*.mod.c */*.mod */*.o */.*.cmd */*.ko
-	cd hal ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd core/efuse ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd core ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko .rtw_radiotap.o.d
-	cd os_dep ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd platform ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
+	cd hal ; rm -fr */*/*/*.mod.c */*/*/*.mod */*/*/*.o */*/*/*.o.* */*/*/.*.cmd */*/*/*.ko
+	cd hal ; rm -fr */*/*.mod.c */*/*.mod */*/*.o */*/*.o.* */*/.*.cmd */*/*.ko
+	cd hal ; rm -fr */*.mod.c */*.mod */*.o */*.o.* */.*.cmd */*.ko
+	cd hal ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
+	cd core/efuse ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
+	cd core ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
+	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko .rtw_radiotap.o.d
+	cd os_dep ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
+	cd platform ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
 	rm -fr Module.symvers ; rm -fr Module.markers ; rm -fr modules.order
-	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
+	rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko *~
 	rm -fr .tmp_versions
 	rm -fr .cache.mk
 endif
+

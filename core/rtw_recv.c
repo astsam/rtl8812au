@@ -2255,8 +2255,9 @@ sint validate_recv_frame(_adapter *adapter, union recv_frame *precv_frame)
 			#endif
 		} else {
 			DBG_COUNTER(adapter->rx_logs.core_rx_pre_data_handled);
-		}
 		break;
+		}
+
 	default:
 		DBG_COUNTER(adapter->rx_logs.core_rx_pre_unknown);
 		#ifdef DBG_RX_DROP_FRAME

@@ -1,6 +1,6 @@
 # rtl8812au
 
-## Realtek 8812AU driver v5.2.20 with monitor mode and frame injection
+## Realtek 8812AU driver v5.2.20.2 with monitor mode and frame injection
 
 Only supports 8812AU chipset, not the 8814AU or the 8821AU at this point.
 
@@ -31,7 +31,7 @@ $ sudo ./dkms-remove.sh
 ### Notes
 Download
 ```
-git clone -b v5.1.5 https://github.com/aircrack-ng/rtl8812au.git
+git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
 Package / Build dependencies (Kali)
@@ -39,6 +39,7 @@ Package / Build dependencies (Kali)
 sudo apt-get install build-essential
 sudo apt-get install bc
 sudo apt-get install libelf-dev
+sudo apt-get install dkms
 sudo apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI) also
