@@ -1522,7 +1522,7 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 	/* pnetdev->tx_timeout = NULL; */
 	pnetdev->watchdog_timeo = HZ * 3; /* 3 second timeout */
 
-#ifdef CONFIG_WIRELESS_EXT
+#if defined(CONFIG_WIRELESS_EXT) && !defined(CONFIG_CFG80211_WEXT)
 	pnetdev->wireless_handlers = (struct iw_handler_def *)&rtw_handlers_def;
 #endif
 
@@ -1605,6 +1605,9 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
 	rtw_init_netdev_name(ndev, name);
 
 	_rtw_memcpy(ndev->dev_addr, adapter_mac_addr(adapter), ETH_ALEN);
+#if defined(CONFIG_NET_NS)
+	dev_net_set(ndev, wiphy_net(adapter_to_wiphy(adapter)));
+#endif //defined(CONFIG_NET_NS)
 
 	/* Tell the network stack we exist */
 
