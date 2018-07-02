@@ -68,7 +68,7 @@ CONFIG_80211W = n
 CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
 CONFIG_TDLS = n
-CONFIG_WIFI_MONITOR = n
+CONFIG_WIFI_MONITOR = y
 CONFIG_MCC_MODE = n
 CONFIG_APPEND_VENDOR_IE_ENABLE = n
 CONFIG_RTW_NAPI = y
@@ -188,6 +188,7 @@ _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/rtw_cfgvendor.o \
 			os_dep/linux/wifi_regd.o \
 			os_dep/linux/rtw_android.o \
+			os_dep/linux/rtw_radiotap.o \
 			os_dep/linux/rtw_proc.o
 
 ifeq ($(CONFIG_MP_INCLUDED), y)
@@ -1834,7 +1835,7 @@ export CONFIG_RTL8812AU = m
 all: modules
 
 modules:
-	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
+	$(MAKE) -j $(shell nproc || echo 1) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
 
 strip:
 	$(CROSS_COMPILE)strip $(MODULE_NAME).ko --strip-unneeded
@@ -1896,7 +1897,7 @@ clean:
 	cd hal ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
 	cd core/efuse ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
 	cd core ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
-	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
+	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko .rtw_radiotap.o.d
 	cd os_dep ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
 	cd platform ; rm -fr *.mod.c *.mod *.o *.o.* .*.cmd *.ko
 	rm -fr Module.symvers ; rm -fr Module.markers ; rm -fr modules.order
