@@ -7042,8 +7042,9 @@ static void rtw_cfg80211_init_vht_capab(_adapter *padapter, struct ieee80211_sta
 	HighestRate = (HighestRate+1) >> 1;
 
 
-	vht_cap->vht_mcs.tx_highest = HighestRate; //indicate we support highest rx rate is 600Mbps.
-	vht_cap->vht_mcs.rx_highest = HighestRate; //indicate we support highest rx rate is 600Mbps.	
+	vht_cap->vht_mcs.tx_highest = HighestRate;
+	vht_cap->vht_mcs.rx_highest = HighestRate;
+	RTW_INFO("[VHT] Highest rate value: %d\n", HighestRate);
 }
 #endif //CONFIG_VHT_EXTRAS
 
