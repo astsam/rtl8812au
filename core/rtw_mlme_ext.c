@@ -345,7 +345,9 @@ static RT_CHANNEL_PLAN_MAP	RTW_ChannelPlanMap[] = {
 };
 
 static RT_CHANNEL_PLAN_MAP RTW_CHANNEL_PLAN_MAP_REALTEK_DEFINE =
-	CHPLAN_ENT(RTW_RD_2G_WORLD,		RTW_RD_5G_FCC1,		TXPWR_LMT_FCC);		/* 0x7F, Realtek Define */
+	CHPLAN_ENT(RTW_RD_2G_GLOBAL, RTW_RD_5G_FCC11, TXPWR_LMT_FCC);		/* 0x7F, Realtek Define -- *tweaked* */
+	/* Default is RTW_RD_2G_WORLD / RTW_RD_5G_FCC1, which has some channels disabled
+	  CHPLAN_ENT(RTW_RD_2G_WORLD,   RTW_RD_5G_FCC1,   TXPWR_LMT_FCC); */
 
 bool rtw_chplan_is_empty(u8 id)
 {

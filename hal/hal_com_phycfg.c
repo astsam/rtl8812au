@@ -1362,6 +1362,9 @@ phy_SetTxPowerByRateBase(
 		return;
 	}
 
+	if (Adapter->registrypriv.RegTxPowerIndexOverride)
+		Value = Adapter->registrypriv.RegTxPowerIndexOverride;
+
 	if (DBG_TX_POWER_IDX)
 		RTW_INFO( "TXPWR: by-rate-base [%sG][%c] RateSection:%d = %d\n",
 			(Band == BAND_ON_2_4G) ? "2.4" : "5", rf_path_char(RfPath), RateSection, Value );
@@ -2662,10 +2665,15 @@ PHY_SetTxPowerByRate(
 		RTW_INFO("Invalid RateIndex %d in %s\n", rateIndex, __FUNCTION__);
 		return;
 	}
+
+	/* Disable offset when override is enabled jic, even
+		though its value should not be used in that case anyway. */
+	if (pAdapter->registrypriv.RegTxPowerIndexOverride) Value = 0;
+
 	if (DBG_TX_POWER_IDX)
-		RTW_INFO( "TXPWR: by-rate-base [%sG][%c] Rate:%s = %d\n",
+		RTW_INFO( "TXPWR: by-rate-offset [%sG][%c] Rate:%s = %d\n",
 			(Band == BAND_ON_2_4G) ? "2.4" : "5", rf_path_char(RFPath),
-			MGN_RATE_STR(rateIndex), Value );
+			MGN_RATE_STR(Rate), Value );
 
 	pHalData->TxPwrByRateOffset[Band][RFPath][rateIndex] = Value;
 }
@@ -2719,11 +2727,14 @@ PHY_SetTxPowerIndexByRateArray(
 	int	i = 0;
 
 	for (i = 0; i < RateArraySize; ++i) {
+
+		if (pAdapter->registrypriv.RegTxPowerIndexOverride)
+			powerIndex = (u32)pAdapter->registrypriv.RegTxPowerIndexOverride;
+
 #if DBG_TX_POWER_IDX
 		struct txpwr_idx_comp tic;
-
 		powerIndex = rtw_hal_get_tx_power_index(pAdapter, RFPath, Rates[i], BandWidth, Channel, &tic);
-		RTW_INFO("TXPWR: [%c][%s]ch:%u, %s %uT, pwr_idx:%u = %u + (%d=%d:%d) + (%d) + (%d)\n"
+		RTW_INFO("TXPWR: [%c][%s]ch:%u, %s %uT, pwr_idx:%d = %u + (%d=%d:%d) + (%d) + (%d)\n"
 			, rf_path_char(RFPath), ch_width_str(BandWidth), Channel, MGN_RATE_STR(Rates[i]), tic.ntx_idx + 1
 			, powerIndex, tic.base, (tic.by_rate > tic.limit ? tic.limit : tic.by_rate), tic.by_rate, tic.limit, tic.tpt, tic.ebias);
 #else
@@ -3508,9 +3519,13 @@ PHY_SetTxPowerIndex(
 	IN	u8				Rate
 )
 {
-	/* if (DBG_TX_POWER_IDX) */
-	/* 	RTW_INFO( "TXPWR: set-index [%c] %s pwr_idx:%u\n", */
-	/* 		rf_path_char(RFPath), MGN_RATE_STR(Rate), PowerIndex ); */
+
+	if (pAdapter->registrypriv.RegTxPowerIndexOverride)
+		PowerIndex = (u32)pAdapter->registrypriv.RegTxPowerIndexOverride;
+
+	if (DBG_TX_POWER_IDX)
+		RTW_INFO( "TXPWR: set-index [%c] %s = %d\n",
+			rf_path_char(RFPath), MGN_RATE_STR(Rate), PowerIndex );
 
 	if (IS_HARDWARE_TYPE_8814A(pAdapter)) {
 #if (RTL8814A_SUPPORT == 1)
