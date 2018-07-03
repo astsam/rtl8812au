@@ -194,6 +194,9 @@ ifeq ($(CONFIG_PCI_HCI), y)
 HCI_NAME = pci
 endif
 
+ifeq ($(CONFIG_USB2_EXTERNAL_POWER), y)
+EXTRA_CFLAGS += -DCONFIG_USE_EXTERNAL_POWER
+endif
 
 _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/os_intfs.o \
