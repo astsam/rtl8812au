@@ -2666,13 +2666,14 @@ PHY_SetTxPowerByRate(
 		return;
 	}
 
-	if (pAdapter->registrypriv.RegTxPowerIndexOverride)
-		Value = pAdapter->registrypriv.RegTxPowerIndexOverride;
+	/* Disable offset when override is enabled jic, even
+		though its value should not be used in that case anyway. */
+	if (pAdapter->registrypriv.RegTxPowerIndexOverride) Value = 0;
 
 	if (DBG_TX_POWER_IDX)
-		RTW_INFO( "TXPWR: by-rate [%sG][%c] Rate:%s = %d\n",
+		RTW_INFO( "TXPWR: by-rate-offset [%sG][%c] Rate:%s = %d\n",
 			(Band == BAND_ON_2_4G) ? "2.4" : "5", rf_path_char(RFPath),
-			MGN_RATE_STR(rateIndex), Value );
+			MGN_RATE_STR(Rate), Value );
 
 	pHalData->TxPwrByRateOffset[Band][RFPath][rateIndex] = Value;
 }
