@@ -7,20 +7,20 @@ This driver supports 8812au & 8821au chipsets, not the 8814au chipset.
 ### Building / Installing
 
 To build and install module manually:
-```sh
-$ make
+```
+$ "make" will build the 8812au, while "make RTL8821=1" will build the 8821au driver
 $ sudo make install
 ```
 
-To use dkms install:
+To use DKMS install:
 
-```sh
+```
 $ sudo ./dkms-install.sh
 ```
 
-To use dkms uninstall and remove:
+To use DKMS uninstall and remove:
 
-```sh
+```
 $ sudo ./dkms-remove.sh
 ```
 
@@ -38,7 +38,7 @@ sudo apt-get install libelf-dev
 sudo apt-get install dkms
 sudo apt-get install linux-headers-`uname -r`
 ```
-For Raspberry (RPI) also
+Building for  Raspberry (RPI) also needs
 ```
 sudo apt install raspberrypi-kernel-headers
 ```
