@@ -568,11 +568,16 @@ FirmwareDownload8812(
 		#ifdef CONFIG_AP_WOWLAN
 			if (pwrpriv->wowlan_ap_mode) {
 #ifdef CONFIG_RTL8812A
-				pFirmware->szFwBuffer = array_mp_8812a_fw_ap;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_ap;
-#else
-				pFirmware->szFwBuffer = array_mp_8821a_fw_ap;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_ap;
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812) {
+					pFirmware->szFwBuffer = array_mp_8812a_fw_ap;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_ap;
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821) {
+					pFirmware->szFwBuffer = array_mp_8821a_fw_ap;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_ap;
+				}
 #endif
 
 				RTW_INFO("%s fw: %s, size: %d\n", __func__, "AP_WoWLAN", pFirmware->ulFwLength);
