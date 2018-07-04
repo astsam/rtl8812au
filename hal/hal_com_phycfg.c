@@ -2725,6 +2725,7 @@ PHY_SetTxPowerIndexByRateArray(
 {
 	u32	powerIndex = 0;
 	int	i = 0;
+	struct txpwr_idx_comp tic;
 
 	for (i = 0; i < RateArraySize; ++i) {
 
@@ -2732,7 +2733,7 @@ PHY_SetTxPowerIndexByRateArray(
 			powerIndex = (u32)pAdapter->registrypriv.RegTxPowerIndexOverride;
 
 #if DBG_TX_POWER_IDX
-		struct txpwr_idx_comp tic;
+		//struct txpwr_idx_comp tic;
 		powerIndex = rtw_hal_get_tx_power_index(pAdapter, RFPath, Rates[i], BandWidth, Channel, &tic);
 		RTW_INFO("TXPWR: [%c][%s]ch:%u, %s %uT, pwr_idx:%d = %u + (%d=%d:%d) + (%d) + (%d)\n"
 			, rf_path_char(RFPath), ch_width_str(BandWidth), Channel, MGN_RATE_STR(Rates[i]), tic.ntx_idx + 1
