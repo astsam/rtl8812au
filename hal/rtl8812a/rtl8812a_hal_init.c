@@ -18,7 +18,8 @@
 #include <rtl8812a_hal.h>
 #ifdef CONFIG_RTL8812A
 #include "hal8812a_fw.h"
-#else
+#endif
+#ifdef CONFIG_RTL8821A
 #include "hal8821a_fw.h"
 #endif
 /* -------------------------------------------------------------------------
@@ -548,11 +549,16 @@ FirmwareDownload8812(
 		#ifdef CONFIG_WOWLAN
 			if (pwrpriv->wowlan_mode) {
 #ifdef CONFIG_RTL8812A
-				pFirmware->szFwBuffer = array_mp_8812a_fw_wowlan;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_wowlan;
-#else
-				pFirmware->szFwBuffer = array_mp_8821a_fw_wowlan;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_wowlan;
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812)
+					pFirmware->szFwBuffer = array_mp_8812a_fw_wowlan;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_wowlan;
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821)
+					pFirmware->szFwBuffer = array_mp_8821a_fw_wowlan;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_wowlan;
+				}
 #endif
 				RTW_INFO("%s fw:%s, size: %d\n", __func__, "WoWLAN", pFirmware->ulFwLength);
 
@@ -577,11 +583,16 @@ FirmwareDownload8812(
 			if (pHalData->EEPROMBluetoothCoexist == _TRUE) {
 
 #ifdef CONFIG_RTL8812A
-				pFirmware->szFwBuffer = array_mp_8812a_fw_nic_bt;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic_bt;
-#else
-				pFirmware->szFwBuffer = array_mp_8821a_fw_nic_bt;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic_bt;
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812) {
+					pFirmware->szFwBuffer = array_mp_8812a_fw_nic_bt;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_nic_bt;
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821) {
+					pFirmware->szFwBuffer = array_mp_8821a_fw_nic_bt;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_nic_bt;
+				}
 #endif
 
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC-BTCOEX", pFirmware->ulFwLength);
@@ -590,11 +601,16 @@ FirmwareDownload8812(
 			{
 
 #ifdef CONFIG_RTL8812A
-				pFirmware->szFwBuffer = array_mp_8812a_fw_nic;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic;
-#else
-				pFirmware->szFwBuffer = array_mp_8821a_fw_nic;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic;
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812) {
+					pFirmware->szFwBuffer = array_mp_8812a_fw_nic;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_nic;
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821) {
+					pFirmware->szFwBuffer = array_mp_8821a_fw_nic;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_nic;
+				}
 #endif
 
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC", pFirmware->ulFwLength);
