@@ -8,59 +8,59 @@ This driver supports 8812au & 8821au chipsets, not the 8814au chipset.
 
 To build and install module manually:
 ```sh
-$ make
-$ sudo make install
+$ "make" will build the 8812au, while "make RTL8821=1" will build the 8821au driver
+$ "sudo make install"
 ```
 
-To use dkms install:
+To use DKMS install:
 
 ```sh
-$ sudo ./dkms-install.sh
+$ "sudo ./dkms-install.sh"
 ```
 
-To use dkms uninstall and remove:
+To use DKMS uninstall and remove:
 
 ```sh
-$ sudo ./dkms-remove.sh
+$ "sudo ./dkms-remove.sh"
 ```
 
 ### Notes
 Download
 ```
-git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
-cd rtl*
+"git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git"
+"cd rtl*"
 ```
 Package / Build dependencies (Kali)
 ```
-sudo apt-get install build-essential
-sudo apt-get install bc
-sudo apt-get install libelf-dev
-sudo apt-get install dkms
-sudo apt-get install linux-headers-`uname -r`
+"sudo apt-get install build-essential"
+"sudo apt-get install bc"
+"sudo apt-get install libelf-dev"
+"sudo apt-get install dkms"
+"sudo apt-get install linux-headers-`uname -r`"
 ```
-For Raspberry (RPI) also
+Building for  Raspberry (RPI) also needs
 ```
-sudo apt install raspberrypi-kernel-headers
+"sudo apt install raspberrypi-kernel-headers"
 ```
 
 ### For setting monitor mode
 1. Fix problematic interference in monitor mode. 
 ```
-airmon-ng check kill
+"airmon-ng check kill"
 ```
 You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
 
 2. Set interface down
 ```
-sudo ip link set wlan0 down
+"sudo ip link set wlan0 down"
 ``` 
 3. Set monitor mode
 ```
-sudo iw dev wlan0 set type monitor
+"sudo iw dev wlan0 set type monitor"
 ```
 4. Set interface up
 ```
-sudo ip link set wlan0 up
+"sudo ip link set wlan0 up"
 ```
 
 ### LED control
@@ -102,4 +102,4 @@ wifi.scan-rand-mac-address=no
 ```
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
-sudo service NetworkManager restart
+"sudo service NetworkManager restart"
