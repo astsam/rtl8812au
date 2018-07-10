@@ -36,7 +36,7 @@ CONFIG_AUTOCFG_CP = n
 CONFIG_MULTIDRV = n
 CONFIG_RTL8188E = n
 CONFIG_RTL8812A = y
-CONFIG_RTL8821A = n
+CONFIG_RTL8821A = y
 CONFIG_RTL8192E = n
 CONFIG_RTL8723B = n
 CONFIG_RTL8814A = n
@@ -113,6 +113,7 @@ CONFIG_RTW_SDIO_PM_KEEP_POWER = y
 CONFIG_MP_VHT_HW_TX_MODE = n
 ###################### Platform Related #######################
 CONFIG_PLATFORM_I386_PC = y
+CONFIG_PLATFORM_ARM_RPI = n
 CONFIG_PLATFORM_ANDROID_X86 = n
 CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
 CONFIG_PLATFORM_JB_X86 = n
@@ -488,7 +489,7 @@ endif
 EXTRA_CFLAGS += -DCONFIG_RTL8821A
 
 _HAL_INTFS_FILES +=	hal/rtl8812a/hal8821a_fw.o
-		
+
 endif
 
 endif
@@ -1041,11 +1042,22 @@ EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
 SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ | sed -e s/aarch64/arm64/ )
 ARCH ?= $(SUBARCH)
 CROSS_COMPILE ?=
-KVER  := $(shell uname -r)
+KVER := $(shell uname -r)
 KSRC := /lib/modules/$(KVER)/build
 MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
 INSTALL_PREFIX :=
 STAGINGMODDIR := /lib/modules/$(KVER)/kernel/drivers/staging
+endif
+
+ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+ARCH ?= arm
+CROSS_COMPILE ?=
+KVER ?= $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
 endif
 
 ifeq ($(CONFIG_PLATFORM_NV_TK1), y)
@@ -1860,7 +1872,7 @@ rtk_core :=	core/rtw_cmd.o \
 		core/rtw_btcoex.o \
 		core/rtw_beamforming.o \
 		core/rtw_odm.o \
-		core/efuse/rtw_efuse.o 
+		core/efuse/rtw_efuse.o
 
 ifeq ($(CONFIG_SDIO_HCI), y)
 rtk_core += core/rtw_sdio.o
@@ -1894,7 +1906,7 @@ export CONFIG_RTL8812AU = m
 all: modules
 
 modules:
-	$(MAKE) -j $(shell nproc || echo 1)  ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
+	$(MAKE) -j $(shell nproc || echo 1) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
 
 strip:
 	$(CROSS_COMPILE)strip $(MODULE_NAME).ko --strip-unneeded
@@ -1964,4 +1976,3 @@ clean:
 	rm -fr .tmp_versions
 	rm -fr .cache.mk
 endif
-
