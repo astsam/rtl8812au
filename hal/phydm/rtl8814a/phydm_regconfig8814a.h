@@ -24,85 +24,85 @@
 
 void
 odm_ConfigRFReg_8814A(
-	IN 	PDM_ODM_T 				pDM_Odm,
-	IN 	u4Byte 					Addr,
-	IN 	u4Byte 					Data,
-	IN  ODM_RF_RADIO_PATH_E     RF_PATH,
-	IN	u4Byte				    RegAddr
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32 					Addr,
+	u32 					Data,
+	enum rf_path     RF_PATH,
+	u32				    RegAddr
 	);
 
 void 
 odm_ConfigRF_RadioA_8814A(
-	IN 	PDM_ODM_T 				pDM_Odm,
-	IN 	u4Byte 					Addr,
-	IN 	u4Byte 					Data
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32 					Addr,
+	u32 					Data
 	);
 
 void 
 odm_ConfigRF_RadioB_8814A(
-	IN 	PDM_ODM_T 				pDM_Odm,
-	IN 	u4Byte 					Addr,
-	IN 	u4Byte 					Data
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32 					Addr,
+	u32 					Data
 	);
 
 void 
 odm_ConfigRF_RadioC_8814A(
-	IN 	PDM_ODM_T 				pDM_Odm,
-	IN 	u4Byte 					Addr,
-	IN 	u4Byte 					Data
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32 					Addr,
+	u32 					Data
 	);
 
 void 
 odm_ConfigRF_RadioD_8814A(
-	IN 	PDM_ODM_T 				pDM_Odm,
-	IN 	u4Byte 					Addr,
-	IN 	u4Byte 					Data
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32 					Addr,
+	u32 					Data
 	);
 
 void 
 odm_ConfigMAC_8814A(
- 	IN 	PDM_ODM_T 	pDM_Odm,
- 	IN 	u4Byte 		Addr,
+ 	struct PHY_DM_STRUCT    *pDM_Odm,
+ 	u32 		Addr,
  	IN 	u1Byte 		Data
  	);
 
 void 
 odm_ConfigBB_AGC_8814A(
-    IN 	PDM_ODM_T 	pDM_Odm,
-    IN 	u4Byte 		Addr,
-    IN 	u4Byte 		Bitmask,
-    IN 	u4Byte 		Data
+    struct PHY_DM_STRUCT    *pDM_Odm,
+    u32 		Addr,
+    u32 		Bitmask,
+    u32 		Data
     );
 
 void
 odm_ConfigBB_PHY_REG_PG_8814A(
-	IN 	PDM_ODM_T 	pDM_Odm,
-	IN	u4Byte		Band,
-	IN	u4Byte		RfPath,
-	IN	u4Byte		TxNum,
-    IN 	u4Byte 		Addr,
-    IN 	u4Byte 		Bitmask,
-    IN 	u4Byte 		Data
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32		Band,
+	u32		RfPath,
+	u32		TxNum,
+    u32 		Addr,
+    u32 		Bitmask,
+    u32 		Data
     );
 
 void 
 odm_ConfigBB_PHY_8814A(
-	IN 	PDM_ODM_T 	pDM_Odm,
-    IN 	u4Byte 		Addr,
-    IN 	u4Byte 		Bitmask,
-    IN 	u4Byte 		Data
+	struct PHY_DM_STRUCT    *pDM_Odm,
+    u32 		Addr,
+    u32 		Bitmask,
+    u32 		Data
     );
 
 void
 odm_ConfigBB_TXPWR_LMT_8814A(
-	IN 	PDM_ODM_T 	pDM_Odm,
-	IN	pu1Byte		Regulation,
-	IN	pu1Byte		Band,
-	IN	pu1Byte		Bandwidth,
-	IN	pu1Byte		RateSection,
-	IN	pu1Byte		RfPath,
-	IN	pu1Byte 	Channel,
-	IN	pu1Byte		PowerLimit
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u8*		Regulation,
+	u8*		Band,
+	u8*		Bandwidth,
+	u8*		RateSection,
+	u8*		RfPath,
+	u8* 	Channel,
+	u8*		PowerLimit
     );
 #endif
 #endif // end of SUPPORT

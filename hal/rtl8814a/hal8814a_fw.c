@@ -18,8 +18,7 @@
 * 
 ******************************************************************************/
 
-#include "mp_precomp.h"
-#include "../phydm_precomp.h"
+#include "drv_types.h"
 
 #if (RTL8814A_SUPPORT == 1)
 #if(DM_ODM_SUPPORT_TYPE & (ODM_AP))
@@ -3543,22 +3542,6 @@ u8 array_mp_8814a_fw_ap[] = {
 
 };
 u32 array_length_mp_8814a_fw_ap = 56224;
-
-
-void
-ODM_ReadFirmware_MP_8814A_FW_AP(
-     struct PHY_DM_STRUCT    *    pDM_Odm,
-     u8       *pFirmware,
-     u32       *pFirmwareSize
-)
-{
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE))
-     *((SIZE_PTR*)pFirmware) = (SIZE_PTR)array_mp_8814a_fw_ap;
-#else
-     ODM_MoveMemory(pDM_Odm, pFirmware, array_mp_8814a_fw_ap, array_length_mp_8814a_fw_ap);
-#endif
-     *pFirmwareSize = array_length_mp_8814a_fw_ap;
-}
 
 
 #else
@@ -7749,23 +7732,6 @@ u8 array_mp_8814a_fw_nic[] = {
 0xEC, 0x8C, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 };
 u32 array_length_mp_8814a_fw_nic = 66904;
-
-
-void
-ODM_ReadFirmware_MP_8814A_FW_NIC(
-     struct PHY_DM_STRUCT    *    pDM_Odm,
-     u8       *pFirmware,
-     u32       *pFirmwareSize
-)
-{
-#if (DM_ODM_SUPPORT_TYPE & (ODM_CE))
-     *((SIZE_PTR*)pFirmware) = (SIZE_PTR)array_mp_8814a_fw_nic;
-#else
-     ODM_MoveMemory(pDM_Odm, pFirmware, array_mp_8814a_fw_nic, array_length_mp_8814a_fw_nic);
-#endif
-     *pFirmwareSize = array_length_mp_8814a_fw_nic;
-}
-
 
 
 #endif // end of DM_ODM_SUPPORT_TYPE & (ODM_AP)

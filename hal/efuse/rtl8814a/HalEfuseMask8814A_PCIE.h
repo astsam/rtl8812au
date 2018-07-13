@@ -18,22 +18,16 @@
 * 
 ******************************************************************************/
 
-/*Image2HeaderVersion: 2.19*/
-#if (RTL8814A_SUPPORT == 1)
-#ifndef __INC_MP_MAC_HW_IMG_8814A_H
-#define __INC_MP_MAC_HW_IMG_8814A_H
-
 
 /******************************************************************************
-*                           MAC_REG.TXT
+*                           MPCIE.TXT
 ******************************************************************************/
 
-void
-odm_read_and_config_mp_8814a_mac_reg(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT    *pDM_Odm
-);
-u4Byte odm_get_version_mp_8814a_mac_reg(void);
 
-#endif
-#endif /* end of HWIMG_SUPPORT*/
+u2Byte EFUSE_GetArrayLen_MP_8814A_MPCIE(VOID);
+
+VOID EFUSE_GetMaskArray_MP_8814A_MPCIE(pu1Byte Array);
+
+BOOLEAN EFUSE_IsAddressMasked_MP_8814A_MPCIE(u2Byte  Offset);
+
 

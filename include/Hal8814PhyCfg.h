@@ -123,21 +123,12 @@ PHY_SetTxPowerLevel8814(
 );
 
 u8
-phy_get_tx_power_index_8814a(
+PHY_GetTxPowerIndex_8814A(
 	IN	PADAPTER		Adapter,
 	IN	enum rf_path		RFPath,
-	IN	u8				Rate,
-	IN	enum channel_width BandWidth,
-	IN	u8				Channel
-);
-
-u8
-PHY_GetTxPowerIndex8814A(
-	IN	PADAPTER		Adapter,
-	IN	enum rf_path		RFPath,
-	IN	u8				Rate,
-	IN	u8				BandWidth,
-	IN	u8				Channel,
+	IN	u8			Rate,
+	IN	u8 			BandWidth,
+	IN	u8			Channel,
 	struct txpwr_idx_comp *tic
 );
 

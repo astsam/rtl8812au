@@ -17,23 +17,74 @@
 * 
 * 
 ******************************************************************************/
+#include <drv_types.h>
 
-/*Image2HeaderVersion: 2.19*/
-#if (RTL8814A_SUPPORT == 1)
-#ifndef __INC_MP_MAC_HW_IMG_8814A_H
-#define __INC_MP_MAC_HW_IMG_8814A_H
-
+#include "HalEfuseMask8814A_USB.h"
 
 /******************************************************************************
-*                           MAC_REG.TXT
+*                           MUSB.TXT
 ******************************************************************************/
 
-void
-odm_read_and_config_mp_8814a_mac_reg(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT    *pDM_Odm
-);
-u4Byte odm_get_version_mp_8814a_mac_reg(void);
+u1Byte Array_MP_8814A_MUSB[] = { 
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xFF,
+		0xF3,
+		0x7F,
+		0xFF,
+		0xFF,
+		0xFF,
+		0x70,
+		0x04,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
+		0x00,
 
-#endif
-#endif /* end of HWIMG_SUPPORT*/
+};
+
+u2Byte EFUSE_GetArrayLen_MP_8814A_MUSB(VOID)
+{
+	return sizeof(Array_MP_8814A_MUSB)/sizeof(u1Byte);
+}
+
+VOID EFUSE_GetMaskArray_MP_8814A_MUSB(pu1Byte Array)
+{
+	u2Byte len = EFUSE_GetArrayLen_MP_8814A_MUSB(), i = 0;
+
+	for (i = 0; i < len; ++i)
+		Array[i] = Array_MP_8814A_MUSB[i];
+}
+
+BOOLEAN EFUSE_IsAddressMasked_MP_8814A_MUSB(u2Byte  Offset)
+{
+	int r = Offset/16;
+	int c = (Offset%16) / 2;
+	int result = 0;
+
+	if (c < 4) /*Upper double word*/
+	    result = (Array_MP_8814A_MUSB[r] & (0x10 << c));
+	else
+	    result = (Array_MP_8814A_MUSB[r] & (0x01 << (c-4)));
+
+	return (result > 0) ? 0 : 1;
+}
 

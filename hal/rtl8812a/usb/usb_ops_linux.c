@@ -99,8 +99,8 @@ void interrupt_handler_8812au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 		usb_c2h_hisr_hdl(padapter, pbuf);
 #endif
 }
-#endif
-
+#endif /* CONFIG_SUPPORT_USB_INT */
+#if 0
 int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 {
 	u8	*pbuf;
@@ -205,7 +205,7 @@ _exit_recvbuf2recvframe:
 
 	return _SUCCESS;
 }
-
+#endif
 
 void rtl8812au_xmit_tasklet(void *priv)
 {

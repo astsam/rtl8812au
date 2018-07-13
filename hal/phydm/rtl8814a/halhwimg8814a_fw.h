@@ -29,11 +29,13 @@
 
 void
 ODM_ReadFirmware_MP_8814A_FW_AP(
-     IN   PDM_ODM_T    pDM_Odm,
-     OUT  u1Byte       *pFirmware,
-     OUT  u4Byte       *pFirmwareSize
+     struct PHY_DM_STRUCT    *pDM_Odm,
+     u8       *pFirmware,
+     u32       *pFirmwareSize
 );
 u4Byte ODM_GetVersion_MP_8814A_FW_AP(void);
+extern u32 array_length_mp_8814a_fw_ap;
+extern u8 array_mp_8814a_fw_ap[];
 
 /******************************************************************************
 *                           FW_NIC.TXT
@@ -41,11 +43,13 @@ u4Byte ODM_GetVersion_MP_8814A_FW_AP(void);
 
 void
 ODM_ReadFirmware_MP_8814A_FW_NIC(
-     IN   PDM_ODM_T    pDM_Odm,
-     OUT  u1Byte       *pFirmware,
-     OUT  u4Byte       *pFirmwareSize
+     struct PHY_DM_STRUCT    *pDM_Odm,
+     u8       *pFirmware,
+     u32       *pFirmwareSize
 );
 u4Byte ODM_GetVersion_MP_8814A_FW_NIC(void);
+extern u32 array_length_mp_8814a_fw_nic;
+extern u8 array_mp_8814a_fw_nic[];
 
 #endif
 #endif // end of HWIMG_SUPPORT

@@ -30,24 +30,24 @@
 VOID 
 DoIQK_8814A(
 	PVOID	pDM_VOID,
-	u1Byte		DeltaThermalIndex,
-	u1Byte		ThermalValue,	
-	u1Byte		Threshold
+	u8		DeltaThermalIndex,
+	u8		ThermalValue,	
+	u8		Threshold
 	);
 #else
 VOID 
 DoIQK_8814A(
 	PVOID		pDM_VOID,
-	u1Byte 		DeltaThermalIndex,
-	u1Byte		ThermalValue,	
-	u1Byte 		Threshold
+	u8 		DeltaThermalIndex,
+	u8		ThermalValue,	
+	u8 		Threshold
 	);
 #endif
 
 VOID	
-PHY_IQCalibrate_8814A(	
+phy_iq_calibrate_8814a(	
 	IN	PVOID		pDM_VOID,
-	IN	BOOLEAN 	bReCovery
+	boolean 	bReCovery
 	);
 
 VOID

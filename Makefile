@@ -39,7 +39,7 @@ CONFIG_RTL8812A = y
 CONFIG_RTL8821A = y
 CONFIG_RTL8192E = n
 CONFIG_RTL8723B = n
-CONFIG_RTL8814A = n
+CONFIG_RTL8814A = y
 CONFIG_RTL8723C = n
 CONFIG_RTL8188F = n
 CONFIG_RTL8822B = n
@@ -196,17 +196,17 @@ ifeq ($(CONFIG_PCI_HCI), y)
 HCI_NAME = pci
 endif
 
-ifeq ($(RTL8814), 1)
-CONFIG_RTL8812A = n
-CONFIG_RTL8821A = n
-CONFIG_RTL8814A = y
-endif
+#ifeq ($(RTL8814), 1)
+#CONFIG_RTL8812A = n
+#CONFIG_RTL8821A = n
+#CONFIG_RTL8814A = y
+#endif
 
-ifeq ($(RTL8821), 1)
-CONFIG_RTL8812A = y
-CONFIG_RTL8821A = y
-CONFIG_RTL8814A = n
-endif
+#ifeq ($(RTL8821), 1)
+#CONFIG_RTL8812A = y
+#CONFIG_RTL8821A = y
+#CONFIG_RTL8814A = n
+#endif
 
 ifeq ($(CONFIG_USB2_EXTERNAL_POWER), y)
 EXTRA_CFLAGS += -DCONFIG_USE_EXTERNAL_POWER
@@ -575,8 +575,8 @@ _HAL_INTFS_FILES +=	hal/$(RTL871X)/$(RTL871X)_hal_init.o \
 			hal/$(RTL871X)/$(RTL871X)_rf6052.o \
 			hal/$(RTL871X)/$(RTL871X)_dm.o \
 			hal/$(RTL871X)/$(RTL871X)_rxdesc.o \
-			hal/$(RTL871X)/$(RTL871X)_cmd.o
-			#hal/$(RTL871X)/hal8814a_fw.o
+			hal/$(RTL871X)/$(RTL871X)_cmd.o \
+			hal/$(RTL871X)/hal8814a_fw.o
 
 
 _HAL_INTFS_FILES +=	\
@@ -1906,7 +1906,7 @@ export CONFIG_RTL8812AU = m
 all: modules
 
 modules:
-	$(MAKE) -j $(shell nproc || echo 1) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
+	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
 
 strip:
 	$(CROSS_COMPILE)strip $(MODULE_NAME).ko --strip-unneeded

@@ -1,7 +1,7 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -11,15 +11,10 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
-#define _RTL8814AU_XMIT_C_
+ *****************************************************************************/
+#define _RTL8812AU_XMIT_C_
 
-//#include <drv_types.h>
+/* #include <drv_types.h> */
 #include <rtl8814a_hal.h>
 
 
@@ -171,7 +166,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 
 			//DATA  Rate FB LMT
 			//SET_TX_DESC_DATA_RATE_FB_LIMIT_8814A(ptxdesc, 0x1f);
-			if(pHalData->CurrentBandType == BAND_ON_5G)
+			if(pHalData->current_band_type == BAND_ON_5G)
 			{
 				SET_TX_DESC_DATA_RATE_FB_LIMIT_8814A(ptxdesc, 4);
 			}

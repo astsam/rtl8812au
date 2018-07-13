@@ -11,20 +11,15 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
+ *****************************************************************************/
 #define _HCI_HAL_INIT_C_
 
-//#include <drv_types.h>
+/* #include <drv_types.h> */
 #include <rtl8814a_hal.h>
 
 #ifndef CONFIG_USB_HCI
 
-#error "CONFIG_USB_HCI shall be on!\n"
+	#error "CONFIG_USB_HCI shall be on!\n"
 
 #endif
 
@@ -33,12 +28,11 @@ static void _dbg_dump_macreg(_adapter *padapter)
 {
 	u32 offset = 0;
 	u32 val32 = 0;
-	u32 index =0 ;
-	for(index=0;index<64;index++)
-	{
-		offset = index*4;
-		val32 = rtw_read32(padapter,offset);
-		RTW_INFO("offset : 0x%02x ,val:0x%08x\n",offset,val32);
+	u32 index = 0 ;
+	for (index = 0; index < 64; index++) {
+		offset = index * 4;
+		val32 = rtw_read32(padapter, offset);
+		RTW_INFO("offset : 0x%02x ,val:0x%08x\n", offset, val32);
 	}
 }
 
@@ -46,7 +40,7 @@ static VOID
 _ConfigChipOutEP_8814(
 	IN	PADAPTER	pAdapter,
 	IN	u8		NumOutPipe
-	)
+)
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
 
@@ -54,28 +48,28 @@ _ConfigChipOutEP_8814(
 	pHalData->OutEpQueueSel = 0;
 	pHalData->OutEpNumber = 0;
 
-	switch(NumOutPipe){
-		case 	4:
-				pHalData->OutEpQueueSel=TX_SELE_HQ| TX_SELE_LQ|TX_SELE_NQ;
-				pHalData->OutEpNumber=4;
-				break;		
-		case 	3:
-				pHalData->OutEpQueueSel=TX_SELE_HQ| TX_SELE_LQ|TX_SELE_NQ;
-				pHalData->OutEpNumber=3;
-				break;
-		case 	2:
-				pHalData->OutEpQueueSel=TX_SELE_HQ| TX_SELE_NQ;
-				pHalData->OutEpNumber=2;
-				break;
-		case 	1:
-				pHalData->OutEpQueueSel=TX_SELE_HQ;
-				pHalData->OutEpNumber=1;
-				break;
-		default:				
-				break;
-			
+	switch (NumOutPipe) {
+	case	4:
+		pHalData->OutEpQueueSel = TX_SELE_HQ | TX_SELE_LQ | TX_SELE_NQ;
+		pHalData->OutEpNumber = 4;
+		break;
+	case	3:
+		pHalData->OutEpQueueSel = TX_SELE_HQ | TX_SELE_LQ | TX_SELE_NQ;
+		pHalData->OutEpNumber = 3;
+		break;
+	case	2:
+		pHalData->OutEpQueueSel = TX_SELE_HQ | TX_SELE_NQ;
+		pHalData->OutEpNumber = 2;
+		break;
+	case	1:
+		pHalData->OutEpQueueSel = TX_SELE_HQ;
+		pHalData->OutEpNumber = 1;
+		break;
+	default:
+		break;
+
 	}
-	RTW_INFO("%s OutEpQueueSel(0x%02x), OutEpNumber(%d) \n",__FUNCTION__,pHalData->OutEpQueueSel,pHalData->OutEpNumber );
+	RTW_INFO("%s OutEpQueueSel(0x%02x), OutEpNumber(%d)\n", __FUNCTION__, pHalData->OutEpQueueSel, pHalData->OutEpNumber);
 
 }
 
@@ -83,7 +77,7 @@ static BOOLEAN HalUsbSetQueuePipeMapping8814AUsb(
 	IN	PADAPTER	pAdapter,
 	IN	u8		NumInPipe,
 	IN	u8		NumOutPipe
-	)
+)
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
 	BOOLEAN			result		= _FALSE;
@@ -878,7 +872,7 @@ init_UsbAggregationSetting_8814A(
  *	12/10/2010	MHC		Create Version 0.  
  *
  *---------------------------------------------------------------------------*/
-VOID
+static VOID
 USB_AggModeSwitch(
 	IN	PADAPTER			Adapter
 	)
@@ -1159,19 +1153,19 @@ HalDetectSelectiveSuspendMode(
 #endif
 }	// HalDetectSelectiveSuspendMode
 
-rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter )
+static rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter )
 {
 	rt_rf_power_state rfpowerstate = rf_on;
 
 	return rfpowerstate;
 }	// HalDetectPwrDownMode
 
-void _ps_open_RF(_adapter *padapter) {
+static void _ps_open_RF(_adapter *padapter) {
 	//here call with bRegSSPwrLvl 1, bRegSSPwrLvl 2 needs to be verified
 	//phy_SsPwrSwitch92CU(padapter, rf_on, 1);
 }
 
-void _ps_close_RF(_adapter *padapter){
+static void _ps_close_RF(_adapter *padapter){
 	//here call with bRegSSPwrLvl 1, bRegSSPwrLvl 2 needs to be verified
 	//phy_SsPwrSwitch92CU(padapter, rf_off, 1);
 }
@@ -1393,12 +1387,12 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_DOWNLOAD_FW);
 		status = FirmwareDownload8814A(Adapter, _FALSE);
 		if (status != _SUCCESS) {
 			RTW_INFO("%s: Download Firmware failed!!\n", __FUNCTION__);
-			Adapter->bFWReady = _FALSE;
+			GET_HAL_DATA(Adapter)->bFWReady = _FALSE;
 			pHalData->fw_ractrl = _FALSE;
 			//return status;
 		} else {
 			RTW_INFO("%s: Download Firmware Success!!\n",__FUNCTION__);
-			Adapter->bFWReady = _TRUE;
+			GET_HAL_DATA(Adapter)->bFWReady = _TRUE;
 			pHalData->fw_ractrl = _TRUE;
 		}
 	}
@@ -1417,7 +1411,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_DOWNLOAD_FW);
 
 	// Save target channel
 	// <Roger_Notes> Current Channel will be updated again later.
-	pHalData->CurrentChannel = 0;//set 0 to trigger switch correct channel
+	pHalData->current_channel = 0;//set 0 to trigger switch correct channel
 
 HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MAC);
 #if (HAL_MAC_ENABLE == 1)
@@ -1570,7 +1564,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_HAL_DM);
 	PHY_IQCalibrate_8814A_Init(&pHalData->odmpriv);
 
 #if (HAL_BB_ENABLE == 1)	
-	PHY_SetRFEReg8814A(Adapter, _TRUE, pHalData->CurrentBandType);
+	PHY_SetRFEReg8814A(Adapter, _TRUE, pHalData->current_band_type);
 #endif //HAL_BB_ENABLE
 
 	//0x4c6[3] 1: RTS BW = Data BW
@@ -1631,7 +1625,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC21);
 #if (MP_DRIVER == 1)
 	if (Adapter->registrypriv.mp_mode == 1)
 	{
-		Adapter->mppriv.channel = pHalData->CurrentChannel;
+		Adapter->mppriv.channel = pHalData->current_channel;
 		MPT_InitializeAdapter(Adapter, Adapter->mppriv.channel);
 	}
 #endif	//#if (MP_DRIVER == 1)
@@ -1718,7 +1712,7 @@ hal_carddisable_8814(
 	// Card disable power action flow
 	HalPwrSeqCmdParsing(Adapter, ~PWR_CUT_TESTCHIP_MSK, PWR_FAB_ALL_MSK, PWR_INTF_USB_MSK, Rtl8814A_NIC_DISABLE_FLOW);
 
-	Adapter->bFWReady = _FALSE;
+	GET_HAL_DATA(Adapter)->bFWReady = _FALSE;
 	
 }
 
@@ -2097,18 +2091,20 @@ static void hal_ReadPROMContent_8814A(
 	InitAdapterVariablesByPROM_8814AU(Adapter);
 }
 
-void
+u8
 ReadAdapterInfo8814AU(
 	IN PADAPTER			Adapter
 	)
 {
 	Hal_InitEfuseVars_8814A(Adapter);
 	
-	// Read all content in Efuse/EEPROM.
+	/* Read all content in Efuse/EEPROM. */
 	hal_ReadPROMContent_8814A(Adapter);
 
 	/* We need to define the RF type after all PROM value is recognized. */
 	ReadRFType8814A(Adapter);
+
+	return _SUCCESS;
 }
 
 void UpdateInterruptMask8814AU(PADAPTER padapter,u8 bHIMR0 ,u32 AddMSR, u32 RemoveMSR)
@@ -2136,90 +2132,93 @@ void UpdateInterruptMask8814AU(PADAPTER padapter,u8 bHIMR0 ,u32 AddMSR, u32 Remo
 
 }
 
-void SetHwReg8814AU(PADAPTER Adapter, u8 variable, u8* val)
+u8 SetHwReg8814AU(PADAPTER Adapter, u8 variable, u8* val)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(Adapter);
 	struct registry_priv *registry_par = &Adapter->registrypriv;
+	u8 ret = _SUCCESS;
 
-	switch(variable)
-	{
-		case HW_VAR_RXDMA_AGG_PG_TH:
+	switch (variable) {
+	case HW_VAR_RXDMA_AGG_PG_TH:
 #ifdef CONFIG_USB_RX_AGGREGATION
+		{
+			/*u8	threshold = *((u8 *)val);
+			if( threshold == 0)
 			{
-				/*u8	threshold = *((u8 *)val);
-				if( threshold == 0)
-				{
-					threshold = pHalData->UsbRxAggPageCount;
-				}
-				rtw_write8(Adapter, REG_RXDMA_AGG_PG_TH, threshold);*/
+				threshold = pHalData->UsbRxAggPageCount;
 			}
+			rtw_write8(Adapter, REG_RXDMA_AGG_PG_TH, threshold);*/
+		}
 #endif
-			break;
-		case HW_VAR_SET_RPWM:
+		break;
+	case HW_VAR_SET_RPWM:
 #ifdef CONFIG_LPS_LCLK
-			{
-				u8	ps_state = *((u8 *)val);
-				//rpwm value only use BIT0(clock bit) ,BIT6(Ack bit), and BIT7(Toggle bit) for 88e.
-				//BIT0 value - 1: 32k, 0:40MHz.
-				//BIT6 value - 1: report cpwm value after success set, 0:do not report.
-				//BIT7 value - Toggle bit change.
-				//modify by Thomas. 2012/4/2.
-				ps_state = ps_state & 0xC1;
-				//RTW_INFO("##### Change RPWM value to = %x for switch clk #####\n",ps_state);
-				rtw_write8(Adapter, REG_USB_HRPWM, ps_state);
-			}
+		{
+			u8	ps_state = *((u8 *)val);
+
+			/*rpwm value only use BIT0(clock bit) ,BIT6(Ack bit), and BIT7(Toggle bit) for 88e.
+			BIT0 value - 1: 32k, 0:40MHz.
+			BIT6 value - 1: report cpwm value after success set, 0:do not report.
+			BIT7 value - Toggle bit change.
+			modify by Thomas. 2012/4/2.*/
+			ps_state = ps_state & 0xC1;
+			/*RTW_INFO("##### Change RPWM value to = %x for switch clk #####\n", ps_state);*/
+			rtw_write8(Adapter, REG_USB_HRPWM, ps_state);
+		}
 #endif
 #ifdef CONFIG_AP_WOWLAN
-			if (pwrctl->wowlan_ap_mode == _TRUE) {
-				u8	ps_state = *((u8 *)val);
+		if (pwrctl->wowlan_ap_mode == _TRUE) {
+			u8	ps_state = *((u8 *)val);
 
-				RTW_INFO("%s, RPWM\n", __func__);
-				ps_state = ps_state & 0xC1;
-				rtw_write8(Adapter, REG_USB_HRPWM, ps_state);
-			}
+			RTW_INFO("%s, RPWM\n", __func__);
+			ps_state = ps_state & 0xC1;
+			rtw_write8(Adapter, REG_USB_HRPWM, ps_state);
+		}
 #endif
-			break;
-		case HW_VAR_USB_MODE:
-			/* U2 to U3 */
-			if (registry_par->switch_usb_mode == 1) {
-				if (IS_HIGH_SPEED_USB(Adapter)) {
-					if ((rtw_read8(Adapter, 0x74) & (BIT(2)|BIT(3))) != BIT(3)) {
-						rtw_write8(Adapter, 0x74, 0x8);
-						rtw_write8(Adapter, 0x70, 0x2);
-						rtw_write8(Adapter, 0x3e, 0x1);
-						rtw_write8(Adapter, 0x3d, 0x3);
-						/* usb disconnect */
-						rtw_write8(Adapter, 0x5, 0x80);
-						*val = _TRUE;
-					}
-				} else if (IS_SUPER_SPEED_USB(Adapter)) {
-					rtw_write8(Adapter, 0x70, rtw_read8(Adapter, 0x70) & (~BIT(1)));
-					rtw_write8(Adapter, 0x3e, rtw_read8(Adapter, 0x3e) & (~BIT(0)));
+		break;
+
+	case HW_VAR_USB_MODE:
+		/* U2 to U3 */
+		if (registry_par->switch_usb_mode == 1) {
+			if (IS_HIGH_SPEED_USB(Adapter)) {
+				if ((rtw_read8(Adapter, 0x74) & (BIT(2) | BIT(3))) != BIT(3)) {
+					rtw_write8(Adapter, 0x74, 0x8);
+					rtw_write8(Adapter, 0x70, 0x2);
+					rtw_write8(Adapter, 0x3e, 0x1);
+					rtw_write8(Adapter, 0x3d, 0x3);
+					/* usb disconnect */
+					rtw_write8(Adapter, 0x5, 0x80);
+					*val = _TRUE;
 				}
-			} else if (registry_par->switch_usb_mode == 2) {
-				/* U3 to U2 */
-				if (IS_SUPER_SPEED_USB(Adapter)) {
-					if ((rtw_read8(Adapter, 0x74) & (BIT(2)|BIT(3))) != BIT(2)) {
-						rtw_write8(Adapter, 0x74, 0x4);
-						rtw_write8(Adapter, 0x70, 0x2);
-						rtw_write8(Adapter, 0x3e, 0x1);
-						rtw_write8(Adapter, 0x3d, 0x3);
-						/* usb disconnect */
-						rtw_write8(Adapter, 0x5, 0x80);
-						*val = _TRUE;
-					}
-				} else if (IS_HIGH_SPEED_USB(Adapter)) {
-					rtw_write8(Adapter, 0x70, rtw_read8(Adapter, 0x70) & (~BIT(1)));
-					rtw_write8(Adapter, 0x3e, rtw_read8(Adapter, 0x3e) & (~BIT(0)));
-				}
+			} else if (IS_SUPER_SPEED_USB(Adapter)) {
+				rtw_write8(Adapter, 0x70, rtw_read8(Adapter, 0x70) & (~BIT(1)));
+				rtw_write8(Adapter, 0x3e, rtw_read8(Adapter, 0x3e) & (~BIT(0)));
 			}
-			break;
-		default:
-			SetHwReg8814A(Adapter, variable, val);
-			break;
+		} else if (registry_par->switch_usb_mode == 2) {
+			/* U3 to U2 */
+			if (IS_SUPER_SPEED_USB(Adapter)) {
+				if ((rtw_read8(Adapter, 0x74) & (BIT(2) | BIT(3))) != BIT(2)) {
+					rtw_write8(Adapter, 0x74, 0x4);
+					rtw_write8(Adapter, 0x70, 0x2);
+					rtw_write8(Adapter, 0x3e, 0x1);
+					rtw_write8(Adapter, 0x3d, 0x3);
+					/* usb disconnect */
+					rtw_write8(Adapter, 0x5, 0x80);
+					*val = _TRUE;
+				}
+			} else if (IS_HIGH_SPEED_USB(Adapter)) {
+				rtw_write8(Adapter, 0x70, rtw_read8(Adapter, 0x70) & (~BIT(1)));
+				rtw_write8(Adapter, 0x3e, rtw_read8(Adapter, 0x3e) & (~BIT(0)));
+			}
+		}
+		break;
+	default:
+		ret = SetHwReg8814A(Adapter, variable, val);
+		break;
 	}
 
+	return ret;
 }
 
 void GetHwReg8814AU(PADAPTER Adapter, u8 variable, u8* val)
@@ -2362,7 +2361,7 @@ static u8 rtl8814au_ps_func(PADAPTER Adapter,HAL_INTF_PS_FUNC efunc_id, u8 *val)
 
 void rtl8814au_set_hal_ops(_adapter * padapter)
 {
-	struct hal_ops	*pHalFunc = &padapter->HalFunc;
+	struct hal_ops	*pHalFunc = &padapter->hal_func;
 
 	pHalFunc->hal_power_on = _InitPowerOn_8814AU;
 	pHalFunc->hal_power_off = hal_carddisable_8814;
@@ -2390,9 +2389,9 @@ void rtl8814au_set_hal_ops(_adapter * padapter)
 	pHalFunc->intf_chip_configure = &rtl8814au_interface_configure;
 	pHalFunc->read_adapter_info = &ReadAdapterInfo8814AU;
  
-	pHalFunc->SetHwRegHandler = &SetHwReg8814AU;
+	pHalFunc->set_hw_reg_handler = &SetHwReg8814AU;
 	pHalFunc->GetHwRegHandler = &GetHwReg8814AU;
-  	pHalFunc->GetHalDefVarHandler = &GetHalDefVar8814AUsb;
+  	pHalFunc->get_hal_def_var_handler = &GetHalDefVar8814AUsb;
  	pHalFunc->SetHalDefVarHandler = &SetHalDefVar8814AUsb;
 
 

@@ -21,6 +21,15 @@
 
 //#include <drv_types.h>
 #include <rtl8814a_hal.h>
+extern u32 array_length_mp_8814a_fw_ap;
+extern u8 array_mp_8814a_fw_ap[];
+extern u32 array_length_mp_8814a_fw_nic;
+extern u8 array_mp_8814a_fw_nic[];
+
+enum {
+	VOLTAGE_V25						= 0x03,
+	LDOE25_SHIFT						= 28 ,
+};
 
 //-------------------------------------------------------------------------
 //
@@ -105,24 +114,6 @@ void hal_DetectWoWMode(PADAPTER pAdapter)
 }
 #endif
 
-VOID
-SetBcnCtrlReg(
-	IN	PADAPTER	Adapter,
-	IN	u8		SetBits,
-	IN	u8		ClearBits
-	)
-{
-	HAL_DATA_TYPE*	pHalData = GET_HAL_DATA(Adapter);
-	
-	pHalData->RegBcnCtrlVal |= SetBits;
-	pHalData->RegBcnCtrlVal &= ~ClearBits;
-
-#if 0
-//#if DEV_BUS_TYPE == RT_SDIO_INTERFACE
-	pHalData->RegBcnCtrlVal &= ~EN_TXBCN_RPT;
-#endif
-	rtw_write8(Adapter, REG_BCN_CTRL_8814A, (u8)(pHalData->RegBcnCtrlVal));
-}
 
 VOID
 _FWDownloadEnable_8814A(
@@ -797,19 +788,22 @@ FirmwareDownload8814A(
 		case FW_SOURCE_HEADER_FILE:
 			#ifdef CONFIG_WOWLAN
 			if (bUsedWoWLANFw) {
-				ODM_ConfigFWWithHeaderFile(&pHalData->odmpriv, CONFIG_FW_WoWLAN, (u8 *)&(pFirmware->szFwBuffer), &(pFirmware->ulFwLength));
+				pFirmware->szFwBuffer = array_mp_8814a_fw_wowlan;
+				pFirmware->ulFwLength = array_length_mp_8814a_fw_wowlan;
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "WoWLAN", pFirmware->ulFwLength);
 			} else
 			#endif /* CONFIG_WOWLAN */
 			#ifdef CONFIG_BT_COEXIST
 			if (pHalData->EEPROMBluetoothCoexist == _TRUE) {
-				ODM_ConfigFWWithHeaderFile(&pHalData->odmpriv, CONFIG_FW_BT, (u8 *)&(pFirmware->szFwBuffer), &(pFirmware->ulFwLength));
+				pFirmware->szFwBuffer = array_mp_8814a_fw_nic_bt;
+				pFirmware->ulFwLength = array_length_mp_8814a_fw_nic_bt;
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC-BTCOEX", pFirmware->ulFwLength);
 			} else
 			#endif /* CONFIG_BT_COEXIST */
 			{
 				//ODM_CmnInfoInit(pDM_OutSrc, ODM_CMNINFO_IC_TYPE, ODM_RTL8814A);
-				ODM_ConfigFWWithHeaderFile(&pHalData->odmpriv, CONFIG_FW_NIC, (u8 *)&(pFirmware->szFwBuffer), &(pFirmware->ulFwLength));
+				pFirmware->szFwBuffer = array_mp_8814a_fw_nic;
+					pFirmware->ulFwLength = array_length_mp_8814a_fw_nic;
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC", pFirmware->ulFwLength);
 			}
 			break;
@@ -825,12 +819,12 @@ FirmwareDownload8814A(
 	FirmwareLen = pFirmware->ulFwLength;
 	pFwHdr = (u8 *)pFirmware->szFwBuffer;
 
-	pHalData->FirmwareVersion =  (u16)GET_FIRMWARE_HDR_VERSION_3081(pFwHdr);
-	pHalData->FirmwareSubVersion = (u16)GET_FIRMWARE_HDR_SUB_VER_3081(pFwHdr);
+	pHalData->firmware_version =  (u16)GET_FIRMWARE_HDR_VERSION_3081(pFwHdr);
+	pHalData->firmware_sub_version = (u16)GET_FIRMWARE_HDR_SUB_VER_3081(pFwHdr);
 	pHalData->FirmwareSignature = (u16)GET_FIRMWARE_HDR_SIGNATURE_3081(pFwHdr);
 
 	RTW_INFO ("%s: fw_ver=%d fw_subver=%d sig=0x%x\n",
-		  __FUNCTION__, pHalData->FirmwareVersion, pHalData->FirmwareSubVersion, pHalData->FirmwareSignature);
+		  __FUNCTION__, pHalData->firmware_version, pHalData->firmware_sub_version, pHalData->FirmwareSignature);
 	fwdl_start_time = rtw_get_current_time();
 	
 	_FWDownloadEnable_8814A(Adapter, _TRUE);
@@ -2008,7 +2002,7 @@ hal_Read_TRX_antenna_8814A(
 	}
 	
 	/* if driver doesn't set rf_config, use the value of EEPROM */
-	if (Adapter->registrypriv.rf_config == RF_MAX_TYPE) {
+	if (Adapter->registrypriv.rf_config == RF_TYPE_MAX) {
 
 		if (trx_antenna == RF_4T4R
 #ifdef CONFIG_USB_HCI
@@ -2042,23 +2036,23 @@ hal_ReadThermalMeter_8814A(
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
-	pHalData->EEPROMThermalMeter = 0xff;
+	pHalData->eeprom_thermal_meter = 0xff;
 	
 	if(!AutoloadFail)	
-		pHalData->EEPROMThermalMeter = PROMContent[EEPROM_THERMAL_METER_8814];
+		pHalData->eeprom_thermal_meter = PROMContent[EEPROM_THERMAL_METER_8814];
 
 #if 0 /* ToDo: check with RF */
 	else
-		pHalData->EEPROMThermalMeter = EEPROM_Default_ThermalMeter_8814A;
+		pHalData->eeprom_thermal_meter = EEPROM_Default_ThermalMeter_8814A;
 
-	if ((pHalData->EEPROMThermalMeter == 0xff) || (_TRUE == AutoloadFail)) {
-		pHalData->odmpriv.RFCalibrateInfo.bAPKThermalMeterIgnore = _TRUE;
-		pHalData->EEPROMThermalMeter = EEPROM_Default_ThermalMeter_8814A;
+	if ((pHalData->eeprom_thermal_meter == 0xff) || (_TRUE == AutoloadFail)) {
+		pHalData->odmpriv.rf_calibrate_info.bAPKThermalMeterIgnore = _TRUE;
+		pHalData->eeprom_thermal_meter = EEPROM_Default_ThermalMeter_8814A;
 	}
 #endif
 
-	//pHalData->ThermalMeter[0] = pHalData->EEPROMThermalMeter;
-	RTW_INFO("ThermalMeter = 0x%x\n", pHalData->EEPROMThermalMeter);
+	//pHalData->ThermalMeter[0] = pHalData->eeprom_thermal_meter;
+	RTW_INFO("ThermalMeter = 0x%x\n", pHalData->eeprom_thermal_meter);
 }
 
 
@@ -2099,7 +2093,8 @@ hal_ReadChannelPlan8814A(
 	IN	BOOLEAN			AutoLoadFail
 	)
 {
-	padapter->mlmepriv.ChannelPlan = hal_com_config_channel_plan(
+	struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
+	hal_com_config_channel_plan(
 			padapter
 			, hwinfo ? &hwinfo[EEPROM_COUNTRY_CODE_8814] : NULL
 			, hwinfo ? hwinfo[EEPROM_ChannelPlan_8814] : 0xFF
@@ -2117,7 +2112,7 @@ hal_ReadChannelPlan8814A(
 		, AutoLoadFail
 	);
 */
-	RTW_INFO("mlmepriv.ChannelPlan = 0x%02x\n", padapter->mlmepriv.ChannelPlan);
+	RTW_INFO("rfctl->ChannelPlan = 0x%02x\n", rfctl->ChannelPlan);
 }
 
 void hal_GetRxGainOffset_8814A(
@@ -2213,7 +2208,7 @@ void Hal_EfuseParseKFreeData_8814A(
 	}
 
 	if (kfree_data->flag & KFREE_FLAG_THERMAL_K_ON)
-		pHalData->EEPROMThermalMeter += kfree_data->thermal;
+		pHalData->eeprom_thermal_meter += kfree_data->thermal;
 
 	RTW_INFO("registrypriv.RegRfKFreeEnable = %d\n", Adapter->registrypriv.RegRfKFreeEnable);
 
@@ -2240,15 +2235,15 @@ hal_EfuseParseXtal_8814A(
 
 	if(!AutoLoadFail)
 	{
-		pHalData->CrystalCap = hwinfo[EEPROM_XTAL_8814];
-		if(pHalData->CrystalCap == 0xFF)
-			pHalData->CrystalCap = EEPROM_Default_CrystalCap_8814;	 /* what value should 8814 set? */
+		pHalData->crystal_cap = hwinfo[EEPROM_XTAL_8814];
+		if(pHalData->crystal_cap == 0xFF)
+			pHalData->crystal_cap = EEPROM_Default_CrystalCap_8814;	 /* what value should 8814 set? */
 	}
 	else
 	{
-		pHalData->CrystalCap = EEPROM_Default_CrystalCap_8814;
+		pHalData->crystal_cap = EEPROM_Default_CrystalCap_8814;
 	}
-	RTW_INFO("CrystalCap: 0x%2x\n", pHalData->CrystalCap);
+	RTW_INFO("crystal_cap: 0x%2x\n", pHalData->crystal_cap);
 }
 
 VOID
@@ -2281,7 +2276,7 @@ hal_ReadPAType_8814A(
 
 	if( ! AutoloadFail )
 	{
-		u8			RFEType = PROMContent[EEPROM_RFE_OPTION_8814];
+		u8			rfe_type = PROMContent[EEPROM_RFE_OPTION_8814];
 
 		if (GetRegAmplifierType2G(Adapter) == 0) // AUTO
 		{
@@ -2290,7 +2285,7 @@ hal_ReadPAType_8814A(
 			LNAType_AB = EF1Byte( *(u8*)&PROMContent[EEPROM_LNA_TYPE_AB_2G_8814] );
 			LNAType_CD = EF1Byte( *(u8*)&PROMContent[EEPROM_LNA_TYPE_CD_2G_8814] );
 			
-			if (*pPAType == 0xFF && RFEType == 0xFF)
+			if (*pPAType == 0xFF && rfe_type == 0xFF)
 				pHalData->ExternalPA_2G  = (GetRegAmplifierType2G(Adapter)&ODM_BOARD_EXT_PA)  ? 1 : 0; 
   			else	
 				pHalData->ExternalPA_2G = (*pPAType & BIT4) ? 1 : 0;
@@ -2314,31 +2309,31 @@ hal_ReadPAType_8814A(
 			LNAType_AB = EF1Byte( *(u8*)&PROMContent[EEPROM_LNA_TYPE_AB_5G_8814] );
 			LNAType_CD = EF1Byte( *(u8*)&PROMContent[EEPROM_LNA_TYPE_CD_5G_8814] );
 			
-			if (*pPAType == 0xFF && RFEType == 0xFF)
-				pHalData->ExternalPA_5G  = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_PA)  ? 1 : 0; 
+			if (*pPAType == 0xFF && rfe_type == 0xFF)
+				pHalData->external_pa_5g  = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_PA)  ? 1 : 0; 
   			else	
-			    pHalData->ExternalPA_5G = (*pPAType & BIT0) ? 1 : 0;					
+			    pHalData->external_pa_5g = (*pPAType & BIT0) ? 1 : 0;					
 
 			if (LNAType_AB == 0xFF)
-				pHalData->ExternalLNA_5G = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_LNA) ? 1 : 0;
+				pHalData->external_lna_5g = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_LNA) ? 1 : 0;
 			else
-			    pHalData->ExternalLNA_5G = (LNAType_AB & BIT3) ? 1 : 0;		
+			    pHalData->external_lna_5g = (LNAType_AB & BIT3) ? 1 : 0;		
 
 			(*pLNAType) |= 	((LNAType_AB & BIT3) >> 3 | (LNAType_AB & BIT7) >> 6 |
 							(LNAType_CD & BIT3) >> 1 | (LNAType_CD & BIT7) >> 4);
 		}
 		else
 		{
-			pHalData->ExternalPA_5G  = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_PA_5G)  ? 1 : 0; 			
-			pHalData->ExternalLNA_5G = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_LNA_5G) ? 1 : 0;  		    
+			pHalData->external_pa_5g  = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_PA_5G)  ? 1 : 0; 			
+			pHalData->external_lna_5g = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_LNA_5G) ? 1 : 0;  		    
 		}
 	}
 	else
 	{
 		pHalData->ExternalPA_2G  = EEPROM_Default_PAType; 
-		pHalData->ExternalPA_5G  = 0xFF; 
+		pHalData->external_pa_5g  = 0xFF; 
 		pHalData->ExternalLNA_2G = EEPROM_Default_LNAType;  
-		pHalData->ExternalLNA_5G = 0xFF; 
+		pHalData->external_lna_5g = 0xFF; 
 		
 		if (GetRegAmplifierType2G(Adapter) == 0) 
 		{		
@@ -2352,18 +2347,18 @@ hal_ReadPAType_8814A(
 		}
 		if (GetRegAmplifierType5G(Adapter) == 0) 
 		{		
-			pHalData->ExternalPA_5G  = 0; 
-			pHalData->ExternalLNA_5G = 0;  
+			pHalData->external_pa_5g  = 0; 
+			pHalData->external_lna_5g = 0;  
 		}
 		else
 		{
-			pHalData->ExternalPA_5G  = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_PA_5G)  ? 1 : 0; 			
-			pHalData->ExternalLNA_5G = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_LNA_5G) ? 1 : 0;  
+			pHalData->external_pa_5g  = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_PA_5G)  ? 1 : 0; 			
+			pHalData->external_lna_5g = (GetRegAmplifierType5G(Adapter)&ODM_BOARD_EXT_LNA_5G) ? 1 : 0;  
 		}
 	}
 	RTW_INFO("PAType is 0x%x, LNAType is 0x%x\n", *pPAType, *pLNAType);
-	RTW_INFO("pHalData->ExternalPA_2G = %d, pHalData->ExternalPA_5G = %d\n", pHalData->ExternalPA_2G, pHalData->ExternalPA_5G);
-	RTW_INFO("pHalData->ExternalLNA_2G = %d, pHalData->ExternalLNA_5G = %d\n", pHalData->ExternalLNA_2G, pHalData->ExternalLNA_5G);
+	RTW_INFO("pHalData->ExternalPA_2G = %d, pHalData->external_pa_5g = %d\n", pHalData->ExternalPA_2G, pHalData->external_pa_5g);
+	RTW_INFO("pHalData->ExternalLNA_2G = %d, pHalData->external_lna_5g = %d\n", pHalData->ExternalLNA_2G, pHalData->external_lna_5g);
 }
 
 VOID hal_ReadAmplifierType_8814A(
@@ -2371,40 +2366,40 @@ VOID hal_ReadAmplifierType_8814A(
 	)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	switch(pHalData->RFEType)
+	switch(pHalData->rfe_type)
 	{
 		case 1:	/* 8814AU */
-			pHalData->ExternalPA_5G = pHalData->ExternalLNA_5G = _TRUE;
+			pHalData->external_pa_5g = pHalData->external_lna_5g = _TRUE;
 			pHalData->TypeAPA = pHalData->TypeALNA = 0;/* APA and ALNA is 0 */
 			break;
 		case 2:	/* socket board 8814AR and 8194AR */
-			pHalData->ExternalPA_2G = pHalData->ExternalPA_5G = _TRUE;
-			pHalData->ExternalLNA_2G = pHalData->ExternalLNA_5G = _TRUE;
+			pHalData->ExternalPA_2G = pHalData->external_pa_5g = _TRUE;
+			pHalData->ExternalLNA_2G = pHalData->external_lna_5g = _TRUE;
 			pHalData->TypeAPA = pHalData->TypeALNA = 0x55;/* APA and ALNA is 1 */
 			pHalData->TypeGPA = pHalData->TypeGLNA = 0x55;/* GPA and GLNA is 1 */
 			break;
 		case 3:	/* high power on-board 8814AR and 8194AR */
-			pHalData->ExternalPA_2G = pHalData->ExternalPA_5G = _TRUE;
-			pHalData->ExternalLNA_2G = pHalData->ExternalLNA_5G = _TRUE;
+			pHalData->ExternalPA_2G = pHalData->external_pa_5g = _TRUE;
+			pHalData->ExternalLNA_2G = pHalData->external_lna_5g = _TRUE;
 			pHalData->TypeAPA = pHalData->TypeALNA = 0xaa;/* APA and ALNA is 2 */
 			pHalData->TypeGPA = pHalData->TypeGLNA = 0xaa;/* GPA and GLNA is 2 */
 			break;
 		case 4:	/* on-board 8814AR and 8194AR */
-			pHalData->ExternalPA_2G = pHalData->ExternalPA_5G = _TRUE;
-			pHalData->ExternalLNA_2G = pHalData->ExternalLNA_5G = _TRUE;
+			pHalData->ExternalPA_2G = pHalData->external_pa_5g = _TRUE;
+			pHalData->ExternalLNA_2G = pHalData->external_lna_5g = _TRUE;
 			pHalData->TypeAPA = 0x55;/* APA is 1 */
 			pHalData->TypeALNA = 0xff; /* ALNA is 3 */
 			pHalData->TypeGPA = pHalData->TypeGLNA = 0x55;/* GPA and GLNA is 1 */
 			break;
 		case 5:
-			pHalData->ExternalPA_2G = pHalData->ExternalPA_5G = _TRUE;
-			pHalData->ExternalLNA_2G = pHalData->ExternalLNA_5G = _TRUE;
+			pHalData->ExternalPA_2G = pHalData->external_pa_5g = _TRUE;
+			pHalData->ExternalLNA_2G = pHalData->external_lna_5g = _TRUE;
 			pHalData->TypeAPA = 0xaa; /* APA2 */
 			pHalData->TypeALNA = 0x5500; /* ALNA4 */
 			pHalData->TypeGPA = pHalData->TypeGLNA = 0xaa; /* GPA2,GLNA2 */
 			break;
 		case 6:
-			pHalData->ExternalLNA_5G = _TRUE;
+			pHalData->external_lna_5g = _TRUE;
 			pHalData->TypeALNA = 0; /* ALNA0 */
 			break;
 		case 0:
@@ -2412,8 +2407,8 @@ VOID hal_ReadAmplifierType_8814A(
 			break;
 	}
 
-	RTW_INFO("pHalData->ExternalPA_2G = %d, pHalData->ExternalPA_5G = %d\n", pHalData->ExternalPA_2G, pHalData->ExternalPA_5G);
-	RTW_INFO("pHalData->ExternalLNA_2G = %d, pHalData->ExternalLNA_5G = %d\n", pHalData->ExternalLNA_2G, pHalData->ExternalLNA_5G);
+	RTW_INFO("pHalData->ExternalPA_2G = %d, pHalData->external_pa_5g = %d\n", pHalData->ExternalPA_2G, pHalData->external_pa_5g);
+	RTW_INFO("pHalData->ExternalLNA_2G = %d, pHalData->external_lna_5g = %d\n", pHalData->ExternalLNA_2G, pHalData->external_lna_5g);
 	RTW_INFO("pHalData->TypeGPA = 0x%X, pHalData->TypeAPA = 0x%X\n", pHalData->TypeGPA, pHalData->TypeAPA);
 	RTW_INFO("pHalData->TypeGLNA = 0x%X, pHalData->TypeALNA = 0x%X\n", pHalData->TypeGLNA, pHalData->TypeALNA);
 }
@@ -2432,31 +2427,31 @@ hal_ReadRFEType_8814A(
 	{
 		if ((GetRegRFEType(Adapter) != 64) || 0xFF == PROMContent[EEPROM_RFE_OPTION_8814] || PROMContent[EEPROM_RFE_OPTION_8814] & BIT7) {
 			if(GetRegRFEType(Adapter) != 64)
-				pHalData->RFEType = GetRegRFEType(Adapter);
+				pHalData->rfe_type = GetRegRFEType(Adapter);
 			else if(IS_HARDWARE_TYPE_8814AE(Adapter))
-				pHalData->RFEType = 0;
+				pHalData->rfe_type = 0;
 			else if(IS_HARDWARE_TYPE_8814AU(Adapter))
-				pHalData->RFEType = 1;
+				pHalData->rfe_type = 1;
 			hal_ReadAmplifierType_8814A(Adapter);
 			
 		} else {
 			/* bit7==0 means  RFE type defined by 0xCA[6:0] */
-			pHalData->RFEType = PROMContent[EEPROM_RFE_OPTION_8814] & 0x7F;
+			pHalData->rfe_type = PROMContent[EEPROM_RFE_OPTION_8814] & 0x7F;
 			hal_ReadAmplifierType_8814A(Adapter);
 		}
 	}
 	else
 	{
 		if(GetRegRFEType(Adapter) != 64)
-			pHalData->RFEType = GetRegRFEType(Adapter);
+			pHalData->rfe_type = GetRegRFEType(Adapter);
 		else if(IS_HARDWARE_TYPE_8814AE(Adapter))
-			pHalData->RFEType = 0;
+			pHalData->rfe_type = 0;
 		else if(IS_HARDWARE_TYPE_8814AU(Adapter))
-			pHalData->RFEType = 1;
+			pHalData->rfe_type = 1;
 
 		hal_ReadAmplifierType_8814A(Adapter);
 	}
-	RTW_INFO("RFE Type: 0x%2x\n", pHalData->RFEType);
+	RTW_INFO("RFE Type: 0x%2x\n", pHalData->rfe_type);
 }
 
 static VOID
@@ -2843,14 +2838,14 @@ hal_EfuseWordEnableDataWrite8814A(	IN	PADAPTER	pAdapter,
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
 		
 		efuse_OneByteRead(pAdapter,readbackAddr, &readbackData[0], bPseudoTest);
 		efuse_OneByteRead(pAdapter,readbackAddr+1, &readbackData[1], bPseudoTest);
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
 		
 		if((data[0]!=readbackData[0])||(data[1]!=readbackData[1])){
 			badworden &= (~BIT0);
@@ -2864,14 +2859,14 @@ hal_EfuseWordEnableDataWrite8814A(	IN	PADAPTER	pAdapter,
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
 
 		efuse_OneByteRead(pAdapter,readbackAddr    , &readbackData[2], bPseudoTest);
 		efuse_OneByteRead(pAdapter,readbackAddr+1, &readbackData[3], bPseudoTest);
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
 
 		if((data[2]!=readbackData[2])||(data[3]!=readbackData[3])){
 			badworden &=( ~BIT1);
@@ -2885,14 +2880,14 @@ hal_EfuseWordEnableDataWrite8814A(	IN	PADAPTER	pAdapter,
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
 
 		efuse_OneByteRead(pAdapter,readbackAddr, &readbackData[4], bPseudoTest);							
 		efuse_OneByteRead(pAdapter,readbackAddr+1, &readbackData[5], bPseudoTest);
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
 
 		if((data[4]!=readbackData[4])||(data[5]!=readbackData[5])){
 			badworden &=( ~BIT2);
@@ -2906,14 +2901,14 @@ hal_EfuseWordEnableDataWrite8814A(	IN	PADAPTER	pAdapter,
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
 
 		efuse_OneByteRead(pAdapter,readbackAddr, &readbackData[6], bPseudoTest);
 		efuse_OneByteRead(pAdapter,readbackAddr+1, &readbackData[7], bPseudoTest);
 
 		if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 			IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-			PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
+			phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
 
 		if((data[6]!=readbackData[6])||(data[7]!=readbackData[7])){
 			badworden &=( ~BIT3);
@@ -3146,12 +3141,11 @@ rtl8814_Efuse_PgPacketRead(	IN	PADAPTER	pAdapter,
 	return ret;
 }
 
-BOOLEAN
-efuse_PgPacketCheck(
-	IN	PADAPTER	pAdapter,
-	IN	u8		efuseType,
-	IN	BOOLEAN		bPseudoTest
-	)
+static BOOLEAN efuse_PgPacketCheck(
+	PADAPTER	pAdapter,
+	u8		efuseType,
+	BOOLEAN		bPseudoTest
+)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
 
@@ -3164,7 +3158,7 @@ efuse_PgPacketCheck(
 	return _TRUE;
 }
 
-VOID
+static VOID
 efuse_PgPacketConstruct(
     IN	    u8 			offset,
     IN	    u8			word_en,
@@ -3200,7 +3194,7 @@ efuse_PgPacketExceptionHandle(
 }
 
 
-BOOLEAN
+static BOOLEAN
 hal_EfuseCheckIfDatafollowed(
 	IN		PADAPTER		pAdapter,
 	IN		u8			word_cnts,
@@ -3220,7 +3214,7 @@ hal_EfuseCheckIfDatafollowed(
 	return bRet;
 }
 
-BOOLEAN
+static BOOLEAN
 hal_EfuseWordEnMatched(
 	IN	PPGPKT_STRUCT	pTargetPkt,
 	IN	PPGPKT_STRUCT	pCurPkt,
@@ -3260,7 +3254,7 @@ hal_EfuseWordEnMatched(
 }
 
 
-BOOLEAN
+static BOOLEAN
 efuse_PgPacketPartialWrite(
     IN	    PADAPTER		pAdapter,
     IN	    u8			efuseType,
@@ -3438,7 +3432,7 @@ efuse_PgPacketPartialWrite(
 }
 
 
-BOOLEAN
+static BOOLEAN
 hal_EfuseFixHeaderProcess(
 	IN		PADAPTER			pAdapter,
 	IN		u8				efuseType,
@@ -3608,13 +3602,13 @@ efuse_PgPacketWrite1ByteHeader(
 
 	if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 		IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-		PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
+		phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 0); // Use 10K Read, Suggested by Morris & Victor
 
 	efuse_OneByteRead(pAdapter, efuse_addr, &tmp_header, bPseudoTest);
 
 	if (IS_HARDWARE_TYPE_8723B(pAdapter) || IS_HARDWARE_TYPE_8188E(pAdapter) ||
 		IS_HARDWARE_TYPE_8192E(pAdapter) || IS_HARDWARE_TYPE_8703B(pAdapter) || IS_HARDWARE_TYPE_8188F(pAdapter))
-		PHY_SetMacReg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
+		phy_set_mac_reg(pAdapter, EFUSE_TEST, BIT26, 1); // Restored to 1.5K Read, Suggested by Morris & Victor
 
 
 	while(tmp_header == 0xFF || pg_header != tmp_header)
@@ -3653,7 +3647,7 @@ efuse_PgPacketWrite1ByteHeader(
 
 
 
-BOOLEAN
+static BOOLEAN
 efuse_PgPacketWriteHeader(
 	IN			PADAPTER		pAdapter, 
 	IN			u8			efuseType,
@@ -3803,9 +3797,9 @@ void ReadRFType8814A(PADAPTER padapter)
 	//}
 
 	if (IsSupported24G(padapter->registrypriv.wireless_mode) && 
-		IsSupported5G(padapter->registrypriv.wireless_mode))
+		is_supported_5g(padapter->registrypriv.wireless_mode))
 		pHalData->BandSet = BAND_ON_BOTH;
-	else if (IsSupported5G(padapter->registrypriv.wireless_mode))
+	else if (is_supported_5g(padapter->registrypriv.wireless_mode))
 		pHalData->BandSet = BAND_ON_5G;
 	else
 		pHalData->BandSet = BAND_ON_2_4G;
@@ -3919,31 +3913,31 @@ static void read_chip_version_8814a(PADAPTER Adapter)
 	value32 = rtw_read32(Adapter, REG_SYS_CFG);
 	RTW_INFO("%s SYS_CFG(0x%X)=0x%08x \n", __FUNCTION__, REG_SYS_CFG, value32);
 
-	pHalData->VersionID.ICType = CHIP_8814A;
+	pHalData->version_id.ICType = CHIP_8814A;
 
-	pHalData->VersionID.ChipType = ((value32 & RTL_ID) ? TEST_CHIP : NORMAL_CHIP);
+	pHalData->version_id.ChipType = ((value32 & RTL_ID) ? TEST_CHIP : NORMAL_CHIP);
 
-	pHalData->VersionID.RFType = RF_TYPE_3T3R;
+	pHalData->version_id.RFType = RF_TYPE_3T3R;
 
 	if(Adapter->registrypriv.special_rf_path == 1)
-		pHalData->VersionID.RFType = RF_TYPE_1T1R;	//RF_1T1R;
+		pHalData->version_id.RFType = RF_TYPE_1T1R;	//RF_1T1R;
 	
 	vdr = (value32 & EXT_VENDOR_ID) >> EXT_VENDOR_ID_SHIFT;
 	if(vdr == 0x00)
-		pHalData->VersionID.VendorType = CHIP_VENDOR_TSMC;
+		pHalData->version_id.VendorType = CHIP_VENDOR_TSMC;
 	else if(vdr == 0x01)
-		pHalData->VersionID.VendorType = CHIP_VENDOR_SMIC;
+		pHalData->version_id.VendorType = CHIP_VENDOR_SMIC;
 	else if(vdr == 0x02)
-		pHalData->VersionID.VendorType = CHIP_VENDOR_UMC;	
+		pHalData->version_id.VendorType = CHIP_VENDOR_UMC;	
 
-	pHalData->VersionID.CUTVersion = (value32 & CHIP_VER_RTL_MASK)>>CHIP_VER_RTL_SHIFT; // IC version (CUT)
+	pHalData->version_id.CUTVersion = (value32 & CHIP_VER_RTL_MASK)>>CHIP_VER_RTL_SHIFT; // IC version (CUT)
 
 	pHalData->MultiFunc = RT_MULTI_FUNC_NONE;
 
 	rtw_hal_config_rftype(Adapter);
 	
 #if 1
-	dump_chip_info(pHalData->VersionID);
+	dump_chip_info(pHalData->version_id);
 #endif
 
 }
@@ -3985,56 +3979,6 @@ hal_PatchwithJaguar_8814(
 	}*/
 }
 
-void UpdateHalRAMask8814A(PADAPTER padapter, struct sta_info *psta, u32 mac_id, u8 rssi_level)
-{
-	u64	mask,rate_bitmap, *dm_RA_Mask=NULL;
-	u8	shortGIrate = _FALSE, *dm_RteID=NULL;
-	u8	arg[4] = {0};
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
-	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
-	u8 bw;
-
-	if (psta == NULL) {
-		RTW_PRINT(FUNC_ADPT_FMT" macid:%u, sta is NULL\n"
-			  , FUNC_ADPT_ARG(padapter), mac_id);
-		return;
-	}
-
-	bw = rtw_get_tx_bw_mode(padapter, psta);
-	shortGIrate = query_ra_short_GI(psta, bw);
-
-	mask = psta->ra_mask;
-
-	rate_bitmap = 0xffffffff;
-	rate_bitmap = PhyDM_Get_Rate_Bitmap_Ex(&pHalData->odmpriv, mac_id, mask, rssi_level, dm_RA_Mask, dm_RteID);
-
-	RTW_INFO("%s => mac_id:%d, networkType:0x%02x, mask:0x%016llx\n\t ==> rssi_level:%d, rate_bitmap:0x%016llx, shortGIrate=%d\n",
-			__FUNCTION__,mac_id,psta->wireless_mode,mask,rssi_level,rate_bitmap,shortGIrate);
-
-	mask &= rate_bitmap;
-
-#ifdef CONFIG_BT_COEXIST
-    if (pHalData->EEPROMBluetoothCoexist == 1)
-    {
-		rate_bitmap = rtw_btcoex_GetRaMask(padapter);
-		mask &= ~rate_bitmap;
-    }
-#endif // CONFIG_BT_COEXIST
-
-	arg[0] = mac_id;
-	arg[1] = psta->raid;
-	arg[2] = shortGIrate;
-	arg[3] = psta->init_rate;
-
-	rtl8814_set_raid_cmd(padapter, mask, arg, bw);
-	rtw_macid_ctl_set_bw(macid_ctl, mac_id, bw);
-	rtw_macid_ctl_set_vht_en(macid_ctl, mac_id, IsSupportedVHT(psta->wireless_mode));
-	rtw_macid_ctl_set_rate_bmp0(macid_ctl, mac_id, mask);
-	rtw_update_tx_rate_bmp(adapter_to_dvobj(padapter));
-
-}
-
 void init_hal_spec_8814a(_adapter *adapter)
 {
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
@@ -4042,7 +3986,8 @@ void init_hal_spec_8814a(_adapter *adapter)
 	hal_spec->macid_num = MACID_NUM_8814A;
 	hal_spec->sec_cam_ent_num = SEC_CAM_ENT_NUM_8814A;
 	hal_spec->sec_cap = SEC_CAP_CHK_BMC;
-	hal_spec->nss_num = NSS_NUM_8814A;
+	hal_spec->tx_nss_num = 1;
+	hal_spec->rx_nss_num = 1;
 	hal_spec->band_cap = BAND_CAP_8814A;
 	hal_spec->bw_cap = BW_CAP_8814A;
 
@@ -4072,10 +4017,10 @@ void InitDefaultValue8814A(PADAPTER padapter)
 	// init dm default value
 	pHalData->bChnlBWInitialized = _FALSE;
 	pHalData->bIQKInitialized = _FALSE;
-	pHalData->odmpriv.RFCalibrateInfo.TM_Trigger = 0;//for IQK
-	pHalData->odmpriv.RFCalibrateInfo.ThermalValue_HP_index = 0;
+	pHalData->odmpriv.rf_calibrate_info.tm_trigger = 0;//for IQK
+	pHalData->odmpriv.rf_calibrate_info.thermal_value_hp_index = 0;
 	for (i = 0; i < HP_THERMAL_NUM; i++)
-		pHalData->odmpriv.RFCalibrateInfo.ThermalValue_HP[i] = 0;
+		pHalData->odmpriv.rf_calibrate_info.thermal_value_hp[i] = 0;
 	pHalData->EfuseHal.fakeEfuseBank = 0;
 	pHalData->EfuseHal.fakeEfuseUsedBytes = 0;
 	_rtw_memset(pHalData->EfuseHal.fakeEfuseContent, 0xFF, EFUSE_MAX_HW_SIZE);
@@ -4113,11 +4058,11 @@ _InitBeaconParameters_8814A(
 	// beacause test chip does not contension before sending beacon. by tynli. 2009.11.03
 	rtw_write16(Adapter, REG_BCNTCFG, 0x660F);
 
-	pHalData->RegBcnCtrlVal = rtw_read8(Adapter, REG_BCN_CTRL);
-	pHalData->RegTxPause = rtw_read8(Adapter, REG_TXPAUSE); 
-	pHalData->RegFwHwTxQCtrl = rtw_read8(Adapter, REG_FWHW_TXQ_CTRL+2);
-	pHalData->RegReg542 = rtw_read8(Adapter, REG_TBTT_PROHIBIT+2);
-	pHalData->RegCR_1 = rtw_read8(Adapter, REG_CR+1);
+	//pHalData->RegBcnCtrlVal = rtw_read8(Adapter, REG_BCN_CTRL);
+	//pHalData->RegTxPause = rtw_read8(Adapter, REG_TXPAUSE); 
+	//pHalData->RegFwHwTxQCtrl = rtw_read8(Adapter, REG_FWHW_TXQ_CTRL+2);
+	//pHalData->RegReg542 = rtw_read8(Adapter, REG_TBTT_PROHIBIT+2);
+	//pHalData->RegCR_1 = rtw_read8(Adapter, REG_CR+1);
 }
 
 static VOID
@@ -5480,8 +5425,8 @@ static void rtw_store_all_sta_hwseq(_adapter *padapter)
 			psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
 			plist = get_next(plist);
 
-			psta->hwseq = hw_seq[psta->mac_id];
-			/* RTW_INFO(" psta->mac_id=%d, psta->hwseq=%d\n" , psta->mac_id, psta->hwseq); */
+			psta->hwseq = hw_seq[psta->cmn.mac_id];
+			/* RTW_INFO(" psta->cmn.mac_id=%d, psta->hwseq=%d\n" , psta->cmn.mac_id, psta->hwseq); */
 		}
 
 	}
@@ -5512,8 +5457,8 @@ static void rtw_restore_all_sta_hwseq(_adapter *padapter)
 			psta = LIST_CONTAINOR(plist, struct sta_info, hash_list);
 			plist = get_next(plist);
 			
-			hw_seq[psta->mac_id] = psta->hwseq;
-			/* RTW_INFO(" psta->mac_id=%d, psta->hwseq=%d\n", psta->mac_id, psta->hwseq); */
+			hw_seq[psta->cmn.mac_id] = psta->hwseq;
+			/* RTW_INFO(" psta->cmn.mac_id=%d, psta->hwseq=%d\n", psta->cmn.mac_id, psta->hwseq); */
 		}
 
 	}
@@ -5532,10 +5477,11 @@ static void rtw_restore_all_sta_hwseq(_adapter *padapter)
 	
 }
 
-void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
+u8 SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 {
 	PHAL_DATA_TYPE pHalData; 
-	PDM_ODM_T podmpriv;
+	struct PHY_DM_STRUCT* podmpriv;
+	u8 ret = _SUCCESS;
 	u8 val8;
 	u16 val16;
 	u32 val32;
@@ -5576,7 +5522,7 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 			input_b = BrateCfg;
 
 			/* apply force and allow mask */
-			if(pHalData->CurrentBandType == BAND_ON_2_4G)
+			if(pHalData->current_band_type == BAND_ON_2_4G)
 			{
 				BrateCfg |= rrsr_2g_force_mask;
 				BrateCfg &= rrsr_2g_allow_mask;
@@ -5654,15 +5600,6 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 #endif //CONFIG_CONCURRENT_MODE
 			break;
 
-		case HW_VAR_CHECK_BSSID:
-			val32 = rtw_read32(padapter, REG_RCR);
-			if (*pval)
-				val32 |= RCR_CBSSID_DATA|RCR_CBSSID_BCN;
-			else
-				val32 &= ~(RCR_CBSSID_DATA|RCR_CBSSID_BCN);
-			rtw_write32(padapter, REG_RCR, val32);
-			break;
-
 		case HW_VAR_MLME_DISCONNECT:
 #ifdef CONFIG_CONCURRENT_MODE
 			hw_var_set_mlme_disconnect(padapter, variable, pval);
@@ -5702,22 +5639,14 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 			hw_var_set_mlme_join(padapter, variable, pval);
 #else // !CONFIG_CONCURRENT_MODE
 			{
-				u8 RetryLimit = 0x30;
+				u8 RetryLimit = RL_VAL_AP;
 				u8 type = *(u8*)pval;
 				struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
 		
 				if (type == 0) // prepare to join
 				{
 					//enable to rx data frame.Accept all data frame
-					//rtw_write32(padapter, REG_RCR, rtw_read32(padapter, REG_RCR)|RCR_ADF);
 					rtw_write16(padapter, REG_RXFLTMAP2, 0xFFFF);
-
-					val32 = rtw_read32(padapter, REG_RCR);
-					if (padapter->in_cta_test)
-						val32 &= ~(RCR_CBSSID_DATA | RCR_CBSSID_BCN);//| RCR_ADF
-					else
-						val32 |= RCR_CBSSID_DATA|RCR_CBSSID_BCN;
-					rtw_write32(padapter, REG_RCR, val32);
 
 					if (check_fwstate(pmlmepriv, WIFI_STATION_STATE) == _TRUE)
 					{
@@ -5725,7 +5654,7 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 					}
 					else // Ad-hoc Mode
 					{
-						RetryLimit = 0x7;
+						RetryLimit = RL_VAL_AP;
 					}
 				}
 				else if (type == 1) //joinbss_event call back when join res < 0
@@ -5741,7 +5670,7 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 
 					if (check_fwstate(pmlmepriv, WIFI_ADHOC_STATE|WIFI_ADHOC_MASTER_STATE))
 					{
-						RetryLimit = 0x7;
+						RetryLimit = RL_VAL_AP;
 					}
 				}
 
@@ -5772,19 +5701,6 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 #endif
 			break;
 
-		case HW_VAR_ON_RCR_AM:
-			val32 = rtw_read32(padapter, REG_RCR);
-			val32 |= RCR_AM;
-			rtw_write32(padapter, REG_RCR, val32);
-			RTW_INFO("%s, %d, RCR= %x\n", __FUNCTION__, __LINE__, rtw_read32(padapter, REG_RCR));
-			break;
-
-		case HW_VAR_OFF_RCR_AM:
-			val32 = rtw_read32(padapter, REG_RCR);
-			val32 &= ~RCR_AM;
-			rtw_write32(padapter, REG_RCR, val32);
-			RTW_INFO("%s, %d, RCR= %x\n", __FUNCTION__, __LINE__, rtw_read32(padapter, REG_RCR));
-			break;
 
 		case HW_VAR_BEACON_INTERVAL:
 			rtw_write16(padapter, REG_BCN_INTERVAL, *(u16*)pval);
@@ -5877,7 +5793,7 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 			break;
 
 		case HW_VAR_AC_PARAM_BE:
-			pHalData->AcParam_BE = *(u32*)pval;
+			pHalData->ac_param_be = *(u32*)pval;
 			rtw_write32(padapter, REG_EDCA_BE_PARAM, *(u32*)pval);
 			break;
 
@@ -5945,20 +5861,6 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 			rtl8814_set_p2p_ps_offload_cmd(padapter, *pval);
 			break;
 #endif // CONFIG_P2P_PS
-
-#ifdef CONFIG_TDLS
-		case HW_VAR_TDLS_WRCR:
-			val32 = rtw_read32(padapter, REG_RCR);
-			val32 &= ~RCR_CBSSID_DATA;
-			rtw_write32(padapter, REG_RCR, val32);
-			break;
-
-		case HW_VAR_TDLS_RS_RCR:
-			val32 = rtw_read32(padapter, REG_RCR);
-			val32 |= RCR_CBSSID_DATA;
-			rtw_write32(padapter, REG_RCR, val32);
-			break;
-#endif // CONFIG_TDLS
 
 #ifdef CONFIG_SW_ANTENNA_DIVERSITY
 		case HW_VAR_ANTENNA_DIVERSITY_LINK:
@@ -6054,7 +5956,7 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 				u8 retry_limit;
 				u32 reg_230 = 0, reg_234 = 0, reg_238 = 0, reg_23c = 0, reg_240 = 0;
 				u32 init_reg_230 = 0, init_reg_234 = 0, init_reg_238 = 0, init_reg_23c = 0, init_reg_240 = 0;
-				u32 start = rtw_get_current_time();
+				systime start = rtw_get_current_time();
 				u32 pass_ms;
 				int i = 0;
 
@@ -6108,7 +6010,7 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 					RTW_INFO("%s:(HW_VAR_CHECK_TXBUF)TXBUF Empty(%d) in %d ms\n", __FUNCTION__, i, pass_ms);
 				}
 
-				retry_limit = 0x30;
+				retry_limit = RL_VAL_STA;
 				val16 = retry_limit << RETRY_LIMIT_SHORT_SHIFT | retry_limit << RETRY_LIMIT_LONG_SHIFT;
 				rtw_write16(padapter, REG_RL, val16);
 			}
@@ -6379,9 +6281,10 @@ void SetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 			break;
 #endif
 		default:
-			SetHwReg(padapter, variable, pval);
+			ret = SetHwReg(padapter, variable, pval);
 			break;
 	}
+	return ret;
 
 }
 
@@ -6456,7 +6359,7 @@ void dump_mac_qinfo_8814a(void *sel, _adapter *adapter)
 void GetHwReg8814A(PADAPTER padapter, u8 variable, u8 *pval)
 {
 	PHAL_DATA_TYPE pHalData;
-	PDM_ODM_T podmpriv;
+	struct PHY_DM_STRUCT* podmpriv;
 	u8 val8;
 	u16 val16;
 	u32 val32;
@@ -6742,32 +6645,6 @@ u8 GetHalDefVar8814A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval)
 	return bResult;
 }
 
-s32 c2h_id_filter_ccx_8814a(u8 *buf)
-{
-	struct c2h_evt_hdr_88xx *c2h_evt = (struct c2h_evt_hdr_88xx *)buf;
-	s32 ret = _FALSE;
-	if (c2h_evt->id == C2H_CCX_TX_RPT)
-		ret = _TRUE;
-	
-	return ret;
-}
-
-static s32 c2h_handler_8814a(PADAPTER padapter, u8 *buf)
-{
-	struct c2h_evt_hdr_88xx *c2h_evt = (struct c2h_evt_hdr_88xx *)buf;
-	s32 ret = _SUCCESS;
-
-	if (c2h_evt == NULL) {
-		RTW_INFO("%s c2h_evt is NULL\n",__FUNCTION__);
-		ret = _FAIL;
-		goto exit;
-	}
-
-	ret = _C2HContentParsing8814(padapter, c2h_evt->id, c2h_evt->plen, c2h_evt->payload);
-
-exit:
-	return ret;
-}
 
 #ifdef CONFIG_BT_COEXIST
 void rtl8812a_combo_card_WifiOnlyHwInit(PADAPTER pdapter)
@@ -6830,7 +6707,6 @@ void rtl8814_set_hal_ops(struct hal_ops *pHalFunc)
 
 	pHalFunc->SetBeaconRelatedRegistersHandler = &SetBeaconRelatedRegisters8814A;
 
-	pHalFunc->UpdateRAMaskHandler = &UpdateHalRAMask8814A;
 	pHalFunc->read_chip_version = read_chip_version_8814a;
 
 //	pHalFunc->set_bwmode_handler = &PHY_SetBWMode8814;
@@ -6883,7 +6759,6 @@ void rtl8814_set_hal_ops(struct hal_ops *pHalFunc)
 	pHalFunc->hal_notch_filter = &hal_notch_filter_8814;
 
 	pHalFunc->c2h_handler = c2h_handler_8814a;
-	pHalFunc->c2h_id_filter_ccx = c2h_id_filter_ccx_8814a;
 
 	pHalFunc->fill_h2c_cmd = &FillH2CCmd_8814;
 	pHalFunc->fill_fake_txdesc = &rtl8814a_fill_fake_txdesc;

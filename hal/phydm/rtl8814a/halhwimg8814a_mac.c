@@ -1,22 +1,17 @@
-/****************************************************************************** 
-* 
-* Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved. 
-* 
-* This program is free software; you can redistribute it and/or modify it 
-* under the terms of version 2 of the GNU General Public License as 
-* published by the Free Software Foundation. 
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT 
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for 
-* more details. 
-* 
-* You should have received a copy of the GNU General Public License along with 
-* this program; if not, write to the Free Software Foundation, Inc., 
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
-* 
-* 
-******************************************************************************/
+/******************************************************************************
+ *
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ *****************************************************************************/
 
 /*Image2HeaderVersion: 2.19*/
 #include "mp_precomp.h"
@@ -25,38 +20,38 @@
 #if (RTL8814A_SUPPORT == 1)
 static BOOLEAN
 CheckPositive(
-	IN  PDM_ODM_T     pDM_Odm,
-	IN  const u4Byte  Condition1,
-	IN  const u4Byte  Condition2,
-	IN	const u4Byte  Condition3,
-	IN	const u4Byte  Condition4
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32  Condition1,
+	u32  Condition2,
+	u32  Condition3,
+	u32  Condition4
 )
 {
-	u1Byte    _BoardType = ((pDM_Odm->BoardType & BIT4) >> 4) << 0 | /* _GLNA*/
-				((pDM_Odm->BoardType & BIT3) >> 3) << 1 | /* _GPA*/ 
-				((pDM_Odm->BoardType & BIT7) >> 7) << 2 | /* _ALNA*/
-				((pDM_Odm->BoardType & BIT6) >> 6) << 3 | /* _APA */
-				((pDM_Odm->BoardType & BIT2) >> 2) << 4;  /* _BT*/  
+	u1Byte    _BoardType = ((pDM_Odm->board_type & BIT4) >> 4) << 0 | /* _GLNA*/
+				((pDM_Odm->board_type & BIT3) >> 3) << 1 | /* _GPA*/ 
+				((pDM_Odm->board_type & BIT7) >> 7) << 2 | /* _ALNA*/
+				((pDM_Odm->board_type & BIT6) >> 6) << 3 | /* _APA */
+				((pDM_Odm->board_type & BIT2) >> 2) << 4;  /* _BT*/  
 
 	u4Byte	cond1   = Condition1, cond2 = Condition2, cond3 = Condition3, cond4 = Condition4;
-	u4Byte    driver1 = pDM_Odm->CutVersion       << 24 | 
-				(pDM_Odm->SupportInterface & 0xF0) << 16 | 
-				pDM_Odm->SupportPlatform  << 16 | 
-				pDM_Odm->PackageType      << 12 | 
-				(pDM_Odm->SupportInterface & 0x0F) << 8  |
+	u4Byte    driver1 = pDM_Odm->cut_version       << 24 | 
+				(pDM_Odm->support_interface & 0xF0) << 16 | 
+				pDM_Odm->support_platform  << 16 | 
+				pDM_Odm->package_type      << 12 | 
+				(pDM_Odm->support_interface & 0x0F) << 8  |
 				_BoardType;
 
-	u4Byte    driver2 = (pDM_Odm->TypeGLNA & 0xFF) <<  0 |  
-				(pDM_Odm->TypeGPA & 0xFF)  <<  8 | 
-				(pDM_Odm->TypeALNA & 0xFF) << 16 | 
-				(pDM_Odm->TypeAPA & 0xFF)  << 24; 
+	u4Byte    driver2 = (pDM_Odm->type_glna & 0xFF) <<  0 |  
+				(pDM_Odm->type_gpa & 0xFF)  <<  8 | 
+				(pDM_Odm->type_alna & 0xFF) << 16 | 
+				(pDM_Odm->type_apa & 0xFF)  << 24; 
 
 u4Byte    driver3 = 0;
 
-	u4Byte    driver4 = (pDM_Odm->TypeGLNA & 0xFF00) >>  8 |
-				(pDM_Odm->TypeGPA & 0xFF00) |
-				(pDM_Odm->TypeALNA & 0xFF00) << 8 |
-				(pDM_Odm->TypeAPA & 0xFF00)  << 16;
+	u4Byte    driver4 = (pDM_Odm->type_glna & 0xFF00) >>  8 |
+				(pDM_Odm->type_gpa & 0xFF00) |
+				(pDM_Odm->type_alna & 0xFF00) << 8 |
+				(pDM_Odm->type_apa & 0xFF00)  << 16;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_TRACE, 
 	("===> CheckPositive (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n", cond1, cond2, cond3, cond4));
@@ -64,9 +59,9 @@ u4Byte    driver3 = 0;
 	("===> CheckPositive (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n", driver1, driver2, driver3, driver4));
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_TRACE, 
-	("	(Platform, Interface) = (0x%X, 0x%X)\n", pDM_Odm->SupportPlatform, pDM_Odm->SupportInterface));
+	("	(Platform, Interface) = (0x%X, 0x%X)\n", pDM_Odm->support_platform, pDM_Odm->support_interface));
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_TRACE, 
-	("	(Board, Package) = (0x%X, 0x%X)\n", pDM_Odm->BoardType, pDM_Odm->PackageType));
+	("	(Board, Package) = (0x%X, 0x%X)\n", pDM_Odm->board_type, pDM_Odm->package_type));
 
 
 	/*============== Value Defined Check ===============*/
@@ -107,9 +102,9 @@ u4Byte    driver3 = 0;
 }
 static BOOLEAN
 CheckNegative(
-	IN  PDM_ODM_T     pDM_Odm,
-	IN  const u4Byte  Condition1,
-	IN  const u4Byte  Condition2
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32  Condition1,
+	u32  Condition2
 )
 {
 	return TRUE;
@@ -267,8 +262,8 @@ u4Byte Array_MP_8814A_MAC_REG[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_MAC_REG(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_mac_reg(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i         = 0;
@@ -321,7 +316,7 @@ ODM_ReadAndConfig_MP_8814A_MAC_REG(
 }
 
 u4Byte
-ODM_GetVersion_MP_8814A_MAC_REG(void)
+odm_get_version_mp_8814a_mac_reg(void)
 {
 	   return 85;
 }
