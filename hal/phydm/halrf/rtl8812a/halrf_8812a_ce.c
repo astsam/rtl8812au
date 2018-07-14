@@ -114,7 +114,7 @@ odm_tx_pwr_track_set_pwr8812a(
 	u8			final_cck_swing_index = 0;
 	u8			i = 0;
 	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
-	struct _hal_rf_	*p_rf = &(p_dm->rf_table);
+	struct _hal_rf_ *p_rf = &(p_dm->rf_table);
 
 	if (*(p_dm->p_mp_mode) == true) {
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
@@ -328,7 +328,7 @@ get_delta_swing_table_8812a(
 	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
 	struct _ADAPTER			*adapter = p_dm->adapter;
 	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
-	struct _hal_rf_	*p_rf = &(p_dm->rf_table);
+	struct _hal_rf_ *p_rf = &(p_dm->rf_table);
 	HAL_DATA_TYPE	*p_hal_data		 = GET_HAL_DATA(adapter);
 	u8		tx_rate			= 0xFF;
 	u8	channel		 = *p_dm->p_channel;
@@ -766,8 +766,8 @@ void _iqk_tx_8812a(
 		cal1_retry = 0;
 		while (1) {
 			/* one shot */
-			odm_write_4byte(p_dm, 0xcb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
-			odm_write_4byte(p_dm, 0xeb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+			odm_write_4byte(p_dm, 0xcb8, 0x00100000);/* cb8[20]  iqk_dpk module */
+			odm_write_4byte(p_dm, 0xeb8, 0x00100000);/* cb8[20]  iqk_dpk module */
 			odm_write_4byte(p_dm, 0x980, 0xfa000000);
 			odm_write_4byte(p_dm, 0x980, 0xf8000000);
 
@@ -971,7 +971,7 @@ void _iqk_tx_8812a(
 					odm_write_4byte(p_dm, 0xc8c, 0x28161500);
 				else
 					odm_write_4byte(p_dm, 0xc8c, 0x28160cc0);
-				odm_write_4byte(p_dm, 0xcb8, 0x00300000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+				odm_write_4byte(p_dm, 0xcb8, 0x00300000);/* cb8[20] 簣N SI/PI iqk_dpk module */
 				odm_write_4byte(p_dm, 0xcb8, 0x00100000);
 				ODM_delay_ms(5); /* delay 5ms */
 				odm_write_4byte(p_dm, 0xc8c, 0x3c000000);
@@ -987,8 +987,8 @@ void _iqk_tx_8812a(
 					odm_write_4byte(p_dm, 0xe8c, 0x28161500);
 				else
 					odm_write_4byte(p_dm, 0xe8c, 0x28160ca0);
-				odm_write_4byte(p_dm, 0xeb8, 0x00300000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
-				odm_write_4byte(p_dm, 0xeb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+				odm_write_4byte(p_dm, 0xeb8, 0x00300000);/* cb8[20] iqk_dpk module */
+				odm_write_4byte(p_dm, 0xeb8, 0x00100000);/* cb8[20] iqk_dpk module */
 				ODM_delay_ms(5); /* delay 5ms */
 				odm_write_4byte(p_dm, 0xe8c, 0x3c000000);
 				odm_write_4byte(p_dm, 0xeb8, 0x00000000);
@@ -1384,7 +1384,7 @@ phy_lc_calibrate_8812a(
 }
 
 void _phy_set_rf_path_switch_8812a(
-#if ((DM_ODM_SUPPORT_TYPE & ODM_AP) || (DM_ODM_SUPPORT_TYPE == ODM_CE))
+#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
 	struct PHY_DM_STRUCT		*p_dm,
 #else
 	struct _ADAPTER	*p_adapter,
@@ -1394,13 +1394,13 @@ void _phy_set_rf_path_switch_8812a(
 )
 {
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	struct _ADAPTER	*p_adapter = p_dm->adapter;
-#endif
 	HAL_DATA_TYPE	*p_hal_data = GET_HAL_DATA(p_adapter);
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+	struct PHY_DM_STRUCT		*p_dm = &p_hal_data->odmpriv;
+#elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	struct PHY_DM_STRUCT		*p_dm = &p_hal_data->DM_OutSrc;
 #endif
+
 #endif
 
 	if (IS_HARDWARE_TYPE_8821(p_adapter)) {
@@ -1425,7 +1425,7 @@ void _phy_set_rf_path_switch_8812a(
 }
 
 void phy_set_rf_path_switch_8812a(
-#if ((DM_ODM_SUPPORT_TYPE & ODM_AP) || (DM_ODM_SUPPORT_TYPE == ODM_CE))
+#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
 	struct PHY_DM_STRUCT		*p_dm,
 #else
 	struct _ADAPTER	*p_adapter,
@@ -1439,11 +1439,9 @@ void phy_set_rf_path_switch_8812a(
 #endif
 
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	_phy_set_rf_path_switch_8812a(p_dm, is_main, true);
-#else
+
 	_phy_set_rf_path_switch_8812a(p_adapter, is_main, true);
-#endif
+
 #endif
 }
 
@@ -1517,19 +1515,19 @@ _dpk_globalparaset(
 	/* set BB register */
 	/* *************************************** */
 
-	/* reg82c[31] = b'0, 切換到 page C */
+	/* reg82c[31] = bC */
 	odm_write_4byte(p_dm, 0x82c, 0x002083d5);
 
 	/* test pin in/out control */
 	odm_write_4byte(p_dm, 0x970, 0x00000000);
 
-	/* path A regcb8[3:0] = h'd, TRSW to TX */
+	/* path A regcb8[3:0] = h, TRSW to TX */
 	odm_write_4byte(p_dm, 0xcb8, 0x0050824d);
 
-	/* path B regeb8[3:0] = h'd, TRSW to TX */
+	/* path B regeb8[3:0] = h, TRSW to TX */
 	odm_write_4byte(p_dm, 0xeb8, 0x0050824d);
 
-	/* reg838[3:0] = h'c, CCA off */
+	/* reg838[3:0] = h, CCA off */
 	odm_write_4byte(p_dm, 0x838, 0x06c8d24c);
 
 	/* path A 3-wire off */
@@ -1538,16 +1536,16 @@ _dpk_globalparaset(
 	/* path B 3-wire off */
 	odm_write_4byte(p_dm, 0xe00, 0x00000004);
 
-	/* reg90c[15] = b'1, DAC fifo reset by CSWU */
+	/* reg90c[15] = b DAC fifo reset by CSWU */
 	odm_write_4byte(p_dm, 0x90c, 0x00008000);
 
 	/* reset DPK circuit */
 	odm_write_4byte(p_dm, 0xb00, 0x03000100);
 
-	/* path A regc94[0] = b'1 (r_gothrough_iqkdpk), 將 DPK 切進 normal path */
+	/* path A regc94[0] = b'1 (r_gothrough_iqkdpk), normal path */
 	odm_write_4byte(p_dm, 0xc94, 0x01000001);
 
-	/* path B rege94[0] = b'1 (r_gothrough_iqkdpk), 將 DPK 切進 normal path */
+	/* path B rege94[0] = b'1 (r_gothrough_iqkdpk), normal path */
 	odm_write_4byte(p_dm, 0xe94, 0x01000001);
 
 	/* *************************************** */
@@ -1555,7 +1553,7 @@ _dpk_globalparaset(
 	/* *************************************** */
 
 	/* path A */
-	/* regc68 到 regc84應該是要跟正常 Tx mode 時的設定一致 */
+	/* regc68 regc84 */
 
 	odm_write_4byte(p_dm, 0xc68, 0x19791979);
 	odm_write_4byte(p_dm, 0xc6c, 0x19791979);
@@ -1571,7 +1569,7 @@ _dpk_globalparaset(
 	odm_write_4byte(p_dm, 0xc64, 0x77777777);
 
 	/* path B */
-	/* rege68 到 rege84應該是要跟正常 Tx mode 時的設定一致 */
+	/* rege68 rege84Tx mode  */
 
 	odm_write_4byte(p_dm, 0xe68, 0x19791979);
 	odm_write_4byte(p_dm, 0xe6c, 0x19791979);
@@ -1724,7 +1722,7 @@ _dpk_enable_dp(
 	/* ========= */
 	/* DPK setting	 */
 	/* ========= */
-	/* reg82c[31] = b'1, 切換到 page C1 */
+	/* reg82c[31] = bpage C1 */
 	odm_write_4byte(p_dm, 0x82c, 0x802083d5);
 
 
@@ -1735,7 +1733,7 @@ _dpk_enable_dp(
 	odm_write_4byte(p_dm, 0xc8c + pagesel, 0x3c000000);
 
 
-	/* 寫PWSF table in 1st SRAM for PA = 11 use */
+	/* gPWSF table in 1st SRAM for PA = 11 use */
 	odm_write_4byte(p_dm, 0xc20 + pagesel, 0x00000800);
 
 	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Write PWSF table\n"));
@@ -1776,7 +1774,7 @@ _dpk_enable_dp(
 
 	odm_write_4byte(p_dm, 0xce4 + pagesel, 0x00000000);
 
-	/* reg82c[31] = b'0, 切換到 page C */
+	/* reg82c[31] = bpage C */
 	odm_write_4byte(p_dm, 0x82c, 0x002083d5);
 
 }
@@ -1808,10 +1806,10 @@ _dpk_path_abdpk(
 		/* *************************************** */
 
 
-		/* reg82c[31] = b'1, 切換到 page C1 */
+		/* reg82c[31] = bpage C1 */
 		odm_write_4byte(p_dm, 0x82c, 0x802083d5);
 
-		/* regc20[15:13] = dB sel, 告訴 Gain Loss function 去尋找 dB_sel 所設定的PA gain loss目標所對應的 Tx AGC 為何. */
+		/* regc20[15:13] = dB sel */
 		/* dB_sel = b'000 ' 1.0 dB PA gain loss */
 		/* dB_sel = b'001 ' 1.5 dB PA gain loss */
 		/* dB_sel = b'010 ' 2.0 dB PA gain loss */
@@ -1827,7 +1825,7 @@ _dpk_path_abdpk(
 		odm_write_4byte(p_dm, 0xcc4 + pagesel, 0x148b0000);
 		odm_write_4byte(p_dm, 0xc8c + pagesel, 0x3c000000);
 
-		/* tx_amp ' 決定 Ramp 中各弦波的振幅大小 */
+		/* tx_amp  */
 		odm_write_4byte(p_dm, 0xc98 + pagesel, 0x41382e21);
 		odm_write_4byte(p_dm, 0xc9c + pagesel, 0x5b554f48);
 		odm_write_4byte(p_dm, 0xca0 + pagesel, 0x6f6b6661);
@@ -1837,7 +1835,7 @@ _dpk_path_abdpk(
 		odm_write_4byte(p_dm, 0xcb0 + pagesel, 0xaaa7a4a1);
 		odm_write_4byte(p_dm, 0xcb4 + pagesel, 0xb6b3b0ad);
 
-		/* tx_inverse ' Ramp 中各弦波power 的倒數, 以計算出 PA 的 gain report?? */
+		/* tx_inverse ' Ramp ipower gain report?? */
 		odm_write_4byte(p_dm, 0xc40 + pagesel, 0x02ce03e9);
 		odm_write_4byte(p_dm, 0xc44 + pagesel, 0x01fd0249);
 		odm_write_4byte(p_dm, 0xc48 + pagesel, 0x01a101c9);
@@ -1886,18 +1884,18 @@ _dpk_path_abdpk(
 		/* read back */
 		odm_write_4byte(p_dm, 0xc90 + pagesel, 0x0109f018);
 		odm_write_4byte(p_dm, 0xcb8 + pagesel, 0x09000000);
-		/* 可以在 d00[3:0] 中讀回, dB_sel 中所設定的 gain loss 會落在哪一個 Tx AGC 設定 */
-		/* 讀回d00[3:0] = h'1 ' Tx AGC = 15 */
-		/* 讀回d00[3:0] = h'2 ' Tx AGC = 16 */
-		/* 讀回d00[3:0] = h'3 ' Tx AGC = 17 */
-		/* 讀回d00[3:0] = h'4 ' Tx AGC = 18 */
-		/* 讀回d00[3:0] = h'5 ' Tx AGC = 19 */
-		/* 讀回d00[3:0] = h'6 ' Tx AGC = 1a */
-		/* 讀回d00[3:0] = h'7 ' Tx AGC = 1b */
-		/* 讀回d00[3:0] = h'8 ' Tx AGC = 1c */
-		/* 讀回d00[3:0] = h'9 ' Tx AGC = 1d */
-		/* 讀回d00[3:0] = h'a ' Tx AGC = 1e */
-		/* 讀回d00[3:0] = h'b ' Tx AGC = 1f */
+		/* b d00[3:0]dB_sel  gain loss Tx AGC */
+		/* d00[3:0] = h'1 ' Tx AGC = 15 */
+		/* d00[3:0] = h'2 ' Tx AGC = 16 */
+		/* d00[3:0] = h'3 ' Tx AGC = 17 */
+		/* d00[3:0] = h'4 ' Tx AGC = 18 */
+		/* d00[3:0] = h'5 ' Tx AGC = 19 */
+		/* d00[3:0] = h'6 ' Tx AGC = 1a */
+		/* d00[3:0] = h'7 ' Tx AGC = 1b */
+		/* d00[3:0] = h'8 ' Tx AGC = 1c */
+		/* d00[3:0] = h'9 ' Tx AGC = 1d */
+		/* d00[3:0] = h'a ' Tx AGC = 1e */
+		/* d00[3:0] = h'b ' Tx AGC = 1f */
 
 		tx_index = odm_get_bb_reg(p_dm, 0xd00 + regsel, 0x0000000f);
 
@@ -1913,7 +1911,7 @@ _dpk_path_abdpk(
 		odm_write_4byte(p_dm, 0xc8c + pagesel, 0x3c000000);
 
 
-		/* tx_amp ' 決定 Ramp 中各弦波的振幅大小 */
+		/* tx_amp ' Ramp  */
 
 		odm_write_4byte(p_dm, 0xc98 + pagesel, 0x41382e21);
 		odm_write_4byte(p_dm, 0xc9c + pagesel, 0x5b554f48);
@@ -1924,7 +1922,7 @@ _dpk_path_abdpk(
 		odm_write_4byte(p_dm, 0xcb0 + pagesel, 0xaaa7a4a1);
 		odm_write_4byte(p_dm, 0xcb4 + pagesel, 0xb6b3b0ad);
 
-		/* tx_inverse ' Ramp 中各弦波power 的倒數, 以計算出 PA 的 gain */
+		/* tx_inverse ' Ramp  gain */
 		odm_write_4byte(p_dm, 0xc40 + pagesel, 0x02ce03e9);
 		odm_write_4byte(p_dm, 0xc44 + pagesel, 0x01fd0249);
 		odm_write_4byte(p_dm, 0xc48 + pagesel, 0x01a101c9);
@@ -1943,7 +1941,7 @@ _dpk_path_abdpk(
 		odm_write_4byte(p_dm, 0xc7c + pagesel, 0x00b500b8);
 
 		/* fill BB TX index for the DPK reference */
-		/* reg82c[31] =1b'0, 切換到 page C */
+		/* reg82c[31] =1b page C */
 		odm_write_4byte(p_dm, 0x82c, 0x002083d5);
 
 		odm_write_4byte(p_dm, 0xc20 + pagesel, 0x3c3c3c3c);
@@ -1959,26 +1957,26 @@ _dpk_path_abdpk(
 		odm_write_4byte(p_dm, 0xc48 + pagesel, 0x3c3c3c3c);
 		odm_write_4byte(p_dm, 0xc4c + pagesel, 0x3c3c3c3c);
 
-		/* reg82c[31] =1b'1, 切換到 page C1 */
+		/* reg82c[31] =1b'page C1 */
 		odm_write_4byte(p_dm, 0x82c, 0x802083d5);
 
 
 
 		/* r_agc_boudary */
-		/* PA gain = 11 對應 tx_agc 從1f 到11  boundary = b'11111 ' PageC1 的 bc0[4:0] = 11111 */
-		/* PA gain = 10 對應 tx_agc 從11 到11 ? boundary = b'10011 ' PageC1 的 bc0[9:5] = 10001 */
-		/* PA gain = 01 對應 tx_agc 從10 到0e ? boundary = b'10000 ' PageC1 的 bc0[14:10] = 10000 */
-		/* PA gain = 00 對應 tx_agc 從0d 到00 ? boundary = b'01101 ' PageC1 的 bc0[19:15] = 01101 */
+		/* PA gain = 11   boundary = b'11111 '  bc0[4:0] = 11111 */
+		/* PA gain = 10  tx_agc ? boundary = b'10011 ' PageC1 bc0[9:5] = 10001 */
+		/* PA gain = 01  tx_agc ? boundary = b'10000 ' PageC1 bc0[14:10] = 10000 */
+		/* PA gain = 00  tx_agc ? boundary = b'01101 ' PageC1 bc0[19:15] = 01101 */
 		odm_write_4byte(p_dm, 0xcbc + pagesel, 0x0006c23f);
 
-		/* r_bnd, 另外4塊 PWSF (power scaling factor) 的 boundary, 因為目前只有在 PA gain = 11 時才做補償, 所以設成 h'fffff 即可. */
+		/* r_bnd, PWSF (power scaling factor) 穠繙 boundary, PA gain = 11 'fffff . */
 		odm_write_4byte(p_dm, 0xcb8 + pagesel, 0x000fffff);
 
 		/* ============ */
 		/* RF setting for DPK */
 		/* ============ */
 		/* 00[4:0] = Tx AGC, 00[9:5] = Rx AGC (BB), 00[12:10] = Rx AGC (LNA) */
-		/* 此處 reg00[4:0] = h'1d, 是由前面 gain loss function 得到的結果. */
+		/* B reg00[4:0] = h'1d,gain loss function G. */
 		odm_set_rf_reg(p_dm, (enum rf_path)(0x0 + path), 0x0, RFREGOFFSETMASK, 0x517e0 | tx_index);
 		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RF 0x0 = 0x%x\n", 0x517e0 | tx_index));
 

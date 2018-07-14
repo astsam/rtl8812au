@@ -60,9 +60,10 @@ phydm_la_buffer_allocate(
 		if (!adc_smp_buf->octet)	{
 #endif
 			ret = false;
-		} else
+		} else {
 			adc_smp_buf->length = adc_smp_buf->buffer_size;
 			ret = true;
+		}
 	}
 
 	return ret;

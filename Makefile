@@ -14,11 +14,11 @@ EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
 EXTRA_CFLAGS += -Wno-date-time
-EXTRA_CFLAGS += -Wno-misleading-indentation
+#EXTRA_CFLAGS += -Wno-misleading-indentation
 EXTRA_CFLAGS += -Wno-uninitialized
 # Relax some warnings from '-Wextra' so we won't get flooded with warnings
 EXTRA_CFLAGS += -Wno-sign-compare
-EXTRA_CFLAGS += -Wno-missing-field-initializers
+#EXTRA_CFLAGS += -Wno-missing-field-initializers
 EXTRA_CFLAGS += -Wno-type-limits
 
 GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )

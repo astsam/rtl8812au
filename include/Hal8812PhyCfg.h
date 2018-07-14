@@ -135,7 +135,7 @@ PHY_SetSwChnlBWMode8812(
 
 VOID
 phy_set_rf_path_switch_8812a(
-	IN	struct PHY_DM_STRUCT	 *phydm,
+	IN	PADAPTER	pAdapter,
 	IN	bool		bMain
 );
 
