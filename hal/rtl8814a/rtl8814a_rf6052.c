@@ -40,32 +40,32 @@
 VOID
 PHY_RF6052SetBandwidth8814A(
 	IN	PADAPTER				Adapter,
-	IN	CHANNEL_WIDTH		Bandwidth)	//20M or 40M
+	IN	enum channel_width		Bandwidth)	//20M or 40M
 {
 	switch(Bandwidth)
 	{
 		case CHANNEL_WIDTH_20:
 			/*RTW_INFO("PHY_RF6052SetBandwidth8814A(), set 20MHz\n");*/
-			PHY_SetRFReg(Adapter, RF_PATH_A, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
-			PHY_SetRFReg(Adapter, RF_PATH_B, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
-			PHY_SetRFReg(Adapter, RF_PATH_C, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
-			PHY_SetRFReg(Adapter, RF_PATH_D, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
+			phy_set_rf_reg(Adapter, RF_PATH_A, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
+			phy_set_rf_reg(Adapter, RF_PATH_B, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
+			phy_set_rf_reg(Adapter, RF_PATH_C, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
+			phy_set_rf_reg(Adapter, RF_PATH_D, RF_CHNLBW_Jaguar, BIT11|BIT10, 3);
 		break;
 			
 		case CHANNEL_WIDTH_40:
 			/*RTW_INFO("PHY_RF6052SetBandwidth8814A(), set 40MHz\n");*/
-			PHY_SetRFReg(Adapter, RF_PATH_A, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);	
-			PHY_SetRFReg(Adapter, RF_PATH_B, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);	
-			PHY_SetRFReg(Adapter, RF_PATH_C, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);	
-			PHY_SetRFReg(Adapter, RF_PATH_D, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);			
+			phy_set_rf_reg(Adapter, RF_PATH_A, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);	
+			phy_set_rf_reg(Adapter, RF_PATH_B, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);	
+			phy_set_rf_reg(Adapter, RF_PATH_C, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);	
+			phy_set_rf_reg(Adapter, RF_PATH_D, RF_CHNLBW_Jaguar, BIT11|BIT10, 1);			
 		break;
 		
 		case CHANNEL_WIDTH_80:
 			/*RTW_INFO("PHY_RF6052SetBandwidth8814A(), set 80MHz\n");*/
-			PHY_SetRFReg(Adapter, RF_PATH_A, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);	
-			PHY_SetRFReg(Adapter, RF_PATH_B, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);	
-			PHY_SetRFReg(Adapter, RF_PATH_C, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);	
-			PHY_SetRFReg(Adapter, RF_PATH_D, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);
+			phy_set_rf_reg(Adapter, RF_PATH_A, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);	
+			phy_set_rf_reg(Adapter, RF_PATH_B, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);	
+			phy_set_rf_reg(Adapter, RF_PATH_C, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);	
+			phy_set_rf_reg(Adapter, RF_PATH_D, RF_CHNLBW_Jaguar, BIT11|BIT10, 0);
 		break;
 			
 		default:
@@ -112,7 +112,7 @@ phy_RF6052_Config_ParaFile_8814A(
 #endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
-				if(HAL_STATUS_FAILURE ==ODM_ConfigRFWithHeaderFile(&pHalData->odmpriv,CONFIG_RF_RADIO, (ODM_RF_RADIO_PATH_E)eRFPath))
+				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
 					rtStatus = _FAIL;
 #endif //CONFIG_EMBEDDED_FWIMG
 			}
@@ -123,7 +123,7 @@ phy_RF6052_Config_ParaFile_8814A(
 #endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
-				if(HAL_STATUS_FAILURE ==ODM_ConfigRFWithHeaderFile(&pHalData->odmpriv,CONFIG_RF_RADIO, (ODM_RF_RADIO_PATH_E)eRFPath))
+				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
 					rtStatus = _FAIL;
 #endif //CONFIG_EMBEDDED_FWIMG
 			}
@@ -134,7 +134,7 @@ phy_RF6052_Config_ParaFile_8814A(
 #endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
-				if(HAL_STATUS_FAILURE ==ODM_ConfigRFWithHeaderFile(&pHalData->odmpriv,CONFIG_RF_RADIO, (ODM_RF_RADIO_PATH_E)eRFPath))
+				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
 					rtStatus = _FAIL;
 #endif //CONFIG_EMBEDDED_FWIMG
 			}
@@ -145,7 +145,7 @@ phy_RF6052_Config_ParaFile_8814A(
 #endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
-				if(HAL_STATUS_FAILURE ==ODM_ConfigRFWithHeaderFile(&pHalData->odmpriv,CONFIG_RF_RADIO, (ODM_RF_RADIO_PATH_E)eRFPath))
+				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
 					rtStatus = _FAIL;
 #endif //CONFIG_EMBEDDED_FWIMG
 			}
@@ -161,10 +161,10 @@ phy_RF6052_Config_ParaFile_8814A(
 
 	}
 	
-	u4RegValue = PHY_QueryRFReg(Adapter, RF_PATH_A, RF_RCK1_Jaguar, bRFRegOffsetMask);
-	PHY_SetRFReg(Adapter, RF_PATH_B,  RF_RCK1_Jaguar, bRFRegOffsetMask, u4RegValue);
-	PHY_SetRFReg(Adapter, RF_PATH_C,  RF_RCK1_Jaguar, bRFRegOffsetMask, u4RegValue);
-	PHY_SetRFReg(Adapter, RF_PATH_D,  RF_RCK1_Jaguar, bRFRegOffsetMask, u4RegValue);
+	u4RegValue = phy_query_rf_reg(Adapter, RF_PATH_A, RF_RCK1_Jaguar, bRFRegOffsetMask);
+	phy_set_rf_reg(Adapter, RF_PATH_B,  RF_RCK1_Jaguar, bRFRegOffsetMask, u4RegValue);
+	phy_set_rf_reg(Adapter, RF_PATH_C,  RF_RCK1_Jaguar, bRFRegOffsetMask, u4RegValue);
+	phy_set_rf_reg(Adapter, RF_PATH_D,  RF_RCK1_Jaguar, bRFRegOffsetMask, u4RegValue);
 	
 	//3 -----------------------------------------------------------------
 	//3 Configuration of Tx Power Tracking 
@@ -175,7 +175,7 @@ phy_RF6052_Config_ParaFile_8814A(
 #endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 	{
 #ifdef CONFIG_EMBEDDED_FWIMG
-		ODM_ConfigRFWithTxPwrTrackHeaderFile(&pHalData->odmpriv);
+		odm_config_rf_with_tx_pwr_track_header_file(&pHalData->odmpriv);
 #endif
 	}
 

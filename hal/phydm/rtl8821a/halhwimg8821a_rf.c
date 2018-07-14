@@ -992,7 +992,7 @@ odm_read_and_config_mp_8821a_txpowertrack_ap(
 )
 {
 #if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	struct odm_rf_calibration_structure  p_rf_calibrate_info = &(p_dm_odm->rf_calibrate_info);
+	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm_odm->rf_calibrate_info);
 
 	ODM_RT_TRACE(p_dm_odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_MP_8821A\n"));
 
@@ -1055,7 +1055,7 @@ odm_read_and_config_mp_8821a_txpowertrack_pcie(
 )
 {
 #if DEV_BUS_TYPE == RT_PCI_INTERFACE
-	struct odm_rf_calibration_structure  p_rf_calibrate_info = &(p_dm_odm->rf_calibrate_info);
+	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm_odm->rf_calibrate_info);
 
 	ODM_RT_TRACE(p_dm_odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_MP_8821A\n"));
 
@@ -1117,7 +1117,7 @@ void odm_read_and_config_mp_8821a_txpowertrack_sdio(
 )
 {
 #if DEV_BUS_TYPE == RT_SDIO_INTERFACE
-	struct odm_rf_calibration_structure  p_rf_calibrate_info = &(p_dm_odm->rf_calibrate_info);
+	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm_odm->rf_calibrate_info);
 
 	ODM_RT_TRACE(p_dm_odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_MP_8821A\n"));
 

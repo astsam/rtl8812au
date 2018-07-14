@@ -143,36 +143,7 @@ void Hal_DetectWoWMode(PADAPTER pAdapter)
 }
 #endif
 
-/* ************************************************************************************
- *
- * 20100209 Joseph:
- * This function is used only for 92C to set REG_BCN_CTRL(0x550) register.
- * We just reserve the value of the register in variable pHalData->RegBcnCtrlVal and then operate
- * the value of the register via atomic operation.
- * This prevents from race condition when setting this register.
- * The value of pHalData->RegBcnCtrlVal is initialized in HwConfigureRTL8192CE() function.
- *   */
-void SetBcnCtrlReg(
-	PADAPTER	padapter,
-	u8		SetBits,
-	u8		ClearBits)
-{
-	PHAL_DATA_TYPE pHalData;
-	u8 RegBcnCtrlVal = 0;
 
-	pHalData = GET_HAL_DATA(padapter);
-	RegBcnCtrlVal = rtw_read8(padapter, REG_BCN_CTRL);
-
-	RegBcnCtrlVal |= SetBits;
-	RegBcnCtrlVal &= ~ClearBits;
-
-#if 0
-	/* #ifdef CONFIG_SDIO_HCI */
-	if (pHalData->sdio_himr & (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK))
-		RegBcnCtrlVal |= EN_TXBCN_RPT;
-#endif
-	rtw_write8(padapter, REG_BCN_CTRL, RegBcnCtrlVal);
-}
 
 static VOID
 _FWDownloadEnable_8812(
@@ -2518,7 +2489,7 @@ rtl8812_Efuse_PgPacketRead(IN	PADAPTER	pAdapter,
 }
 
 
-BOOLEAN
+static BOOLEAN
 hal_EfuseFixHeaderProcess(
 	IN		PADAPTER			pAdapter,
 	IN		u8				efuseType,
@@ -2719,7 +2690,7 @@ hal_EfusePgPacketWriteData(
 	return _TRUE;
 }
 
-BOOLEAN efuse_PgPacketCheck(
+static BOOLEAN efuse_PgPacketCheck(
 	PADAPTER	pAdapter,
 	u8		efuseType,
 	BOOLEAN		bPseudoTest
@@ -2736,7 +2707,7 @@ BOOLEAN efuse_PgPacketCheck(
 }
 
 
-VOID
+static VOID
 efuse_PgPacketConstruct(
 	IN	    u8			offset,
 	IN	    u8			word_en,
@@ -2826,7 +2797,7 @@ Hal_EfusePgPacketExceptionHandle_8812A(
 }
 
 
-BOOLEAN hal_EfuseCheckIfDatafollowed(
+static BOOLEAN hal_EfuseCheckIfDatafollowed(
 	IN		PADAPTER		pAdapter,
 	IN		u8			word_cnts,
 	IN		u16			startAddr,
@@ -2845,7 +2816,7 @@ BOOLEAN hal_EfuseCheckIfDatafollowed(
 }
 
 
-BOOLEAN
+static BOOLEAN
 hal_EfuseWordEnMatched(
 	IN	PPGPKT_STRUCT	pTargetPkt,
 	IN	PPGPKT_STRUCT	pCurPkt,
@@ -2881,7 +2852,7 @@ hal_EfuseWordEnMatched(
 }
 
 
-BOOLEAN
+static BOOLEAN
 efuse_PgPacketPartialWrite(
 	IN	    PADAPTER		pAdapter,
 	IN	    u8			efuseType,
@@ -3036,7 +3007,7 @@ efuse_PgPacketPartialWrite(
 	return bRet;
 }
 
-BOOLEAN	efuse_PgPacketWriteHeader(
+static BOOLEAN	efuse_PgPacketWriteHeader(
 	PADAPTER		pAdapter,
 	u8			efuseType,
 	u16			*pAddr,
@@ -4060,7 +4031,7 @@ SetBeamformDownloadNDPA_8812(
 	rtw_write8(Adapter,  REG_CR + 1, (u1bTmp | BIT0));
 
 	rtw_write8(Adapter, REG_CR + 1,
-		rtw_read8(Adapter, REG_CR + 1) | BIT0);
+	rtw_read8(Adapter, REG_CR + 1) | BIT0);
 
 	/* Set FWHW_TXQ_CTRL 0x422[6]=0 to tell Hw the packet is not a real beacon frame. */
 	tmpReg422 = rtw_read8(Adapter, REG_FWHW_TXQ_CTRL + 2);

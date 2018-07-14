@@ -1167,3 +1167,70 @@ _exit:
 	return;
 }
 
+/* ************************************************************************************
+ *
+ * 20100209 Joseph:
+ * This function is used only for 92C to set REG_BCN_CTRL(0x550) register.
+ * We just reserve the value of the register in variable pHalData->RegBcnCtrlVal and then operate
+ * the value of the register via atomic operation.
+ * This prevents from race condition when setting this register.
+ * The value of pHalData->RegBcnCtrlVal is initialized in HwConfigureRTL8192CE() function.
+ *   */
+void SetBcnCtrlReg(
+	PADAPTER	padapter,
+	u8		SetBits,
+	u8		ClearBits)
+{
+	PHAL_DATA_TYPE pHalData;
+	u8 RegBcnCtrlVal = 0;
+
+	pHalData = GET_HAL_DATA(padapter);
+	RegBcnCtrlVal = rtw_read8(padapter, REG_BCN_CTRL);
+
+	RegBcnCtrlVal |= SetBits;
+	RegBcnCtrlVal &= ~ClearBits;
+
+#if 0
+	/* #ifdef CONFIG_SDIO_HCI */
+	if (pHalData->sdio_himr & (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK))
+		RegBcnCtrlVal |= EN_TXBCN_RPT;
+#endif
+	rtw_write8(padapter, REG_BCN_CTRL, RegBcnCtrlVal);
+}
+
+
+void _dbg_dump_tx_info(_adapter	*padapter, int frame_tag, u8 *ptxdesc)
+{
+	u8 bDumpTxPkt;
+	u8 bDumpTxDesc = _FALSE;
+	rtw_hal_get_def_var(padapter, HAL_DEF_DBG_DUMP_TXPKT, &(bDumpTxPkt));
+
+	if (bDumpTxPkt == 1) { /* dump txdesc for data frame */
+		RTW_INFO("dump tx_desc for data frame\n");
+		if ((frame_tag & 0x0f) == DATA_FRAMETAG)
+			bDumpTxDesc = _TRUE;
+	} else if (bDumpTxPkt == 2) { /* dump txdesc for mgnt frame */
+		RTW_INFO("dump tx_desc for mgnt frame\n");
+		if ((frame_tag & 0x0f) == MGNT_FRAMETAG)
+			bDumpTxDesc = _TRUE;
+	} else if (bDumpTxPkt == 3) { /* dump early info */
+	}
+
+	if (bDumpTxDesc) {
+		/* ptxdesc->txdw4 = cpu_to_le32(0x00001006); */ /* RTS Rate=24M */
+		/*	ptxdesc->txdw6 = 0x6666f800; */
+		RTW_INFO("=====================================\n");
+		RTW_INFO("Offset00(0x%08x)\n", *((u32 *)(ptxdesc)));
+		RTW_INFO("Offset04(0x%08x)\n", *((u32 *)(ptxdesc + 4)));
+		RTW_INFO("Offset08(0x%08x)\n", *((u32 *)(ptxdesc + 8)));
+		RTW_INFO("Offset12(0x%08x)\n", *((u32 *)(ptxdesc + 12)));
+		RTW_INFO("Offset16(0x%08x)\n", *((u32 *)(ptxdesc + 16)));
+		RTW_INFO("Offset20(0x%08x)\n", *((u32 *)(ptxdesc + 20)));
+		RTW_INFO("Offset24(0x%08x)\n", *((u32 *)(ptxdesc + 24)));
+		RTW_INFO("Offset28(0x%08x)\n", *((u32 *)(ptxdesc + 28)));
+		RTW_INFO("Offset32(0x%08x)\n", *((u32 *)(ptxdesc + 32)));
+		RTW_INFO("Offset36(0x%08x)\n", *((u32 *)(ptxdesc + 36)));
+		RTW_INFO("=====================================\n");
+	}
+
+}

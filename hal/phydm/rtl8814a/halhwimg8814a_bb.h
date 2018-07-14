@@ -29,8 +29,8 @@
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8814A_AGC_TAB(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_agc_tab(/* TC: Test Chip, MP: MP Chip*/
+	struct PHY_DM_STRUCT    *  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8814A_AGC_TAB(void);
 
@@ -39,8 +39,8 @@ u4Byte ODM_GetVersion_MP_8814A_AGC_TAB(void);
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8814A_PHY_REG(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_phy_reg(/* TC: Test Chip, MP: MP Chip*/
+	struct PHY_DM_STRUCT    *  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8814A_PHY_REG(void);
 
@@ -49,8 +49,8 @@ u4Byte ODM_GetVersion_MP_8814A_PHY_REG(void);
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8814A_PHY_REG_MP(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_phy_reg_mp(/* TC: Test Chip, MP: MP Chip*/
+	struct PHY_DM_STRUCT    *  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8814A_PHY_REG_MP(void);
 
@@ -59,8 +59,8 @@ u4Byte ODM_GetVersion_MP_8814A_PHY_REG_MP(void);
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8814A_PHY_REG_PG(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_phy_reg_pg(/* TC: Test Chip, MP: MP Chip*/
+	struct PHY_DM_STRUCT    *  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8814A_PHY_REG_PG(void);
 
@@ -69,8 +69,8 @@ u4Byte ODM_GetVersion_MP_8814A_PHY_REG_PG(void);
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8814A_PHY_REG_PG_Type2(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_phy_reg_pg_type2(/* TC: Test Chip, MP: MP Chip*/
+	struct PHY_DM_STRUCT    *  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8814A_PHY_REG_PG_Type2(void);
 
@@ -79,8 +79,8 @@ u4Byte ODM_GetVersion_MP_8814A_PHY_REG_PG_Type2(void);
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8814A_PHY_REG_PG_Type3(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_phy_reg_pg_type3(/* TC: Test Chip, MP: MP Chip*/
+	struct PHY_DM_STRUCT    *  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8814A_PHY_REG_PG_Type3(void);
 
@@ -89,8 +89,8 @@ u4Byte ODM_GetVersion_MP_8814A_PHY_REG_PG_Type3(void);
 ******************************************************************************/
 
 void
-ODM_ReadAndConfig_MP_8814A_PHY_REG_PG_Type5(/* TC: Test Chip, MP: MP Chip*/
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_phy_reg_pg_type5(/* TC: Test Chip, MP: MP Chip*/
+	struct PHY_DM_STRUCT    *  pDM_Odm
 );
 u4Byte ODM_GetVersion_MP_8814A_PHY_REG_PG_Type5(void);
 

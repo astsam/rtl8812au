@@ -1,22 +1,17 @@
-/****************************************************************************** 
-* 
-* Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved. 
-* 
-* This program is free software; you can redistribute it and/or modify it 
-* under the terms of version 2 of the GNU General Public License as 
-* published by the Free Software Foundation. 
-* 
-* This program is distributed in the hope that it will be useful, but WITHOUT 
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for 
-* more details. 
-* 
-* You should have received a copy of the GNU General Public License along with 
-* this program; if not, write to the Free Software Foundation, Inc., 
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA 
-* 
-* 
-******************************************************************************/
+/******************************************************************************
+ *
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ *****************************************************************************/
 
 /*Image2HeaderVersion: 2.19*/
 #include "mp_precomp.h"
@@ -25,38 +20,38 @@
 #if (RTL8814A_SUPPORT == 1)
 static BOOLEAN
 CheckPositive(
-	IN  PDM_ODM_T     pDM_Odm,
-	IN  const u4Byte  Condition1,
-	IN  const u4Byte  Condition2,
-	IN	const u4Byte  Condition3,
-	IN	const u4Byte  Condition4
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32  Condition1,
+	u32  Condition2,
+	u32  Condition3,
+	u32  Condition4
 )
 {
-	u1Byte    _BoardType = ((pDM_Odm->BoardType & BIT4) >> 4) << 0 | /* _GLNA*/
-				((pDM_Odm->BoardType & BIT3) >> 3) << 1 | /* _GPA*/ 
-				((pDM_Odm->BoardType & BIT7) >> 7) << 2 | /* _ALNA*/
-				((pDM_Odm->BoardType & BIT6) >> 6) << 3 | /* _APA */
-				((pDM_Odm->BoardType & BIT2) >> 2) << 4;  /* _BT*/  
+	u1Byte    _BoardType = ((pDM_Odm->board_type & BIT4) >> 4) << 0 | /* _GLNA*/
+				((pDM_Odm->board_type & BIT3) >> 3) << 1 | /* _GPA*/ 
+				((pDM_Odm->board_type & BIT7) >> 7) << 2 | /* _ALNA*/
+				((pDM_Odm->board_type & BIT6) >> 6) << 3 | /* _APA */
+				((pDM_Odm->board_type & BIT2) >> 2) << 4;  /* _BT*/  
 
 	u4Byte	cond1   = Condition1, cond2 = Condition2, cond3 = Condition3, cond4 = Condition4;
-	u4Byte    driver1 = pDM_Odm->CutVersion       << 24 | 
-				(pDM_Odm->SupportInterface & 0xF0) << 16 | 
-				pDM_Odm->SupportPlatform  << 16 | 
-				pDM_Odm->PackageType      << 12 | 
-				(pDM_Odm->SupportInterface & 0x0F) << 8  |
+	u4Byte    driver1 = pDM_Odm->cut_version       << 24 | 
+				(pDM_Odm->support_interface & 0xF0) << 16 | 
+				pDM_Odm->support_platform  << 16 | 
+				pDM_Odm->package_type      << 12 | 
+				(pDM_Odm->support_interface & 0x0F) << 8  |
 				_BoardType;
 
-	u4Byte    driver2 = (pDM_Odm->TypeGLNA & 0xFF) <<  0 |  
-				(pDM_Odm->TypeGPA & 0xFF)  <<  8 | 
-				(pDM_Odm->TypeALNA & 0xFF) << 16 | 
-				(pDM_Odm->TypeAPA & 0xFF)  << 24; 
+	u4Byte    driver2 = (pDM_Odm->type_glna & 0xFF) <<  0 |  
+				(pDM_Odm->type_gpa & 0xFF)  <<  8 | 
+				(pDM_Odm->type_alna & 0xFF) << 16 | 
+				(pDM_Odm->type_apa & 0xFF)  << 24; 
 
 u4Byte    driver3 = 0;
 
-	u4Byte    driver4 = (pDM_Odm->TypeGLNA & 0xFF00) >>  8 |
-				(pDM_Odm->TypeGPA & 0xFF00) |
-				(pDM_Odm->TypeALNA & 0xFF00) << 8 |
-				(pDM_Odm->TypeAPA & 0xFF00)  << 16;
+	u4Byte    driver4 = (pDM_Odm->type_glna & 0xFF00) >>  8 |
+				(pDM_Odm->type_gpa & 0xFF00) |
+				(pDM_Odm->type_alna & 0xFF00) << 8 |
+				(pDM_Odm->type_apa & 0xFF00)  << 16;
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_TRACE, 
 	("===> CheckPositive (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n", cond1, cond2, cond3, cond4));
@@ -64,9 +59,9 @@ u4Byte    driver3 = 0;
 	("===> CheckPositive (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n", driver1, driver2, driver3, driver4));
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_TRACE, 
-	("	(Platform, Interface) = (0x%X, 0x%X)\n", pDM_Odm->SupportPlatform, pDM_Odm->SupportInterface));
+	("	(Platform, Interface) = (0x%X, 0x%X)\n", pDM_Odm->support_platform, pDM_Odm->support_interface));
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_TRACE, 
-	("	(Board, Package) = (0x%X, 0x%X)\n", pDM_Odm->BoardType, pDM_Odm->PackageType));
+	("	(Board, Package) = (0x%X, 0x%X)\n", pDM_Odm->board_type, pDM_Odm->package_type));
 
 
 	/*============== Value Defined Check ===============*/
@@ -107,9 +102,9 @@ u4Byte    driver3 = 0;
 }
 static BOOLEAN
 CheckNegative(
-	IN  PDM_ODM_T     pDM_Odm,
-	IN  const u4Byte  Condition1,
-	IN  const u4Byte  Condition2
+	struct PHY_DM_STRUCT    *pDM_Odm,
+	u32  Condition1,
+	u32  Condition2
 )
 {
 	return TRUE;
@@ -1191,8 +1186,8 @@ u4Byte Array_MP_8814A_RadioA[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_RadioA(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_radioa(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i         = 0;
@@ -2234,8 +2229,8 @@ u4Byte Array_MP_8814A_RadioB[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_RadioB(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_radiob(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i         = 0;
@@ -3280,8 +3275,8 @@ u4Byte Array_MP_8814A_RadioC[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_RadioC(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_radioc(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i         = 0;
@@ -4328,8 +4323,8 @@ u4Byte Array_MP_8814A_RadioD[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_RadioD(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_radiod(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i         = 0;
@@ -4449,41 +4444,41 @@ u1Byte gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_8814A[] = {0, 0, 1, 1, 2, 2,
 u1Byte gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_8814A[] = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14};
 
 void
-ODM_ReadAndConfig_MP_8814A_TxPowerTrack(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpowertrack(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
-	PODM_RF_CAL_T  pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
+	struct odm_rf_calibration_structure  *  prf_calibrate_info = &(pDM_Odm->rf_calibrate_info);
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_MP_8814A\n"));
 
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_P, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_N, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_P, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_N, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_P, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_N, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_P, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_N, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_p, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_n, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_p, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_n, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_p, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_n, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_p, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_n, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_P, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_N, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_P, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_N, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_P, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_N, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_P, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_N, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_p, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_n, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_p, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_n, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_p, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_n, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_p, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_n, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_P, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_N, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_P, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_N, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_P, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_N, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_P, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_N, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_p, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_n, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_p, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_n, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_p, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_n, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_p, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_n, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_8814A, DELTA_SWINGIDX_SIZE*3);
 }
 
 /******************************************************************************
@@ -4548,41 +4543,41 @@ u1Byte gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type0_8814A[] = {0, 0, 1, 1,
 u1Byte gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type0_8814A[] = {0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9};
 
 void
-ODM_ReadAndConfig_MP_8814A_TxPowerTrack_Type0(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpowertrack_type0(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
-	PODM_RF_CAL_T  pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
+	struct odm_rf_calibration_structure  *  prf_calibrate_info = &(pDM_Odm->rf_calibrate_info);
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_MP_8814A\n"));
 
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_P, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_N, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_P, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_N, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_P, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_N, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_P, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_N, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_p, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_n, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_p, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_n, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_p, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_n, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_p, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_n, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_P, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_N, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_P, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_N, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_P, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_N, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_P, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_N, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_p, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_n, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_p, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_n, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_p, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_n, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_p, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_n, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_P, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_N, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_P, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_N, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_P, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_N, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_P, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_N, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_p, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_n, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_p, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_n, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_p, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_n, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_p, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_n, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_Type0_8814A, DELTA_SWINGIDX_SIZE*3);
 }
 
 /******************************************************************************
@@ -4647,41 +4642,41 @@ u1Byte gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type2_8814A[] = {0, 1, 2, 2,
 u1Byte gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type2_8814A[] = {0, 0, 1, 2, 2, 3, 3, 4, 5, 5, 6, 7, 8, 9, 9, 10, 10, 11, 11, 12, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13};
 
 void
-ODM_ReadAndConfig_MP_8814A_TxPowerTrack_Type2(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpowertrack_type2(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
-	PODM_RF_CAL_T  pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
+	struct odm_rf_calibration_structure  *  prf_calibrate_info = &(pDM_Odm->rf_calibrate_info);
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_MP_8814A\n"));
 
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_P, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_N, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_P, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_N, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_P, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_N, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_P, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_N, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_p, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_n, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_p, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_n, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_p, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_n, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_p, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_n, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_P, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_N, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_P, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_N, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_P, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_N, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_P, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_N, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_p, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_n, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_p, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_n, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_p, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_n, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_p, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_n, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_P, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_N, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_P, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_N, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_P, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_N, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_P, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_N, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_p, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_n, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_p, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_n, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_p, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_n, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_p, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_n, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_Type2_8814A, DELTA_SWINGIDX_SIZE*3);
 }
 
 /******************************************************************************
@@ -4746,41 +4741,41 @@ u1Byte gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type5_8814A[] = {0, 1, 2, 2,
 u1Byte gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type5_8814A[] = {0, 1, 1, 2, 2, 2, 3, 4, 4, 5, 6, 7, 8, 8, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10};
 
 void
-ODM_ReadAndConfig_MP_8814A_TxPowerTrack_Type5(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpowertrack_type5(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
-	PODM_RF_CAL_T  pRFCalibrateInfo = &(pDM_Odm->RFCalibrateInfo);
+	struct odm_rf_calibration_structure  *  prf_calibrate_info = &(pDM_Odm->rf_calibrate_info);
 
 	ODM_RT_TRACE(pDM_Odm, ODM_COMP_INIT, ODM_DBG_LOUD, ("===> ODM_ReadAndConfig_MP_MP_8814A\n"));
 
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_P, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GA_N, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_P, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GB_N, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_P, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GC_N, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_P, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GD_N, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_p, gDeltaSwingTableIdx_MP_2GA_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2ga_n, gDeltaSwingTableIdx_MP_2GA_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_p, gDeltaSwingTableIdx_MP_2GB_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gb_n, gDeltaSwingTableIdx_MP_2GB_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_p, gDeltaSwingTableIdx_MP_2GC_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gc_n, gDeltaSwingTableIdx_MP_2GC_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_p, gDeltaSwingTableIdx_MP_2GD_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2gd_n, gDeltaSwingTableIdx_MP_2GD_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_P, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKA_N, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_P, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKB_N, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_P, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKC_N, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_P, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_2GCCKD_N, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_p, gDeltaSwingTableIdx_MP_2GCCKA_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_a_n, gDeltaSwingTableIdx_MP_2GCCKA_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_p, gDeltaSwingTableIdx_MP_2GCCKB_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_b_n, gDeltaSwingTableIdx_MP_2GCCKB_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_p, gDeltaSwingTableIdx_MP_2GCCKC_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_c_n, gDeltaSwingTableIdx_MP_2GCCKC_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_p, gDeltaSwingTableIdx_MP_2GCCKD_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_2g_cck_d_n, gDeltaSwingTableIdx_MP_2GCCKD_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE);
 
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_P, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GA_N, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_P, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GB_N, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_P, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GC_N, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_P, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
-	ODM_MoveMemory(pDM_Odm, pRFCalibrateInfo->DeltaSwingTableIdx_5GD_N, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_p, gDeltaSwingTableIdx_MP_5GA_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5ga_n, gDeltaSwingTableIdx_MP_5GA_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_p, gDeltaSwingTableIdx_MP_5GB_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gb_n, gDeltaSwingTableIdx_MP_5GB_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_p, gDeltaSwingTableIdx_MP_5GC_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gc_n, gDeltaSwingTableIdx_MP_5GC_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_p, gDeltaSwingTableIdx_MP_5GD_P_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
+	odm_move_memory(pDM_Odm, prf_calibrate_info->delta_swing_table_idx_5gd_n, gDeltaSwingTableIdx_MP_5GD_N_TxPowerTrack_Type5_8814A, DELTA_SWINGIDX_SIZE*3);
 }
 
 /******************************************************************************
@@ -5763,8 +5758,8 @@ const char *Array_MP_8814A_TXPWR_LMT[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_TXPWR_LMT(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpwr_lmt(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i           = 0;
@@ -6779,8 +6774,8 @@ const char *Array_MP_8814A_TXPWR_LMT_type2[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_TXPWR_LMT_type2(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpwr_lmt_type2(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i           = 0;
@@ -7795,8 +7790,8 @@ const char *Array_MP_8814A_TXPWR_LMT_Type3[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_TXPWR_LMT_Type3(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpwr_lmt_type3(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i           = 0;
@@ -8811,8 +8806,8 @@ const char *Array_MP_8814A_TXPWR_LMT_Type5[] = {
 };
 
 void
-ODM_ReadAndConfig_MP_8814A_TXPWR_LMT_Type5(
-	IN   PDM_ODM_T  pDM_Odm
+odm_read_and_config_mp_8814a_txpwr_lmt_type5(
+	struct	PHY_DM_STRUCT *  pDM_Odm
 )
 {
 	u4Byte     i           = 0;

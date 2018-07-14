@@ -23,59 +23,53 @@
 
 /*--------------------------Define Parameters-------------------------------*/
 #define AVG_THERMAL_NUM_8814A	4
-#define RF_T_METER_8814A		0x42
 
-#include "../halphyrf_ce.h"
+#include "halphyrf_win.h"
 
-void configure_txpower_track_8814a(
-	struct _TXPWRTRACK_CFG	*pConfig
+void ConfigureTxpowerTrack_8814A(
+	PTXPWRTRACK_CFG	pConfig
 	);
 
 VOID
 GetDeltaSwingTable_8814A(
-	IN	PVOID		pDM_VOID,
-	u8* 			*TemperatureUP_A,
-	u8* 			*TemperatureDOWN_A,
-	u8* 			*TemperatureUP_B,
-	u8* 			*TemperatureDOWN_B	
+	IN 	PDM_ODM_T			pDM_Odm,
+	OUT pu1Byte 			*TemperatureUP_A,
+	OUT pu1Byte 			*TemperatureDOWN_A,
+	OUT pu1Byte 			*TemperatureUP_B,
+	OUT pu1Byte 			*TemperatureDOWN_B	
 	);
 
 VOID
 GetDeltaSwingTable_8814A_PathCD(
-	IN	PVOID		pDM_VOID,
-	u8* 			*TemperatureUP_C,
-	u8* 			*TemperatureDOWN_C,
-	u8* 			*TemperatureUP_D,
-	u8* 			*TemperatureDOWN_D	
+	IN 	PDM_ODM_T			pDM_Odm,
+	OUT pu1Byte 			*TemperatureUP_C,
+	OUT pu1Byte 			*TemperatureDOWN_C,
+	OUT pu1Byte 			*TemperatureUP_D,
+	OUT pu1Byte 			*TemperatureDOWN_D	
 	);
 
-VOID 
-ODM_TxPwrTrackSetPwr8814A(
-	IN	PVOID		pDM_VOID,
-	enum pwrtrack_method 	Method,
-	u8 				RFPath,
-	u8 				ChannelMappedIndex
-	);
-
-u8
-CheckRFGainOffset(
-	struct PHY_DM_STRUCT	*pDM_Odm,
-	enum pwrtrack_method 	Method,
-	u8				RFPath
-	);
 
 VOID
-phy_iq_calibrate_8814a(
-	IN	PVOID		pDM_VOID,
-	boolean		bReCovery
+ODM_TxPwrTrackSetPwr8814A(
+	PDM_ODM_T			pDM_Odm,
+	PWRTRACK_METHOD 	Method,
+	u1Byte 				RFPath,
+	u1Byte 				ChannelMappedIndex
 	);
+
+u1Byte
+CheckRFGainOffset(
+	PDM_ODM_T			pDM_Odm,
+	u1Byte				RFPath
+	);
+
 
 //
 // LC calibrate
 //
 void	
-phy_lc_calibrate_8814a(
-	IN	PVOID		pDM_VOID
+PHY_LCCalibrate_8814A(
+	IN PDM_ODM_T		pDM_Odm
 	);
 
 //
@@ -84,7 +78,7 @@ phy_lc_calibrate_8814a(
 void	
 PHY_APCalibrate_8814A(		
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct PHY_DM_STRUCT	*		pDM_Odm,
+	IN PDM_ODM_T		pDM_Odm,
 #else
 	IN	PADAPTER	pAdapter,
 #endif
@@ -94,17 +88,17 @@ PHY_APCalibrate_8814A(
 
 VOID	                                                 
 PHY_DPCalibrate_8814A(                                   
-	struct PHY_DM_STRUCT	*	pDM_Odm                             
+	IN 	PDM_ODM_T	pDM_Odm                             
 	);
 
 
-VOID phy_set_rf_path_switch_8814a(
+VOID PHY_SetRFPathSwitch_8814A(
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct PHY_DM_STRUCT	*		pDM_Odm,
+	IN PDM_ODM_T		pDM_Odm,
 #else
 	IN	PADAPTER	pAdapter,
 #endif
-	boolean		bMain
+	IN	BOOLEAN		bMain
 	);
 
 								

@@ -22,18 +22,22 @@
 #define __HAL_PHY_RF_8814A_H__
 
 /*--------------------------Define Parameters-------------------------------*/
-#define AVG_THERMAL_NUM_8814A	4
-#define RF_T_METER_8814A		0x42
+#define	IQK_DELAY_TIME_8814A		10		//ms
+#define	index_mapping_NUM_8814A	15
+#define	AVG_THERMAL_NUM_8814A	4
+#define	RF_T_METER_8814A 		0x42
+#define	MAX_PATH_NUM_8814A	4
 
-#include "../halphyrf_ce.h"
+#include "../halphyrf_ap.h"
 
-void configure_txpower_track_8814a(
-	struct _TXPWRTRACK_CFG	*pConfig
+
+void ConfigureTxpowerTrack_8814A(
+	PTXPWRTRACK_CFG	pConfig
 	);
 
 VOID
 GetDeltaSwingTable_8814A(
-	IN	PVOID		pDM_VOID,
+	struct PHY_DM_STRUCT    *pDM_Odm,
 	u8* 			*TemperatureUP_A,
 	u8* 			*TemperatureDOWN_A,
 	u8* 			*TemperatureUP_B,
@@ -42,41 +46,54 @@ GetDeltaSwingTable_8814A(
 
 VOID
 GetDeltaSwingTable_8814A_PathCD(
-	IN	PVOID		pDM_VOID,
+	struct PHY_DM_STRUCT    *pDM_Odm,
 	u8* 			*TemperatureUP_C,
 	u8* 			*TemperatureDOWN_C,
 	u8* 			*TemperatureUP_D,
 	u8* 			*TemperatureDOWN_D	
 	);
 
-VOID 
-ODM_TxPwrTrackSetPwr8814A(
-	IN	PVOID		pDM_VOID,
-	enum pwrtrack_method 	Method,
-	u8 				RFPath,
-	u8 				ChannelMappedIndex
+VOID
+ConfigureTxpowerTrack_8814A(
+	IN PTXPWRTRACK_CFG	pConfig
 	);
 
-u8
-CheckRFGainOffset(
-	struct PHY_DM_STRUCT	*pDM_Odm,
-	enum pwrtrack_method 	Method,
-	u8				RFPath
-	);
 
 VOID
-phy_iq_calibrate_8814a(
-	IN	PVOID		pDM_VOID,
-	boolean		bReCovery
+ODM_TxPwrTrackSetPwr8814A(
+	IN PDM_ODM_T			pDM_Odm,
+	IN PWRTRACK_METHOD 	Method,
+	IN u1Byte 				RFPath,
+	IN u1Byte 				ChannelMappedIndex
 	);
+
+
+u1Byte
+CheckRFGainOffset(
+	PDM_ODM_T			pDM_Odm,
+	PWRTRACK_METHOD 	Method,
+	u1Byte				RFPath
+	);
+
 
 //
 // LC calibrate
 //
 void	
-phy_lc_calibrate_8814a(
-	IN	PVOID		pDM_VOID
-	);
+PHY_LCCalibrate_8814A(
+	IN PDM_ODM_T		pDM_Odm
+);
+
+void
+phy_LCCalibrate_8814A(
+#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+			IN PDM_ODM_T		pDM_Odm,
+#else
+			IN	PADAPTER	pAdapter,
+#endif
+			IN	BOOLEAN		is2T
+);
+
 
 //
 // AP calibrate
@@ -84,29 +101,64 @@ phy_lc_calibrate_8814a(
 void	
 PHY_APCalibrate_8814A(		
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct PHY_DM_STRUCT	*		pDM_Odm,
+	IN PDM_ODM_T		pDM_Odm,
 #else
 	IN	PADAPTER	pAdapter,
 #endif
-	IN 	s1Byte		delta
-	);
+							IN 	s1Byte		delta);
+void	
+PHY_DigitalPredistortion_8814A(		IN	PADAPTER	pAdapter);
 
 
-VOID	                                                 
-PHY_DPCalibrate_8814A(                                   
-	struct PHY_DM_STRUCT	*	pDM_Odm                             
-	);
-
-
-VOID phy_set_rf_path_switch_8814a(
+#if 0 //FOR_8814_IQK
+VOID
+_PHY_SaveADDARegisters(
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct PHY_DM_STRUCT	*		pDM_Odm,
+	IN PDM_ODM_T		pDM_Odm,
 #else
 	IN	PADAPTER	pAdapter,
 #endif
-	boolean		bMain
+	IN	pu4Byte		ADDAReg,
+	IN	pu4Byte		ADDABackup,
+	IN	u4Byte		RegisterNum
 	);
+
+VOID
+_PHY_PathADDAOn(
+#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+	IN PDM_ODM_T		pDM_Odm,
+#else
+	IN	PADAPTER	pAdapter,
+#endif
+	IN	pu4Byte		ADDAReg,
+	IN	BOOLEAN		isPathAOn,
+	IN	BOOLEAN		is2T
+	);
+
+VOID
+_PHY_MACSettingCalibration(
+#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+	IN PDM_ODM_T		pDM_Odm,
+#else
+	IN	PADAPTER	pAdapter,
+#endif
+	IN	pu4Byte		MACReg,
+	IN	pu4Byte		MACBackup	
+	);
+
+
+
+VOID
+_PHY_PathAStandBy(
+#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
+	IN PDM_ODM_T		pDM_Odm
+#else
+	IN	PADAPTER	pAdapter
+#endif
+	);
+
+#endif
 
 								
-#endif	// #ifndef __HAL_PHY_RF_8188E_H__								
+#endif	// #ifndef __HAL_PHY_RF_8814A_H__								
 
