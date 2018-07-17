@@ -2,13 +2,13 @@
 
 ## Realtek 8812AU driver v5.2.20.2 with monitor mode and frame injection
 
-This driver supports 8812au & 8821au chipsets, not the 8814au chipset.
+This driver supports 8812au & 8821au chipsets, not the 8814au chipset at this moment.
 
 ### Building / Installing
 
 To build and install module manually:
 ```
-$ "make" will build the 8812au, while "make RTL8821=1" will build the 8821au driver
+$ sudo make
 $ sudo make install
 ```
 
@@ -61,6 +61,14 @@ sudo iw dev wlan0 set type monitor
 4. Set interface up
 ```
 sudo ip link set wlan0 up
+```
+
+### TX Power Control
+
+The txpower may be adjusted with these commands
+```
+ifconfig <adapter> down
+iwconfig <adapter> txpower 30
 ```
 
 ### LED control
