@@ -7076,15 +7076,24 @@ static void rtw_cfg80211_init_vht_capab(_adapter *padapter, struct ieee80211_sta
 	}
 	
 	/* B8 B9 B10 Rx STBC */
-	if(TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX)) {
-		rtw_hal_get_def_var(padapter, HAL_DEF_RX_STBC, (u8 *)(&rx_stbc_nss));
-
-		if (rx_stbc_nss == 1)
-			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;
-		else if (rx_stbc_nss == 2) 
-			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_2;
-		else if (rx_stbc_nss == 3) 
-			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_3;
+	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX)) {
+	  	switch (rf_type) {
+	  	case RF_1T1R:
+		  	vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;/*RX STBC One spatial stream*/
+			break;
+		case RF_2T2R:
+		case RF_1T2R:
+		  	vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_2;/*RX STBC Two spatial streams*/
+			break;
+		case RF_3T3R:
+		case RF_3T4R:
+		case RF_4T4R:
+		  	vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_3;/*RX STBC Three spatial streams*/
+			break;
+		default:
+		  	/* DBG_871X("[warning] rf_type %d is not expected\n", rf_type); */
+		  	break;
+		}
 	}
 	
 	/* B11 SU Beamformer Capable */
@@ -7121,18 +7130,17 @@ static void rtw_cfg80211_init_vht_capab(_adapter *padapter, struct ieee80211_sta
 	else
 		vht_cap->cap |= 7 << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT;
 
-	// Link Adaptation not supported
 	/* B26 27 VHT Link Adaptation Capable */
-
 	/* find the largest bw supported by both registry and hal */
+	/* this is taken from core/rtw_vht.c */
 	bw = hal_largest_bw(padapter, REGSTY_BW_5G(pregistrypriv));
 
-	HighestRate = VHT_MCS_DATA_RATE[bw][pvhtpriv->sgi_80m][((pvhtpriv->vht_highest_rate - MGN_VHT1SS_MCS0)&0x3f)];
+	HighestRate = rtw_vht_mcs_to_data_rate(bw, pvhtpriv->sgi_80m, pvhtpriv->vht_highest_rate);
 	HighestRate = (HighestRate+1) >> 1;
-
 
 	vht_cap->vht_mcs.tx_highest = HighestRate;
 	vht_cap->vht_mcs.rx_highest = HighestRate;
+
 	RTW_INFO("[VHT] Highest rate value: %d\n", HighestRate);
 }
 #endif //CONFIG_VHT_EXTRAS
