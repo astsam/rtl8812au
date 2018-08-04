@@ -28,7 +28,8 @@ rtw_led_control(
   {
     do
     {
-      (adapter)->ledpriv.LedControlHandler((adapter), (LedAction));
+	  if((adapter)->ledpriv.LedControlHandler) 
+        (adapter)->ledpriv.LedControlHandler((adapter), (LedAction));
     }
     while(0);
   }

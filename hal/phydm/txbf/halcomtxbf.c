@@ -325,13 +325,13 @@ hal_com_txbf_rate_work_item_callback(
 
 	PHYDM_DBG(p_dm, DBG_TXBF, ("[%s] Start!\n", __func__));
 
-	if (p_dm->support_ic_type & ODM_RTL8812)
+	if (p_dm->support_ic_type & ODM_RTL8812) {
 		hal_txbf_8812a_set_ndpa_rate(p_dm, BW, rate);
-	else if (p_dm->support_ic_type & ODM_RTL8192E)
+	} else if (p_dm->support_ic_type & ODM_RTL8192E) {
 		hal_txbf_8192e_set_ndpa_rate(p_dm, BW, rate);
-	else if (p_dm->support_ic_type & ODM_RTL8814A)
+	} else if (p_dm->support_ic_type & ODM_RTL8814A) {
 		hal_txbf_8814a_set_ndpa_rate(p_dm, BW, rate);
-
+	}
 }
 
 
@@ -410,9 +410,9 @@ hal_com_txbf_reset_tx_path_work_item_callback(
 
 	u8			idx = p_txbf_info->txbf_idx;
 
-	if (p_dm->support_ic_type & ODM_RTL8814A)
+	if (p_dm->support_ic_type & ODM_RTL8814A) {
 		hal_txbf_8814a_reset_tx_path(p_dm, idx);
-
+	}
 }
 
 void
@@ -431,8 +431,9 @@ hal_com_txbf_get_tx_rate_work_item_callback(
 	struct PHY_DM_STRUCT	*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
 #endif
 
-	if (p_dm->support_ic_type & ODM_RTL8814A)
+	if (p_dm->support_ic_type & ODM_RTL8814A) {
 		hal_txbf_8814a_get_tx_rate(p_dm);
+	}
 }
 
 
