@@ -1,25 +1,25 @@
-# RTL8812AU/21AU and RTL8814AU drivers
-# with monitor mode and frame injection
+## RTL8812AU/21AU and RTL8814AU drivers
+## with monitor mode and frame injection
 
-## DKMS
+### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
 sudo apt install dkms
 ```
 
-## Installation of Driver
+### Installation of Driver
 In order to install the driver open a terminal in the directory with the source code and execute the following command:
 ```
 sudo ./dkms-install.sh
 ```
 
-## Removal of Driver
+### Removal of Driver
 In order to remove the driver from your system open a terminal in the directory with the source code and execute the following command:
 ```
 sudo ./dkms-remove.sh
 ```
 
-## Make
+### Make
 For building & installing the rtl8812au/rtl8821au driver with 'make' use
 ```
 make
@@ -31,7 +31,7 @@ make RTL8814=1
 make install RTL8814=1
 ```
 
-## Notes
+### Notes
 Download
 ```
 git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
@@ -72,15 +72,38 @@ For setting TX power
 sudo iw wlan0 set txpower fixed 3000
 ```
 
-## LED Parameter
-```
-We've added the "realtek-leds.conf" in build directory, 
-with this you may change the leds to 
-"2: Allways On", "1: Normal" or "0: Allways Off" with placing the file in "/etc/modprobe.d/
+### LED control
 
-Manual modprobe will override this file if option value also included at the command line, e.g.,
-$ sudo modprobe -r 8812au
-$ sudo modprobe 8812au rtw_led_ctrl=1
+Thanks to @dkadioglu and others for a start on this.
+
+#### You can now control LED behaviour statically by Makefile, for example:
+
+```sh
+CONFIG_LED_ENABLE = n
+```
+value can be y or n
+
+#### statically by module parameter in /etc/modprobe.d/8812au.conf or wherever, for example:
+
+```sh
+options 8812au rtw_led_enable=0
+```
+value can be 0 or 1
+
+#### or dynamically by writing to /proc/net/rtl8812au/$(your interface name)/led_enable, for example:
+
+```sh
+$ echo "0" > /proc/net/rtl8812au/$(your interface name)/led_enable
+```
+value can be 0 or 1
+
+#### check current value:
+
+```sh
+$ cat /proc/net/rtl8812au/$(your interface name)/led_enable
+```
+
+### NetworkManager
 
 Newer versions of NetworkManager switches to random MAC address. Some users would prefer to use a fixed address. 
 Simply add these lines below
