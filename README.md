@@ -2,7 +2,7 @@
 
 ## Realtek 8812AU driver v5.2.20.2 with monitor mode and frame injection
 
-This driver supports 8812au & 8821au chipsets, not the 8814au chipset at this moment.
+This driver supports 8812au / 8821au and 8814au chipsets.
 
 ### Building / Installing
 
