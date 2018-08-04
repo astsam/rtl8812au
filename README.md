@@ -74,8 +74,6 @@ sudo iw wlan0 set txpower fixed 3000
 
 ### LED control
 
-Thanks to @dkadioglu and others for a start on this.
-
 #### You can now control LED behaviour statically by Makefile, for example:
 
 ```sh
