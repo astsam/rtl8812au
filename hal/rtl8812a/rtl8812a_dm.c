@@ -344,7 +344,7 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 
 	Init_ODM_ComInfo_8812(Adapter);
 	odm_init_all_timers(podmpriv);
-	pHalData->CurrentTxPwrIdx = 13;
+	pHalData->CurrentTxPwrIdx = 18;
 }
 
 void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)
