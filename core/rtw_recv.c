@@ -3593,7 +3593,7 @@ exit:
 }
 #endif
 
-static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, u8 *buf)
+static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe)
 {
 #define CHAN2FREQ(a) ((a < 14) ? (2407+5*a) : (5000+5*a))
 
@@ -3651,7 +3651,7 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 
 	u16 tmp_16bit = 0;
 
-	u8 data_rate[] = {
+	static u8 data_rate[] = {
 		2, 4, 11, 22, /* CCK */
 		12, 18, 24, 36, 48, 72, 93, 108, /* OFDM */
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, /* HT MCS index */
@@ -3667,12 +3667,44 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 	struct ieee80211_radiotap_header *rtap_hdr = NULL;
 	u8 *ptr = NULL;
 
+#ifdef CONFIG_RADIOTAP_WITH_RXDESC
+	u8 hdr_buf[128] = {0};
+#else
 	u8 hdr_buf[64] = {0};
+#endif
 	u16 rt_len = 8;
+	u32 tmp_32bit;
+	int i;
 
 	/* create header */
 	rtap_hdr = (struct ieee80211_radiotap_header *)&hdr_buf[0];
 	rtap_hdr->it_version = PKTHDR_RADIOTAP_VERSION;
+
+	if(pHalData->NumTotalRFPath>0 && pattrib->physt) {
+		rtap_hdr->it_present |=	(1<<IEEE80211_RADIOTAP_EXT) |
+			(1<<IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE);
+		if(pHalData->NumTotalRFPath>1) {
+			tmp_32bit = (1<<IEEE80211_RADIOTAP_ANTENNA) |
+				(1<<IEEE80211_RADIOTAP_DBM_ANTSIGNAL) |
+				(1<<IEEE80211_RADIOTAP_EXT) |
+				(1<<IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE);
+			for(i=0; i<pHalData->NumTotalRFPath-1; i++) {
+				memcpy(&hdr_buf[rt_len], &tmp_32bit, 4);
+				rt_len += 4;
+			}
+		}
+		tmp_32bit = (1<<IEEE80211_RADIOTAP_ANTENNA) |
+			(1<<IEEE80211_RADIOTAP_DBM_ANTSIGNAL);
+#ifdef CONFIG_RADIOTAP_WITH_RXDESC
+		tmp_32bit |= (1 << IEEE80211_RADIOTAP_VENDOR_NAMESPACE);
+#endif
+		memcpy(&hdr_buf[rt_len], &tmp_32bit, 4);
+		rt_len += 4;
+	} else {
+#ifdef CONFIG_RADIOTAP_WITH_RXDESC
+		rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_VENDOR_NAMESPACE);
+#endif
+	}
 
 	/* tsft */
 	if (pattrib->tsfl) {
@@ -3755,28 +3787,35 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 	memcpy(&hdr_buf[rt_len], &tmp_16bit, 2);
 	rt_len += 2;
 
-	/* dBm Antenna Signal */
-	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL);
-	hdr_buf[rt_len] = pattrib->phy_info.recv_signal_power;
-	rt_len += 1;
+	if(pattrib->physt) {
+		/* dBm Antenna Signal */
+		rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_DBM_ANTSIGNAL);
+		hdr_buf[rt_len] = pattrib->phy_info.recv_signal_power;
+		rt_len += 1;
 
 #if 0
 	/* dBm Antenna Noise */
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_DBM_ANTNOISE);
 	hdr_buf[rt_len] = 0;
 	rt_len += 1;
+#endif
+
+		rt_len++;	// alignment
+	}
 
 	/* Signal Quality */
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_LOCK_QUALITY);
-	hdr_buf[rt_len] = pattrib->phy_info.signal_quality;
-	rt_len += 1;
-#endif
-
+	tmp_16bit = cpu_to_le16(pattrib->phy_info.signal_quality);
+	memcpy(&hdr_buf[rt_len], &tmp_16bit, 2);
+	rt_len += 2;
+#if 0
 	/* Antenna */
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_ANTENNA);
-	hdr_buf[rt_len] = 0; /* pHalData->rf_type; */
+	hdr_buf[rt_len] = pHalData->rf_type;
 	rt_len += 1;
 
+	rt_len++;	// alignment
+#endif
 	/* RX flags */
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_RX_FLAGS);
 #if 0
@@ -3882,23 +3921,62 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 		rt_len += 2;
 	}
 
+	if (pattrib->physt) {
+		for(i=0; i<pHalData->NumTotalRFPath; i++) {
+			hdr_buf[rt_len] = pattrib->phy_info.rx_pwr[i];
+			rt_len ++;
+			hdr_buf[rt_len] = i;
+			rt_len ++;
+		}
+	}
+
+#ifdef CONFIG_RADIOTAP_WITH_RXDESC
+	rt_len += rt_len&1;
+	hdr_buf[rt_len++] = 0xde;
+	hdr_buf[rt_len++] = 0xab;
+	hdr_buf[rt_len++] = 0xbe;
+	hdr_buf[rt_len++] = 0xaf;
+	hdr_buf[rt_len++] = 24;
+	hdr_buf[rt_len++] = 0;
+	_rtw_memcpy(hdr_buf + rt_len, pattrib->rxdesc, RXDESC_SIZE);
+	rt_len += RXDESC_SIZE;
+#endif
+
 	/* push to skb */
-	pskb = (_pkt *)buf;
+	/* read skb information from recv frame */
+	pskb = precvframe->u.hdr.pkt;
+	pskb->len = precvframe->u.hdr.len;
+	pskb->data = precvframe->u.hdr.rx_data;
+	skb_set_tail_pointer(pskb, precvframe->u.hdr.len);
+
 	if (skb_headroom(pskb) < rt_len) {
-		RTW_INFO("%s:%d %s headroom is too small.\n", __FILE__, __LINE__, __func__);
-		ret = _FAIL;
-		return ret;
+		pskb = skb_realloc_headroom(pskb, rt_len);
+		if(pskb == NULL) {
+			RTW_INFO("%s:%d %s headroom is too small.\n", __FILE__, __LINE__, __func__);
+			ret = _FAIL;
+			return ret;
+		}
+		precvframe->u.hdr.pkt = pskb;
 	}
 
 	ptr = skb_push(pskb, rt_len);
 	if (ptr) {
 		rtap_hdr->it_len = cpu_to_le16(rt_len);
-		memcpy(ptr, rtap_hdr, rt_len);
-	} else
+		_rtw_memcpy(ptr, rtap_hdr, rt_len);
+	} else {
 		ret = _FAIL;
+		return ret;
+	}
+out:
+	/* write skb information to recv frame */
+	skb_reset_mac_header(pskb);
+	precvframe->u.hdr.len = pskb->len;
+	precvframe->u.hdr.rx_data = pskb->data;
+	precvframe->u.hdr.rx_head = pskb->head;
+	precvframe->u.hdr.rx_tail = skb_tail_pointer(pskb);
+	precvframe->u.hdr.rx_end = skb_end_pointer(pskb);
 
 	return ret;
-
 }
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
 int recv_frame_monitor(_adapter *padapter, union recv_frame *rframe)
@@ -3909,26 +3987,13 @@ int recv_frame_monitor(_adapter *padapter, union recv_frame *rframe)
 	_queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
 	_pkt *pskb = NULL;
 
-	/* read skb information from recv frame */
-	pskb = rframe->u.hdr.pkt;
-	pskb->len = rframe->u.hdr.len;
-	pskb->data = rframe->u.hdr.rx_data;
-	skb_set_tail_pointer(pskb, rframe->u.hdr.len);
 
 	/* fill radiotap header */
-	if (fill_radiotap_hdr(padapter, rframe, (u8 *)pskb) == _FAIL) {
+	if (fill_radiotap_hdr(padapter, rframe) == _FAIL) {
 		ret = _FAIL;
 		rtw_free_recvframe(rframe, pfree_recv_queue); /* free this recv_frame */
 		goto exit;
 	}
-
-	/* write skb information to recv frame */
-	skb_reset_mac_header(pskb);
-	rframe->u.hdr.len = pskb->len;
-	rframe->u.hdr.rx_data = pskb->data;
-	rframe->u.hdr.rx_head = pskb->head;
-	rframe->u.hdr.rx_tail = skb_tail_pointer(pskb);
-	rframe->u.hdr.rx_end = skb_end_pointer(pskb);
 
 	if (!RTW_CANNOT_RUN(padapter)) {
 		/* indicate this recv_frame */
