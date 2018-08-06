@@ -301,8 +301,9 @@ odm_txpowertracking_callback_thermal_meter(
 
 	/*4 3. Initialize ThermalValues of rf_calibrate_info*/
 
-	if (p_rf_calibrate_info->is_reloadtxpowerindex)
+	if (p_rf_calibrate_info->is_reloadtxpowerindex) {
 		ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("reload ofdm index for band switch\n"));
+	}
 
 	/*4 4. Calculate average thermal meter*/
 
