@@ -4,7 +4,7 @@
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
-sudo apt install dkms
+sudo apt-get install dkms
 ```
 
 ### Installation of Driver
@@ -20,15 +20,10 @@ sudo ./dkms-remove.sh
 ```
 
 ### Make
-For building & installing the rtl8812au/rtl8821au driver with 'make' use
+For building & installing the driver with 'make' use
 ```
 make
 make install
-```
-and for building & installing the rtl8814au driver with 'make' use
-```
-make RTL8814=1
-make install RTL8814=1
 ```
 
 ### Notes
@@ -46,7 +41,7 @@ sudo apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI)
 ```
-sudo apt install raspberrypi-kernel-headers
+sudo apt-get install raspberrypi-kernel-headers
 ```
 For setting monitor mode
   1. Fix problematic interference in monitor mode. 
@@ -84,7 +79,7 @@ value can be y or n
 #### statically by module parameter in /etc/modprobe.d/8812au.conf or wherever, for example:
 
 ```sh
-options 8812au rtw_led_enable=0
+options 88XXau rtw_led_enable=0
 ```
 value can be 0 or 1
 
