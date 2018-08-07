@@ -4816,8 +4816,8 @@ static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wd
   int channel;
   int control_freq;
   int center_freq;
-  int center_freq2=0;
-  int width;
+  int center_freq2 = 0;
+  int width = NL80211_CHAN_WIDTH_20;
   int band;
   int bandWidth;
   int offset;
@@ -4829,7 +4829,7 @@ static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wd
     return -ENODEV;
 
   offset = rtw_get_oper_choffset(padapter);
-  channel = adapter_to_dvobj(padapter)->oper_channel;
+  center_freq = channel = adapter_to_dvobj(padapter)->oper_channel;
   if (channel >= 1) {
     switch (pHalData->current_band_type) {
       case 0:

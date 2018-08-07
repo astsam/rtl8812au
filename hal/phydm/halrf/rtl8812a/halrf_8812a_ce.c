@@ -1366,8 +1366,9 @@ phy_iq_calibrate_8812a(
 	if (p_dm->fw_offload_ability & PHYDM_RF_IQK_OFFLOAD) {
 		_phy_iq_calibrate_by_fw_8812a(p_dm);
 		phydm_iqk_wait(p_dm, 500);
-		if (p_dm->rf_calibrate_info.is_iqk_in_progress)
+		if (p_dm->rf_calibrate_info.is_iqk_in_progress) {
 			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("== FW IQK TIMEOUT (Still in progress after 500ms) ==\n"));
+		}
 	} else
 		_phy_iq_calibrate_8812a(p_dm, *p_dm->p_channel);
 }

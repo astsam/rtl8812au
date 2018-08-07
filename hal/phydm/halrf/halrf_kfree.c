@@ -108,9 +108,9 @@ phydm_set_kfree_to_rf_8814a(
 		/*that means Kfree offset is negative, we need to record it.*/
 		p_rf_calibrate_info->kfree_offset[e_rf_path] = (-1) * p_rf_calibrate_info->kfree_offset[e_rf_path];
 		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("phy_ConfigKFree8814A(): kfree_offset = %d\n", p_rf_calibrate_info->kfree_offset[e_rf_path]));
-	} else
+	} else {
 		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("phy_ConfigKFree8814A(): kfree_offset = %d\n", p_rf_calibrate_info->kfree_offset[e_rf_path]));
-
+	}
 }
 
 
@@ -142,8 +142,9 @@ phydm_get_thermal_trim_offset_8821c(
 
 	ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8821c thermal trim flag:0x%02x\n", p_power_trim_info->flag));
 
-	if (p_power_trim_info->flag & KFREE_FLAG_THERMAL_K_ON)
+	if (p_power_trim_info->flag & KFREE_FLAG_THERMAL_K_ON) {
 		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8821c thermal:%d\n", p_power_trim_info->thermal));
+	}
 }
 
 
@@ -298,8 +299,9 @@ phydm_get_thermal_trim_offset_8822b(
 
 		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8822b thermal trim flag:0x%02x\n", p_power_trim_info->flag));
 
-		if (p_power_trim_info->flag & KFREE_FLAG_THERMAL_K_ON)
+		if (p_power_trim_info->flag & KFREE_FLAG_THERMAL_K_ON) {
 			ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8822b thermal:%d\n", p_power_trim_info->thermal));
+		}
 #if 0
 	} else
 		return;
@@ -493,9 +495,9 @@ phydm_get_pa_bias_offset_8822b(
 
 		for (e_rf_path = RF_PATH_A;  e_rf_path < 2; e_rf_path++)
 			phydm_set_pa_bias_to_rf_8822b(p_dm, e_rf_path, tx_pa_bias[e_rf_path]);
-	}
-	else
+	} else {
 		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8822b 2g tx pa bias no pg\n"));
+	}
 }
 
 
@@ -581,9 +583,9 @@ void	*p_dm_void)
 	
 	ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8710b thermal trim flag:0x%02x\n", p_power_trim_info->flag));
 	
-	if (p_power_trim_info->flag & KFREE_FLAG_THERMAL_K_ON)
+	if (p_power_trim_info->flag & KFREE_FLAG_THERMAL_K_ON) {
 		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8710b thermal:%d\n", p_power_trim_info->thermal));
-
+	}
 }
 
 void
@@ -611,10 +613,9 @@ phydm_get_power_trim_offset_8710b(
 
 		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8710b power trim flag:0x%02x\n", p_power_trim_info->flag));
 
-		if (p_power_trim_info->flag & KFREE_FLAG_ON) 
-
-		ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8710b power_trim_data->bb_gain[0][0]=0x%X\n",  p_power_trim_info->bb_gain[0][0]));
-
+		if (p_power_trim_info->flag & KFREE_FLAG_ON) {
+			ODM_RT_TRACE(p_dm, ODM_COMP_MP, ODM_DBG_LOUD, ("[kfree] 8710b power_trim_data->bb_gain[0][0]=0x%X\n",  p_power_trim_info->bb_gain[0][0]));
+		}
 }
 void
 phydm_set_kfree_to_rf_8710b(
