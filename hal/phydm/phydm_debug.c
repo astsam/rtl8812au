@@ -1283,9 +1283,9 @@ phydm_basic_dbg_message
 		if (p_dm->support_ic_type & ODM_IC_PHY_STATUE_NEW_TYPE)
 			PHYDM_DBG(p_dm, ODM_COMP_COMMON, ("Coding: LDPC=((%s)), STBC=((%s))\n", (p_dm->phy_dbg_info.is_ldpc_pkt) ? "Y" : "N", (p_dm->phy_dbg_info.is_stbc_pkt) ? "Y" : "N"));
 	#endif
-	} else
+	} else {
 		PHYDM_DBG(p_dm, ODM_COMP_COMMON, ("No Link !!!\n"));
-
+	}
 	PHYDM_DBG(p_dm, ODM_COMP_COMMON, ("[CCA Cnt] {CCK, OFDM, Total} = {%d, %d, %d}\n",
 		false_alm_cnt->cnt_cck_cca, false_alm_cnt->cnt_ofdm_cca, false_alm_cnt->cnt_cca_all));
 
@@ -1567,9 +1567,10 @@ phydm_fw_trace_en_h2c(
 	PHYDM_DBG(p_dm, DBG_FW_TRACE, ("---->\n"));
 	if (monitor_mode == 0)
 		PHYDM_DBG(p_dm, DBG_FW_TRACE, ("[H2C] FW_debug_en: (( %d ))\n", enable));
-	else
+	else {
 		PHYDM_DBG(p_dm, DBG_FW_TRACE, ("[H2C] FW_debug_en: (( %d )), mode: (( %d )), macid: (( %d ))\n", enable, monitor_mode, macid));
-	odm_fill_h2c_cmd(p_dm, PHYDM_H2C_FW_TRACE_EN, cmd_length, h2c_parameter);
+		odm_fill_h2c_cmd(p_dm, PHYDM_H2C_FW_TRACE_EN, cmd_length, h2c_parameter);
+	}
 }
 
 void
@@ -3146,9 +3147,9 @@ phydm_fw_trace_handler_code(
 	u16	content_3 = (((u16)buffer[9]) << 8) | ((u16)buffer[8]);
 	u16	content_4 = (((u16)buffer[11]) << 8) | ((u16)buffer[10]);
 
-	if (cmd_len > 12)
+	if (cmd_len > 12) {
 		PHYDM_DBG(p_dm, DBG_FW_TRACE, ("[FW Msg] Invalid cmd length (( %d )) >12\n", cmd_len));
-
+	}
 	/* PHYDM_DBG(p_dm, DBG_FW_TRACE,("[FW Msg] Func=((%d)),  num=((%d)), ct_0=((%d)), ct_1=((%d)), ct_2=((%d)), ct_3=((%d)), ct_4=((%d))\n", */
 	/*	function, dbg_num, content_0, content_1, content_2, content_3, content_4)); */
 
