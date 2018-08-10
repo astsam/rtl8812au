@@ -4850,10 +4850,10 @@ static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wd
       bandWidth = adapter_to_dvobj(padapter)->oper_bwmode;
       //DBG_871X("%s bw %d\n", __func__,adapter_to_dvobj(padapter)->oper_bwmode);
     } else {
-      bandWidth = pHalData->current_channel;
+      bandWidth = pHalData->current_channel_bw;
       //DBG_871X("%s dvobj null\n", __func__);
     }
-    switch(pHalData->current_channel){
+    switch(pHalData->current_channel_bw){
       case CHANNEL_WIDTH_20:
 	//DBG_871X("%s width 20\n", __func__);
 	width = NL80211_CHAN_WIDTH_20;
