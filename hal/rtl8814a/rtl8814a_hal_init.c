@@ -3986,8 +3986,8 @@ void init_hal_spec_8814a(_adapter *adapter)
 	hal_spec->macid_num = MACID_NUM_8814A;
 	hal_spec->sec_cam_ent_num = SEC_CAM_ENT_NUM_8814A;
 	hal_spec->sec_cap = SEC_CAP_CHK_BMC;
-	hal_spec->tx_nss_num = 1;
-	hal_spec->rx_nss_num = 1;
+	hal_spec->tx_nss_num = 4;
+	hal_spec->rx_nss_num = 4;
 	hal_spec->band_cap = BAND_CAP_8814A;
 	hal_spec->bw_cap = BW_CAP_8814A;
 
