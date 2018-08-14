@@ -1195,17 +1195,17 @@ PHY_GetTxPowerIndex_8814A(
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(pAdapter);
 	s8				powerDiffByRate = 0;
 	s8				txPower = 0, limit = 0;
-	u8				tx_num = MgntQuery_NssTxRate(Rate );
+	u8				ntx_idx = MgntQuery_NssTxRate(Rate );
 	BOOLEAN			bIn24G = FALSE;
 	s8				tpt_offset = 0;
 
 	/* RTW_INFO( "===>%s\n", __FUNCTION__ ); */
 	
-	txPower = (s8) PHY_GetTxPowerIndexBase( pAdapter, RFPath, Rate, tx_num, BandWidth, Channel, &bIn24G );
+	txPower = (s8) PHY_GetTxPowerIndexBase( pAdapter, RFPath, Rate, ntx_idx, BandWidth, Channel, &bIn24G );
 
 	powerDiffByRate = PHY_GetTxPowerByRate( pAdapter, (u8)(!bIn24G), RFPath, Rate );
 
-	limit = PHY_GetTxPowerLimit( pAdapter, pAdapter->registrypriv.RegPwrTblSel, (u8)(!bIn24G), pHalData->current_channel_bw, RFPath, Rate,tx_num, pHalData->current_channel);
+	limit = PHY_GetTxPowerLimit( pAdapter, pAdapter->registrypriv.RegPwrTblSel, (u8)(!bIn24G), pHalData->current_channel_bw, RFPath, Rate,ntx_idx, pHalData->current_channel);
 	tpt_offset = PHY_GetTxPowerTrackingOffset(pAdapter, RFPath, Rate);
 
 	powerDiffByRate = powerDiffByRate > limit ? limit : powerDiffByRate;
@@ -1222,6 +1222,7 @@ PHY_GetTxPowerIndex_8814A(
 	phy_TxPwrAdjInPercentage(pAdapter, (u8 *)&txPower);
 
 	if (tic) {
+		tic->ntx_idx = ntx_idx;
 		tic->base = txPower;
 		tic->by_rate = powerDiffByRate;
 		tic->limit = limit;
