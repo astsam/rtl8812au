@@ -923,7 +923,7 @@ u8 rtw_sitesurvey_cmd(_adapter  *padapter, NDIS_802_11_SSID *ssid, int ssid_num,
 	if (res == _SUCCESS) {
 
 		pmlmepriv->scan_start_time = rtw_get_current_time();
-
+#if 0 /*fariouche: looking at other wlan drivers, they do not handle timeout. It is conflicting with long scans */
 #ifdef CONFIG_SCAN_BACKOP
 		if (rtw_mi_buddy_check_mlmeinfo_state(padapter, WIFI_FW_AP_STATE)) {
 			if (is_supported_5g(padapter->registrypriv.wireless_mode)
@@ -934,7 +934,7 @@ u8 rtw_sitesurvey_cmd(_adapter  *padapter, NDIS_802_11_SSID *ssid, int ssid_num,
 		} else
 #endif /* CONFIG_SCAN_BACKOP */
 			mlme_set_scan_to_timer(pmlmepriv, SCANNING_TIMEOUT);
-
+#endif
 		rtw_led_control(padapter, LED_CTL_SITE_SURVEY);
 	} else
 		_clr_fwstate_(pmlmepriv, _FW_UNDER_SURVEY);
