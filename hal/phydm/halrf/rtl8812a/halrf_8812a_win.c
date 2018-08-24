@@ -33,52 +33,52 @@
  * 3============================================================ */
 
 void halrf_rf_lna_setting_8812a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	enum phydm_lna_set type
 )
 {
 	/*phydm_disable_lna*/
 	if (type == phydm_lna_disable) {
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0xef, 0x80000, 0x1);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x31, 0xfffff, 0x3f7ff);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x32, 0xfffff, 0xc22bf);	/*disable LNA*/
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0xef, 0x80000, 0x0);
-		if (p_dm->rf_type > RF_1T1R) {
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0xef, 0x80000, 0x1);
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0x31, 0xfffff, 0x3f7ff);
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0x32, 0xfffff, 0xc22bf);	/*disable LNA*/
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0xef, 0x80000, 0x0);
+		odm_set_rf_reg(dm, RF_PATH_A, 0xef, 0x80000, 0x1);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
+		odm_set_rf_reg(dm, RF_PATH_A, 0x31, 0xfffff, 0x3f7ff);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x32, 0xfffff, 0xc22bf);	/*disable LNA*/
+		odm_set_rf_reg(dm, RF_PATH_A, 0xef, 0x80000, 0x0);
+		if (dm->rf_type > RF_1T1R) {
+			odm_set_rf_reg(dm, RF_PATH_B, 0xef, 0x80000, 0x1);
+			odm_set_rf_reg(dm, RF_PATH_B, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
+			odm_set_rf_reg(dm, RF_PATH_B, 0x31, 0xfffff, 0x3f7ff);
+			odm_set_rf_reg(dm, RF_PATH_B, 0x32, 0xfffff, 0xc22bf);	/*disable LNA*/
+			odm_set_rf_reg(dm, RF_PATH_B, 0xef, 0x80000, 0x0);
 		}
 	} else if (type == phydm_lna_enable) {
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0xef, 0x80000, 0x1);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x31, 0xfffff, 0x3f7ff);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x32, 0xfffff, 0xc26bf);	/*disable LNA*/
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0xef, 0x80000, 0x0);
-		if (p_dm->rf_type > RF_1T1R) {
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0xef, 0x80000, 0x1);
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0x31, 0xfffff, 0x3f7ff);
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0x32, 0xfffff, 0xc26bf);	/*disable LNA*/
-			odm_set_rf_reg(p_dm, RF_PATH_B, 0xef, 0x80000, 0x0);
+		odm_set_rf_reg(dm, RF_PATH_A, 0xef, 0x80000, 0x1);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
+		odm_set_rf_reg(dm, RF_PATH_A, 0x31, 0xfffff, 0x3f7ff);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x32, 0xfffff, 0xc26bf);	/*disable LNA*/
+		odm_set_rf_reg(dm, RF_PATH_A, 0xef, 0x80000, 0x0);
+		if (dm->rf_type > RF_1T1R) {
+			odm_set_rf_reg(dm, RF_PATH_B, 0xef, 0x80000, 0x1);
+			odm_set_rf_reg(dm, RF_PATH_B, 0x30, 0xfffff, 0x18000);	/*select Rx mode*/
+			odm_set_rf_reg(dm, RF_PATH_B, 0x31, 0xfffff, 0x3f7ff);
+			odm_set_rf_reg(dm, RF_PATH_B, 0x32, 0xfffff, 0xc26bf);	/*disable LNA*/
+			odm_set_rf_reg(dm, RF_PATH_B, 0xef, 0x80000, 0x0);
 		}
 	}
 }
 
 
 void do_iqk_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		delta_thermal_index,
 	u8		thermal_value,
 	u8		threshold
 )
 {
-	struct PHY_DM_STRUCT	*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	odm_reset_iqk_result(p_dm);
-	p_dm->rf_calibrate_info.thermal_value_iqk = thermal_value;
-	halrf_iqk_trigger(p_dm, false);
+	struct dm_struct	*dm = (struct dm_struct *)dm_void;
+	odm_reset_iqk_result(dm);
+	dm->rf_calibrate_info.thermal_value_iqk = thermal_value;
+	halrf_iqk_trigger(dm, false);
 }
 
 /*-----------------------------------------------------------------------------
@@ -100,22 +100,22 @@ void do_iqk_8812a(
  *---------------------------------------------------------------------------*/
 void
 odm_tx_pwr_track_set_pwr8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	enum pwrtrack_method	method,
 	u8				rf_path,
 	u8				channel_mapped_index
 )
 {
 	u32	final_bb_swing_idx[2];
-	struct PHY_DM_STRUCT	*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	struct _ADAPTER		*adapter = p_dm->adapter;
+	struct dm_struct	*dm = (struct dm_struct *)dm_void;
+	PADAPTER    adapter = (PADAPTER)dm->adapter;
 	u8			pwr_tracking_limit = 26; /* +1.0dB */
 	u8			tx_rate = 0xFF;
 	u8			final_ofdm_swing_index = 0;
 	u8			final_cck_swing_index = 0;
-	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct	*cali_info = &(dm->rf_calibrate_info);
 
-	if (*(p_dm->p_mp_mode) == true) {
+	if (*(dm->mp_mode) == true) {
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 #if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
 #if (MP_DRIVER == 1)
@@ -132,20 +132,20 @@ odm_tx_pwr_track_set_pwr8812a(
 #endif
 #endif
 	} else {
-		u16	rate	 = *(p_dm->p_forced_data_rate);
+		u16	rate	 = *(dm->forced_data_rate);
 
 		if (!rate) { /*auto rate*/
 #if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-			tx_rate = adapter->HalFunc.GetHwRateFromMRateHandler(p_dm->tx_rate);
+			tx_rate = adapter->HalFunc.GetHwRateFromMRateHandler(dm->tx_rate);
 #elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
-			tx_rate = hw_rate_to_m_rate(p_dm->tx_rate);
+			tx_rate = hw_rate_to_m_rate(dm->tx_rate);
 #endif
 		} else   /*force rate*/
 			tx_rate = (u8)rate;
 	}
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("Power Tracking tx_rate=0x%X\n", tx_rate));
-	ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("===>odm_tx_pwr_track_set_pwr8812a\n"));
+	PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "Power Tracking tx_rate=0x%X\n", tx_rate);
+	PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "===>odm_tx_pwr_track_set_pwr8812a\n");
 
 	if (tx_rate != 0xFF) { /* 20130429 Mimic Modify High rate BBSwing Limit. */
 		/* 2 CCK */
@@ -202,110 +202,110 @@ odm_tx_pwr_track_set_pwr8812a(
 		else
 			pwr_tracking_limit = 24;
 	}
-	ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("tx_rate=0x%x, pwr_tracking_limit=%d\n", tx_rate, pwr_tracking_limit));
+	PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "tx_rate=0x%x, pwr_tracking_limit=%d\n", tx_rate, pwr_tracking_limit);
 
 
 	if (method == BBSWING) {
-		ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("===>odm_tx_pwr_track_set_pwr8812a\n"));
+		PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "===>odm_tx_pwr_track_set_pwr8812a\n");
 
 		if (rf_path == RF_PATH_A) {
-			final_bb_swing_idx[RF_PATH_A] = (p_rf_calibrate_info->OFDM_index[RF_PATH_A] > pwr_tracking_limit) ? pwr_tracking_limit : p_rf_calibrate_info->OFDM_index[RF_PATH_A];
-			ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("p_rf_calibrate_info->OFDM_index[RF_PATH_A]=%d, p_dm->RealBbSwingIdx[RF_PATH_A]=%d\n",
-				p_rf_calibrate_info->OFDM_index[RF_PATH_A], final_bb_swing_idx[RF_PATH_A]));
+			final_bb_swing_idx[RF_PATH_A] = (cali_info->OFDM_index[RF_PATH_A] > pwr_tracking_limit) ? pwr_tracking_limit : cali_info->OFDM_index[RF_PATH_A];
+			PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "cali_info->OFDM_index[RF_PATH_A]=%d, dm->RealBbSwingIdx[RF_PATH_A]=%d\n",
+				cali_info->OFDM_index[RF_PATH_A], final_bb_swing_idx[RF_PATH_A]);
 
-			odm_set_bb_reg(p_dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_bb_swing_idx[RF_PATH_A]]);
+			odm_set_bb_reg(dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_bb_swing_idx[RF_PATH_A]]);
 		} else {
-			final_bb_swing_idx[RF_PATH_B] = (p_rf_calibrate_info->OFDM_index[RF_PATH_B] > pwr_tracking_limit) ? pwr_tracking_limit : p_rf_calibrate_info->OFDM_index[RF_PATH_B];
-			ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("p_rf_calibrate_info->OFDM_index[RF_PATH_B]=%d, p_dm->RealBbSwingIdx[RF_PATH_B]=%d\n",
-				p_rf_calibrate_info->OFDM_index[RF_PATH_B], final_bb_swing_idx[RF_PATH_B]));
+			final_bb_swing_idx[RF_PATH_B] = (cali_info->OFDM_index[RF_PATH_B] > pwr_tracking_limit) ? pwr_tracking_limit : cali_info->OFDM_index[RF_PATH_B];
+			PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "cali_info->OFDM_index[RF_PATH_B]=%d, dm->RealBbSwingIdx[RF_PATH_B]=%d\n",
+				cali_info->OFDM_index[RF_PATH_B], final_bb_swing_idx[RF_PATH_B]);
 
-			odm_set_bb_reg(p_dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_bb_swing_idx[RF_PATH_B]]);
+			odm_set_bb_reg(dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_bb_swing_idx[RF_PATH_B]]);
 		}
 	}
 
 	else if (method == MIX_MODE) {
-		ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("p_rf_calibrate_info->default_ofdm_index=%d, p_rf_calibrate_info->absolute_ofdm_swing_idx[rf_path]=%d, rf_path = %d\n",
-			p_rf_calibrate_info->default_ofdm_index, p_rf_calibrate_info->absolute_ofdm_swing_idx[rf_path], rf_path));
+		PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "cali_info->default_ofdm_index=%d, cali_info->absolute_ofdm_swing_idx[rf_path]=%d, rf_path = %d\n",
+			cali_info->default_ofdm_index, cali_info->absolute_ofdm_swing_idx[rf_path], rf_path);
 
-		final_cck_swing_index = p_rf_calibrate_info->default_cck_index + p_rf_calibrate_info->absolute_ofdm_swing_idx[rf_path];
-		final_ofdm_swing_index = p_rf_calibrate_info->default_ofdm_index + p_rf_calibrate_info->absolute_ofdm_swing_idx[rf_path];
+		final_cck_swing_index = cali_info->default_cck_index + cali_info->absolute_ofdm_swing_idx[rf_path];
+		final_ofdm_swing_index = cali_info->default_ofdm_index + cali_info->absolute_ofdm_swing_idx[rf_path];
 
 		if (rf_path == RF_PATH_A) {
 
 			if (final_ofdm_swing_index > pwr_tracking_limit) {  /* BBSwing higher then Limit */
-				p_rf_calibrate_info->remnant_cck_swing_idx = final_cck_swing_index - pwr_tracking_limit;           /* CCK Follow the same compensate value as path A */
-				p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index - pwr_tracking_limit;
+				cali_info->remnant_cck_swing_idx = final_cck_swing_index - pwr_tracking_limit;           /* CCK Follow the same compensate value as path A */
+				cali_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index - pwr_tracking_limit;
 
-				odm_set_bb_reg(p_dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[pwr_tracking_limit]);
+				odm_set_bb_reg(dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[pwr_tracking_limit]);
 
-				p_rf_calibrate_info->modify_tx_agc_flag_path_a = true;
+				cali_info->modify_tx_agc_flag_path_a = true;
 
-				PHY_SetTxPowerLevelByPath(adapter, *p_dm->p_channel, RF_PATH_A);
+				PHY_SetTxPowerLevelByPath(adapter, *dm->channel, RF_PATH_A);
 
-				ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_A Over BBSwing Limit, pwr_tracking_limit = %d, Remnant tx_agc value = %d\n", pwr_tracking_limit, p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path]));
+				PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_A Over BBSwing Limit, pwr_tracking_limit = %d, Remnant tx_agc value = %d\n", pwr_tracking_limit, cali_info->remnant_ofdm_swing_idx[rf_path]);
 			} else if (final_ofdm_swing_index < 0) {
-				p_rf_calibrate_info->remnant_cck_swing_idx = final_cck_swing_index;           /* CCK Follow the same compensate value as path A */
-				p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index;
+				cali_info->remnant_cck_swing_idx = final_cck_swing_index;           /* CCK Follow the same compensate value as path A */
+				cali_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index;
 
-				odm_set_bb_reg(p_dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[0]);
+				odm_set_bb_reg(dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[0]);
 
-				p_rf_calibrate_info->modify_tx_agc_flag_path_a = true;
+				cali_info->modify_tx_agc_flag_path_a = true;
 
-				PHY_SetTxPowerLevelByPath(adapter, *p_dm->p_channel, RF_PATH_A);
+				PHY_SetTxPowerLevelByPath(adapter, *dm->channel, RF_PATH_A);
 
-				ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_A Lower then BBSwing lower bound  0, Remnant tx_agc value = %d\n", p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path]));
+				PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_A Lower then BBSwing lower bound  0, Remnant tx_agc value = %d\n", cali_info->remnant_ofdm_swing_idx[rf_path]);
 			} else {
-				odm_set_bb_reg(p_dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_ofdm_swing_index]);
+				odm_set_bb_reg(dm, REG_A_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_ofdm_swing_index]);
 
-				ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_A Compensate with BBSwing, final_ofdm_swing_index = %d\n", final_ofdm_swing_index));
+				PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_A Compensate with BBSwing, final_ofdm_swing_index = %d\n", final_ofdm_swing_index);
 
-				if (p_rf_calibrate_info->modify_tx_agc_flag_path_a) { /* If tx_agc has changed, reset tx_agc again */
-					p_rf_calibrate_info->remnant_cck_swing_idx = 0;
-					p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path] = 0;
+				if (cali_info->modify_tx_agc_flag_path_a) { /* If tx_agc has changed, reset tx_agc again */
+					cali_info->remnant_cck_swing_idx = 0;
+					cali_info->remnant_ofdm_swing_idx[rf_path] = 0;
 
-					PHY_SetTxPowerLevelByPath(adapter, *p_dm->p_channel, RF_PATH_A);
+					PHY_SetTxPowerLevelByPath(adapter, *dm->channel, RF_PATH_A);
 
-					p_rf_calibrate_info->modify_tx_agc_flag_path_a = false;
+					cali_info->modify_tx_agc_flag_path_a = false;
 
-					ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_A p_dm->Modify_TxAGC_Flag = false\n"));
+					PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_A dm->Modify_TxAGC_Flag = false\n");
 				}
 			}
 		}
 
 		if (rf_path == RF_PATH_B) {
 			if (final_ofdm_swing_index > pwr_tracking_limit) {  /* BBSwing higher then Limit */
-				p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index - pwr_tracking_limit;
+				cali_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index - pwr_tracking_limit;
 
-				odm_set_bb_reg(p_dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[pwr_tracking_limit]);
+				odm_set_bb_reg(dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[pwr_tracking_limit]);
 
-				p_rf_calibrate_info->modify_tx_agc_flag_path_b = true;
+				cali_info->modify_tx_agc_flag_path_b = true;
 
-				PHY_SetTxPowerLevelByPath(adapter, *p_dm->p_channel, RF_PATH_B);
+				PHY_SetTxPowerLevelByPath(adapter, *dm->channel, RF_PATH_B);
 
-				ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_B Over BBSwing Limit, pwr_tracking_limit = %d, Remnant tx_agc value = %d\n", pwr_tracking_limit, p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path]));
+				PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_B Over BBSwing Limit, pwr_tracking_limit = %d, Remnant tx_agc value = %d\n", pwr_tracking_limit, cali_info->remnant_ofdm_swing_idx[rf_path]);
 			} else if (final_ofdm_swing_index < 0) {
-				p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index;
+				cali_info->remnant_ofdm_swing_idx[rf_path] = final_ofdm_swing_index;
 
-				odm_set_bb_reg(p_dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[0]);
+				odm_set_bb_reg(dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[0]);
 
-				p_rf_calibrate_info->modify_tx_agc_flag_path_b = true;
+				cali_info->modify_tx_agc_flag_path_b = true;
 
-				PHY_SetTxPowerLevelByPath(adapter, *p_dm->p_channel, RF_PATH_B);
+				PHY_SetTxPowerLevelByPath(adapter, *dm->channel, RF_PATH_B);
 
-				ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_B Lower then BBSwing lower bound  0, Remnant tx_agc value = %d\n", p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path]));
+				PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_B Lower then BBSwing lower bound  0, Remnant tx_agc value = %d\n", cali_info->remnant_ofdm_swing_idx[rf_path]);
 			} else {
-				odm_set_bb_reg(p_dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_ofdm_swing_index]);
+				odm_set_bb_reg(dm, REG_B_TX_SCALE_JAGUAR, 0xFFE00000, tx_scaling_table_jaguar[final_ofdm_swing_index]);
 
-				ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_B Compensate with BBSwing, final_ofdm_swing_index = %d\n", final_ofdm_swing_index));
+				PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_B Compensate with BBSwing, final_ofdm_swing_index = %d\n", final_ofdm_swing_index);
 
-				if (p_rf_calibrate_info->modify_tx_agc_flag_path_b) { /* If tx_agc has changed, reset tx_agc again */
-					p_rf_calibrate_info->remnant_ofdm_swing_idx[rf_path] = 0;
+				if (cali_info->modify_tx_agc_flag_path_b) { /* If tx_agc has changed, reset tx_agc again */
+					cali_info->remnant_ofdm_swing_idx[rf_path] = 0;
 
-					PHY_SetTxPowerLevelByPath(adapter, *p_dm->p_channel, RF_PATH_B);
+					PHY_SetTxPowerLevelByPath(adapter, *dm->channel, RF_PATH_B);
 
-					p_rf_calibrate_info->modify_tx_agc_flag_path_b = false;
+					cali_info->modify_tx_agc_flag_path_b = false;
 
-					ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("******Path_B p_dm->Modify_TxAGC_Flag = false\n"));
+					PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "******Path_B dm->Modify_TxAGC_Flag = false\n");
 				}
 			}
 		}
@@ -316,21 +316,21 @@ odm_tx_pwr_track_set_pwr8812a(
 
 void
 get_delta_swing_table_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8 **temperature_up_a,
 	u8 **temperature_down_a,
 	u8 **temperature_up_b,
 	u8 **temperature_down_b
 )
 {
-	struct PHY_DM_STRUCT	*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	struct _ADAPTER		*adapter = p_dm->adapter;
-	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_struct	*dm = (struct dm_struct *)dm_void;
+	void		*adapter = dm->adapter;
+	struct dm_rf_calibration_struct	*cali_info = &(dm->rf_calibrate_info);
 	u8		tx_rate			= 0xFF;
-	u8	channel		 = *p_dm->p_channel;
+	u8	channel		 = *dm->channel;
 
 
-	if (*(p_dm->p_mp_mode) == true) {
+	if (*(dm->mp_mode) == true) {
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
 #if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
 #if (MP_DRIVER == 1)
@@ -347,47 +347,47 @@ get_delta_swing_table_8812a(
 #endif
 #endif
 	} else {
-		u16	rate	 = *(p_dm->p_forced_data_rate);
+		u16	rate	 = *(dm->forced_data_rate);
 
 		if (!rate) { /*auto rate*/
 #if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-			tx_rate = adapter->HalFunc.GetHwRateFromMRateHandler(p_dm->tx_rate);
+			tx_rate = ((PADAPTER)adapter)->HalFunc.GetHwRateFromMRateHandler(dm->tx_rate);
 #elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
-			tx_rate = hw_rate_to_m_rate(p_dm->tx_rate);
+			tx_rate = hw_rate_to_m_rate(dm->tx_rate);
 #endif
 		} else   /*force rate*/
 			tx_rate = (u8)rate;
 	}
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_TX_PWR_TRACK, ODM_DBG_LOUD, ("Power Tracking tx_rate=0x%X\n", tx_rate));
+	PHYDM_DBG(dm, ODM_COMP_TX_PWR_TRACK, "Power Tracking tx_rate=0x%X\n", tx_rate);
 
 	if (1 <= channel && channel <= 14) {
 		if (IS_CCK_RATE(tx_rate)) {
-			*temperature_up_a   = p_rf_calibrate_info->delta_swing_table_idx_2g_cck_a_p;
-			*temperature_down_a = p_rf_calibrate_info->delta_swing_table_idx_2g_cck_a_n;
-			*temperature_up_b   = p_rf_calibrate_info->delta_swing_table_idx_2g_cck_b_p;
-			*temperature_down_b = p_rf_calibrate_info->delta_swing_table_idx_2g_cck_b_n;
+			*temperature_up_a   = cali_info->delta_swing_table_idx_2g_cck_a_p;
+			*temperature_down_a = cali_info->delta_swing_table_idx_2g_cck_a_n;
+			*temperature_up_b   = cali_info->delta_swing_table_idx_2g_cck_b_p;
+			*temperature_down_b = cali_info->delta_swing_table_idx_2g_cck_b_n;
 		} else {
-			*temperature_up_a   = p_rf_calibrate_info->delta_swing_table_idx_2ga_p;
-			*temperature_down_a = p_rf_calibrate_info->delta_swing_table_idx_2ga_n;
-			*temperature_up_b   = p_rf_calibrate_info->delta_swing_table_idx_2gb_p;
-			*temperature_down_b = p_rf_calibrate_info->delta_swing_table_idx_2gb_n;
+			*temperature_up_a   = cali_info->delta_swing_table_idx_2ga_p;
+			*temperature_down_a = cali_info->delta_swing_table_idx_2ga_n;
+			*temperature_up_b   = cali_info->delta_swing_table_idx_2gb_p;
+			*temperature_down_b = cali_info->delta_swing_table_idx_2gb_n;
 		}
 	} else if (36 <= channel && channel <= 64) {
-		*temperature_up_a   = p_rf_calibrate_info->delta_swing_table_idx_5ga_p[0];
-		*temperature_down_a = p_rf_calibrate_info->delta_swing_table_idx_5ga_n[0];
-		*temperature_up_b   = p_rf_calibrate_info->delta_swing_table_idx_5gb_p[0];
-		*temperature_down_b = p_rf_calibrate_info->delta_swing_table_idx_5gb_n[0];
+		*temperature_up_a   = cali_info->delta_swing_table_idx_5ga_p[0];
+		*temperature_down_a = cali_info->delta_swing_table_idx_5ga_n[0];
+		*temperature_up_b   = cali_info->delta_swing_table_idx_5gb_p[0];
+		*temperature_down_b = cali_info->delta_swing_table_idx_5gb_n[0];
 	} else if (100 <= channel && channel <= 144) {
-		*temperature_up_a   = p_rf_calibrate_info->delta_swing_table_idx_5ga_p[1];
-		*temperature_down_a = p_rf_calibrate_info->delta_swing_table_idx_5ga_n[1];
-		*temperature_up_b   = p_rf_calibrate_info->delta_swing_table_idx_5gb_p[1];
-		*temperature_down_b = p_rf_calibrate_info->delta_swing_table_idx_5gb_n[1];
+		*temperature_up_a   = cali_info->delta_swing_table_idx_5ga_p[1];
+		*temperature_down_a = cali_info->delta_swing_table_idx_5ga_n[1];
+		*temperature_up_b   = cali_info->delta_swing_table_idx_5gb_p[1];
+		*temperature_down_b = cali_info->delta_swing_table_idx_5gb_n[1];
 	} else if (149 <= channel && channel <= 177) {
-		*temperature_up_a   = p_rf_calibrate_info->delta_swing_table_idx_5ga_p[2];
-		*temperature_down_a = p_rf_calibrate_info->delta_swing_table_idx_5ga_n[2];
-		*temperature_up_b   = p_rf_calibrate_info->delta_swing_table_idx_5gb_p[2];
-		*temperature_down_b = p_rf_calibrate_info->delta_swing_table_idx_5gb_n[2];
+		*temperature_up_a   = cali_info->delta_swing_table_idx_5ga_p[2];
+		*temperature_down_a = cali_info->delta_swing_table_idx_5ga_n[2];
+		*temperature_up_b   = cali_info->delta_swing_table_idx_5gb_p[2];
+		*temperature_down_b = cali_info->delta_swing_table_idx_5gb_n[2];
 	} else {
 		*temperature_up_a   = (u8 *)delta_swing_table_idx_2ga_p_8188e;
 		*temperature_down_a = (u8 *)delta_swing_table_idx_2ga_n_8188e;
@@ -400,21 +400,21 @@ get_delta_swing_table_8812a(
 }
 
 void configure_txpower_track_8812a(
-	struct _TXPWRTRACK_CFG	*p_config
+	struct txpwrtrack_cfg	*config
 )
 {
-	p_config->swing_table_size_cck = TXSCALE_TABLE_SIZE;
-	p_config->swing_table_size_ofdm = TXSCALE_TABLE_SIZE;
-	p_config->threshold_iqk = IQK_THRESHOLD;
-	p_config->threshold_dpk = DPK_THRESHOLD;
-	p_config->average_thermal_num = AVG_THERMAL_NUM_8812A;
-	p_config->rf_path_count = MAX_PATH_NUM_8812A;
-	p_config->thermal_reg_addr = RF_T_METER_8812A;
+	config->swing_table_size_cck = TXSCALE_TABLE_SIZE;
+	config->swing_table_size_ofdm = TXSCALE_TABLE_SIZE;
+	config->threshold_iqk = IQK_THRESHOLD;
+	config->threshold_dpk = DPK_THRESHOLD;
+	config->average_thermal_num = AVG_THERMAL_NUM_8812A;
+	config->rf_path_count = MAX_PATH_NUM_8812A;
+	config->thermal_reg_addr = RF_T_METER_8812A;
 
-	p_config->odm_tx_pwr_track_set_pwr = odm_tx_pwr_track_set_pwr8812a;
-	p_config->do_iqk = do_iqk_8812a;
-	p_config->phy_lc_calibrate = halrf_lck_trigger;
-	p_config->get_delta_swing_table = get_delta_swing_table_8812a;
+	config->odm_tx_pwr_track_set_pwr = odm_tx_pwr_track_set_pwr8812a;
+	config->do_iqk = do_iqk_8812a;
+	config->phy_lc_calibrate = halrf_lck_trigger;
+	config->get_delta_swing_table = get_delta_swing_table_8812a;
 }
 
 
@@ -423,7 +423,7 @@ void configure_txpower_track_8812a(
 #define	BW_80M	2
 
 void _iqk_rx_fill_iqc_8812a(
-	struct PHY_DM_STRUCT			*p_dm,
+	struct dm_struct			*dm,
 	enum rf_path	path,
 	unsigned int			RX_X,
 	unsigned int			RX_Y
@@ -432,39 +432,31 @@ void _iqk_rx_fill_iqc_8812a(
 	switch (path) {
 	case RF_PATH_A:
 	{
-		odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+		odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 		if (RX_X >> 1 >= 0x112 || (RX_Y >> 1 >= 0x12 && RX_Y >> 1 <= 0x3ee)) {
-			odm_set_bb_reg(p_dm, 0xc10, 0x000003ff, 0x100);
-			odm_set_bb_reg(p_dm, 0xc10, 0x03ff0000, 0);
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
+			odm_set_bb_reg(dm, 0xc10, 0x000003ff, 0x100);
+			odm_set_bb_reg(dm, 0xc10, 0x03ff0000, 0);
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff);
 		} else {
-			if (RX_X >= 0x20c)
-				RX_X = 0x20c;
-			else if (RX_X <= 0x1f4)
-				RX_X = 0x1f4;
-			odm_set_bb_reg(p_dm, 0xc10, 0x000003ff, RX_X >> 1);
-			odm_set_bb_reg(p_dm, 0xc10, 0x03ff0000, RX_Y >> 1);
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("0xc10 = %x ====>fill to IQC\n", odm_read_4byte(p_dm, 0xc10)));
+			odm_set_bb_reg(dm, 0xc10, 0x000003ff, RX_X >> 1);
+			odm_set_bb_reg(dm, 0xc10, 0x03ff0000, RX_Y >> 1);
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff);
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "0xc10 = %x ====>fill to IQC\n", odm_read_4byte(dm, 0xc10));
 		}
 	}
 	break;
 	case RF_PATH_B:
 	{
-		odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+		odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 		if (RX_X >> 1 >= 0x112 || (RX_Y >> 1 >= 0x12 && RX_Y >> 1 <= 0x3ee)) {
-			odm_set_bb_reg(p_dm, 0xe10, 0x000003ff, 0x100);
-			odm_set_bb_reg(p_dm, 0xe10, 0x03ff0000, 0);
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
+			odm_set_bb_reg(dm, 0xe10, 0x000003ff, 0x100);
+			odm_set_bb_reg(dm, 0xe10, 0x03ff0000, 0);
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X = %x;;RX_Y = %x ====>fill to IQC\n", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff);
 		} else {
-			if (RX_X >= 0x20c)
-				RX_X = 0x20c;
-			else if (RX_X <= 0x1f4)
-				RX_X = 0x1f4;
-			odm_set_bb_reg(p_dm, 0xe10, 0x000003ff, RX_X >> 1);
-			odm_set_bb_reg(p_dm, 0xe10, 0x03ff0000, RX_Y >> 1);
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X = %x;;RX_Y = %x====>fill to IQC\n ", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff));
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("0xe10 = %x====>fill to IQC\n", odm_read_4byte(p_dm, 0xe10)));
+			odm_set_bb_reg(dm, 0xe10, 0x000003ff, RX_X >> 1);
+			odm_set_bb_reg(dm, 0xe10, 0x03ff0000, RX_Y >> 1);
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X = %x;;RX_Y = %x====>fill to IQC\n ", RX_X >> 1 & 0x000003ff, RX_Y >> 1 & 0x000003ff);
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "0xe10 = %x====>fill to IQC\n", odm_read_4byte(dm, 0xe10));
 		}
 	}
 	break;
@@ -474,41 +466,41 @@ void _iqk_rx_fill_iqc_8812a(
 }
 
 void _iqk_tx_fill_iqc_8812a(
-	struct PHY_DM_STRUCT			*p_dm,
+	struct dm_struct			*dm,
 	enum rf_path	path,
 	unsigned int			TX_X,
 	unsigned int			TX_Y
 )
 {
-	struct _hal_rf_		*p_rf = &(p_dm->rf_table);
+	struct _hal_rf_		*rf = &(dm->rf_table);
 	
 	switch (path) {
 	case RF_PATH_A:
 	{
-		odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-		odm_set_bb_reg(p_dm, 0xc90, BIT(7), 0x1);
-		odm_set_bb_reg(p_dm, 0xcc4, BIT(18), 0x1);
-		if (!p_rf->dpk_done)
-			odm_set_bb_reg(p_dm, 0xcc4, BIT(29), 0x1);
-		odm_set_bb_reg(p_dm, 0xcc8, BIT(29), 0x1);
-		odm_set_bb_reg(p_dm, 0xccc, 0x000007ff, TX_Y);
-		odm_set_bb_reg(p_dm, 0xcd4, 0x000007ff, TX_X);
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TX_X = %x;;TX_Y = %x =====> fill to IQC\n", TX_X & 0x000007ff, TX_Y & 0x000007ff));
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("0xcd4 = %x;;0xccc = %x ====>fill to IQC\n", odm_get_bb_reg(p_dm, 0xcd4, 0x000007ff), odm_get_bb_reg(p_dm, 0xccc, 0x000007ff)));
+		odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+		odm_set_bb_reg(dm, 0xc90, BIT(7), 0x1);
+		odm_set_bb_reg(dm, 0xcc4, BIT(18), 0x1);
+		if (!rf->dpk_done)
+			odm_set_bb_reg(dm, 0xcc4, BIT(29), 0x1);
+		odm_set_bb_reg(dm, 0xcc8, BIT(29), 0x1);
+		odm_set_bb_reg(dm, 0xccc, 0x000007ff, TX_Y);
+		odm_set_bb_reg(dm, 0xcd4, 0x000007ff, TX_X);
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TX_X = %x;;TX_Y = %x =====> fill to IQC\n", TX_X & 0x000007ff, TX_Y & 0x000007ff);
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "0xcd4 = %x;;0xccc = %x ====>fill to IQC\n", odm_get_bb_reg(dm, 0xcd4, 0x000007ff), odm_get_bb_reg(dm, 0xccc, 0x000007ff));
 	}
 	break;
 	case RF_PATH_B:
 	{
-		odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-		odm_set_bb_reg(p_dm, 0xe90, BIT(7), 0x1);
-		odm_set_bb_reg(p_dm, 0xec4, BIT(18), 0x1);
-		if (!p_rf->dpk_done)
-			odm_set_bb_reg(p_dm, 0xec4, BIT(29), 0x1);
-		odm_set_bb_reg(p_dm, 0xec8, BIT(29), 0x1);
-		odm_set_bb_reg(p_dm, 0xecc, 0x000007ff, TX_Y);
-		odm_set_bb_reg(p_dm, 0xed4, 0x000007ff, TX_X);
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TX_X = %x;;TX_Y = %x =====> fill to IQC\n", TX_X & 0x000007ff, TX_Y & 0x000007ff));
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("0xed4 = %x;;0xecc = %x ====>fill to IQC\n", odm_get_bb_reg(p_dm, 0xed4, 0x000007ff), odm_get_bb_reg(p_dm, 0xecc, 0x000007ff)));
+		odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+		odm_set_bb_reg(dm, 0xe90, BIT(7), 0x1);
+		odm_set_bb_reg(dm, 0xec4, BIT(18), 0x1);
+		if (!rf->dpk_done)
+			odm_set_bb_reg(dm, 0xec4, BIT(29), 0x1);
+		odm_set_bb_reg(dm, 0xec8, BIT(29), 0x1);
+		odm_set_bb_reg(dm, 0xecc, 0x000007ff, TX_Y);
+		odm_set_bb_reg(dm, 0xed4, 0x000007ff, TX_X);
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TX_X = %x;;TX_Y = %x =====> fill to IQC\n", TX_X & 0x000007ff, TX_Y & 0x000007ff);
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "0xed4 = %x;;0xecc = %x ====>fill to IQC\n", odm_get_bb_reg(dm, 0xed4, 0x000007ff), odm_get_bb_reg(dm, 0xecc, 0x000007ff));
 	}
 	break;
 	default:
@@ -517,22 +509,22 @@ void _iqk_tx_fill_iqc_8812a(
 }
 
 void _iqk_backup_mac_bb_8812a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32		*MACBB_backup,
 	u32		*backup_macbb_reg,
 	u32		MACBB_NUM
 )
 {
 	u32 i;
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	/* save MACBB default value */
 	for (i = 0; i < MACBB_NUM; i++)
-		MACBB_backup[i] = odm_read_4byte(p_dm, backup_macbb_reg[i]);
+		MACBB_backup[i] = odm_read_4byte(dm, backup_macbb_reg[i]);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("BackupMacBB Success!!!!\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "BackupMacBB Success!!!!\n");
 }
 void _iqk_backup_rf_8812a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32		*RFA_backup,
 	u32		*RFB_backup,
 	u32		*backup_rf_reg,
@@ -541,44 +533,44 @@ void _iqk_backup_rf_8812a(
 {
 
 	u32 i;
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	/* Save RF Parameters */
 	for (i = 0; i < RF_NUM; i++) {
-		RFA_backup[i] = odm_get_rf_reg(p_dm, RF_PATH_A, backup_rf_reg[i], MASKDWORD);
-		RFB_backup[i] = odm_get_rf_reg(p_dm, RF_PATH_B, backup_rf_reg[i], MASKDWORD);
+		RFA_backup[i] = odm_get_rf_reg(dm, RF_PATH_A, backup_rf_reg[i], MASKDWORD);
+		RFB_backup[i] = odm_get_rf_reg(dm, RF_PATH_B, backup_rf_reg[i], MASKDWORD);
 	}
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("BackupRF Success!!!!\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "BackupRF Success!!!!\n");
 }
 void _iqk_backup_afe_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 	u32		*AFE_backup,
 	u32		*backup_afe_reg,
 	u32		AFE_NUM
 )
 {
 	u32 i;
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	/* Save AFE Parameters */
 	for (i = 0; i < AFE_NUM; i++)
-		AFE_backup[i] = odm_read_4byte(p_dm, backup_afe_reg[i]);
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("BackupAFE Success!!!!\n"));
+		AFE_backup[i] = odm_read_4byte(dm, backup_afe_reg[i]);
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "BackupAFE Success!!!!\n");
 }
 void _iqk_restore_mac_bb_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 	u32		*MACBB_backup,
 	u32		*backup_macbb_reg,
 	u32		MACBB_NUM
 )
 {
 	u32 i;
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	/* Reload MacBB Parameters */
 	for (i = 0; i < MACBB_NUM; i++)
-		odm_write_4byte(p_dm, backup_macbb_reg[i], MACBB_backup[i]);
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RestoreMacBB Success!!!!\n"));
+		odm_write_4byte(dm, backup_macbb_reg[i], MACBB_backup[i]);
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RestoreMacBB Success!!!!\n");
 }
 void _iqk_restore_rf_8812a(
-	struct PHY_DM_STRUCT			*p_dm,
+	struct dm_struct			*dm,
 	enum rf_path	path,
 	u32			*backup_rf_reg,
 	u32			*RF_backup,
@@ -587,21 +579,21 @@ void _iqk_restore_rf_8812a(
 {
 	u32 i;
 
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	for (i = 0; i < RF_REG_NUM; i++)
-		odm_set_rf_reg(p_dm, (enum rf_path)path, backup_rf_reg[i], RFREGOFFSETMASK, RF_backup[i]);
+		odm_set_rf_reg(dm, (enum rf_path)path, backup_rf_reg[i], RFREGOFFSETMASK, RF_backup[i]);
 
-	odm_set_rf_reg(p_dm, (enum rf_path)path, 0xef, RFREGOFFSETMASK, 0x0);
+	odm_set_rf_reg(dm, (enum rf_path)path, 0xef, RFREGOFFSETMASK, 0x0);
 
 	switch (path) {
 	case RF_PATH_A:
 	{
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RestoreRF path A Success!!!!\n"));
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RestoreRF path A Success!!!!\n");
 	}
 	break;
 	case RF_PATH_B:
 	{
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RestoreRF path B Success!!!!\n"));
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RestoreRF path B Success!!!!\n");
 	}
 	break;
 	default:
@@ -609,60 +601,60 @@ void _iqk_restore_rf_8812a(
 	}
 }
 void _iqk_restore_afe_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 	u32		*AFE_backup,
 	u32		*backup_afe_reg,
 	u32		AFE_NUM
 )
 {
-	struct _hal_rf_		*p_rf = &(p_dm->rf_table);
+	struct _hal_rf_		*rf = &(dm->rf_table);
 	u32 i;
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	/* Reload AFE Parameters */
 	for (i = 0; i < AFE_NUM; i++)
-		odm_write_4byte(p_dm, backup_afe_reg[i], AFE_backup[i]);
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-	odm_write_4byte(p_dm, 0xc80, 0x0);
-	odm_write_4byte(p_dm, 0xc84, 0x0);
-	odm_write_4byte(p_dm, 0xc88, 0x0);
-	odm_write_4byte(p_dm, 0xc8c, 0x3c000000);
-	odm_set_bb_reg(p_dm, 0xc90, BIT(7), 0x1);
-	odm_set_bb_reg(p_dm, 0xcc4, BIT(18), 0x1);
-	if (!p_rf->dpk_done)
-		odm_set_bb_reg(p_dm, 0xcc4, BIT(29), 0x1);
-	odm_set_bb_reg(p_dm, 0xcc8, BIT(29), 0x1);
-	/* odm_write_4byte(p_dm, 0xcb8, 0x0); */
-	odm_write_4byte(p_dm, 0xe80, 0x0);
-	odm_write_4byte(p_dm, 0xe84, 0x0);
-	odm_write_4byte(p_dm, 0xe88, 0x0);
-	odm_write_4byte(p_dm, 0xe8c, 0x3c000000);
-	odm_set_bb_reg(p_dm, 0xe90, BIT(7), 0x1);
-	odm_set_bb_reg(p_dm, 0xec4, BIT(18), 0x1);
-	if (!p_rf->dpk_done)
-		odm_set_bb_reg(p_dm, 0xec4, BIT(29), 0x1);
-	odm_set_bb_reg(p_dm, 0xec8, BIT(29), 0x1);
-	/* odm_write_4byte(p_dm, 0xeb8, 0x0); */
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RestoreAFE Success!!!!\n"));
+		odm_write_4byte(dm, backup_afe_reg[i], AFE_backup[i]);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+	odm_write_4byte(dm, 0xc80, 0x0);
+	odm_write_4byte(dm, 0xc84, 0x0);
+	odm_write_4byte(dm, 0xc88, 0x0);
+	odm_write_4byte(dm, 0xc8c, 0x3c000000);
+	odm_set_bb_reg(dm, 0xc90, BIT(7), 0x1);
+	odm_set_bb_reg(dm, 0xcc4, BIT(18), 0x1);
+	if (!rf->dpk_done)
+		odm_set_bb_reg(dm, 0xcc4, BIT(29), 0x1);
+	odm_set_bb_reg(dm, 0xcc8, BIT(29), 0x1);
+	/* odm_write_4byte(dm, 0xcb8, 0x0); */
+	odm_write_4byte(dm, 0xe80, 0x0);
+	odm_write_4byte(dm, 0xe84, 0x0);
+	odm_write_4byte(dm, 0xe88, 0x0);
+	odm_write_4byte(dm, 0xe8c, 0x3c000000);
+	odm_set_bb_reg(dm, 0xe90, BIT(7), 0x1);
+	odm_set_bb_reg(dm, 0xec4, BIT(18), 0x1);
+	if (!rf->dpk_done)
+		odm_set_bb_reg(dm, 0xec4, BIT(29), 0x1);
+	odm_set_bb_reg(dm, 0xec8, BIT(29), 0x1);
+	/* odm_write_4byte(dm, 0xeb8, 0x0); */
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RestoreAFE Success!!!!\n");
 }
 
 
 void _iqk_configure_mac_8812a(
-	struct PHY_DM_STRUCT		*p_dm
+	struct dm_struct		*dm
 )
 {
 	/* ========MAC register setting======== */
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
-	odm_write_1byte(p_dm, 0x522, 0x3f);
-	odm_set_bb_reg(p_dm, 0x550, BIT(11) | BIT(3), 0x0);
-	odm_write_1byte(p_dm, 0x808, 0x00);		/*		RX ante off */
-	odm_set_bb_reg(p_dm, 0x838, 0xf, 0xc);		/*		CCA off */
-	odm_write_1byte(p_dm, 0xa07, 0xf);		/*		CCK RX path off */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_write_1byte(dm, 0x522, 0x3f);
+	odm_set_bb_reg(dm, 0x550, BIT(11) | BIT(3), 0x0);
+	odm_write_1byte(dm, 0x808, 0x00);		/*		RX ante off */
+	odm_set_bb_reg(dm, 0x838, 0xf, 0xc);		/*		CCA off */
+	odm_write_1byte(dm, 0xa07, 0xf);		/*		CCK RX path off */
 }
 
 #define cal_num 10
 
 void _iqk_tx_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 	u8 chnl_idx
 )
 {
@@ -674,103 +666,103 @@ void _iqk_tx_8812a(
 	boolean	TX1_fail = true, RX1_fail = true, IQK1_ready = false, TX1_finish = false, RX1_finish = false;
 	int			i, ii, dx = 0, dy = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("band_width = %d, ext_pa_5g = %d, ExtPA2G = %d\n", *p_dm->p_band_width, p_dm->ext_pa_5g, p_dm->ext_pa));
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("Interface = %d, RFE_Type = %d\n", p_dm->support_interface, p_dm->rfe_type));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "band_width = %d, ext_pa_5g = %d, ExtPA2G = %d\n", *dm->band_width, dm->ext_pa_5g, dm->ext_pa);
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "Interface = %d, RFE_Type = %d\n", dm->support_interface, dm->rfe_type);
 
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	/* ========path-A AFE all on======== */
 	/* Port 0 DAC/ADC on */
-	odm_write_4byte(p_dm, 0xc60, 0x77777777);
-	odm_write_4byte(p_dm, 0xc64, 0x77777777);
+	odm_write_4byte(dm, 0xc60, 0x77777777);
+	odm_write_4byte(dm, 0xc64, 0x77777777);
 
 	/* Port 1 DAC/ADC on */
-	odm_write_4byte(p_dm, 0xe60, 0x77777777);
-	odm_write_4byte(p_dm, 0xe64, 0x77777777);
+	odm_write_4byte(dm, 0xe60, 0x77777777);
+	odm_write_4byte(dm, 0xe64, 0x77777777);
 
-	odm_write_4byte(p_dm, 0xc68, 0x19791979);
-	odm_write_4byte(p_dm, 0xe68, 0x19791979);
-	odm_set_bb_reg(p_dm, 0xc00, 0xf, 0x4);/*	hardware 3-wire off */
-	odm_set_bb_reg(p_dm, 0xe00, 0xf, 0x4);/*	hardware 3-wire off */
+	odm_write_4byte(dm, 0xc68, 0x19791979);
+	odm_write_4byte(dm, 0xe68, 0x19791979);
+	odm_set_bb_reg(dm, 0xc00, 0xf, 0x4);/*	hardware 3-wire off */
+	odm_set_bb_reg(dm, 0xe00, 0xf, 0x4);/*	hardware 3-wire off */
 
 	/* DAC/ADC sampling rate (160 MHz) */
-	odm_set_bb_reg(p_dm, 0xc5c, BIT(26) | BIT(25) | BIT(24), 0x7);
-	odm_set_bb_reg(p_dm, 0xe5c, BIT(26) | BIT(25) | BIT(24), 0x7);
+	odm_set_bb_reg(dm, 0xc5c, BIT(26) | BIT(25) | BIT(24), 0x7);
+	odm_set_bb_reg(dm, 0xe5c, BIT(26) | BIT(25) | BIT(24), 0x7);
 
 	/* ====== path A TX IQK RF setting ====== */
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0xef, RFREGOFFSETMASK, 0x80002);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x30, RFREGOFFSETMASK, 0x20000);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x31, RFREGOFFSETMASK, 0x3fffd);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x32, RFREGOFFSETMASK, 0xfe83f);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x65, RFREGOFFSETMASK, 0x931d5);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8a001);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_rf_reg(dm, RF_PATH_A, 0xef, RFREGOFFSETMASK, 0x80002);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x30, RFREGOFFSETMASK, 0x20000);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x31, RFREGOFFSETMASK, 0x3fffd);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x32, RFREGOFFSETMASK, 0xfe83f);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x65, RFREGOFFSETMASK, 0x931d5);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8a001);
 	/* ====== path B TX IQK RF setting ====== */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0xef, RFREGOFFSETMASK, 0x80002);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x30, RFREGOFFSETMASK, 0x20000);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x31, RFREGOFFSETMASK, 0x3fffd);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x32, RFREGOFFSETMASK, 0xfe83f);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x65, RFREGOFFSETMASK, 0x931d5);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8a001);
-	odm_write_4byte(p_dm, 0x90c, 0x00008000);
-	odm_set_bb_reg(p_dm, 0xc94, BIT(0), 0x1);
-	odm_set_bb_reg(p_dm, 0xe94, BIT(0), 0x1);
-	odm_write_4byte(p_dm, 0x978, 0x29002000);/* TX (X,Y) */
-	odm_write_4byte(p_dm, 0x97c, 0xa9002000);/* RX (X,Y) */
-	odm_write_4byte(p_dm, 0x984, 0x00462910);/* [0]:AGC_en, [15]:idac_K_Mask */
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+	odm_set_rf_reg(dm, RF_PATH_B, 0xef, RFREGOFFSETMASK, 0x80002);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x30, RFREGOFFSETMASK, 0x20000);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x31, RFREGOFFSETMASK, 0x3fffd);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x32, RFREGOFFSETMASK, 0xfe83f);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x65, RFREGOFFSETMASK, 0x931d5);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8a001);
+	odm_write_4byte(dm, 0x90c, 0x00008000);
+	odm_set_bb_reg(dm, 0xc94, BIT(0), 0x1);
+	odm_set_bb_reg(dm, 0xe94, BIT(0), 0x1);
+	odm_write_4byte(dm, 0x978, 0x29002000);/* TX (X,Y) */
+	odm_write_4byte(dm, 0x97c, 0xa9002000);/* RX (X,Y) */
+	odm_write_4byte(dm, 0x984, 0x00462910);/* [0]:AGC_en, [15]:idac_K_Mask */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
 
-	if (p_dm->ext_pa_5g) {
-		if (p_dm->rfe_type == 1) {
-			odm_write_4byte(p_dm, 0xc88, 0x821403e3);
-			odm_write_4byte(p_dm, 0xe88, 0x821403e3);
+	if (dm->ext_pa_5g) {
+		if (dm->rfe_type == 1) {
+			odm_write_4byte(dm, 0xc88, 0x821403e3);
+			odm_write_4byte(dm, 0xe88, 0x821403e3);
 		} else {
-			odm_write_4byte(p_dm, 0xc88, 0x821403f7);
-			odm_write_4byte(p_dm, 0xe88, 0x821403f7);
+			odm_write_4byte(dm, 0xc88, 0x821403f7);
+			odm_write_4byte(dm, 0xe88, 0x821403f7);
 		}
 	} else {
-		odm_write_4byte(p_dm, 0xc88, 0x821403f1);
-		odm_write_4byte(p_dm, 0xe88, 0x821403f1);
+		odm_write_4byte(dm, 0xc88, 0x821403f1);
+		odm_write_4byte(dm, 0xe88, 0x821403f1);
 	}
-	if (*p_dm->p_band_type == ODM_BAND_5G) {
-		odm_write_4byte(p_dm, 0xc8c, 0x68163e96);
-		odm_write_4byte(p_dm, 0xe8c, 0x68163e96);
+	if (*dm->band_type == ODM_BAND_5G) {
+		odm_write_4byte(dm, 0xc8c, 0x68163e96);
+		odm_write_4byte(dm, 0xe8c, 0x68163e96);
 	} else {
-		odm_write_4byte(p_dm, 0xc8c, 0x28163e96);
-		odm_write_4byte(p_dm, 0xe8c, 0x28163e96);
-		if (p_dm->rfe_type == 3) {
-			if (p_dm->ext_pa)
-				odm_write_4byte(p_dm, 0xc88, 0x821403e3);
+		odm_write_4byte(dm, 0xc8c, 0x28163e96);
+		odm_write_4byte(dm, 0xe8c, 0x28163e96);
+		if (dm->rfe_type == 3) {
+			if (dm->ext_pa)
+				odm_write_4byte(dm, 0xc88, 0x821403e3);
 			else
-				odm_write_4byte(p_dm, 0xc88, 0x821403f7);
+				odm_write_4byte(dm, 0xc88, 0x821403f7);
 		}
 	}
 
 
-	odm_write_4byte(p_dm, 0xc80, 0x18008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
-	odm_write_4byte(p_dm, 0xc84, 0x38008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
-	odm_write_4byte(p_dm, 0xce8, 0x00000000);
-	odm_write_4byte(p_dm, 0xe80, 0x18008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
-	odm_write_4byte(p_dm, 0xe84, 0x38008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
-	odm_write_4byte(p_dm, 0xee8, 0x00000000);
+	odm_write_4byte(dm, 0xc80, 0x18008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
+	odm_write_4byte(dm, 0xc84, 0x38008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
+	odm_write_4byte(dm, 0xce8, 0x00000000);
+	odm_write_4byte(dm, 0xe80, 0x18008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
+	odm_write_4byte(dm, 0xe84, 0x38008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
+	odm_write_4byte(dm, 0xee8, 0x00000000);
 
 	cal0_retry = 0;
 	cal1_retry = 0;
 	while (1) {
 		/* one shot */
-		odm_write_4byte(p_dm, 0xcb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
-		odm_write_4byte(p_dm, 0xeb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
-		odm_write_4byte(p_dm, 0x980, 0xfa000000);
-		odm_write_4byte(p_dm, 0x980, 0xf8000000);
+		odm_write_4byte(dm, 0xcb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+		odm_write_4byte(dm, 0xeb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+		odm_write_4byte(dm, 0x980, 0xfa000000);
+		odm_write_4byte(dm, 0x980, 0xf8000000);
 
 		ODM_delay_ms(10); /* delay 10ms */
-		odm_write_4byte(p_dm, 0xcb8, 0x00000000);
-		odm_write_4byte(p_dm, 0xeb8, 0x00000000);
+		odm_write_4byte(dm, 0xcb8, 0x00000000);
+		odm_write_4byte(dm, 0xeb8, 0x00000000);
 		delay_count = 0;
 		while (1) {
 			if (!TX0_finish)
-				IQK0_ready = (boolean) odm_get_bb_reg(p_dm, 0xd00, BIT(10));
+				IQK0_ready = (boolean) odm_get_bb_reg(dm, 0xd00, BIT(10));
 			if (!TX1_finish)
-				IQK1_ready = (boolean) odm_get_bb_reg(p_dm, 0xd40, BIT(10));
+				IQK1_ready = (boolean) odm_get_bb_reg(dm, 0xd40, BIT(10));
 			if ((IQK0_ready && IQK1_ready) || (delay_count > 20))
 				break;
 			else {
@@ -778,29 +770,29 @@ void _iqk_tx_8812a(
 				delay_count++;
 			}
 		}
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TX delay_count = %d\n", delay_count));
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TX delay_count = %d\n", delay_count);
 		if (delay_count < 20) {							/* If 20ms No Result, then cal_retry++ */
 			/* ============TXIQK Check============== */
-			TX0_fail = (boolean) odm_get_bb_reg(p_dm, 0xd00, BIT(12));
-			TX1_fail = (boolean) odm_get_bb_reg(p_dm, 0xd40, BIT(12));
+			TX0_fail = (boolean) odm_get_bb_reg(dm, 0xd00, BIT(12));
+			TX1_fail = (boolean) odm_get_bb_reg(dm, 0xd40, BIT(12));
 			if (!(TX0_fail || TX0_finish)) {
-				odm_write_4byte(p_dm, 0xcb8, 0x02000000);
-				TX_IQC_temp[tx0_average][0] = odm_get_bb_reg(p_dm, 0xd00, 0x07ff0000) << 21;
-				odm_write_4byte(p_dm, 0xcb8, 0x04000000);
-				TX_IQC_temp[tx0_average][1] = odm_get_bb_reg(p_dm, 0xd00, 0x07ff0000) << 21;
-				ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TX_X0[%d] = %x ;; TX_Y0[%d] = %x\n", tx0_average, (TX_IQC_temp[tx0_average][0]) >> 21 & 0x000007ff, tx0_average, (TX_IQC_temp[tx0_average][1]) >> 21 & 0x000007ff));
+				odm_write_4byte(dm, 0xcb8, 0x02000000);
+				TX_IQC_temp[tx0_average][0] = odm_get_bb_reg(dm, 0xd00, 0x07ff0000) << 21;
+				odm_write_4byte(dm, 0xcb8, 0x04000000);
+				TX_IQC_temp[tx0_average][1] = odm_get_bb_reg(dm, 0xd00, 0x07ff0000) << 21;
+				PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TX_X0[%d] = %x ;; TX_Y0[%d] = %x\n", tx0_average, (TX_IQC_temp[tx0_average][0]) >> 21 & 0x000007ff, tx0_average, (TX_IQC_temp[tx0_average][1]) >> 21 & 0x000007ff);
 				/*
 
-				odm_write_4byte(p_dm, 0xcb8, 0x01000000);
-				reg1 = odm_get_bb_reg(p_dm, 0xd00, 0xffffffff);
-				odm_write_4byte(p_dm, 0xcb8, 0x02000000);
-				reg2 = odm_get_bb_reg(p_dm, 0xd00, 0x0000001f);
+				odm_write_4byte(dm, 0xcb8, 0x01000000);
+				reg1 = odm_get_bb_reg(dm, 0xd00, 0xffffffff);
+				odm_write_4byte(dm, 0xcb8, 0x02000000);
+				reg2 = odm_get_bb_reg(dm, 0xd00, 0x0000001f);
 				image_power = (reg2<<32)+reg1;
 				dbg_print("Before PW = %d\n", image_power);
-				odm_write_4byte(p_dm, 0xcb8, 0x03000000);
-				reg1 = odm_get_bb_reg(p_dm, 0xd00, 0xffffffff);
-				odm_write_4byte(p_dm, 0xcb8, 0x04000000);
-				reg2 = odm_get_bb_reg(p_dm, 0xd00, 0x0000001f);
+				odm_write_4byte(dm, 0xcb8, 0x03000000);
+				reg1 = odm_get_bb_reg(dm, 0xd00, 0xffffffff);
+				odm_write_4byte(dm, 0xcb8, 0x04000000);
+				reg2 = odm_get_bb_reg(dm, 0xd00, 0x0000001f);
 				image_power = (reg2<<32)+reg1;
 				dbg_print("After PW = %d\n", image_power);
 				*/
@@ -811,23 +803,23 @@ void _iqk_tx_8812a(
 					break;
 			}
 			if (!(TX1_fail || TX1_finish)) {
-				odm_write_4byte(p_dm, 0xeb8, 0x02000000);
-				TX_IQC_temp[tx1_average][2] = odm_get_bb_reg(p_dm, 0xd40, 0x07ff0000) << 21;
-				odm_write_4byte(p_dm, 0xeb8, 0x04000000);
-				TX_IQC_temp[tx1_average][3] = odm_get_bb_reg(p_dm, 0xd40, 0x07ff0000) << 21;
-				ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TX_X1[%d] = %x ;; TX_Y1[%d] = %x\n", tx1_average, (TX_IQC_temp[tx1_average][2]) >> 21 & 0x000007ff, tx1_average, (TX_IQC_temp[tx1_average][3]) >> 21 & 0x000007ff));
+				odm_write_4byte(dm, 0xeb8, 0x02000000);
+				TX_IQC_temp[tx1_average][2] = odm_get_bb_reg(dm, 0xd40, 0x07ff0000) << 21;
+				odm_write_4byte(dm, 0xeb8, 0x04000000);
+				TX_IQC_temp[tx1_average][3] = odm_get_bb_reg(dm, 0xd40, 0x07ff0000) << 21;
+				PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TX_X1[%d] = %x ;; TX_Y1[%d] = %x\n", tx1_average, (TX_IQC_temp[tx1_average][2]) >> 21 & 0x000007ff, tx1_average, (TX_IQC_temp[tx1_average][3]) >> 21 & 0x000007ff);
 				/*
 				int			reg1 = 0, reg2 = 0, image_power = 0;
-				odm_write_4byte(p_dm, 0xeb8, 0x01000000);
-				reg1 = odm_get_bb_reg(p_dm, 0xd40, 0xffffffff);
-				odm_write_4byte(p_dm, 0xeb8, 0x02000000);
-				reg2 = odm_get_bb_reg(p_dm, 0xd40, 0x0000001f);
+				odm_write_4byte(dm, 0xeb8, 0x01000000);
+				reg1 = odm_get_bb_reg(dm, 0xd40, 0xffffffff);
+				odm_write_4byte(dm, 0xeb8, 0x02000000);
+				reg2 = odm_get_bb_reg(dm, 0xd40, 0x0000001f);
 				image_power = (reg2<<32)+reg1;
 				dbg_print("Before PW = %d\n", image_power);
-				odm_write_4byte(p_dm, 0xeb8, 0x03000000);
-				reg1 = odm_get_bb_reg(p_dm, 0xd40, 0xffffffff);
-				odm_write_4byte(p_dm, 0xeb8, 0x04000000);
-				reg2 = odm_get_bb_reg(p_dm, 0xd40, 0x0000001f);
+				odm_write_4byte(dm, 0xeb8, 0x03000000);
+				reg1 = odm_get_bb_reg(dm, 0xd40, 0xffffffff);
+				odm_write_4byte(dm, 0xeb8, 0x04000000);
+				reg2 = odm_get_bb_reg(dm, 0xd40, 0x0000001f);
 				image_power = (reg2<<32)+reg1;
 				dbg_print("After PW = %d\n", image_power);
 				*/
@@ -840,7 +832,7 @@ void _iqk_tx_8812a(
 		} else {
 			cal0_retry++;
 			cal1_retry++;
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("delay 20ms TX IQK Not Ready!!!!!\n"));
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "delay 20ms TX IQK Not Ready!!!!!\n");
 			if (cal0_retry == 10)
 				break;
 		}
@@ -853,7 +845,7 @@ void _iqk_tx_8812a(
 						if (dy < 4 && dy > -4) {
 							TX_IQC[0] = ((TX_IQC_temp[i][0] >> 21) + (TX_IQC_temp[ii][0] >> 21)) / 2;
 							TX_IQC[1] = ((TX_IQC_temp[i][1] >> 21) + (TX_IQC_temp[ii][1] >> 21)) / 2;
-							ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TXA_X = %x;;TXA_Y = %x\n", TX_IQC[0] & 0x000007ff, TX_IQC[1] & 0x000007ff));
+							PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TXA_X = %x;;TXA_Y = %x\n", TX_IQC[0] & 0x000007ff, TX_IQC[1] & 0x000007ff);
 							TX0_finish = true;
 						}
 					}
@@ -869,125 +861,123 @@ void _iqk_tx_8812a(
 						if (dy < 4 && dy > -4) {
 							TX_IQC[2] = ((TX_IQC_temp[i][2] >> 21) + (TX_IQC_temp[ii][2] >> 21)) / 2;
 							TX_IQC[3] = ((TX_IQC_temp[i][3] >> 21) + (TX_IQC_temp[ii][3] >> 21)) / 2;
-							ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TXB_X = %x;;TXB_Y = %x\n", TX_IQC[2] & 0x000007ff, TX_IQC[3] & 0x000007ff));
+							PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TXB_X = %x;;TXB_Y = %x\n", TX_IQC[2] & 0x000007ff, TX_IQC[3] & 0x000007ff);
 							TX1_finish = true;
 						}
 					}
 				}
 			}
 		}
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("tx0_average = %d, tx1_average = %d\n", tx0_average, tx1_average));
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TX0_finish = %d, TX1_finish = %d\n", TX0_finish, TX1_finish));
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "tx0_average = %d, tx1_average = %d\n", tx0_average, tx1_average);
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TX0_finish = %d, TX1_finish = %d\n", TX0_finish, TX1_finish);
 		if (TX0_finish && TX1_finish)
 			break;
 		if ((cal0_retry + tx0_average) >= 10 || (cal1_retry + tx1_average) >= 10)
 			break;
 	}
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TXA_cal_retry = %d\n", cal0_retry));
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("TXB_cal_retry = %d\n", cal1_retry));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TXA_cal_retry = %d\n", cal0_retry);
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "TXB_cal_retry = %d\n", cal1_retry);
 
 
 
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x58, 0x7fe00, odm_get_rf_reg(p_dm, RF_PATH_A, 0x8, 0xffc00)); /* Load LOK */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x58, 0x7fe00, odm_get_rf_reg(p_dm, RF_PATH_B, 0x8, 0xffc00)); /* Load LOK */
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_rf_reg(dm, RF_PATH_A, 0x58, 0x7fe00, odm_get_rf_reg(dm, RF_PATH_A, 0x8, 0xffc00)); /* Load LOK */
+	odm_set_rf_reg(dm, RF_PATH_B, 0x58, 0x7fe00, odm_get_rf_reg(dm, RF_PATH_B, 0x8, 0xffc00)); /* Load LOK */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
 
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 	if (TX0_finish) {
 		/* ====== path A RX IQK RF setting====== */
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0xef, RFREGOFFSETMASK, 0x80000);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x30, RFREGOFFSETMASK, 0x30000);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x31, RFREGOFFSETMASK, 0x3f7ff);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x32, RFREGOFFSETMASK, 0xfe7bf);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x88001);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x65, RFREGOFFSETMASK, 0x931d1);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0xef, RFREGOFFSETMASK, 0x00000);
+		odm_set_rf_reg(dm, RF_PATH_A, 0xef, RFREGOFFSETMASK, 0x80000);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x30, RFREGOFFSETMASK, 0x30000);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x31, RFREGOFFSETMASK, 0x3f7ff);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x32, RFREGOFFSETMASK, 0xfe7bf);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x88001);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x65, RFREGOFFSETMASK, 0x931d1);
+		odm_set_rf_reg(dm, RF_PATH_A, 0xef, RFREGOFFSETMASK, 0x00000);
 	}
 	if (TX1_finish) {
 		/* ====== path B RX IQK RF setting====== */
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0xef, RFREGOFFSETMASK, 0x80000);
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x30, RFREGOFFSETMASK, 0x30000);
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x31, RFREGOFFSETMASK, 0x3f7ff);
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x32, RFREGOFFSETMASK, 0xfe7bf);
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x88001);
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x65, RFREGOFFSETMASK, 0x931d1);
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0xef, RFREGOFFSETMASK, 0x00000);
+		odm_set_rf_reg(dm, RF_PATH_B, 0xef, RFREGOFFSETMASK, 0x80000);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x30, RFREGOFFSETMASK, 0x30000);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x31, RFREGOFFSETMASK, 0x3f7ff);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x32, RFREGOFFSETMASK, 0xfe7bf);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x88001);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x65, RFREGOFFSETMASK, 0x931d1);
+		odm_set_rf_reg(dm, RF_PATH_B, 0xef, RFREGOFFSETMASK, 0x00000);
 	}
-	odm_set_bb_reg(p_dm, 0x978, BIT(31), 0x1);
-	odm_set_bb_reg(p_dm, 0x97c, BIT(31), 0x0);
-	odm_write_4byte(p_dm, 0x90c, 0x00008000);
-	if (p_dm->support_interface == ODM_ITRF_PCIE)
-		odm_write_4byte(p_dm, 0x984, 0x0046a911);
+	odm_set_bb_reg(dm, 0x978, BIT(31), 0x1);
+	odm_set_bb_reg(dm, 0x97c, BIT(31), 0x0);
+	odm_write_4byte(dm, 0x90c, 0x00008000);
+	if (dm->support_interface == ODM_ITRF_PCIE)
+		odm_write_4byte(dm, 0x984, 0x0046a911);
 	else
-		odm_write_4byte(p_dm, 0x984, 0x0046a890);
-	/* odm_write_4byte(p_dm, 0x984, 0x0046a890); */
-	if (p_dm->rfe_type == 1) {
-		odm_write_4byte(p_dm, 0xcb0, 0x77777717);
-		odm_write_4byte(p_dm, 0xcb4, 0x00000077);
-		odm_write_4byte(p_dm, 0xeb0, 0x77777717);
-		odm_write_4byte(p_dm, 0xeb4, 0x00000077);
+		odm_write_4byte(dm, 0x984, 0x0046a890);
+	/* odm_write_4byte(dm, 0x984, 0x0046a890); */
+	if (dm->rfe_type == 1) {
+		odm_write_4byte(dm, 0xcb0, 0x77777717);
+		odm_write_4byte(dm, 0xcb4, 0x00000077);
+		odm_write_4byte(dm, 0xeb0, 0x77777717);
+		odm_write_4byte(dm, 0xeb4, 0x00000077);
 	} else {
-		odm_write_4byte(p_dm, 0xcb0, 0x77777717);
-		odm_write_4byte(p_dm, 0xcb4, 0x02000077);
-		odm_write_4byte(p_dm, 0xeb0, 0x77777717);
-		odm_write_4byte(p_dm, 0xeb4, 0x02000077);
+		odm_write_4byte(dm, 0xcb0, 0x77777717);
+		odm_write_4byte(dm, 0xcb4, 0x02000077);
+		odm_write_4byte(dm, 0xeb0, 0x77777717);
+		odm_write_4byte(dm, 0xeb4, 0x02000077);
 	}
 
 
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
 	if (TX0_finish) {
-		odm_write_4byte(p_dm, 0xc80, 0x38008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
-		odm_write_4byte(p_dm, 0xc84, 0x18008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
-		odm_write_4byte(p_dm, 0xc88, 0x82140119);
+		odm_write_4byte(dm, 0xc80, 0x38008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
+		odm_write_4byte(dm, 0xc84, 0x18008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
+		odm_write_4byte(dm, 0xc88, 0x82140119);
 	}
 	if (TX1_finish) {
-		odm_write_4byte(p_dm, 0xe80, 0x38008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
-		odm_write_4byte(p_dm, 0xe84, 0x18008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
-		odm_write_4byte(p_dm, 0xe88, 0x82140119);
+		odm_write_4byte(dm, 0xe80, 0x38008c10);/* TX_Tone_idx[9:0], TxK_Mask[29] TX_Tone = 16 */
+		odm_write_4byte(dm, 0xe84, 0x18008c10);/* RX_Tone_idx[9:0], RxK_Mask[29] */
+		odm_write_4byte(dm, 0xe88, 0x82140119);
 	}
 	cal0_retry = 0;
 	cal1_retry = 0;
 	while (1) {
 		/* one shot */
-		odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+		odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
 		if (TX0_finish) {
-			odm_set_bb_reg(p_dm, 0x978, 0x03FF8000, (TX_IQC[0]) & 0x000007ff);
-			odm_set_bb_reg(p_dm, 0x978, 0x000007FF, (TX_IQC[1]) & 0x000007ff);
-			odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-			/*pathA RXIQK gain setting*/
-			if ((p_dm->rfe_type == 1) && (p_dm->ext_pa_5g))
-				odm_write_4byte(p_dm, 0xc8c, 0x28161500);
+			odm_set_bb_reg(dm, 0x978, 0x03FF8000, (TX_IQC[0]) & 0x000007ff);
+			odm_set_bb_reg(dm, 0x978, 0x000007FF, (TX_IQC[1]) & 0x000007ff);
+			odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+			if (dm->rfe_type == 1)
+				odm_write_4byte(dm, 0xc8c, 0x28161500);
 			else
-				odm_write_4byte(p_dm, 0xc8c, 0x28160cc0);
-			odm_write_4byte(p_dm, 0xcb8, 0x00300000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
-			odm_write_4byte(p_dm, 0xcb8, 0x00100000);
+				odm_write_4byte(dm, 0xc8c, 0x28160cc0);
+			odm_write_4byte(dm, 0xcb8, 0x00300000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+			odm_write_4byte(dm, 0xcb8, 0x00100000);
 			ODM_delay_ms(5); /* delay 5ms */
-			odm_write_4byte(p_dm, 0xc8c, 0x3c000000);
-			odm_write_4byte(p_dm, 0xcb8, 0x00000000);
+			odm_write_4byte(dm, 0xc8c, 0x3c000000);
+			odm_write_4byte(dm, 0xcb8, 0x00000000);
 		}
 		if (TX1_finish) {
-			odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
-			odm_set_bb_reg(p_dm, 0x978, 0x03FF8000, (TX_IQC[2]) & 0x000007ff);
-			odm_set_bb_reg(p_dm, 0x978, 0x000007FF, (TX_IQC[3]) & 0x000007ff);
-			odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-			/*pathB RXIQK gain setting*/
-			if ((p_dm->rfe_type == 1) && (p_dm->ext_pa_5g))
-				odm_write_4byte(p_dm, 0xe8c, 0x28161500);
+			odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+			odm_set_bb_reg(dm, 0x978, 0x03FF8000, (TX_IQC[2]) & 0x000007ff);
+			odm_set_bb_reg(dm, 0x978, 0x000007FF, (TX_IQC[3]) & 0x000007ff);
+			odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+			if (dm->rfe_type == 1)
+				odm_write_4byte(dm, 0xe8c, 0x28161500);
 			else
-				odm_write_4byte(p_dm, 0xe8c, 0x28160ca0);
-			odm_write_4byte(p_dm, 0xeb8, 0x00300000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
-			odm_write_4byte(p_dm, 0xeb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+				odm_write_4byte(dm, 0xe8c, 0x28160ca0);
+			odm_write_4byte(dm, 0xeb8, 0x00300000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
+			odm_write_4byte(dm, 0xeb8, 0x00100000);/* cb8[20] 將 SI/PI 使用權切給 iqk_dpk module */
 			ODM_delay_ms(5); /* delay 5ms */
-			odm_write_4byte(p_dm, 0xe8c, 0x3c000000);
-			odm_write_4byte(p_dm, 0xeb8, 0x00000000);
+			odm_write_4byte(dm, 0xe8c, 0x3c000000);
+			odm_write_4byte(dm, 0xeb8, 0x00000000);
 		}
 		delay_count = 0;
 		while (1) {
 			if (!RX0_finish && TX0_finish)
-				IQK0_ready = (boolean) odm_get_bb_reg(p_dm, 0xd00, BIT(10));
+				IQK0_ready = (boolean) odm_get_bb_reg(dm, 0xd00, BIT(10));
 			if (!RX1_finish && TX1_finish)
-				IQK1_ready = (boolean) odm_get_bb_reg(p_dm, 0xd40, BIT(10));
+				IQK1_ready = (boolean) odm_get_bb_reg(dm, 0xd40, BIT(10));
 			if ((IQK0_ready && IQK1_ready) || (delay_count > 20))
 				break;
 			else {
@@ -995,57 +985,57 @@ void _iqk_tx_8812a(
 				delay_count++;
 			}
 		}
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX delay_count = %d\n", delay_count));
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX delay_count = %d\n", delay_count);
 		if (delay_count < 20) {	/* If 20ms No Result, then cal_retry++ */
 			/* ============RXIQK Check============== */
-			RX0_fail = (boolean) odm_get_bb_reg(p_dm, 0xd00, BIT(11));
-			RX1_fail = (boolean) odm_get_bb_reg(p_dm, 0xd40, BIT(11));
+			RX0_fail = (boolean) odm_get_bb_reg(dm, 0xd00, BIT(11));
+			RX1_fail = (boolean) odm_get_bb_reg(dm, 0xd40, BIT(11));
 			if (!(RX0_fail || RX0_finish) && TX0_finish) {
-				odm_write_4byte(p_dm, 0xcb8, 0x06000000);
-				RX_IQC_temp[rx0_average][0] = odm_get_bb_reg(p_dm, 0xd00, 0x07ff0000) << 21;
-				odm_write_4byte(p_dm, 0xcb8, 0x08000000);
-				RX_IQC_temp[rx0_average][1] = odm_get_bb_reg(p_dm, 0xd00, 0x07ff0000) << 21;
-				ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X0[%d] = %x ;; RX_Y0[%d] = %x\n", rx0_average, (RX_IQC_temp[rx0_average][0]) >> 21 & 0x000007ff, rx0_average, (RX_IQC_temp[rx0_average][1]) >> 21 & 0x000007ff));
+				odm_write_4byte(dm, 0xcb8, 0x06000000);
+				RX_IQC_temp[rx0_average][0] = odm_get_bb_reg(dm, 0xd00, 0x07ff0000) << 21;
+				odm_write_4byte(dm, 0xcb8, 0x08000000);
+				RX_IQC_temp[rx0_average][1] = odm_get_bb_reg(dm, 0xd00, 0x07ff0000) << 21;
+				PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X0[%d] = %x ;; RX_Y0[%d] = %x\n", rx0_average, (RX_IQC_temp[rx0_average][0]) >> 21 & 0x000007ff, rx0_average, (RX_IQC_temp[rx0_average][1]) >> 21 & 0x000007ff);
 				/*
-									odm_write_4byte(p_dm, 0xcb8, 0x05000000);
-									reg1 = odm_get_bb_reg(p_dm, 0xd00, 0xffffffff);
-									odm_write_4byte(p_dm, 0xcb8, 0x06000000);
-									reg2 = odm_get_bb_reg(p_dm, 0xd00, 0x0000001f);
+									odm_write_4byte(dm, 0xcb8, 0x05000000);
+									reg1 = odm_get_bb_reg(dm, 0xd00, 0xffffffff);
+									odm_write_4byte(dm, 0xcb8, 0x06000000);
+									reg2 = odm_get_bb_reg(dm, 0xd00, 0x0000001f);
 									dbg_print("reg1 = %d, reg2 = %d", reg1, reg2);
 									image_power = (reg2<<32)+reg1;
 									dbg_print("Before PW = %d\n", image_power);
-									odm_write_4byte(p_dm, 0xcb8, 0x07000000);
-									reg1 = odm_get_bb_reg(p_dm, 0xd00, 0xffffffff);
-									odm_write_4byte(p_dm, 0xcb8, 0x08000000);
-									reg2 = odm_get_bb_reg(p_dm, 0xd00, 0x0000001f);
+									odm_write_4byte(dm, 0xcb8, 0x07000000);
+									reg1 = odm_get_bb_reg(dm, 0xd00, 0xffffffff);
+									odm_write_4byte(dm, 0xcb8, 0x08000000);
+									reg2 = odm_get_bb_reg(dm, 0xd00, 0x0000001f);
 									image_power = (reg2<<32)+reg1;
 									dbg_print("After PW = %d\n", image_power);
 				*/
 				rx0_average++;
 			} else {
-				ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("1. RXA_cal_retry = %d\n", cal0_retry));
+				PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "1. RXA_cal_retry = %d\n", cal0_retry);
 				cal0_retry++;
 				if (cal0_retry == 10)
 					break;
 			}
 			if (!(RX1_fail || RX1_finish) && TX1_finish) {
-				odm_write_4byte(p_dm, 0xeb8, 0x06000000);
-				RX_IQC_temp[rx1_average][2] = odm_get_bb_reg(p_dm, 0xd40, 0x07ff0000) << 21;
-				odm_write_4byte(p_dm, 0xeb8, 0x08000000);
-				RX_IQC_temp[rx1_average][3] = odm_get_bb_reg(p_dm, 0xd40, 0x07ff0000) << 21;
-				ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX_X1[%d] = %x ;; RX_Y1[%d] = %x\n", rx1_average, (RX_IQC_temp[rx1_average][2]) >> 21 & 0x000007ff, rx1_average, (RX_IQC_temp[rx1_average][3]) >> 21 & 0x000007ff));
+				odm_write_4byte(dm, 0xeb8, 0x06000000);
+				RX_IQC_temp[rx1_average][2] = odm_get_bb_reg(dm, 0xd40, 0x07ff0000) << 21;
+				odm_write_4byte(dm, 0xeb8, 0x08000000);
+				RX_IQC_temp[rx1_average][3] = odm_get_bb_reg(dm, 0xd40, 0x07ff0000) << 21;
+				PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X1[%d] = %x ;; RX_Y1[%d] = %x\n", rx1_average, (RX_IQC_temp[rx1_average][2]) >> 21 & 0x000007ff, rx1_average, (RX_IQC_temp[rx1_average][3]) >> 21 & 0x000007ff);
 				/*
-									odm_write_4byte(p_dm, 0xeb8, 0x05000000);
-									reg1 = odm_get_bb_reg(p_dm, 0xd40, 0xffffffff);
-									odm_write_4byte(p_dm, 0xeb8, 0x06000000);
-									reg2 = odm_get_bb_reg(p_dm, 0xd40, 0x0000001f);
+									odm_write_4byte(dm, 0xeb8, 0x05000000);
+									reg1 = odm_get_bb_reg(dm, 0xd40, 0xffffffff);
+									odm_write_4byte(dm, 0xeb8, 0x06000000);
+									reg2 = odm_get_bb_reg(dm, 0xd40, 0x0000001f);
 									dbg_print("reg1 = %d, reg2 = %d", reg1, reg2);
 									image_power = (reg2<<32)+reg1;
 									dbg_print("Before PW = %d\n", image_power);
-									odm_write_4byte(p_dm, 0xeb8, 0x07000000);
-									reg1 = odm_get_bb_reg(p_dm, 0xd40, 0xffffffff);
-									odm_write_4byte(p_dm, 0xeb8, 0x08000000);
-									reg2 = odm_get_bb_reg(p_dm, 0xd40, 0x0000001f);
+									odm_write_4byte(dm, 0xeb8, 0x07000000);
+									reg1 = odm_get_bb_reg(dm, 0xd40, 0xffffffff);
+									odm_write_4byte(dm, 0xeb8, 0x08000000);
+									reg2 = odm_get_bb_reg(dm, 0xd40, 0x0000001f);
 									image_power = (reg2<<32)+reg1;
 									dbg_print("After PW = %d\n", image_power);
 				*/
@@ -1057,14 +1047,14 @@ void _iqk_tx_8812a(
 			}
 
 		} else {
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("2. RXA_cal_retry = %d\n", cal0_retry));
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "2. RXA_cal_retry = %d\n", cal0_retry);
 			cal0_retry++;
 			cal1_retry++;
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("delay 20ms RX IQK Not Ready!!!!!\n"));
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "delay 20ms RX IQK Not Ready!!!!!\n");
 			if (cal0_retry == 10)
 				break;
 		}
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("3. RXA_cal_retry = %d\n", cal0_retry));
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "3. RXA_cal_retry = %d\n", cal0_retry);
 		if (rx0_average >= 2) {
 			for (i = 0; i < rx0_average; i++) {
 				for (ii = i + 1; ii < rx0_average; ii++) {
@@ -1097,45 +1087,45 @@ void _iqk_tx_8812a(
 				}
 			}
 		}
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("rx0_average = %d, rx1_average = %d\n", rx0_average, rx1_average));
-		ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RX0_finish = %d, RX1_finish = %d\n", RX0_finish, RX1_finish));
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "rx0_average = %d, rx1_average = %d\n", rx0_average, rx1_average);
+		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX0_finish = %d, RX1_finish = %d\n", RX0_finish, RX1_finish);
 		if ((RX0_finish || !TX0_finish) && (RX1_finish || !TX1_finish))
 			break;
 		if ((cal0_retry + rx0_average) >= 10 || (cal1_retry + rx1_average) >= 10 || rx0_average == 3 || rx1_average == 3)
 			break;
 	}
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RXA_cal_retry = %d\n", cal0_retry));
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("RXB_cal_retry = %d\n", cal1_retry));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RXA_cal_retry = %d\n", cal0_retry);
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RXB_cal_retry = %d\n", cal1_retry);
 
 
 	/* FillIQK Result */
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("========Path_A =======\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "========Path_A =======\n");
 
 	if (TX0_finish)
-		_iqk_tx_fill_iqc_8812a(p_dm, RF_PATH_A, TX_IQC[0], TX_IQC[1]);
+		_iqk_tx_fill_iqc_8812a(dm, RF_PATH_A, TX_IQC[0], TX_IQC[1]);
 	else
-		_iqk_tx_fill_iqc_8812a(p_dm, RF_PATH_A, 0x200, 0x0);
+		_iqk_tx_fill_iqc_8812a(dm, RF_PATH_A, 0x200, 0x0);
 
 
 
 	if (RX0_finish)
-		_iqk_rx_fill_iqc_8812a(p_dm, RF_PATH_A, RX_IQC[0], RX_IQC[1]);
+		_iqk_rx_fill_iqc_8812a(dm, RF_PATH_A, RX_IQC[0], RX_IQC[1]);
 	else
-		_iqk_rx_fill_iqc_8812a(p_dm, RF_PATH_A, 0x200, 0x0);
+		_iqk_rx_fill_iqc_8812a(dm, RF_PATH_A, 0x200, 0x0);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("========Path_B =======\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "========Path_B =======\n");
 
 	if (TX1_finish)
-		_iqk_tx_fill_iqc_8812a(p_dm, RF_PATH_B, TX_IQC[2], TX_IQC[3]);
+		_iqk_tx_fill_iqc_8812a(dm, RF_PATH_B, TX_IQC[2], TX_IQC[3]);
 	else
-		_iqk_tx_fill_iqc_8812a(p_dm, RF_PATH_B, 0x200, 0x0);
+		_iqk_tx_fill_iqc_8812a(dm, RF_PATH_B, 0x200, 0x0);
 
 
 
 	if (RX1_finish)
-		_iqk_rx_fill_iqc_8812a(p_dm, RF_PATH_B, RX_IQC[2], RX_IQC[3]);
+		_iqk_rx_fill_iqc_8812a(dm, RF_PATH_B, RX_IQC[2], RX_IQC[3]);
 	else
-		_iqk_rx_fill_iqc_8812a(p_dm, RF_PATH_B, 0x200, 0x0);
+		_iqk_rx_fill_iqc_8812a(dm, RF_PATH_B, 0x200, 0x0);
 
 
 
@@ -1168,7 +1158,7 @@ u8 get_right_chnl_place_for_iqk(u8 chnl)
 /* Maintained by BB James. */
 void
 _phy_iq_calibrate_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 	u8		channel
 )
 {
@@ -1181,265 +1171,261 @@ _phy_iq_calibrate_8812a(
 	u32	backup_rf_reg[RF_REG_NUM] = {0x65, 0x8f, 0x0};
 	u8	chnl_idx = get_right_chnl_place_for_iqk(channel);
 
-	_iqk_backup_mac_bb_8812a(p_dm, MACBB_backup, backup_macbb_reg, MACBB_REG_NUM);
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1);
-	reg_c1b8 = odm_read_4byte(p_dm, 0xcb8);
-	reg_e1b8 = odm_read_4byte(p_dm, 0xeb8);
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0);
-	_iqk_backup_afe_8812a(p_dm, AFE_backup, backup_afe_reg, AFE_REG_NUM);
-	_iqk_backup_rf_8812a(p_dm, RFA_backup, RFB_backup, backup_rf_reg, RF_REG_NUM);
+	_iqk_backup_mac_bb_8812a(dm, MACBB_backup, backup_macbb_reg, MACBB_REG_NUM);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1);
+	reg_c1b8 = odm_read_4byte(dm, 0xcb8);
+	reg_e1b8 = odm_read_4byte(dm, 0xeb8);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0);
+	_iqk_backup_afe_8812a(dm, AFE_backup, backup_afe_reg, AFE_REG_NUM);
+	_iqk_backup_rf_8812a(dm, RFA_backup, RFB_backup, backup_rf_reg, RF_REG_NUM);
 
-	_iqk_configure_mac_8812a(p_dm);
-	_iqk_tx_8812a(p_dm, chnl_idx);
-	_iqk_restore_rf_8812a(p_dm, RF_PATH_A, backup_rf_reg, RFA_backup, RF_REG_NUM);
-	_iqk_restore_rf_8812a(p_dm, RF_PATH_B, backup_rf_reg, RFB_backup, RF_REG_NUM);
+	_iqk_configure_mac_8812a(dm);
+	_iqk_tx_8812a(dm, chnl_idx);
+	_iqk_restore_rf_8812a(dm, RF_PATH_A, backup_rf_reg, RFA_backup, RF_REG_NUM);
+	_iqk_restore_rf_8812a(dm, RF_PATH_B, backup_rf_reg, RFB_backup, RF_REG_NUM);
 
-	_iqk_restore_afe_8812a(p_dm, AFE_backup, backup_afe_reg, AFE_REG_NUM);
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1);
-	odm_write_4byte(p_dm, 0xcb8, reg_c1b8);
-	odm_write_4byte(p_dm, 0xeb8, reg_e1b8);
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0);
-	_iqk_restore_mac_bb_8812a(p_dm, MACBB_backup, backup_macbb_reg, MACBB_REG_NUM);
+	_iqk_restore_afe_8812a(dm, AFE_backup, backup_afe_reg, AFE_REG_NUM);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1);
+	odm_write_4byte(dm, 0xcb8, reg_c1b8);
+	odm_write_4byte(dm, 0xeb8, reg_e1b8);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0);
+	_iqk_restore_mac_bb_8812a(dm, MACBB_backup, backup_macbb_reg, MACBB_REG_NUM);
 
 
 }
 
 void
 _phy_lc_calibrate_8812a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	boolean		is2T
 )
 {
 	u32	/*rf_amode=0, rf_bmode=0,*/ lc_cal = 0, tmp = 0;
 
 	/* Check continuous TX and Packet TX */
-	u32	reg0x914 = odm_read_4byte(p_dm, REG_SINGLE_TONE_CONT_TX_JAGUAR);;
+	u32	reg0x914 = odm_read_4byte(dm, REG_SINGLE_TONE_CONT_TX_JAGUAR);;
 
 	/* Backup RF reg18. */
-	lc_cal = odm_get_rf_reg(p_dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK);
+	lc_cal = odm_get_rf_reg(dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK);
 
 	if ((reg0x914 & 0x70000) != 0)	/* If contTx, disable all continuous TX. 0x914[18:16] */
 		/* <20121121, Kordan> A workaround: If we set 0x914[18:16] as zero, BB turns off ContTx */
 		/* until another packet comes in. To avoid ContTx being turned off, we skip this step. */
-		;/* odm_write_4byte(p_dm, REG_SINGLE_TONE_CONT_TX_JAGUAR, reg0x914 & (~0x70000)); */
+		;/* odm_write_4byte(dm, REG_SINGLE_TONE_CONT_TX_JAGUAR, reg0x914 & (~0x70000)); */
 	else							/* If packet Tx-ing, pause Tx. */
-		odm_write_1byte(p_dm, REG_TXPAUSE_8812A, 0xFF);
+		odm_write_1byte(dm, REG_TXPAUSE_8812A, 0xFF);
 
 
 #if 0
 	/* 3 1. Read original RF mode */
-	rf_amode = odm_get_rf_reg(p_dm, RF_PATH_A, RF_AC, RFREGOFFSETMASK);
+	rf_amode = odm_get_rf_reg(dm, RF_PATH_A, RF_AC, RFREGOFFSETMASK);
 	if (is2T)
-		rf_bmode = odm_get_rf_reg(p_dm, RF_PATH_B, RF_AC, RFREGOFFSETMASK);
+		rf_bmode = odm_get_rf_reg(dm, RF_PATH_B, RF_AC, RFREGOFFSETMASK);
 
 
 	/* 3 2. Set RF mode = standby mode */
-	odm_set_rf_reg(p_dm, RF_PATH_A, RF_AC, RFREGOFFSETMASK, (rf_amode & 0x8FFFF) | 0x10000);
+	odm_set_rf_reg(dm, RF_PATH_A, RF_AC, RFREGOFFSETMASK, (rf_amode & 0x8FFFF) | 0x10000);
 	if (is2T)
-		odm_set_rf_reg(p_dm, RF_PATH_B, RF_AC, RFREGOFFSETMASK, (rf_bmode & 0x8FFFF) | 0x10000);
+		odm_set_rf_reg(dm, RF_PATH_B, RF_AC, RFREGOFFSETMASK, (rf_bmode & 0x8FFFF) | 0x10000);
 #endif
 
 	/* Enter LCK mode */
-	tmp = odm_get_rf_reg(p_dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK);
-	odm_set_rf_reg(p_dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK, tmp | BIT(14));
+	tmp = odm_get_rf_reg(dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK);
+	odm_set_rf_reg(dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK, tmp | BIT(14));
 
 	/* 3 3. Read RF reg18 */
-	lc_cal = odm_get_rf_reg(p_dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK);
+	lc_cal = odm_get_rf_reg(dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK);
 
 	/* 3 4. Set LC calibration begin bit15 */
-	odm_set_rf_reg(p_dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK, lc_cal | 0x08000);
+	odm_set_rf_reg(dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK, lc_cal | 0x08000);
 
 	ODM_delay_ms(150);		/* suggest by RFSI Binson */
 
 	/* Leave LCK mode */
-	tmp = odm_get_rf_reg(p_dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK);
-	odm_set_rf_reg(p_dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK, tmp & ~BIT(14));
+	tmp = odm_get_rf_reg(dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK);
+	odm_set_rf_reg(dm, RF_PATH_A, RF_LCK, RFREGOFFSETMASK, tmp & ~BIT(14));
 
 	/* 3 Restore original situation */
 	if ((reg0x914 & 70000) != 0) {	/* Deal with contisuous TX case, 0x914[18:16] */
 		/* <20121121, Kordan> A workaround: If we set 0x914[18:16] as zero, BB turns off ContTx */
 		/* until another packet comes in. To avoid ContTx being turned off, we skip this step. */
-		/* odm_write_4byte(p_dm, REG_SINGLE_TONE_CONT_TX_JAGUAR, reg0x914); */
+		/* odm_write_4byte(dm, REG_SINGLE_TONE_CONT_TX_JAGUAR, reg0x914); */
 	} else /* Deal with Packet TX case */
-		odm_write_1byte(p_dm, REG_TXPAUSE_8812A, 0x00);
+		odm_write_1byte(dm, REG_TXPAUSE_8812A, 0x00);
 
 	/* Recover channel number */
-	odm_set_rf_reg(p_dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK, lc_cal);
+	odm_set_rf_reg(dm, RF_PATH_A, RF_CHNLBW, RFREGOFFSETMASK, lc_cal);
 
 	/*
-	odm_set_rf_reg(p_dm, RF_PATH_A, RF_AC, RFREGOFFSETMASK, rf_amode);
+	odm_set_rf_reg(dm, RF_PATH_A, RF_AC, RFREGOFFSETMASK, rf_amode);
 	if(is2T)
-		odm_set_rf_reg(p_dm, RF_PATH_B, RF_AC, RFREGOFFSETMASK, rf_bmode);
+		odm_set_rf_reg(dm, RF_PATH_B, RF_AC, RFREGOFFSETMASK, rf_bmode);
 		*/
 
 }
 
 void
 phy_reload_iqk_setting_8812a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u8		channel
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 
 	u8 chnl_idx = get_right_chnl_place_for_iqk(channel);
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-	odm_set_bb_reg(p_dm, 0xccc, 0x000007ff, p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][0] & 0x7ff);
-	odm_set_bb_reg(p_dm, 0xcd4, 0x000007ff, (p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][0] & 0x7ff0000) >> 16);
-	odm_set_bb_reg(p_dm, 0xecc, 0x000007ff, p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][2] & 0x7ff);
-	odm_set_bb_reg(p_dm, 0xed4, 0x000007ff, (p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][2] & 0x7ff0000) >> 16);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+	odm_set_bb_reg(dm, 0xccc, 0x000007ff, cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][0] & 0x7ff);
+	odm_set_bb_reg(dm, 0xcd4, 0x000007ff, (cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][0] & 0x7ff0000) >> 16);
+	odm_set_bb_reg(dm, 0xecc, 0x000007ff, cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][2] & 0x7ff);
+	odm_set_bb_reg(dm, 0xed4, 0x000007ff, (cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][2] & 0x7ff0000) >> 16);
 
-	if (*p_dm->p_band_width != 2) {
-		odm_write_4byte(p_dm, 0xce8, 0x0);
-		odm_write_4byte(p_dm, 0xee8, 0x0);
+	if (*dm->band_width != 2) {
+		odm_write_4byte(dm, 0xce8, 0x0);
+		odm_write_4byte(dm, 0xee8, 0x0);
 	} else {
-		odm_write_4byte(p_dm, 0xce8, p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][4]);
-		odm_write_4byte(p_dm, 0xee8, p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][5]);
+		odm_write_4byte(dm, 0xce8, cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][4]);
+		odm_write_4byte(dm, 0xee8, cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][5]);
 	}
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
-	odm_set_bb_reg(p_dm, 0xc10, 0x000003ff, (p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][1] & 0x7ff0000) >> 17);
-	odm_set_bb_reg(p_dm, 0xc10, 0x03ff0000, (p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][1] & 0x7ff) >> 1);
-	odm_set_bb_reg(p_dm, 0xe10, 0x000003ff, (p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][3] & 0x7ff0000) >> 17);
-	odm_set_bb_reg(p_dm, 0xe10, 0x03ff0000, (p_rf_calibrate_info->iqk_matrix_reg_setting[chnl_idx].value[*p_dm->p_band_width][3] & 0x7ff) >> 1);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0xc10, 0x000003ff, (cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][1] & 0x7ff0000) >> 17);
+	odm_set_bb_reg(dm, 0xc10, 0x03ff0000, (cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][1] & 0x7ff) >> 1);
+	odm_set_bb_reg(dm, 0xe10, 0x000003ff, (cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][3] & 0x7ff0000) >> 17);
+	odm_set_bb_reg(dm, 0xe10, 0x03ff0000, (cali_info->iqk_matrix_reg_setting[chnl_idx].value[*dm->band_width][3] & 0x7ff) >> 1);
 
 
 }
 
 void
 phy_reset_iqk_result_8812a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
-	odm_set_bb_reg(p_dm, 0xccc, 0x000007ff, 0x0);
-	odm_set_bb_reg(p_dm, 0xcd4, 0x000007ff, 0x200);
-	odm_set_bb_reg(p_dm, 0xecc, 0x000007ff, 0x0);
-	odm_set_bb_reg(p_dm, 0xed4, 0x000007ff, 0x200);
-	odm_write_4byte(p_dm, 0xce8, 0x0);
-	odm_write_4byte(p_dm, 0xee8, 0x0);
-	odm_set_bb_reg(p_dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
-	odm_set_bb_reg(p_dm, 0xc10, 0x000003ff, 0x100);
-	odm_set_bb_reg(p_dm, 0xe10, 0x000003ff, 0x100);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x1); /* [31] = 1 --> Page C1 */
+	odm_set_bb_reg(dm, 0xccc, 0x000007ff, 0x0);
+	odm_set_bb_reg(dm, 0xcd4, 0x000007ff, 0x200);
+	odm_set_bb_reg(dm, 0xecc, 0x000007ff, 0x0);
+	odm_set_bb_reg(dm, 0xed4, 0x000007ff, 0x200);
+	odm_write_4byte(dm, 0xce8, 0x0);
+	odm_write_4byte(dm, 0xee8, 0x0);
+	odm_set_bb_reg(dm, 0x82c, BIT(31), 0x0); /* [31] = 0 --> Page C */
+	odm_set_bb_reg(dm, 0xc10, 0x000003ff, 0x100);
+	odm_set_bb_reg(dm, 0xe10, 0x000003ff, 0x100);
 }
 
 void
 _phy_iq_calibrate_by_fw_8812a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	u8			iqk_cmd[3] = { *p_dm->p_channel, 0x0, 0x0};
+	u8			iqk_cmd[3] = { *dm->channel, 0x0, 0x0};
 	u8			buf1 = 0x0;
 	u8			buf2 = 0x0;
 
 	/* Byte 2, Bit 4 ~ Bit 5 : band_type */
-	if (*p_dm->p_band_type == ODM_BAND_5G)
+	if (*dm->band_type == ODM_BAND_5G)
 		buf1 = 0x2 << 4;
 	else
 		buf1 = 0x1 << 4;
 
 	/* Byte 2, Bit 0 ~ Bit 3 : bandwidth */
-	if (*p_dm->p_band_width == CHANNEL_WIDTH_20)
+	if (*dm->band_width == CHANNEL_WIDTH_20)
 		buf2 = 0x1;
-	else if (*p_dm->p_band_width == CHANNEL_WIDTH_40)
+	else if (*dm->band_width == CHANNEL_WIDTH_40)
 		buf2 = 0x1 << 1;
-	else if (*p_dm->p_band_width == CHANNEL_WIDTH_80)
+	else if (*dm->band_width == CHANNEL_WIDTH_80)
 		buf2 = 0x1 << 2;
 	else
 		buf2 = 0x1 << 3;
 
 	iqk_cmd[1] = buf1 | buf2;
-	iqk_cmd[2] =  p_dm->ext_pa_5g | p_dm->ext_pa << 1 | p_dm->support_interface << 2 | p_dm->rfe_type << 5;
+	iqk_cmd[2] =  dm->ext_pa_5g | dm->ext_pa << 1 | dm->support_interface << 2 | dm->rfe_type << 5;
 
-	odm_fill_h2c_cmd(p_dm, ODM_H2C_IQ_CALIBRATION, 3, iqk_cmd);
+	odm_fill_h2c_cmd(dm, ODM_H2C_IQ_CALIBRATION, 3, iqk_cmd);
 }
-
-/*IQK version:0x2*/
-/*1. add RX IQK boundary*/
-/*2. fine tune RXIQK loop gain*/
 
 void
 phy_iq_calibrate_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	boolean	is_recovery
 )
 {
-	struct PHY_DM_STRUCT	*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_struct	*dm = (struct dm_struct *)dm_void;
+	struct dm_rf_calibration_struct	*cali_info = &(dm->rf_calibrate_info);
 	u32			counter = 0;
 
-	if (p_dm->fw_offload_ability & PHYDM_RF_IQK_OFFLOAD) {
-		_phy_iq_calibrate_by_fw_8812a(p_dm);
+	if (dm->fw_offload_ability & PHYDM_RF_IQK_OFFLOAD) {
+		_phy_iq_calibrate_by_fw_8812a(dm);
 		for (counter = 0; counter < 10; counter++) {
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("== FW IQK PROGRESS == #%d\n", counter));
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "== FW IQK PROGRESS == #%d\n", counter);
 			delay_ms(50);
-			if (!p_rf_calibrate_info->is_iqk_in_progress) {
-				ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("== FW IQK RETURN FROM WAITING ==\n"));
+			if (!cali_info->is_iqk_in_progress) {
+				PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "== FW IQK RETURN FROM WAITING ==\n");
 				break;
 			}
 		}
-		if (p_rf_calibrate_info->is_iqk_in_progress)
-			ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("== FW IQK TIMEOUT (Still in progress after 500ms) ==\n"));
+		if (cali_info->is_iqk_in_progress)
+			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "== FW IQK TIMEOUT (Still in progress after 500ms) ==\n");
 	} else
-		_phy_iq_calibrate_8812a(p_dm, *p_dm->p_channel);
+		_phy_iq_calibrate_8812a(dm, *dm->channel);
 }
 
 
 void
 phy_lc_calibrate_8812a(
-	void		*p_dm_void
+	void		*dm_void
 )
 {
-	struct PHY_DM_STRUCT	*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
+	struct dm_struct	*dm = (struct dm_struct *)dm_void;
 
-	_phy_lc_calibrate_8812a(p_dm, true);
+	_phy_lc_calibrate_8812a(dm, true);
 }
 
 void _phy_set_rf_path_switch_8812a(
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 #else
-	struct _ADAPTER	*p_adapter,
+	void	*adapter,
 #endif
 	boolean		is_main,
 	boolean		is2T
 )
 {
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	HAL_DATA_TYPE	*p_hal_data = GET_HAL_DATA(p_adapter);
+	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(((PADAPTER)adapter));
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	struct PHY_DM_STRUCT		*p_dm = &p_hal_data->odmpriv;
+	struct dm_struct		*dm = &hal_data->odmpriv;
 #elif (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct PHY_DM_STRUCT		*p_dm = &p_hal_data->DM_OutSrc;
+	struct dm_struct		*dm = &hal_data->DM_OutSrc;
 #endif
 
 #endif
 
-	if (IS_HARDWARE_TYPE_8821(p_adapter)) {
+	if (IS_HARDWARE_TYPE_8821(adapter)) {
 		if (is_main)
-			odm_set_bb_reg(p_dm, REG_A_RFE_PINMUX_JAGUAR + 4, BIT(29) | BIT28, 0x1);	/* Main */
+			odm_set_bb_reg(dm, REG_A_RFE_PINMUX_JAGUAR + 4, BIT(29) | BIT28, 0x1);	/* Main */
 		else
-			odm_set_bb_reg(p_dm, REG_A_RFE_PINMUX_JAGUAR + 4, BIT(29) | BIT28, 0x2);	/* Aux */
-	} else if (p_dm->support_ic_type & ODM_RTL8812) {
-		if (p_dm->rfe_type == 5) {
+			odm_set_bb_reg(dm, REG_A_RFE_PINMUX_JAGUAR + 4, BIT(29) | BIT28, 0x2);	/* Aux */
+	} else if (dm->support_ic_type & ODM_RTL8812) {
+		if (dm->rfe_type == 5) {
 			if (is_main) {
 				/* WiFi */
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x2);
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x2);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
 			} else {
 				/* BT */
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x1);
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x1);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
 			}
-		} else if (p_dm->rfe_type == 1) {
+		} else if (dm->rfe_type == 1) {
 			/* <131224, VincentL> When rfe_type == 1 also Set 0x900, suggested by RF Binson. */
 			if (is_main) {
 				/* WiFi */
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x2);
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x2);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
 			} else {
 				/* BT */
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x1);
-				odm_set_bb_reg(p_dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(1) | BIT(0), 0x1);
+				odm_set_bb_reg(dm, REG_ANTSEL_SW_JAGUAR, BIT(9) | BIT(8), 0x3);
 			}
 		}
 
@@ -1448,9 +1434,9 @@ void _phy_set_rf_path_switch_8812a(
 }
 void phy_set_rf_path_switch_8812a(
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 #else
-	struct _ADAPTER	*p_adapter,
+	void	*adapter,
 #endif
 	boolean		is_main
 )
@@ -1462,7 +1448,7 @@ void phy_set_rf_path_switch_8812a(
 
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 
-	_phy_set_rf_path_switch_8812a(p_adapter, is_main, true);
+	_phy_set_rf_path_switch_8812a(adapter, is_main, true);
 
 #endif
 }
@@ -1487,7 +1473,7 @@ _sign(
 
 void
 _dpk_mac_bb_backup_path_a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32		*backup_reg_addr,
 	u32		*backup_reg_data,
 	u32		number
@@ -1496,11 +1482,11 @@ _dpk_mac_bb_backup_path_a(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		backup_reg_data[i] = odm_read_4byte(p_dm, backup_reg_addr[i]);
+		backup_reg_data[i] = odm_read_4byte(dm, backup_reg_addr[i]);
 }
 void
 _dpk_mac_bb_restore_path_a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32		*backup_reg_addr,
 	u32		*backup_reg_data,
 	u32		number
@@ -1509,13 +1495,13 @@ _dpk_mac_bb_restore_path_a(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		odm_write_4byte(p_dm, backup_reg_addr[i], backup_reg_data[i]);
+		odm_write_4byte(dm, backup_reg_addr[i], backup_reg_data[i]);
 }
 
 
 void
 _dpk_rf_backup_path_a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32				*backup_reg_addr,
 	enum rf_path	rf_path,
 	u32				*backup_reg_data,
@@ -1525,12 +1511,12 @@ _dpk_rf_backup_path_a(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		backup_reg_data[i] = odm_get_rf_reg(p_dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK);
+		backup_reg_data[i] = odm_get_rf_reg(dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK);
 }
 
 void
 _dpk_rf_restore_path_a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32				*backup_reg_addr,
 	enum rf_path	rf_path,
 	u32		*backup_reg_data,
@@ -1540,14 +1526,14 @@ _dpk_rf_restore_path_a(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		odm_set_rf_reg(p_dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK, backup_reg_data[i]);
+		odm_set_rf_reg(dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK, backup_reg_data[i]);
 }
 
 
 
 s32
 _compute_loop_back_gain_path_a(
-	struct PHY_DM_STRUCT			*p_dm
+	struct dm_struct			*dm
 )
 {
 	/* compute loopback gain */
@@ -1557,12 +1543,12 @@ _compute_loop_back_gain_path_a(
 	* 舉例3, d00[10:0] = h'0A9, 經過 hex2dec(h'0A9) = 169,
 	* 舉例4, d00[10:0] = h'54c, 經過 hex2dec(h'54c) = -692,
 	* 舉例5, d00[10:0] = h'7ff, 經過 hex2dec(h'7ff) = -1, */
-	u32 reg0xd00_26_16 = odm_get_bb_reg(p_dm, 0xD00, 0x7FF0000);
-	u32 reg0xd00_10_0  = odm_get_bb_reg(p_dm, 0xD00, 0x7FF);
+	u32 reg0xd00_26_16 = odm_get_bb_reg(dm, 0xD00, 0x7FF0000);
+	u32 reg0xd00_10_0  = odm_get_bb_reg(dm, 0xD00, 0x7FF);
 
 	s32 tmp_lb_gain = _sign(reg0xd00_26_16) * _sign(reg0xd00_26_16) + _sign(reg0xd00_10_0) * _sign(reg0xd00_10_0);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _compute_loop_back_gain_path_a, tmp_lb_gain = 0x%X\n", tmp_lb_gain));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _compute_loop_back_gain_path_a, tmp_lb_gain = 0x%X\n", tmp_lb_gain);
 
 	return tmp_lb_gain;
 }
@@ -1570,60 +1556,60 @@ _compute_loop_back_gain_path_a(
 
 boolean
 _fine_tune_loop_back_gain_path_a(
-	struct PHY_DM_STRUCT			*p_dm,
+	struct dm_struct			*dm,
 	u32				dpk_tx_agc
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	s32 tmp_lb_gain = 0;
 
-	u32 rf0x64_orig = odm_get_rf_reg(p_dm, RF_PATH_A, 0x64, 0x7);
+	u32 rf0x64_orig = odm_get_rf_reg(dm, RF_PATH_A, 0x64, 0x7);
 	u32 rf0x64_new = rf0x64_orig;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _FineTuneLoopBackGain\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _FineTuneLoopBackGain\n");
 
 	do {
 		/* RF setting */
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, dpk_tx_agc);
-		odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, dpk_tx_agc);
+		odm_write_4byte(dm, 0x82c, 0x802083dd);
 		/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-		odm_write_4byte(p_dm, 0xc90, 0x0101f018);
+		odm_write_4byte(dm, 0xc90, 0x0101f018);
 
 		/* one shot */
-		odm_write_4byte(p_dm, 0xcc8, 0x800c5599);
-		odm_write_4byte(p_dm, 0xcc8, 0x000c5599);
+		odm_write_4byte(dm, 0xcc8, 0x800c5599);
+		odm_write_4byte(dm, 0xcc8, 0x000c5599);
 		/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 		delay_ms(50);
 
 		/* reg82c[31] = 0 --> 切到 page C */
-		odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
+		odm_write_4byte(dm, 0x82c, 0x002083dd);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
-		tmp_lb_gain = _compute_loop_back_gain_path_a(p_dm);
+		tmp_lb_gain = _compute_loop_back_gain_path_a(dm);
 
 		if ((rf0x64_new == (BIT(2) | BIT(1) | BIT(0))) || (rf0x64_new == 0)) {
 			/* printf('DPK Phase 1 failed'); */
-			p_rf_calibrate_info->is_dpk_fail = true;
+			cali_info->is_dpk_fail = true;
 			break;
 			/* Go to DPK Phase 5 */
 		} else {
 			if (tmp_lb_gain < 263390) {/* fine tune loopback path gain: newReg64[2:0] = reg64[2:0] - 3b'001 */
 				rf0x64_new -= 1;
-				odm_set_rf_reg(p_dm, RF_PATH_A, 0x64, 0x7, rf0x64_new);
+				odm_set_rf_reg(dm, RF_PATH_A, 0x64, 0x7, rf0x64_new);
 
 			} else if (tmp_lb_gain > 661607) {/* fine tune loopback path gain: newReg64 [2:0] = reg64[2:0] + 3b'001 */
 				rf0x64_new += 1;
-				odm_set_rf_reg(p_dm, RF_PATH_A, 0x64, 0x7, rf0x64_new);
+				odm_set_rf_reg(dm, RF_PATH_A, 0x64, 0x7, rf0x64_new);
 
 			} else
-				p_rf_calibrate_info->is_dpk_fail = false;
+				cali_info->is_dpk_fail = false;
 		}
 
 	} while (tmp_lb_gain < 263390 || 661607 < tmp_lb_gain);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _FineTuneLoopBackGain\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _FineTuneLoopBackGain\n");
 
-	return p_rf_calibrate_info->is_dpk_fail ? false : true;
+	return cali_info->is_dpk_fail ? false : true;
 
 }
 
@@ -1631,142 +1617,142 @@ _fine_tune_loop_back_gain_path_a(
 
 void
 _dpk_init_path_a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_Init\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_Init\n");
 
 	/* TX pause */
-	odm_write_1byte(p_dm, 0x522, 0x7f);
+	odm_write_1byte(dm, 0x522, 0x7f);
 
 	/* reg82c[31] = b'0, 切換到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
 	/* AFE setting */
-	odm_write_4byte(p_dm, 0xc68, 0x19791979);
-	odm_write_4byte(p_dm, 0xc60, 0x77777777);
-	odm_write_4byte(p_dm, 0xc64, 0x77777777);
+	odm_write_4byte(dm, 0xc68, 0x19791979);
+	odm_write_4byte(dm, 0xc60, 0x77777777);
+	odm_write_4byte(dm, 0xc64, 0x77777777);
 
 	/* external TRSW 切到 T */
-	odm_write_4byte(p_dm, 0xcb0, 0x77777777);
-	odm_write_4byte(p_dm, 0xcb4, 0x01000077);
+	odm_write_4byte(dm, 0xcb0, 0x77777777);
+	odm_write_4byte(dm, 0xcb4, 0x01000077);
 
 	/* hardware 3-wire off */
-	odm_write_4byte(p_dm, 0xc00, 0x00000004);
+	odm_write_4byte(dm, 0xc00, 0x00000004);
 
 	/* CCA off */
-	odm_write_4byte(p_dm, 0x838, 0x16C89B4c);
+	odm_write_4byte(dm, 0x838, 0x16C89B4c);
 
 	/* 90c[15]: dac fifo reset by CSWU */
-	odm_write_4byte(p_dm, 0x90c, 0x00008000);
+	odm_write_4byte(dm, 0x90c, 0x00008000);
 
 	/* r_gothrough_iqkdpk */
-	odm_write_4byte(p_dm, 0xc94, 0x0100005D);
+	odm_write_4byte(dm, 0xc94, 0x0100005D);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* IQK Amp off */
-	odm_write_4byte(p_dm, 0xc8c, 0x3c000000);
+	odm_write_4byte(dm, 0xc8c, 0x3c000000);
 
 	/* tx_amp */
-	odm_write_4byte(p_dm, 0xc98, 0x41382e21);
-	odm_write_4byte(p_dm, 0xc9c, 0x5b554f48);
-	odm_write_4byte(p_dm, 0xca0, 0x6f6b6661);
-	odm_write_4byte(p_dm, 0xca4, 0x817d7874);
-	odm_write_4byte(p_dm, 0xca8, 0x908c8884);
-	odm_write_4byte(p_dm, 0xcac, 0x9d9a9793);
-	odm_write_4byte(p_dm, 0xcb0, 0xaaa7a4a1);
-	odm_write_4byte(p_dm, 0xcb4, 0xb6b3b0ad);
+	odm_write_4byte(dm, 0xc98, 0x41382e21);
+	odm_write_4byte(dm, 0xc9c, 0x5b554f48);
+	odm_write_4byte(dm, 0xca0, 0x6f6b6661);
+	odm_write_4byte(dm, 0xca4, 0x817d7874);
+	odm_write_4byte(dm, 0xca8, 0x908c8884);
+	odm_write_4byte(dm, 0xcac, 0x9d9a9793);
+	odm_write_4byte(dm, 0xcb0, 0xaaa7a4a1);
+	odm_write_4byte(dm, 0xcb4, 0xb6b3b0ad);
 
 	/* tx_inverse */
-	odm_write_4byte(p_dm, 0xc40, 0x02ce03e9);
-	odm_write_4byte(p_dm, 0xc44, 0x01fd0249);
-	odm_write_4byte(p_dm, 0xc48, 0x01a101c9);
-	odm_write_4byte(p_dm, 0xc4c, 0x016a0181);
-	odm_write_4byte(p_dm, 0xc50, 0x01430155);
-	odm_write_4byte(p_dm, 0xc54, 0x01270135);
-	odm_write_4byte(p_dm, 0xc58, 0x0112011c);
-	odm_write_4byte(p_dm, 0xc5c, 0x01000108);
-	odm_write_4byte(p_dm, 0xc60, 0x00f100f8);
-	odm_write_4byte(p_dm, 0xc64, 0x00e500eb);
-	odm_write_4byte(p_dm, 0xc68, 0x00db00e0);
-	odm_write_4byte(p_dm, 0xc6c, 0x00d100d5);
-	odm_write_4byte(p_dm, 0xc70, 0x00c900cd);
-	odm_write_4byte(p_dm, 0xc74, 0x00c200c5);
-	odm_write_4byte(p_dm, 0xc78, 0x00bb00be);
-	odm_write_4byte(p_dm, 0xc7c, 0x00b500b8);
+	odm_write_4byte(dm, 0xc40, 0x02ce03e9);
+	odm_write_4byte(dm, 0xc44, 0x01fd0249);
+	odm_write_4byte(dm, 0xc48, 0x01a101c9);
+	odm_write_4byte(dm, 0xc4c, 0x016a0181);
+	odm_write_4byte(dm, 0xc50, 0x01430155);
+	odm_write_4byte(dm, 0xc54, 0x01270135);
+	odm_write_4byte(dm, 0xc58, 0x0112011c);
+	odm_write_4byte(dm, 0xc5c, 0x01000108);
+	odm_write_4byte(dm, 0xc60, 0x00f100f8);
+	odm_write_4byte(dm, 0xc64, 0x00e500eb);
+	odm_write_4byte(dm, 0xc68, 0x00db00e0);
+	odm_write_4byte(dm, 0xc6c, 0x00d100d5);
+	odm_write_4byte(dm, 0xc70, 0x00c900cd);
+	odm_write_4byte(dm, 0xc74, 0x00c200c5);
+	odm_write_4byte(dm, 0xc78, 0x00bb00be);
+	odm_write_4byte(dm, 0xc7c, 0x00b500b8);
 
 	/* reg82c[31] = b'0, 切換到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
-	p_rf_calibrate_info->is_dpk_fail = false;
+	cali_info->is_dpk_fail = false;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_Init\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_Init\n");
 
 }
 
 
 boolean
 _dpk_adjust_rf_gain_path_a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	s32 tmp_lb_gain = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_AdjustRFGain\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_AdjustRFGain\n");
 
 	/* RF setting */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x50bfc);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x50bfc);
 	/* Attn: A mode @ reg64[2:0], G mode @ reg56 */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x64, RFREGOFFSETMASK, 0x19aac);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x64, RFREGOFFSETMASK, 0x19aac);
 	/* PGA gain: RF reg8f[14:13] */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8a001);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8a001);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xc94, 0xf76c9f84);
-	odm_write_4byte(p_dm, 0xcc8, 0x000c5599);
-	odm_write_4byte(p_dm, 0xcc4, 0x11838000);
-	odm_set_bb_reg(p_dm, 0xcd4, 0xFFF000, 0x100);  /* 將cd4[23:12] 改成 h'100, 其它位元請保留原值不要寫到
+	odm_write_4byte(dm, 0xc94, 0xf76c9f84);
+	odm_write_4byte(dm, 0xcc8, 0x000c5599);
+	odm_write_4byte(dm, 0xcc4, 0x11838000);
+	odm_set_bb_reg(dm, 0xcd4, 0xFFF000, 0x100);  /* 將cd4[23:12] 改成 h'100, 其它位元請保留原值不要寫到
      * 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xc90, 0x0101f018);
+	odm_write_4byte(dm, 0xc90, 0x0101f018);
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xcc8, 0x800c5599);
-	odm_write_4byte(p_dm, 0xcc8, 0x000c5599);
+	odm_write_4byte(dm, 0xcc8, 0x800c5599);
+	odm_write_4byte(dm, 0xcc8, 0x000c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
 	/* read back Loopback Gain */
-	odm_write_4byte(p_dm, 0xcb8, 0x09000000);
+	odm_write_4byte(dm, 0xcb8, 0x09000000);
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
-	tmp_lb_gain = _compute_loop_back_gain_path_a(p_dm);
+	tmp_lb_gain = _compute_loop_back_gain_path_a(dm);
 
 	/* coarse tune loopback gain by RF reg8f[14:13] = 2b'11 */
 	if (tmp_lb_gain < 263390) {
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8e001);
-		_fine_tune_loop_back_gain_path_a(p_dm, 0x50bfc);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8e001);
+		_fine_tune_loop_back_gain_path_a(dm, 0x50bfc);
 
 	} else if (tmp_lb_gain > 661607) {
 		/* coarse tune loopback gain by RF reg8f[14:13] = 2b'00 */
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x88001);
-		_fine_tune_loop_back_gain_path_a(p_dm, 0x50bfc);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x88001);
+		_fine_tune_loop_back_gain_path_a(dm, 0x50bfc);
 	} else
-		p_rf_calibrate_info->is_dpk_fail = false;
+		cali_info->is_dpk_fail = false;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_AdjustRFGain\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_AdjustRFGain\n");
 
-	return p_rf_calibrate_info->is_dpk_fail ? false : true;
+	return cali_info->is_dpk_fail ? false : true;
 
 }
 
@@ -1774,19 +1760,19 @@ _dpk_adjust_rf_gain_path_a(
 
 void
 _dpk_gain_loss_to_find_tx_agc_path_a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	u32 reg0xd00 = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_GainLossToFindTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_GainLossToFindTxAGC\n");
 
 	/* RF setting */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x50bfc);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x50bfc);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* regc20[15:13] = dB sel, 告訴 Gain Loss function 去尋找 dB_sel 所設定的PA gain loss目標所對應的 Tx AGC 為何. */
 	/* dB_sel = b'000 ' 1.0 dB PA gain loss */
@@ -1796,19 +1782,19 @@ _dpk_gain_loss_to_find_tx_agc_path_a(
 	/* dB_sel = b'100 ' 3.0 dB PA gain loss */
 	/* dB_sel = b'101 ' 3.5 dB PA gain loss */
 	/* dB_sel = b'110 ' 4.0 dB PA gain loss */
-	odm_write_4byte(p_dm, 0xc20, 0x00002000);
+	odm_write_4byte(dm, 0xc20, 0x00002000);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xc94, 0xf76c9f84);
-	odm_write_4byte(p_dm, 0xcc8, 0x000c5599);
-	odm_write_4byte(p_dm, 0xcc4, 0x148b8000);
+	odm_write_4byte(dm, 0xc94, 0xf76c9f84);
+	odm_write_4byte(dm, 0xcc8, 0x000c5599);
+	odm_write_4byte(dm, 0xcc4, 0x148b8000);
 
 	/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xc90, 0x0401f018);
+	odm_write_4byte(dm, 0xc90, 0x0401f018);
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xcc8, 0x800c5599);
-	odm_write_4byte(p_dm, 0xcc8, 0x000c5599);
+	odm_write_4byte(dm, 0xcc8, 0x800c5599);
+	odm_write_4byte(dm, 0xcc8, 0x000c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
@@ -1825,181 +1811,181 @@ _dpk_gain_loss_to_find_tx_agc_path_a(
 	/* 讀回d00[3:0] = h'9 ' Tx AGC = h'1b */
 	/* 讀回d00[3:0] = h'a ' Tx AGC = h'1c */
 	/*  */
-	reg0xd00 = odm_read_4byte(p_dm, 0xd00);
-	switch (odm_read_4byte(p_dm, 0xd00) & (BIT(3) | BIT(2) | BIT(1) | BIT(0))) {
+	reg0xd00 = odm_read_4byte(dm, 0xd00);
+	switch (odm_read_4byte(dm, 0xd00) & (BIT(3) | BIT(2) | BIT(1) | BIT(0))) {
 	case 0x0:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x2;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x2;
 		break;
 	case 0x1:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x3;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x3;
 		break;
 	case 0x2:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x4;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x4;
 		break;
 	case 0x3:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x5;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x5;
 		break;
 	case 0x4:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x6;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x6;
 		break;
 	case 0x5:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x7;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x7;
 		break;
 	case 0x6:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x8;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x8;
 		break;
 	case 0x7:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x9;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x9;
 		break;
 	case 0x8:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0xa;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0xa;
 		break;
 	case 0x9:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0xb;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0xb;
 		break;
 	case 0xa:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0xc;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0xc;
 		break;
 	}
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_GainLossToFindTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_GainLossToFindTxAGC\n");
 }
 
 
 boolean
 _dpk_adjust_rf_gain_by_found_tx_agc_path_a
 (
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	s32 tmp_lb_gain = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_AdjustRFGainByFoundTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_AdjustRFGainByFoundTxAGC\n");
 
 	/* RF setting, 重新設定RF reg00, 舉例用DPK Phase 2得到的 d00[3:0] = 0x6 ' TX AGC= 0x18 ' RF reg00[4:0] = 0x18 */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, p_rf_calibrate_info->dpk_tx_agc);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, cali_info->dpk_tx_agc);
 	/* Attn: A mode @ reg64[2:0], G mode @ reg56 */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x64, RFREGOFFSETMASK, 0x19aac);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x64, RFREGOFFSETMASK, 0x19aac);
 	/* PGA gain: RF reg8f[14:13] */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8a001);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8a001);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xc94, 0xf76c9f84);
-	odm_write_4byte(p_dm, 0xcc8, 0x000c5599);
-	odm_write_4byte(p_dm, 0xcc4, 0x11838000);
+	odm_write_4byte(dm, 0xc94, 0xf76c9f84);
+	odm_write_4byte(dm, 0xcc8, 0x000c5599);
+	odm_write_4byte(dm, 0xcc4, 0x11838000);
 
 	/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xc90, 0x0101f018);
+	odm_write_4byte(dm, 0xc90, 0x0101f018);
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xcc8, 0x800c5599);
-	odm_write_4byte(p_dm, 0xcc8, 0x000c5599);
+	odm_write_4byte(dm, 0xcc8, 0x800c5599);
+	odm_write_4byte(dm, 0xcc8, 0x000c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
 
-	tmp_lb_gain = _compute_loop_back_gain_path_a(p_dm);
+	tmp_lb_gain = _compute_loop_back_gain_path_a(dm);
 
 	if (tmp_lb_gain < 263390) {
 		/* coarse tune loopback gain by RF reg8f[14:13] = 2b'11 */
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8e001);
-		_fine_tune_loop_back_gain_path_a(p_dm, p_rf_calibrate_info->dpk_tx_agc);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x8e001);
+		_fine_tune_loop_back_gain_path_a(dm, cali_info->dpk_tx_agc);
 	} else if (tmp_lb_gain > 661607) {
 		/* coarse tune loopback gain by RF reg8f[14:13] = 2b'00 */
-		odm_set_rf_reg(p_dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x88001);
-		_fine_tune_loop_back_gain_path_a(p_dm, p_rf_calibrate_info->dpk_tx_agc);
+		odm_set_rf_reg(dm, RF_PATH_A, 0x8f, RFREGOFFSETMASK, 0x88001);
+		_fine_tune_loop_back_gain_path_a(dm, cali_info->dpk_tx_agc);
 	} else
-		p_rf_calibrate_info->is_dpk_fail = false;/* Go to DPK Phase 4 */
+		cali_info->is_dpk_fail = false;/* Go to DPK Phase 4 */
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_AdjustRFGainByFoundTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_AdjustRFGainByFoundTxAGC\n");
 
-	return p_rf_calibrate_info->is_dpk_fail ? false : true;
+	return cali_info->is_dpk_fail ? false : true;
 
 }
 
 
 void
 _dpk_do_auto_dpk_path_a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	u32 tmp_lb_gain = 0, reg0xd00 = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_DoAutoDPK\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_DoAutoDPK\n");
 
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 	/* RF setting, 此處RF reg00, 與 DPK Phase 3 一致 */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, p_rf_calibrate_info->dpk_tx_agc);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, cali_info->dpk_tx_agc);
 	/* Baseband data rate setting */
-	odm_write_4byte(p_dm, 0xc20, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc24, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc28, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc2c, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc30, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc34, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc38, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc3c, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc40, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc44, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc48, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xc4c, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc20, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc24, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc28, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc2c, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc30, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc34, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc38, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc3c, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc40, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc44, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc48, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xc4c, 0x3c3c3c3c);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xc94, 0xf76C9f84);
-	odm_write_4byte(p_dm, 0xcc8, 0x400C5599);
-	odm_write_4byte(p_dm, 0xcc4, 0x11938080);    /* 0xcc4[9:4]= DPk fail threshold */
+	odm_write_4byte(dm, 0xc94, 0xf76C9f84);
+	odm_write_4byte(dm, 0xcc8, 0x400C5599);
+	odm_write_4byte(dm, 0xcc4, 0x11938080);    /* 0xcc4[9:4]= DPk fail threshold */
 
-	if (36 <= *(p_dm->p_channel) && *(p_dm->p_channel) <= 53) /* Channelchannel at low band) */
+	if (36 <= *(dm->channel) && *(dm->channel) <= 53) /* Channelchannel at low band) */
 		/* r_agc */
-		odm_write_4byte(p_dm, 0xcbc, 0x00022a1f);
+		odm_write_4byte(dm, 0xcbc, 0x00022a1f);
 	else
 		/* r_agc */
-		odm_write_4byte(p_dm, 0xcbc, 0x00009dbf);
+		odm_write_4byte(dm, 0xcbc, 0x00009dbf);
 
 	/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xc90, 0x0101f018); /* TODO: 0xC90(rA_LSSIWrite_Jaguar) can not be overwritten. */
+	odm_write_4byte(dm, 0xc90, 0x0101f018); /* TODO: 0xC90(rA_LSSIWrite_Jaguar) can not be overwritten. */
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xcc8, 0xc00c5599);
-	odm_write_4byte(p_dm, 0xcc8, 0x400c5599);
+	odm_write_4byte(dm, 0xcc8, 0xc00c5599);
+	odm_write_4byte(dm, 0xcc8, 0x400c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 	/* T-meter RFReg42[17] = 1 to enable read T-meter, [15:10] ' T-meter value */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x42, BIT(17), 1);
-	p_rf_calibrate_info->dpk_thermal[RF_PATH_A] = odm_get_rf_reg(p_dm, RF_PATH_A, 0x42, 0xFC00);					/* 讀出42[15:10] 值並存到變數TMeter */
-	dbg_print("p_rf_calibrate_info->dpk_thermal[RF_PATH_A] = 0x%X\n", p_rf_calibrate_info->dpk_thermal[RF_PATH_A]);
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33D8D);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x42, BIT(17), 1);
+	cali_info->dpk_thermal[RF_PATH_A] = odm_get_rf_reg(dm, RF_PATH_A, 0x42, 0xFC00);					/* 讀出42[15:10] 值並存到變數TMeter */
+	dbg_print("cali_info->dpk_thermal[RF_PATH_A] = 0x%X\n", cali_info->dpk_thermal[RF_PATH_A]);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x00, RFREGOFFSETMASK, 0x33D8D);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 	/* read back dp_fail report */
-	odm_write_4byte(p_dm, 0xcb8, 0x00000000);
+	odm_write_4byte(dm, 0xcb8, 0x00000000);
 	/* dp_fail這個bit在d00[6], 當 d00[6] = 1, 表示calibration失敗. */
-	reg0xd00 = odm_read_4byte(p_dm, 0xd00);
+	reg0xd00 = odm_read_4byte(dm, 0xd00);
 
 	if ((reg0xd00 & BIT(6)) == BIT(6)) {
 		/* printf('DPK fail') */
-		p_rf_calibrate_info->is_dpk_fail = true;
+		cali_info->is_dpk_fail = true;
 		/* Go to DPK Phase 5 */
 	} else {
 		/* printf('DPK success') */
@@ -2007,11 +1993,11 @@ _dpk_do_auto_dpk_path_a(
 
 
 	/* read back */
-	odm_write_4byte(p_dm, 0xc90, 0x0201f01f);
-	odm_write_4byte(p_dm, 0xcb8, 0x0c000000);
+	odm_write_4byte(dm, 0xc90, 0x0201f01f);
+	odm_write_4byte(dm, 0xcb8, 0x0c000000);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
 	/* 計算tmpGainLoss 用到的function hex2dec() 是將 twos complement的十六進位轉成十進位, 十六進位的格式為s11.9 */
 	/* 舉例1, d00[10:0] = h'3ff, 經過 hex2dec(h'3ff) = 1023, */
@@ -2019,65 +2005,65 @@ _dpk_do_auto_dpk_path_a(
 	/* 舉例3, d00[10:0] = h'0A9, 經過 hex2dec(h'0A9) = 169, */
 	/* 舉例4, d00[10:0] = h'54c, 經過 hex2dec(h'54c) = -692, */
 	/* 舉例4, d00[10:0] = h'7ff, 經過 hex2dec(h'7ff) = -1, */
-	tmp_lb_gain = _compute_loop_back_gain_path_a(p_dm);
+	tmp_lb_gain = _compute_loop_back_gain_path_a(dm);
 
 
 	/* Gain Scaling */
 	if (227007 < tmp_lb_gain)
-		p_rf_calibrate_info->dpk_gain = 0x43ca43ca;
+		cali_info->dpk_gain = 0x43ca43ca;
 	else if (214309 < tmp_lb_gain && tmp_lb_gain <= 227007)
-		p_rf_calibrate_info->dpk_gain = 0x45c545c5;
+		cali_info->dpk_gain = 0x45c545c5;
 	else if (202321 < tmp_lb_gain && tmp_lb_gain <= 214309)
-		p_rf_calibrate_info->dpk_gain = 0x47cf47cf;
+		cali_info->dpk_gain = 0x47cf47cf;
 	else if (191003 < tmp_lb_gain && tmp_lb_gain <= 202321)
-		p_rf_calibrate_info->dpk_gain = 0x49e749e7;
+		cali_info->dpk_gain = 0x49e749e7;
 	else if (180318 < tmp_lb_gain && tmp_lb_gain <= 191003)
-		p_rf_calibrate_info->dpk_gain = 0x4c104c10;
+		cali_info->dpk_gain = 0x4c104c10;
 	else if (170231 < tmp_lb_gain && tmp_lb_gain <= 180318)
-		p_rf_calibrate_info->dpk_gain = 0x4e494e49;
+		cali_info->dpk_gain = 0x4e494e49;
 	else if (160709 < tmp_lb_gain && tmp_lb_gain <= 170231)
-		p_rf_calibrate_info->dpk_gain = 0x50925092;
+		cali_info->dpk_gain = 0x50925092;
 	else if (151719 < tmp_lb_gain && tmp_lb_gain <= 160709)
-		p_rf_calibrate_info->dpk_gain = 0x52ec52ec;
+		cali_info->dpk_gain = 0x52ec52ec;
 	else if (151719 <= tmp_lb_gain)
-		p_rf_calibrate_info->dpk_gain = 0x55585558;
+		cali_info->dpk_gain = 0x55585558;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_DoAutoDPK\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_DoAutoDPK\n");
 }
 
 
 void
 _dpk_enable_dp_path_a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _dpk_enable_dp\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _dpk_enable_dp\n");
 
 	/* [31] = 1 --> switch to page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* enable IQC matrix --> 因為 BB 信號會先經過 predistortion module, 才經過 IQC matrix 到 DAC 打出去 */
 	/* 所以要先 enable predistortion module {c90[7] = 1 (enable_predis) cc4[18] = 1 (確定讓 IQK/DPK module 有clock), cc8[29] = 1 (一個IQK/DPK module 裡的mux, 確認 data path 走IQK/DPK)} */
-	odm_write_4byte(p_dm, 0xc90, 0x0000f098);
-	odm_write_4byte(p_dm, 0xc94, 0x776d9f84);
-	odm_write_4byte(p_dm, 0xcc8, 0x20000000);
-	odm_write_4byte(p_dm, 0xc8c, 0x3c000000);
+	odm_write_4byte(dm, 0xc90, 0x0000f098);
+	odm_write_4byte(dm, 0xc94, 0x776d9f84);
+	odm_write_4byte(dm, 0xcc8, 0x20000000);
+	odm_write_4byte(dm, 0xc8c, 0x3c000000);
 	/* r_bnd */
-	odm_write_4byte(p_dm, 0xcb8, 0x000fffff);
+	odm_write_4byte(dm, 0xcb8, 0x000fffff);
 
-	if (p_rf_calibrate_info->is_dpk_fail) {
+	if (cali_info->is_dpk_fail) {
 		/* cc4[29] = 1 (bypass DP LUT) */
-		odm_write_4byte(p_dm, 0xc98, 0x40004000);
-		odm_write_4byte(p_dm, 0xcc4, 0x28840000);
+		odm_write_4byte(dm, 0xc98, 0x40004000);
+		odm_write_4byte(dm, 0xcc4, 0x28840000);
 	} else {
-		odm_write_4byte(p_dm, 0xc98, p_rf_calibrate_info->dpk_gain);
-		odm_write_4byte(p_dm, 0xcc4, 0x08840000);
+		odm_write_4byte(dm, 0xc98, cali_info->dpk_gain);
+		odm_write_4byte(dm, 0xcc4, 0x08840000);
 
 		/* PWSF */
 		/* 寫PWSF table in 1st SRAM for PA = 11 use */
-		odm_write_4byte(p_dm, 0xc20, 0x00000800);
+		odm_write_4byte(dm, 0xc20, 0x00000800);
 
 		/* ******************************************************* */
 		/* 0xce4[0]是write enable，0xce4[7:1]是address，0xce4[15:8]和0xce4[23:16]對應到TX index， */
@@ -2098,7 +2084,7 @@ _dpk_enable_dp_path_a(
 				0x03, 0x03, 0x02, 0x02, 0x01, 0x01
 			};
 
-			u32 center_tx_idx = p_rf_calibrate_info->dpk_tx_agc & 0x1F;
+			u32 center_tx_idx = cali_info->dpk_tx_agc & 0x1F;
 			u32 center_addr = (0x1F - center_tx_idx) / 2;
 			s32 i = 0, j = 0, value = 0, start_idx = 0;
 
@@ -2111,8 +2097,8 @@ _dpk_enable_dp_path_a(
 				else
 					value = (table_pwsf[i] << 16) | (table_pwsf[i - 1] << 8) | ((center_addr - j) << 1) | 0x1;
 
-				odm_write_4byte(p_dm, 0xce4, value);
-				odm_write_1byte(p_dm, 0xce4, 0x0);		/* write disable */
+				odm_write_4byte(dm, 0xce4, value);
+				odm_write_1byte(dm, 0xce4, 0x0);		/* write disable */
 			}
 
 			/* Lower */
@@ -2123,15 +2109,15 @@ _dpk_enable_dp_path_a(
 					value = (table_pwsf[LEN - 1] << 16) | (table_pwsf[LEN - 1] << 8) | ((center_addr + j) << 1) | 0x1;
 				else
 					value = (table_pwsf[i + 1] << 16) | (table_pwsf[i] << 8) | ((center_addr + j) << 1) | 0x1;
-				odm_write_4byte(p_dm, 0xce4, value);
-				odm_write_1byte(p_dm, 0xce4, 0x0);		/* write disable */
+				odm_write_4byte(dm, 0xce4, value);
+				odm_write_1byte(dm, 0xce4, 0x0);		/* write disable */
 			}
 		}
 	}
 	/* [31] = 0 --> switch to page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _dpk_enable_dp\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _dpk_enable_dp\n");
 
 }
 
@@ -2141,7 +2127,7 @@ _dpk_enable_dp_path_a(
 
 void
 _phy_dp_calibrate_path_a_8812a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
 	u32 backup_mac_bb_reg_addrs[] = {
@@ -2156,26 +2142,26 @@ _phy_dp_calibrate_path_a_8812a(
 	/* u32 backupRFRegData_B[sizeof(backup_rf_reg_addrs)/sizeof(u32)]; */
 
 
-	_dpk_mac_bb_backup_path_a(p_dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
-	_dpk_rf_backup_path_a(p_dm, backup_rf_reg_addrs, RF_PATH_A, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
+	_dpk_mac_bb_backup_path_a(dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
+	_dpk_rf_backup_path_a(dm, backup_rf_reg_addrs, RF_PATH_A, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
 
-	_dpk_init_path_a(p_dm);
+	_dpk_init_path_a(dm);
 
-	if (_dpk_adjust_rf_gain_path_a(p_dm)) {               /* Phase 1 */
-		_dpk_gain_loss_to_find_tx_agc_path_a(p_dm);          /* Phase 2 */
-		if (_dpk_adjust_rf_gain_by_found_tx_agc_path_a(p_dm)) /* Phase 3 */
-			_dpk_do_auto_dpk_path_a(p_dm);                /* Phase 4 */
+	if (_dpk_adjust_rf_gain_path_a(dm)) {               /* Phase 1 */
+		_dpk_gain_loss_to_find_tx_agc_path_a(dm);          /* Phase 2 */
+		if (_dpk_adjust_rf_gain_by_found_tx_agc_path_a(dm)) /* Phase 3 */
+			_dpk_do_auto_dpk_path_a(dm);                /* Phase 4 */
 	}
-	_dpk_enable_dp_path_a(p_dm);                         /* Phase 5 */
+	_dpk_enable_dp_path_a(dm);                         /* Phase 5 */
 
-	_dpk_mac_bb_restore_path_a(p_dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
-	_dpk_rf_restore_path_a(p_dm, backup_rf_reg_addrs, RF_PATH_A, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
+	_dpk_mac_bb_restore_path_a(dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
+	_dpk_rf_restore_path_a(dm, backup_rf_reg_addrs, RF_PATH_A, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
 }
 
 
 void
 _dpk_mac_bb_backup_path_b(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32		*backup_reg_addr,
 	u32		*backup_reg_data,
 	u32		number
@@ -2184,12 +2170,12 @@ _dpk_mac_bb_backup_path_b(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		backup_reg_data[i] = odm_read_4byte(p_dm, backup_reg_addr[i]);
+		backup_reg_data[i] = odm_read_4byte(dm, backup_reg_addr[i]);
 }
 
 void
 _dpk_mac_bb_restore_path_b(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32		*backup_reg_addr,
 	u32		*backup_reg_data,
 	u32		number
@@ -2198,13 +2184,13 @@ _dpk_mac_bb_restore_path_b(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		odm_write_4byte(p_dm, backup_reg_addr[i], backup_reg_data[i]);
+		odm_write_4byte(dm, backup_reg_addr[i], backup_reg_data[i]);
 }
 
 
 void
 _dpk_rf_backup_path_b(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32				*backup_reg_addr,
 	enum rf_path	rf_path,
 	u32				*backup_reg_data,
@@ -2214,12 +2200,12 @@ _dpk_rf_backup_path_b(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		backup_reg_data[i] = odm_get_rf_reg(p_dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK);
+		backup_reg_data[i] = odm_get_rf_reg(dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK);
 }
 
 void
 _dpk_rf_restore_path_b(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u32				*backup_reg_addr,
 	enum rf_path	rf_path,
 	u32		*backup_reg_data,
@@ -2229,14 +2215,14 @@ _dpk_rf_restore_path_b(
 	u32 i;
 
 	for (i = 0; i < number; i++)
-		odm_set_rf_reg(p_dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK, backup_reg_data[i]);
+		odm_set_rf_reg(dm, (enum rf_path)rf_path, backup_reg_addr[i], RFREGOFFSETMASK, backup_reg_data[i]);
 }
 
 
 
 s32
 _compute_loop_back_gain_path_b(
-	struct PHY_DM_STRUCT			*p_dm
+	struct dm_struct			*dm
 )
 {
 	/* compute loopback gain */
@@ -2246,12 +2232,12 @@ _compute_loop_back_gain_path_b(
 	* 舉例3, d00[10:0] = h'0A9, 經過 hex2dec(h'0A9) = 169,
 	* 舉例4, d00[10:0] = h'54c, 經過 hex2dec(h'54c) = -692,
 	* 舉例5, d00[10:0] = h'7ff, 經過 hex2dec(h'7ff) = -1, */
-	u32 reg0xd40_26_16 = odm_get_bb_reg(p_dm, 0xD40, 0x7FF0000);
-	u32 reg0xd40_10_0  = odm_get_bb_reg(p_dm, 0xD40, 0x7FF);
+	u32 reg0xd40_26_16 = odm_get_bb_reg(dm, 0xD40, 0x7FF0000);
+	u32 reg0xd40_10_0  = odm_get_bb_reg(dm, 0xD40, 0x7FF);
 
 	s32 tmp_lb_gain = _sign(reg0xd40_26_16) * _sign(reg0xd40_26_16) + _sign(reg0xd40_10_0) * _sign(reg0xd40_10_0);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _compute_loop_back_gain_path_b, tmp_lb_gain = 0x%X\n", tmp_lb_gain));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _compute_loop_back_gain_path_b, tmp_lb_gain = 0x%X\n", tmp_lb_gain);
 
 	return tmp_lb_gain;
 }
@@ -2259,60 +2245,60 @@ _compute_loop_back_gain_path_b(
 
 boolean
 _fine_tune_loop_back_gain_path_b(
-	struct PHY_DM_STRUCT			*p_dm,
+	struct dm_struct			*dm,
 	u32				dpk_tx_agc
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	s32 tmp_lb_gain = 0;
 
-	u32 rf0x64_orig = odm_get_rf_reg(p_dm, RF_PATH_B, 0x64, 0x7);
+	u32 rf0x64_orig = odm_get_rf_reg(dm, RF_PATH_B, 0x64, 0x7);
 	u32 rf0x64_new = rf0x64_orig;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _fine_tune_loop_back_gain_path_b\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _fine_tune_loop_back_gain_path_b\n");
 
 	do {
 		/* RF setting */
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, dpk_tx_agc);
-		odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, dpk_tx_agc);
+		odm_write_4byte(dm, 0x82c, 0x802083dd);
 		/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-		odm_write_4byte(p_dm, 0xe90, 0x0101f018);
+		odm_write_4byte(dm, 0xe90, 0x0101f018);
 
 		/* one shot */
-		odm_write_4byte(p_dm, 0xec8, 0x800c5599);
-		odm_write_4byte(p_dm, 0xec8, 0x000c5599);
+		odm_write_4byte(dm, 0xec8, 0x800c5599);
+		odm_write_4byte(dm, 0xec8, 0x000c5599);
 		/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 		delay_ms(50);
 
 		/* reg82c[31] = 0 --> 切到 page C */
-		odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
+		odm_write_4byte(dm, 0x82c, 0x002083dd);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
-		tmp_lb_gain = _compute_loop_back_gain_path_b(p_dm);
+		tmp_lb_gain = _compute_loop_back_gain_path_b(dm);
 
 		if ((rf0x64_new == (BIT(2) | BIT(1) | BIT(0))) || (rf0x64_new == 0)) {
 			/* printf('DPK Phase 1 failed'); */
-			p_rf_calibrate_info->is_dpk_fail = true;
+			cali_info->is_dpk_fail = true;
 			break;
 			/* Go to DPK Phase 5 */
 		} else {
 			if (tmp_lb_gain < 263390) {/* fine tune loopback path gain: newReg64[2:0] = reg64[2:0] - 3b'001 */
 				rf0x64_new -= 1;
-				odm_set_rf_reg(p_dm, RF_PATH_B, 0x64, 0x7, rf0x64_new);
+				odm_set_rf_reg(dm, RF_PATH_B, 0x64, 0x7, rf0x64_new);
 
 			} else if (tmp_lb_gain > 661607) {/* fine tune loopback path gain: newReg64 [2:0] = reg64[2:0] + 3b'001 */
 				rf0x64_new += 1;
-				odm_set_rf_reg(p_dm, RF_PATH_B, 0x64, 0x7, rf0x64_new);
+				odm_set_rf_reg(dm, RF_PATH_B, 0x64, 0x7, rf0x64_new);
 
 			} else
-				p_rf_calibrate_info->is_dpk_fail = false;
+				cali_info->is_dpk_fail = false;
 		}
 
 	} while (tmp_lb_gain < 263390 || 661607 < tmp_lb_gain);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _fine_tune_loop_back_gain_path_b\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _fine_tune_loop_back_gain_path_b\n");
 
-	return p_rf_calibrate_info->is_dpk_fail ? false : true;
+	return cali_info->is_dpk_fail ? false : true;
 
 }
 
@@ -2320,142 +2306,142 @@ _fine_tune_loop_back_gain_path_b(
 
 void
 _dpk_init_path_b(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_Init\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_Init\n");
 
 	/* TX pause */
-	odm_write_1byte(p_dm, 0x522, 0x7f);
+	odm_write_1byte(dm, 0x522, 0x7f);
 
 	/* reg82c[31] = b'0, 切換到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
 	/* AFE setting */
-	odm_write_4byte(p_dm, 0xc68, 0x59791979);
-	odm_write_4byte(p_dm, 0xe60, 0x77777777);
-	odm_write_4byte(p_dm, 0xe64, 0x77777777);
+	odm_write_4byte(dm, 0xc68, 0x59791979);
+	odm_write_4byte(dm, 0xe60, 0x77777777);
+	odm_write_4byte(dm, 0xe64, 0x77777777);
 
 	/* external TRSW 切到 T */
-	odm_write_4byte(p_dm, 0xeb0, 0x77777777);
-	odm_write_4byte(p_dm, 0xeb4, 0x01000077);
+	odm_write_4byte(dm, 0xeb0, 0x77777777);
+	odm_write_4byte(dm, 0xeb4, 0x01000077);
 
 	/* hardware 3-wire off */
-	odm_write_4byte(p_dm, 0xe00, 0x00000004);
+	odm_write_4byte(dm, 0xe00, 0x00000004);
 
 	/* CCA off */
-	odm_write_4byte(p_dm, 0x838, 0x16C89B4c);
+	odm_write_4byte(dm, 0x838, 0x16C89B4c);
 
 	/* 90c[15]: dac fifo reset by CSWU */
-	odm_write_4byte(p_dm, 0x90c, 0x00008000);
+	odm_write_4byte(dm, 0x90c, 0x00008000);
 
 	/* r_gothrough_iqkdpk */
-	odm_write_4byte(p_dm, 0xe94, 0x0100005D);
+	odm_write_4byte(dm, 0xe94, 0x0100005D);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* IQK Amp off */
-	odm_write_4byte(p_dm, 0xe8c, 0x3c000000);
+	odm_write_4byte(dm, 0xe8c, 0x3c000000);
 
 	/* tx_amp */
-	odm_write_4byte(p_dm, 0xe98, 0x41382e21);
-	odm_write_4byte(p_dm, 0xe9c, 0x5b554f48);
-	odm_write_4byte(p_dm, 0xea0, 0x6f6b6661);
-	odm_write_4byte(p_dm, 0xea4, 0x817d7874);
-	odm_write_4byte(p_dm, 0xea8, 0x908c8884);
-	odm_write_4byte(p_dm, 0xeac, 0x9d9a9793);
-	odm_write_4byte(p_dm, 0xeb0, 0xaaa7a4a1);
-	odm_write_4byte(p_dm, 0xeb4, 0xb6b3b0ad);
+	odm_write_4byte(dm, 0xe98, 0x41382e21);
+	odm_write_4byte(dm, 0xe9c, 0x5b554f48);
+	odm_write_4byte(dm, 0xea0, 0x6f6b6661);
+	odm_write_4byte(dm, 0xea4, 0x817d7874);
+	odm_write_4byte(dm, 0xea8, 0x908c8884);
+	odm_write_4byte(dm, 0xeac, 0x9d9a9793);
+	odm_write_4byte(dm, 0xeb0, 0xaaa7a4a1);
+	odm_write_4byte(dm, 0xeb4, 0xb6b3b0ad);
 
 	/* tx_inverse */
-	odm_write_4byte(p_dm, 0xe40, 0x02ce03e9);
-	odm_write_4byte(p_dm, 0xe44, 0x01fd0249);
-	odm_write_4byte(p_dm, 0xe48, 0x01a101c9);
-	odm_write_4byte(p_dm, 0xe4c, 0x016a0181);
-	odm_write_4byte(p_dm, 0xe50, 0x01430155);
-	odm_write_4byte(p_dm, 0xe54, 0x01270135);
-	odm_write_4byte(p_dm, 0xe58, 0x0112011c);
-	odm_write_4byte(p_dm, 0xe5c, 0x01000108);
-	odm_write_4byte(p_dm, 0xe60, 0x00f100f8);
-	odm_write_4byte(p_dm, 0xe64, 0x00e500eb);
-	odm_write_4byte(p_dm, 0xe68, 0x00db00e0);
-	odm_write_4byte(p_dm, 0xe6c, 0x00d100d5);
-	odm_write_4byte(p_dm, 0xe70, 0x00c900cd);
-	odm_write_4byte(p_dm, 0xe74, 0x00c200c5);
-	odm_write_4byte(p_dm, 0xe78, 0x00bb00be);
-	odm_write_4byte(p_dm, 0xe7c, 0x00b500b8);
+	odm_write_4byte(dm, 0xe40, 0x02ce03e9);
+	odm_write_4byte(dm, 0xe44, 0x01fd0249);
+	odm_write_4byte(dm, 0xe48, 0x01a101c9);
+	odm_write_4byte(dm, 0xe4c, 0x016a0181);
+	odm_write_4byte(dm, 0xe50, 0x01430155);
+	odm_write_4byte(dm, 0xe54, 0x01270135);
+	odm_write_4byte(dm, 0xe58, 0x0112011c);
+	odm_write_4byte(dm, 0xe5c, 0x01000108);
+	odm_write_4byte(dm, 0xe60, 0x00f100f8);
+	odm_write_4byte(dm, 0xe64, 0x00e500eb);
+	odm_write_4byte(dm, 0xe68, 0x00db00e0);
+	odm_write_4byte(dm, 0xe6c, 0x00d100d5);
+	odm_write_4byte(dm, 0xe70, 0x00c900cd);
+	odm_write_4byte(dm, 0xe74, 0x00c200c5);
+	odm_write_4byte(dm, 0xe78, 0x00bb00be);
+	odm_write_4byte(dm, 0xe7c, 0x00b500b8);
 
 	/* reg82c[31] = b'0, 切換到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
-	p_rf_calibrate_info->is_dpk_fail = false;
+	cali_info->is_dpk_fail = false;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_Init\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_Init\n");
 
 }
 
 
 boolean
 _dpk_adjust_rf_gain_path_b(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	s32 tmp_lb_gain = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_AdjustRFGain\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_AdjustRFGain\n");
 
 	/* RF setting */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x50bfc);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x50bfc);
 	/* Attn: A mode @ reg64[2:0], G mode @ reg56 */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x64, RFREGOFFSETMASK, 0x19aac);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x64, RFREGOFFSETMASK, 0x19aac);
 	/* PGA gain: RF reg8f[14:13] */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8a001);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8a001);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xe94, 0xf76c9f84);
-	odm_write_4byte(p_dm, 0xec8, 0x000c5599);
-	odm_write_4byte(p_dm, 0xec4, 0x11838000);
-	odm_set_bb_reg(p_dm, 0xed4, 0xFFF000, 0x100);  /* 將cd4[23:12] 改成 h'100, 其它位元請保留原值不要寫到
+	odm_write_4byte(dm, 0xe94, 0xf76c9f84);
+	odm_write_4byte(dm, 0xec8, 0x000c5599);
+	odm_write_4byte(dm, 0xec4, 0x11838000);
+	odm_set_bb_reg(dm, 0xed4, 0xFFF000, 0x100);  /* 將cd4[23:12] 改成 h'100, 其它位元請保留原值不要寫到
      * 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xe90, 0x0101f018);
+	odm_write_4byte(dm, 0xe90, 0x0101f018);
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xec8, 0x800c5599);
-	odm_write_4byte(p_dm, 0xec8, 0x000c5599);
+	odm_write_4byte(dm, 0xec8, 0x800c5599);
+	odm_write_4byte(dm, 0xec8, 0x000c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
 	/* read back Loopback Gain */
-	odm_write_4byte(p_dm, 0xeb8, 0x09000000);
+	odm_write_4byte(dm, 0xeb8, 0x09000000);
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
-	tmp_lb_gain = _compute_loop_back_gain_path_b(p_dm);
+	tmp_lb_gain = _compute_loop_back_gain_path_b(dm);
 
 	/* coarse tune loopback gain by RF reg8f[14:13] = 2b'11 */
 	if (tmp_lb_gain < 263390) {
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8e001);
-		_fine_tune_loop_back_gain_path_b(p_dm, 0x50bfc);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8e001);
+		_fine_tune_loop_back_gain_path_b(dm, 0x50bfc);
 
 	} else if (tmp_lb_gain > 661607) {
 		/* coarse tune loopback gain by RF reg8f[14:13] = 2b'00 */
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x88001);
-		_fine_tune_loop_back_gain_path_b(p_dm, 0x50bfc);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x88001);
+		_fine_tune_loop_back_gain_path_b(dm, 0x50bfc);
 	} else
-		p_rf_calibrate_info->is_dpk_fail = false;
+		cali_info->is_dpk_fail = false;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_AdjustRFGain\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_AdjustRFGain\n");
 
-	return p_rf_calibrate_info->is_dpk_fail ? false : true;
+	return cali_info->is_dpk_fail ? false : true;
 
 }
 
@@ -2463,19 +2449,19 @@ _dpk_adjust_rf_gain_path_b(
 
 void
 _dpk_gain_loss_to_find_tx_agc_path_b(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	u32 reg0xd40 = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_GainLossToFindTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_GainLossToFindTxAGC\n");
 
 	/* RF setting */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x50bfc);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x50bfc);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* regc20[15:13] = dB sel, 告訴 Gain Loss function 去尋找 dB_sel 所設定的PA gain loss目標所對應的 Tx AGC 為何. */
 	/* dB_sel = b'000 ' 1.0 dB PA gain loss */
@@ -2485,19 +2471,19 @@ _dpk_gain_loss_to_find_tx_agc_path_b(
 	/* dB_sel = b'100 ' 3.0 dB PA gain loss */
 	/* dB_sel = b'101 ' 3.5 dB PA gain loss */
 	/* dB_sel = b'110 ' 4.0 dB PA gain loss */
-	odm_write_4byte(p_dm, 0xe20, 0x00002000);
+	odm_write_4byte(dm, 0xe20, 0x00002000);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xe94, 0xf76c9f84);
-	odm_write_4byte(p_dm, 0xec8, 0x000c5599);
-	odm_write_4byte(p_dm, 0xec4, 0x148b8000);
+	odm_write_4byte(dm, 0xe94, 0xf76c9f84);
+	odm_write_4byte(dm, 0xec8, 0x000c5599);
+	odm_write_4byte(dm, 0xec4, 0x148b8000);
 
 	/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xe90, 0x0401f018);
+	odm_write_4byte(dm, 0xe90, 0x0401f018);
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xec8, 0x800c5599);
-	odm_write_4byte(p_dm, 0xec8, 0x000c5599);
+	odm_write_4byte(dm, 0xec8, 0x800c5599);
+	odm_write_4byte(dm, 0xec8, 0x000c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
@@ -2514,181 +2500,181 @@ _dpk_gain_loss_to_find_tx_agc_path_b(
 	/* 讀回d00[3:0] = h'9 ' Tx AGC = h'1b */
 	/* 讀回d00[3:0] = h'a ' Tx AGC = h'1c */
 	/*  */
-	reg0xd40 = odm_read_4byte(p_dm, 0xd40);
-	switch (odm_read_4byte(p_dm, 0xd40) & (BIT(3) | BIT(2) | BIT(1) | BIT(0))) {
+	reg0xd40 = odm_read_4byte(dm, 0xd40);
+	switch (odm_read_4byte(dm, 0xd40) & (BIT(3) | BIT(2) | BIT(1) | BIT(0))) {
 	case 0x0:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x2;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x2;
 		break;
 	case 0x1:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x3;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x3;
 		break;
 	case 0x2:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x4;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x4;
 		break;
 	case 0x3:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x5;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x5;
 		break;
 	case 0x4:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x6;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x6;
 		break;
 	case 0x5:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x7;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x7;
 		break;
 	case 0x6:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x8;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x8;
 		break;
 	case 0x7:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0x9;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0x9;
 		break;
 	case 0x8:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0xa;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0xa;
 		break;
 	case 0x9:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0xb;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0xb;
 		break;
 	case 0xa:
-		p_rf_calibrate_info->dpk_tx_agc = 0x50bf0 | 0xc;
+		cali_info->dpk_tx_agc = 0x50bf0 | 0xc;
 		break;
 	}
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_GainLossToFindTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_GainLossToFindTxAGC\n");
 }
 
 
 boolean
 _dpk_adjust_rf_gain_by_found_tx_agc_path_b
 (
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	s32 tmp_lb_gain = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_AdjustRFGainByFoundTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_AdjustRFGainByFoundTxAGC\n");
 
 	/* RF setting, 重新設定RF reg00, 舉例用DPK Phase 2得到的 d40[3:0] = 0x6 ' TX AGC= 0x18 ' RF reg00[4:0] = 0x18 */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, p_rf_calibrate_info->dpk_tx_agc);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, cali_info->dpk_tx_agc);
 	/* Attn: A mode @ reg64[2:0], G mode @ reg56 */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x64, RFREGOFFSETMASK, 0x19aac);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x64, RFREGOFFSETMASK, 0x19aac);
 	/* PGA gain: RF reg8f[14:13] */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8a001);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8a001);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xe94, 0xf76c9f84);
-	odm_write_4byte(p_dm, 0xec8, 0x000c5599);
-	odm_write_4byte(p_dm, 0xec4, 0x11838000);
+	odm_write_4byte(dm, 0xe94, 0xf76c9f84);
+	odm_write_4byte(dm, 0xec8, 0x000c5599);
+	odm_write_4byte(dm, 0xec4, 0x11838000);
 
 	/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xe90, 0x0101f018);
+	odm_write_4byte(dm, 0xe90, 0x0101f018);
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xec8, 0x800c5599);
-	odm_write_4byte(p_dm, 0xec8, 0x000c5599);
+	odm_write_4byte(dm, 0xec8, 0x800c5599);
+	odm_write_4byte(dm, 0xec8, 0x000c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33d8d);
 
 
-	tmp_lb_gain = _compute_loop_back_gain_path_b(p_dm);
+	tmp_lb_gain = _compute_loop_back_gain_path_b(dm);
 
 	if (tmp_lb_gain < 263390) {
 		/* coarse tune loopback gain by RF reg8f[14:13] = 2b'11 */
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8e001);
-		_fine_tune_loop_back_gain_path_b(p_dm, p_rf_calibrate_info->dpk_tx_agc);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x8e001);
+		_fine_tune_loop_back_gain_path_b(dm, cali_info->dpk_tx_agc);
 	} else if (tmp_lb_gain > 661607) {
 		/* coarse tune loopback gain by RF reg8f[14:13] = 2b'00 */
-		odm_set_rf_reg(p_dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x88001);
-		_fine_tune_loop_back_gain_path_b(p_dm, p_rf_calibrate_info->dpk_tx_agc);
+		odm_set_rf_reg(dm, RF_PATH_B, 0x8f, RFREGOFFSETMASK, 0x88001);
+		_fine_tune_loop_back_gain_path_b(dm, cali_info->dpk_tx_agc);
 	} else
-		p_rf_calibrate_info->is_dpk_fail = false;/* Go to DPK Phase 4 */
+		cali_info->is_dpk_fail = false;/* Go to DPK Phase 4 */
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_AdjustRFGainByFoundTxAGC\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_AdjustRFGainByFoundTxAGC\n");
 
-	return p_rf_calibrate_info->is_dpk_fail ? false : true;
+	return cali_info->is_dpk_fail ? false : true;
 
 }
 
 
 void
 _dpk_do_auto_dpk_path_b(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 	u32 tmp_lb_gain = 0, reg0xd40 = 0;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _DPK_DoAutoDPK\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _DPK_DoAutoDPK\n");
 
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 	/* RF setting, 此處RF reg00, 與 DPK Phase 3 一致 */
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, p_rf_calibrate_info->dpk_tx_agc);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, cali_info->dpk_tx_agc);
 	/* Baseband data rate setting */
-	odm_write_4byte(p_dm, 0xe20, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe24, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe28, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe2c, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe30, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe34, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe38, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe3c, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe40, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe44, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe48, 0x3c3c3c3c);
-	odm_write_4byte(p_dm, 0xe4c, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe20, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe24, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe28, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe2c, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe30, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe34, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe38, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe3c, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe40, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe44, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe48, 0x3c3c3c3c);
+	odm_write_4byte(dm, 0xe4c, 0x3c3c3c3c);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* DPK setting */
-	odm_write_4byte(p_dm, 0xe94, 0xf76C9f84);
-	odm_write_4byte(p_dm, 0xec8, 0x400C5599);
-	odm_write_4byte(p_dm, 0xec4, 0x11938080);    /* 0xec4[9:4]= DPk fail threshold */
+	odm_write_4byte(dm, 0xe94, 0xf76C9f84);
+	odm_write_4byte(dm, 0xec8, 0x400C5599);
+	odm_write_4byte(dm, 0xec4, 0x11938080);    /* 0xec4[9:4]= DPk fail threshold */
 
-	if (36 <= *(p_dm->p_channel) && *(p_dm->p_channel) <= 53) /* Channelchannel at low band) */
+	if (36 <= *(dm->channel) && *(dm->channel) <= 53) /* Channelchannel at low band) */
 		/* r_agc */
-		odm_write_4byte(p_dm, 0xebc, 0x00022a1f);
+		odm_write_4byte(dm, 0xebc, 0x00022a1f);
 	else
 		/* r_agc */
-		odm_write_4byte(p_dm, 0xebc, 0x00009dbf);
+		odm_write_4byte(dm, 0xebc, 0x00009dbf);
 
 	/* 注意page c1的c90在DPK過程中千萬不能被其他thread or process改寫成page c的c90值 */
-	odm_write_4byte(p_dm, 0xe90, 0x0101f018); /* TODO: 0xe90(rA_LSSIWrite_Jaguar) can not be overwritten. */
+	odm_write_4byte(dm, 0xe90, 0x0101f018); /* TODO: 0xe90(rA_LSSIWrite_Jaguar) can not be overwritten. */
 
 	/* one shot */
-	odm_write_4byte(p_dm, 0xec8, 0xc00c5599);
-	odm_write_4byte(p_dm, 0xec8, 0x400c5599);
+	odm_write_4byte(dm, 0xec8, 0xc00c5599);
+	odm_write_4byte(dm, 0xec8, 0x400c5599);
 	/* delay 50 ms,讓 delay 時間長一點, 確定 PA Scan function 有做完 */
 	delay_ms(50);
 
 	/* reg82c[31] = 0 --> 切到 page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 	/* T-meter RFReg42[17] = 1 to enable read T-meter, [15:10] ' T-meter value */
-	odm_set_rf_reg(p_dm, RF_PATH_A, 0x42, BIT(17), 1);
-	p_rf_calibrate_info->dpk_thermal[RF_PATH_B] = odm_get_rf_reg(p_dm, RF_PATH_A, 0x42, 0xFC00);					/* 讀出42[15:10] 值並存到變數TMeter */
-	dbg_print("p_rf_calibrate_info->dpk_thermal[RF_PATH_B] = 0x%X\n", p_rf_calibrate_info->dpk_thermal[RF_PATH_B]);
-	odm_set_rf_reg(p_dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33D8D);
+	odm_set_rf_reg(dm, RF_PATH_A, 0x42, BIT(17), 1);
+	cali_info->dpk_thermal[RF_PATH_B] = odm_get_rf_reg(dm, RF_PATH_A, 0x42, 0xFC00);					/* 讀出42[15:10] 值並存到變數TMeter */
+	dbg_print("cali_info->dpk_thermal[RF_PATH_B] = 0x%X\n", cali_info->dpk_thermal[RF_PATH_B]);
+	odm_set_rf_reg(dm, RF_PATH_B, 0x00, RFREGOFFSETMASK, 0x33D8D);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 	/* read back dp_fail report */
-	odm_write_4byte(p_dm, 0xeb8, 0x00000000);
+	odm_write_4byte(dm, 0xeb8, 0x00000000);
 	/* dp_fail這個bit在d40[6], 當 d40[6] = 1, 表示calibration失敗. */
-	reg0xd40 = odm_read_4byte(p_dm, 0xd40);
+	reg0xd40 = odm_read_4byte(dm, 0xd40);
 
 	if ((reg0xd40 & BIT(6)) == BIT(6)) {
 		/* printf('DPK fail') */
-		p_rf_calibrate_info->is_dpk_fail = true;
+		cali_info->is_dpk_fail = true;
 		/* Go to DPK Phase 5 */
 	} else {
 		/* printf('DPK success') */
@@ -2696,11 +2682,11 @@ _dpk_do_auto_dpk_path_b(
 
 
 	/* read back */
-	odm_write_4byte(p_dm, 0xe90, 0x0201f01f);
-	odm_write_4byte(p_dm, 0xeb8, 0x0c000000);
+	odm_write_4byte(dm, 0xe90, 0x0201f01f);
+	odm_write_4byte(dm, 0xeb8, 0x0c000000);
 
 	/* reg82c[31] = 1 --> 切到 page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
 	/* 計算tmpGainLoss 用到的function hex2dec() 是將 twos complement的十六進位轉成十進位, 十六進位的格式為s11.9 */
 	/* 舉例1, d00[10:0] = h'3ff, 經過 hex2dec(h'3ff) = 1023, */
@@ -2708,65 +2694,65 @@ _dpk_do_auto_dpk_path_b(
 	/* 舉例3, d00[10:0] = h'0A9, 經過 hex2dec(h'0A9) = 169, */
 	/* 舉例4, d00[10:0] = h'54c, 經過 hex2dec(h'54c) = -692, */
 	/* 舉例4, d00[10:0] = h'7ff, 經過 hex2dec(h'7ff) = -1, */
-	tmp_lb_gain = _compute_loop_back_gain_path_b(p_dm);
+	tmp_lb_gain = _compute_loop_back_gain_path_b(dm);
 
 
 	/* Gain Scaling */
 	if (227007 < tmp_lb_gain)
-		p_rf_calibrate_info->dpk_gain = 0x43ca43ca;
+		cali_info->dpk_gain = 0x43ca43ca;
 	else if (214309 < tmp_lb_gain && tmp_lb_gain <= 227007)
-		p_rf_calibrate_info->dpk_gain = 0x45c545c5;
+		cali_info->dpk_gain = 0x45c545c5;
 	else if (202321 < tmp_lb_gain && tmp_lb_gain <= 214309)
-		p_rf_calibrate_info->dpk_gain = 0x47cf47cf;
+		cali_info->dpk_gain = 0x47cf47cf;
 	else if (191003 < tmp_lb_gain && tmp_lb_gain <= 202321)
-		p_rf_calibrate_info->dpk_gain = 0x49e749e7;
+		cali_info->dpk_gain = 0x49e749e7;
 	else if (180318 < tmp_lb_gain && tmp_lb_gain <= 191003)
-		p_rf_calibrate_info->dpk_gain = 0x4c104c10;
+		cali_info->dpk_gain = 0x4c104c10;
 	else if (170231 < tmp_lb_gain && tmp_lb_gain <= 180318)
-		p_rf_calibrate_info->dpk_gain = 0x4e494e49;
+		cali_info->dpk_gain = 0x4e494e49;
 	else if (160709 < tmp_lb_gain && tmp_lb_gain <= 170231)
-		p_rf_calibrate_info->dpk_gain = 0x50925092;
+		cali_info->dpk_gain = 0x50925092;
 	else if (151719 < tmp_lb_gain && tmp_lb_gain <= 160709)
-		p_rf_calibrate_info->dpk_gain = 0x52ec52ec;
+		cali_info->dpk_gain = 0x52ec52ec;
 	else if (151719 <= tmp_lb_gain)
-		p_rf_calibrate_info->dpk_gain = 0x55585558;
+		cali_info->dpk_gain = 0x55585558;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _DPK_DoAutoDPK\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _DPK_DoAutoDPK\n");
 }
 
 
 void
 _dpk_enable_dp_path_b(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
-	struct odm_rf_calibration_structure  *p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct  *cali_info = &(dm->rf_calibrate_info);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> _dpk_enable_dp\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> _dpk_enable_dp\n");
 
 	/* [31] = 1 --> switch to page C1 */
-	odm_write_4byte(p_dm, 0x82c, 0x802083dd);
+	odm_write_4byte(dm, 0x82c, 0x802083dd);
 
 	/* enable IQC matrix --> 因為 BB 信號會先經過 predistortion module, 才經過 IQC matrix 到 DAC 打出去 */
 	/* 所以要先 enable predistortion module {c90[7] = 1 (enable_predis) cc4[18] = 1 (確定讓 IQK/DPK module 有clock), cc8[29] = 1 (一個IQK/DPK module 裡的mux, 確認 data path 走IQK/DPK)} */
-	odm_write_4byte(p_dm, 0xe90, 0x0000f098);
-	odm_write_4byte(p_dm, 0xe94, 0x776d9f84);
-	odm_write_4byte(p_dm, 0xec8, 0x20000000);
-	odm_write_4byte(p_dm, 0xe8c, 0x3c000000);
+	odm_write_4byte(dm, 0xe90, 0x0000f098);
+	odm_write_4byte(dm, 0xe94, 0x776d9f84);
+	odm_write_4byte(dm, 0xec8, 0x20000000);
+	odm_write_4byte(dm, 0xe8c, 0x3c000000);
 	/* r_bnd */
-	odm_write_4byte(p_dm, 0xeb8, 0x000fffff);
+	odm_write_4byte(dm, 0xeb8, 0x000fffff);
 
-	if (p_rf_calibrate_info->is_dpk_fail) {
+	if (cali_info->is_dpk_fail) {
 		/* cc4[29] = 1 (bypass DP LUT) */
-		odm_write_4byte(p_dm, 0xe98, 0x40004000);
-		odm_write_4byte(p_dm, 0xec4, 0x28840000);
+		odm_write_4byte(dm, 0xe98, 0x40004000);
+		odm_write_4byte(dm, 0xec4, 0x28840000);
 	} else {
-		odm_write_4byte(p_dm, 0xe98, p_rf_calibrate_info->dpk_gain);
-		odm_write_4byte(p_dm, 0xec4, 0x08840000);
+		odm_write_4byte(dm, 0xe98, cali_info->dpk_gain);
+		odm_write_4byte(dm, 0xec4, 0x08840000);
 
 		/* PWSF */
 		/* 寫PWSF table in 1st SRAM for PA = 11 use */
-		odm_write_4byte(p_dm, 0xe20, 0x00000800);
+		odm_write_4byte(dm, 0xe20, 0x00000800);
 
 		/* ******************************************************* */
 		/* 0xee4[0]是write enable，0xee4[7:1]是address，0xee4[15:8]和0xee4[23:16]對應到TX index， */
@@ -2787,7 +2773,7 @@ _dpk_enable_dp_path_b(
 				0x03, 0x03, 0x02, 0x02, 0x01, 0x01
 			};
 
-			u32 center_tx_idx = p_rf_calibrate_info->dpk_tx_agc & 0x1F;
+			u32 center_tx_idx = cali_info->dpk_tx_agc & 0x1F;
 			u32 center_addr = (0x1F - center_tx_idx) / 2;
 			s32 i = 0, j = 0, value = 0, start_idx = 0;
 
@@ -2800,8 +2786,8 @@ _dpk_enable_dp_path_b(
 				else
 					value = (table_pwsf[i] << 16) | (table_pwsf[i - 1] << 8) | ((center_addr - j) << 1) | 0x1;
 
-				odm_write_4byte(p_dm, 0xee4, value);
-				odm_write_1byte(p_dm, 0xee4, 0x0);		/* write disable */
+				odm_write_4byte(dm, 0xee4, value);
+				odm_write_1byte(dm, 0xee4, 0x0);		/* write disable */
 			}
 
 			/* Lower */
@@ -2812,15 +2798,15 @@ _dpk_enable_dp_path_b(
 					value = (table_pwsf[LEN - 1] << 16) | (table_pwsf[LEN - 1] << 8) | ((center_addr + j) << 1) | 0x1;
 				else
 					value = (table_pwsf[i + 1] << 16) | (table_pwsf[i] << 8) | ((center_addr + j) << 1) | 0x1;
-				odm_write_4byte(p_dm, 0xee4, value);
-				odm_write_1byte(p_dm, 0xee4, 0x0);		/* write disable */
+				odm_write_4byte(dm, 0xee4, value);
+				odm_write_1byte(dm, 0xee4, 0x0);		/* write disable */
 			}
 		}
 	}
 	/* [31] = 0 --> switch to page C */
-	odm_write_4byte(p_dm, 0x82c, 0x002083dd);
+	odm_write_4byte(dm, 0x82c, 0x002083dd);
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== _dpk_enable_dp\n"));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== _dpk_enable_dp\n");
 
 }
 
@@ -2830,7 +2816,7 @@ _dpk_enable_dp_path_b(
 
 void
 _phy_dp_calibrate_path_b_8812a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
 	u32 backup_mac_bb_reg_addrs[] = {
@@ -2845,36 +2831,36 @@ _phy_dp_calibrate_path_b_8812a(
 	/* u32 backupRFRegData_B[sizeof(backup_rf_reg_addrs)/sizeof(u32)]; */
 
 
-	_dpk_mac_bb_backup_path_b(p_dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
-	_dpk_rf_backup_path_b(p_dm, backup_rf_reg_addrs, RF_PATH_B, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
+	_dpk_mac_bb_backup_path_b(dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
+	_dpk_rf_backup_path_b(dm, backup_rf_reg_addrs, RF_PATH_B, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
 
-	_dpk_init_path_b(p_dm);
+	_dpk_init_path_b(dm);
 
-	if (_dpk_adjust_rf_gain_path_b(p_dm)) {               /* Phase 1 */
-		_dpk_gain_loss_to_find_tx_agc_path_b(p_dm);          /* Phase 2 */
-		if (_dpk_adjust_rf_gain_by_found_tx_agc_path_b(p_dm)) /* Phase 3 */
-			_dpk_do_auto_dpk_path_b(p_dm);                /* Phase 4 */
+	if (_dpk_adjust_rf_gain_path_b(dm)) {               /* Phase 1 */
+		_dpk_gain_loss_to_find_tx_agc_path_b(dm);          /* Phase 2 */
+		if (_dpk_adjust_rf_gain_by_found_tx_agc_path_b(dm)) /* Phase 3 */
+			_dpk_do_auto_dpk_path_b(dm);                /* Phase 4 */
 	}
-	_dpk_enable_dp_path_b(p_dm);                         /* Phase 5 */
+	_dpk_enable_dp_path_b(dm);                         /* Phase 5 */
 
-	_dpk_mac_bb_restore_path_b(p_dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
-	_dpk_rf_restore_path_b(p_dm, backup_rf_reg_addrs, RF_PATH_B, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
+	_dpk_mac_bb_restore_path_b(dm, backup_mac_bb_reg_addrs, backup_mac_bb_reg_data, sizeof(backup_mac_bb_reg_addrs) / sizeof(u32));
+	_dpk_rf_restore_path_b(dm, backup_rf_reg_addrs, RF_PATH_B, backup_rf_reg_data_a, sizeof(backup_rf_reg_addrs) / sizeof(u32));
 }
 #endif
 void
 phy_dp_calibrate_8812a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 )
 {
 #if 0	
 
-	struct _hal_rf_		*p_rf = &(p_dm->rf_table);
+	struct _hal_rf_		*rf = &(dm->rf_table);
 	
-	p_rf->dpk_done = true;
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("===> phy_dp_calibrate_8812a\n"));
-	_phy_dp_calibrate_path_a_8812a(p_dm);
-	_phy_dp_calibrate_path_b_8812a(p_dm);
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("<=== phy_dp_calibrate_8812a\n"));
+	rf->dpk_done = true;
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "===> phy_dp_calibrate_8812a\n");
+	_phy_dp_calibrate_path_a_8812a(dm);
+	_phy_dp_calibrate_path_b_8812a(dm);
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "<=== phy_dp_calibrate_8812a\n");
 #endif
 }
 

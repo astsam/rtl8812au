@@ -15,6 +15,8 @@
 #ifndef _RTW_HT_H_
 #define _RTW_HT_H_
 
+#define HT_CAP_IE_LEN 26
+#define HT_OP_IE_LEN 22
 
 struct ht_priv {
 	u8	ht_option;
@@ -42,7 +44,10 @@ struct ht_priv {
 	u8	beamform_cap;
 	u8	smps_cap; /*spatial multiplexing power save mode. 0:static SMPS, 1:dynamic SMPS, 3:SMPS disabled, 2:reserved*/
 
+	u8 op_present:1; /* ht_op is present */
+
 	struct rtw_ieee80211_ht_cap ht_cap;
+	u8 ht_op[HT_OP_IE_LEN];
 
 };
 
@@ -138,6 +143,9 @@ typedef enum _RT_HT_INF1_CAP {
 	, (1 << (13+GET_HT_CAP_ELE_MAX_AMPDU_LEN_EXP(((u8 *)x)-2)))-1 \
 	, GET_HT_CAP_ELE_MIN_MPDU_S_SPACE(((u8 *)x)-2)
 
+#define SET_HT_CAP_ELE_MAX_AMPDU_LEN_EXP(_pEleStart, _val)	SET_BITS_TO_LE_1BYTE(((u8 *)(_pEleStart)) + 2, 0, 2, _val)
+#define SET_HT_CAP_ELE_MIN_MPDU_S_SPACE(_pEleStart, _val)	SET_BITS_TO_LE_1BYTE(((u8 *)(_pEleStart)) + 2, 2, 3, _val)
+
 /* Supported MCS Set field */
 #define HT_CAP_ELE_SUP_MCS_SET(_pEleStart)				(((u8 *)(_pEleStart))+3)
 #define HT_CAP_ELE_RX_MCS_MAP(_pEleStart)				HT_CAP_ELE_SUP_MCS_SET(_pEleStart)
@@ -147,11 +155,14 @@ typedef enum _RT_HT_INF1_CAP {
 #define GET_HT_CAP_ELE_TX_MAX_SS(_pEleStart)			LE_BITS_TO_1BYTE(((u8 *)(_pEleStart))+15, 2, 2)
 #define GET_HT_CAP_ELE_TX_UEQM(_pEleStart)				LE_BITS_TO_1BYTE(((u8 *)(_pEleStart))+15, 4, 1)
 
-#define HT_SUP_MCS_SET_FMT "%02x %02x %02x %02x %02x%02x%02x%02x%02x%02x" \
+#define HT_RX_MCS_BMP_FMT "%02x %02x %02x %02x %02x%02x%02x%02x%02x%02x"
+#define HT_RX_MCS_BMP_ARG(x) ((u8 *)(x))[0], ((u8 *)(x))[1], ((u8 *)(x))[2], ((u8 *)(x))[3], ((u8 *)(x))[4], ((u8 *)(x))[5], \
+	((u8 *)(x))[6], ((u8 *)(x))[7], ((u8 *)(x))[8], ((u8 *)(x))[9]
+
+#define HT_SUP_MCS_SET_FMT HT_RX_MCS_BMP_FMT \
 	/* "\n%02x%02x%02x%02x%02x%02x" */\
 	" %uMbps %s%s%s"
-#define HT_SUP_MCS_SET_ARG(x) ((u8 *)(x))[0], ((u8 *)(x))[1], ((u8 *)(x))[2], ((u8 *)(x))[3], ((u8 *)(x))[4], ((u8 *)(x))[5], \
-	((u8 *)(x))[6], ((u8 *)(x))[7], ((u8 *)(x))[8], ((u8 *)(x))[9] \
+#define HT_SUP_MCS_SET_ARG(x) HT_RX_MCS_BMP_ARG(x) \
 	/*,((u8 *)(x))[10], ((u8 *)(x))[11], ((u8 *)(x))[12], ((u8 *)(x))[13], ((u8 *)(x))[14], ((u8 *)(x))[15] */\
 	, GET_HT_CAP_ELE_RX_HIGHEST_DATA_RATE(((u8 *)x)-3) \
 	, GET_HT_CAP_ELE_TX_MCS_DEF(((u8 *)x)-3) ? "TX_MCS_DEF " : "" \

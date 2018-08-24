@@ -174,10 +174,11 @@ typedef enum _bt_op_code {
 	BT_OP_GET_BT_COEX_SUPPORTED_FEATURE		= 0x2a,
 	BT_OP_GET_BT_COEX_SUPPORTED_VERSION		= 0x2b,
 	BT_OP_GET_BT_ANT_DET_VAL				= 0x2c,
-	BT_OP_GET_BT_BLE_SCAN_PARA				= 0x2d,
-	BT_OP_GET_BT_BLE_SCAN_TYPE				= 0x2e,
+	BT_OP_GET_BT_BLE_SCAN_TYPE				= 0x2d,
+	BT_OP_GET_BT_BLE_SCAN_PARA				= 0x2e,
 	BT_OP_GET_BT_DEVICE_INFO				= 0x30,
 	BT_OP_GET_BT_FORBIDDEN_SLOT_VAL			= 0x31,
+	BT_OP_SET_BT_LANCONSTRAIN_LEVEL			= 0x32,
 	BT_OP_MAX
 } BT_OP_CODE;
 
@@ -1188,6 +1189,30 @@ u8 halbtcoutsrc_Get(void *pBtcContext, u8 getType, void *pOutBuf)
 	return ret;
 }
 
+u16 halbtcoutsrc_LnaConstrainLvl(void *pBtcContext, u8 *lna_constrain_level)
+{
+	PBTC_COEXIST pBtCoexist;
+	u16 ret = BT_STATUS_BT_OP_SUCCESS;
+
+	pBtCoexist = (PBTC_COEXIST)pBtcContext;
+
+	if (halbtcoutsrc_IsHwMailboxExist(pBtCoexist) == _TRUE) {
+		_irqL irqL;
+		u8 op_code;
+
+		_enter_critical_mutex(&GLBtcBtMpOperLock, &irqL);
+
+		ret = _btmpoper_cmd(pBtCoexist, BT_OP_SET_BT_LANCONSTRAIN_LEVEL, 0, lna_constrain_level, 1);
+
+		_exit_critical_mutex(&GLBtcBtMpOperLock, &irqL);
+	} else { 
+		ret = BT_STATUS_NOT_IMPLEMENT;
+		RTW_INFO("%s halbtcoutsrc_IsHwMailboxExist(pBtCoexist) == FALSE\n", __func__);
+	}
+
+	return ret;
+}
+
 u8 halbtcoutsrc_Set(void *pBtcContext, u8 setType, void *pInBuf)
 {
 	PBTC_COEXIST pBtCoexist;
@@ -1387,6 +1412,9 @@ u8 halbtcoutsrc_Set(void *pBtcContext, u8 setType, void *pInBuf)
 #else
 		ret = _FALSE;
 #endif
+		break;
+	case BTC_SET_BL_BT_LNA_CONSTRAIN_LEVEL:
+		halbtcoutsrc_LnaConstrainLvl(pBtCoexist, pu8);
 		break;
 	/* ===================== */
 	default:
@@ -2211,11 +2239,12 @@ u32 halbtcoutsrc_GetBleScanParaFromBt(void *pBtcContext, u8 scanType)
 		u8 op_code;
 		u8 status;
 		
+		buf[0] = scanType;
 
 		_enter_critical_mutex(&GLBtcBtMpOperLock, &irqL);
 
 		op_code = BT_OP_GET_BT_BLE_SCAN_PARA;
-		status = _btmpoper_cmd(pBtCoexist, op_code, 0, buf, 0);
+		status = _btmpoper_cmd(pBtCoexist, op_code, 0, buf, 1);
 		if (status == BT_STATUS_BT_OP_SUCCESS)
 			data = le32_to_cpu(*(u32 *)GLBtcBtMpRptRsp);
 		else
@@ -2342,7 +2371,7 @@ u32 halbtcoutsrc_phydm_query_PHY_counter(void *pBtcContext, u8 info_type)
 
 /* switch to #if 0 in case the phydm version does not provide the function */
 #if 1
-	return phydm_cmn_info_query((struct PHY_DM_STRUCT *)pBtCoexist->odm_priv, (enum phydm_info_query_e)info_type);
+	return phydm_cmn_info_query((struct dm_struct *)pBtCoexist->odm_priv, (enum phydm_info_query)info_type);
 #else
 	return 0;
 #endif
@@ -2469,7 +2498,6 @@ void BT_CoexOffloadC2hCheck(PADAPTER Adapter, u8 *Buffer, u8 Length)
 u8 EXhalbtcoutsrc_BindBtCoexWithAdapter(void *padapter)
 {
 	PBTC_COEXIST		pBtCoexist = &GLBtCoexist;
-	u8	antNum = 1, chipType = 0, singleAntPath = 0;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA((PADAPTER)padapter);
 
 	if (pBtCoexist->bBinded)
@@ -2489,6 +2517,14 @@ u8 EXhalbtcoutsrc_BindBtCoexWithAdapter(void *padapter)
 
 	pBtCoexist->bt_info.increase_scan_dev_num = _FALSE;
 	pBtCoexist->bt_info.miracast_plus_bt = _FALSE;
+
+	return _TRUE;
+}
+
+void EXhalbtcoutsrc_AntInfoSetting(void *padapter)
+{
+	PBTC_COEXIST		pBtCoexist = &GLBtCoexist;
+	u8	antNum = 1, singleAntPath = 0;
 
 	antNum = rtw_btcoex_get_pg_ant_num((PADAPTER)padapter);
 	EXhalbtcoutsrc_SetAntNum(BT_COEX_ANT_TYPE_PG, antNum);
@@ -2512,7 +2548,6 @@ u8 EXhalbtcoutsrc_BindBtCoexWithAdapter(void *padapter)
 
 	pBtCoexist->board_info.ant_div_cfg = rtw_btcoex_get_ant_div_cfg((PADAPTER)padapter);
 
-	return _TRUE;
 }
 
 u8 EXhalbtcoutsrc_InitlizeVariables(void *padapter)
@@ -2611,44 +2646,56 @@ void EXhalbtcoutsrc_PowerOnSetting(PBTC_COEXIST pBtCoexist)
 	pHalData = GET_HAL_DATA((PADAPTER)pBtCoexist->Adapter);
 
 	if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723B
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_power_on_setting(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_power_on_setting(pBtCoexist);
+#endif
 	}
 
-	if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_power_on_setting(pBtCoexist);
 	}
+#endif
 
-	if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_power_on_setting(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_power_on_setting(pBtCoexist);
 	}
+#endif
 
-	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8821A
+	else if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_power_on_setting(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_power_on_setting(pBtCoexist);
 	}
+#endif
 
-	if ((IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) && (pHalData->EEPROMBluetoothCoexist == _TRUE)) {
+#ifdef CONFIG_RTL8822B
+	else if ((IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) && (pHalData->EEPROMBluetoothCoexist == _TRUE)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_power_on_setting(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_power_on_setting(pBtCoexist);
 	}
+#endif
 
-	if ((IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) && (pHalData->EEPROMBluetoothCoexist == _TRUE)) {
+#ifdef CONFIG_RTL8821C
+	else if ((IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) && (pHalData->EEPROMBluetoothCoexist == _TRUE)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_power_on_setting(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_power_on_setting(pBtCoexist);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_PreLoadFirmware(PBTC_COEXIST pBtCoexist)
@@ -2659,25 +2706,31 @@ void EXhalbtcoutsrc_PreLoadFirmware(PBTC_COEXIST pBtCoexist)
 	pBtCoexist->statistics.cnt_pre_load_firmware++;
 
 	if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723B
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_pre_load_firmware(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_pre_load_firmware(pBtCoexist);
+#endif
 	}
 
-	if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_pre_load_firmware(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_pre_load_firmware(pBtCoexist);
 	}
+#endif
 
-	if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_pre_load_firmware(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_pre_load_firmware(pBtCoexist);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_init_hw_config(PBTC_COEXIST pBtCoexist, u8 bWifiOnly)
@@ -2688,39 +2741,59 @@ void EXhalbtcoutsrc_init_hw_config(PBTC_COEXIST pBtCoexist, u8 bWifiOnly)
 	pBtCoexist->statistics.cnt_init_hw_config++;
 
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_init_hw_config(pBtCoexist, bWifiOnly);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_init_hw_config(pBtCoexist, bWifiOnly);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_init_hw_config(pBtCoexist, bWifiOnly);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_init_hw_config(pBtCoexist, bWifiOnly);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_init_hw_config(pBtCoexist, bWifiOnly);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_init_hw_config(pBtCoexist, bWifiOnly);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_init_hw_config(pBtCoexist, bWifiOnly);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_init_hw_config(pBtCoexist, bWifiOnly);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_init_hw_config(pBtCoexist, bWifiOnly);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_init_hw_config(pBtCoexist, bWifiOnly);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_init_hw_config(pBtCoexist, bWifiOnly);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_init_hw_config(pBtCoexist, bWifiOnly);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_init_hw_config(pBtCoexist, bWifiOnly);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
@@ -2729,7 +2802,11 @@ void EXhalbtcoutsrc_init_hw_config(PBTC_COEXIST pBtCoexist, u8 bWifiOnly)
 		rtw_hal_set_default_port_id_cmd(pBtCoexist->Adapter, 0);
 		rtw_hal_set_wifi_port_id_cmd(pBtCoexist->Adapter);
 		#endif
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_init_hw_config(pBtCoexist, bWifiOnly);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
@@ -2739,6 +2816,7 @@ void EXhalbtcoutsrc_init_hw_config(PBTC_COEXIST pBtCoexist, u8 bWifiOnly)
 		rtw_hal_set_wifi_port_id_cmd(pBtCoexist->Adapter);
 		#endif
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_init_coex_dm(PBTC_COEXIST pBtCoexist)
@@ -2749,49 +2827,74 @@ void EXhalbtcoutsrc_init_coex_dm(PBTC_COEXIST pBtCoexist)
 	pBtCoexist->statistics.cnt_init_coex_dm++;
 
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_init_coex_dm(pBtCoexist);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_init_coex_dm(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_init_coex_dm(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_init_coex_dm(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_init_coex_dm(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_init_coex_dm(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_init_coex_dm(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_init_coex_dm(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_init_coex_dm(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_init_coex_dm(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_init_coex_dm(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_init_coex_dm(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_init_coex_dm(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_init_coex_dm(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_init_coex_dm(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_init_coex_dm(pBtCoexist);
 	}
+#endif
 
 	pBtCoexist->initilized = _TRUE;
 }
@@ -2819,50 +2922,74 @@ void EXhalbtcoutsrc_ips_notify(PBTC_COEXIST pBtCoexist, u8 type)
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
 
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_ips_notify(pBtCoexist, ipsType);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_ips_notify(pBtCoexist, ipsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_ips_notify(pBtCoexist, ipsType);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_ips_notify(pBtCoexist, ipsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_ips_notify(pBtCoexist, ipsType);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_ips_notify(pBtCoexist, ipsType);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_ips_notify(pBtCoexist, ipsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_ips_notify(pBtCoexist, ipsType);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_ips_notify(pBtCoexist, ipsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_ips_notify(pBtCoexist, ipsType);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_ips_notify(pBtCoexist, ipsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_ips_notify(pBtCoexist, ipsType);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_ips_notify(pBtCoexist, ipsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_ips_notify(pBtCoexist, ipsType);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_ips_notify(pBtCoexist, ipsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_ips_notify(pBtCoexist, ipsType);
 	}
-
+#endif
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
 
@@ -2887,49 +3014,74 @@ void EXhalbtcoutsrc_lps_notify(PBTC_COEXIST pBtCoexist, u8 type)
 	}
 
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_lps_notify(pBtCoexist, lpsType);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_lps_notify(pBtCoexist, lpsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_lps_notify(pBtCoexist, lpsType);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_lps_notify(pBtCoexist, lpsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_lps_notify(pBtCoexist, lpsType);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_lps_notify(pBtCoexist, lpsType);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_lps_notify(pBtCoexist, lpsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_lps_notify(pBtCoexist, lpsType);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_lps_notify(pBtCoexist, lpsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_lps_notify(pBtCoexist, lpsType);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_lps_notify(pBtCoexist, lpsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_lps_notify(pBtCoexist, lpsType);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_lps_notify(pBtCoexist, lpsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_lps_notify(pBtCoexist, lpsType);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_lps_notify(pBtCoexist, lpsType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_lps_notify(pBtCoexist, lpsType);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_scan_notify(PBTC_COEXIST pBtCoexist, u8 type)
@@ -2954,49 +3106,74 @@ void EXhalbtcoutsrc_scan_notify(PBTC_COEXIST pBtCoexist, u8 type)
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
 
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_scan_notify(pBtCoexist, scanType);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_scan_notify(pBtCoexist, scanType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_scan_notify(pBtCoexist, scanType);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_scan_notify(pBtCoexist, scanType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_scan_notify(pBtCoexist, scanType);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_scan_notify(pBtCoexist, scanType);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_scan_notify(pBtCoexist, scanType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_scan_notify(pBtCoexist, scanType);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_scan_notify(pBtCoexist, scanType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_scan_notify(pBtCoexist, scanType);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_scan_notify(pBtCoexist, scanType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_scan_notify(pBtCoexist, scanType);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_scan_notify(pBtCoexist, scanType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_scan_notify(pBtCoexist, scanType);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_scan_notify(pBtCoexist, scanType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_scan_notify(pBtCoexist, scanType);
 	}
+#endif
 
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -3031,68 +3208,85 @@ void EXhalbtcoutsrc_SetAntennaPathNotify(PBTC_COEXIST pBtCoexist, u8 type)
 #endif
 }
 
-void EXhalbtcoutsrc_connect_notify(PBTC_COEXIST pBtCoexist, u8 action)
+void EXhalbtcoutsrc_connect_notify(PBTC_COEXIST pBtCoexist, u8 assoType)
 {
-	u8	assoType;
-
 	if (!halbtcoutsrc_IsBtCoexistAvailable(pBtCoexist))
 		return;
 	pBtCoexist->statistics.cnt_connect_notify++;
 	if (pBtCoexist->manual_control)
 		return;
-
-	if (action)
-		assoType = BTC_ASSOCIATE_START;
-	else
-		assoType = BTC_ASSOCIATE_FINISH;
-
+	
 	/* All notify is called in cmd thread, don't need to leave low power again
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
-
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_connect_notify(pBtCoexist, assoType);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_connect_notify(pBtCoexist, assoType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_connect_notify(pBtCoexist, assoType);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_connect_notify(pBtCoexist, assoType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_connect_notify(pBtCoexist, assoType);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_connect_notify(pBtCoexist, assoType);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_connect_notify(pBtCoexist, assoType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_connect_notify(pBtCoexist, assoType);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_connect_notify(pBtCoexist, assoType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_connect_notify(pBtCoexist, assoType);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_connect_notify(pBtCoexist, assoType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_connect_notify(pBtCoexist, assoType);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_connect_notify(pBtCoexist, assoType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_connect_notify(pBtCoexist, assoType);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_connect_notify(pBtCoexist, assoType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_connect_notify(pBtCoexist, assoType);
 	}
+#endif
 
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -3115,51 +3309,75 @@ void EXhalbtcoutsrc_media_status_notify(PBTC_COEXIST pBtCoexist, RT_MEDIA_STATUS
 
 	/* All notify is called in cmd thread, don't need to leave low power again
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
-
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_media_status_notify(pBtCoexist, mStatus);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_media_status_notify(pBtCoexist, mStatus);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_media_status_notify(pBtCoexist, mStatus);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_media_status_notify(pBtCoexist, mStatus);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_media_status_notify(pBtCoexist, mStatus);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_media_status_notify(pBtCoexist, mStatus);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_media_status_notify(pBtCoexist, mStatus);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_media_status_notify(pBtCoexist, mStatus);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_media_status_notify(pBtCoexist, mStatus);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_media_status_notify(pBtCoexist, mStatus);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_media_status_notify(pBtCoexist, mStatus);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_media_status_notify(pBtCoexist, mStatus);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_media_status_notify(pBtCoexist, mStatus);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_media_status_notify(pBtCoexist, mStatus);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_media_status_notify(pBtCoexist, mStatus);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_media_status_notify(pBtCoexist, mStatus);
 	}
+#endif
 
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -3187,51 +3405,75 @@ void EXhalbtcoutsrc_specific_packet_notify(PBTC_COEXIST pBtCoexist, u8 pktType)
 
 	/* All notify is called in cmd thread, don't need to leave low power again
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
-
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_specific_packet_notify(pBtCoexist, packetType);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_specific_packet_notify(pBtCoexist, packetType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_specific_packet_notify(pBtCoexist, packetType);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_specific_packet_notify(pBtCoexist, packetType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_specific_packet_notify(pBtCoexist, packetType);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_specific_packet_notify(pBtCoexist, packetType);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_specific_packet_notify(pBtCoexist, packetType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_specific_packet_notify(pBtCoexist, packetType);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_specific_packet_notify(pBtCoexist, packetType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_specific_packet_notify(pBtCoexist, packetType);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_specific_packet_notify(pBtCoexist, packetType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_specific_packet_notify(pBtCoexist, packetType);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_specific_packet_notify(pBtCoexist, packetType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_specific_packet_notify(pBtCoexist, packetType);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_specific_packet_notify(pBtCoexist, packetType);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_specific_packet_notify(pBtCoexist, packetType);
 	}
+#endif
 
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -3245,51 +3487,75 @@ void EXhalbtcoutsrc_bt_info_notify(PBTC_COEXIST pBtCoexist, u8 *tmpBuf, u8 lengt
 
 	/* All notify is called in cmd thread, don't need to leave low power again
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
-
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_bt_info_notify(pBtCoexist, tmpBuf, length);
 	}
+#endif
 
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -3298,21 +3564,31 @@ void EXhalbtcoutsrc_WlFwDbgInfoNotify(PBTC_COEXIST pBtCoexist, u8* tmpBuf, u8 le
 {
 	if (!halbtcoutsrc_IsBtCoexistAvailable(pBtCoexist))
 		return;
-	
+
 	if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8703B
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_wl_fwdbginfo_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_wl_fwdbginfo_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_wl_fwdbginfo_notify(pBtCoexist, tmpBuf, length);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_wl_fwdbginfo_notify(pBtCoexist, tmpBuf, length);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_wl_fwdbginfo_notify(pBtCoexist, tmpBuf, length);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_rx_rate_change_notify(PBTC_COEXIST pBtCoexist, u8 is_data_frame, u8 btc_rate_id)
@@ -3323,19 +3599,29 @@ void EXhalbtcoutsrc_rx_rate_change_notify(PBTC_COEXIST pBtCoexist, u8 is_data_fr
 	pBtCoexist->statistics.cnt_rate_id_notify++;
 
 	if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8703B
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_rx_rate_change_notify(pBtCoexist, is_data_frame, btc_rate_id);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_rx_rate_change_notify(pBtCoexist, is_data_frame, btc_rate_id);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_rx_rate_change_notify(pBtCoexist, is_data_frame, btc_rate_id);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_rx_rate_change_notify(pBtCoexist, is_data_frame, btc_rate_id);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_rx_rate_change_notify(pBtCoexist, is_data_frame, btc_rate_id);
 	}
+#endif
 }
 
 VOID
@@ -3348,29 +3634,44 @@ EXhalbtcoutsrc_RfStatusNotify(
 		return;
 	pBtCoexist->statistics.cnt_rf_status_notify++;
 
-	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+	if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723B
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_rf_status_notify(pBtCoexist, type);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_rf_status_notify(pBtCoexist, type);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_rf_status_notify(pBtCoexist, type);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_rf_status_notify(pBtCoexist, type);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_rf_status_notify(pBtCoexist, type);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_rf_status_notify(pBtCoexist, type);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_rf_status_notify(pBtCoexist, type);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_StackOperationNotify(PBTC_COEXIST pBtCoexist, u8 type)
@@ -3405,49 +3706,74 @@ void EXhalbtcoutsrc_halt_notify(PBTC_COEXIST pBtCoexist)
 		return;
 
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_halt_notify(pBtCoexist);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_halt_notify(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_halt_notify(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_halt_notify(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_halt_notify(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_halt_notify(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_halt_notify(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_halt_notify(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_halt_notify(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_halt_notify(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_halt_notify(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_halt_notify(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_halt_notify(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_halt_notify(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_halt_notify(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_halt_notify(pBtCoexist);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_SwitchBtTRxMask(PBTC_COEXIST pBtCoexist)
@@ -3470,47 +3796,71 @@ void EXhalbtcoutsrc_pnp_notify(PBTC_COEXIST pBtCoexist, u8 pnpState)
 	/* currently only 1ant we have to do the notification, */
 	/* once pnp is notified to sleep state, we have to leave LPS that we can sleep normally. */
 	/*  */
-
 	if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723B
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_pnp_notify(pBtCoexist, pnpState);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_pnp_notify(pBtCoexist, pnpState);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_pnp_notify(pBtCoexist, pnpState);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_pnp_notify(pBtCoexist, pnpState);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_pnp_notify(pBtCoexist, pnpState);
-	} else if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_pnp_notify(pBtCoexist, pnpState);
-		else
+	}
 #endif
+
+#ifdef CONFIG_RTL8821A
+	else if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_pnp_notify(pBtCoexist, pnpState);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_pnp_notify(pBtCoexist, pnpState);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_pnp_notify(pBtCoexist, pnpState);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_pnp_notify(pBtCoexist, pnpState);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_pnp_notify(pBtCoexist, pnpState);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_pnp_notify(pBtCoexist, pnpState);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_pnp_notify(pBtCoexist, pnpState);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_pnp_notify(pBtCoexist, pnpState);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_CoexDmSwitch(PBTC_COEXIST pBtCoexist)
@@ -3522,6 +3872,7 @@ void EXhalbtcoutsrc_CoexDmSwitch(PBTC_COEXIST pBtCoexist)
 	halbtcoutsrc_LeaveLowPower(pBtCoexist);
 
 	if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723B
 		if (pBtCoexist->board_info.btdm_ant_num == 1) {
 			pBtCoexist->stop_coex_dm = TRUE;
 			ex_halbtc8723b1ant_coex_dm_reset(pBtCoexist);
@@ -3530,7 +3881,11 @@ void EXhalbtcoutsrc_CoexDmSwitch(PBTC_COEXIST pBtCoexist)
 			ex_halbtc8723b2ant_init_coex_dm(pBtCoexist);
 			pBtCoexist->stop_coex_dm = FALSE;
 		}
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1) {
 			pBtCoexist->stop_coex_dm = TRUE;
 			ex_halbtc8723d1ant_coex_dm_reset(pBtCoexist);
@@ -3540,6 +3895,7 @@ void EXhalbtcoutsrc_CoexDmSwitch(PBTC_COEXIST pBtCoexist)
 			pBtCoexist->stop_coex_dm = FALSE;
 		}
 	}
+#endif
 
 	halbtcoutsrc_NormalLowPower(pBtCoexist);
 }
@@ -3553,53 +3909,77 @@ void EXhalbtcoutsrc_periodical(PBTC_COEXIST pBtCoexist)
 	/* Periodical should be called in cmd thread, */
 	/* don't need to leave low power again
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
-
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_periodical(pBtCoexist);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_periodical(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1) {
 			if (!halbtcoutsrc_UnderIps(pBtCoexist))
 				ex_halbtc8821a1ant_periodical(pBtCoexist);
 		}
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_periodical(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_periodical(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_periodical(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_periodical(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_periodical(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_periodical(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_periodical(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_periodical(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_periodical(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_periodical(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_periodical(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_periodical(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_periodical(pBtCoexist);
 	}
+#endif
 
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -3614,18 +3994,27 @@ void EXhalbtcoutsrc_dbg_control(PBTC_COEXIST pBtCoexist, u8 opCode, u8 opLen, u8
 	/* This function doesn't be called yet, */
 	/* default no need to leave low power to avoid deadlock
 	*	halbtcoutsrc_LeaveLowPower(pBtCoexist); */
-
 	if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8192E
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_dbg_control(pBtCoexist, opCode, opLen, pData);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_dbg_control(pBtCoexist, opCode, opLen, pData);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_dbg_control(pBtCoexist, opCode, opLen, pData);
-	} else if(IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter))
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter))
 		if(pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_dbg_control(pBtCoexist, opCode, opLen, pData);
+#endif
 
 	/*	halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -3815,49 +4204,74 @@ void EXhalbtcoutsrc_DisplayBtCoexInfo(PBTC_COEXIST pBtCoexist)
 	halbtcoutsrc_EnterPwrLock(pBtCoexist);
 
 	if (IS_HARDWARE_TYPE_8821(pBtCoexist->Adapter)) {
-#if 0
-		if (halbtcoutsrc_IsCsrBtCoex(pBtCoexist) == _TRUE)
-			ex_halbtc8821aCsr2ant_display_coex_info(pBtCoexist);
-		else
-#endif
+#ifdef CONFIG_RTL8821A
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821a2ant_display_coex_info(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821a1ant_display_coex_info(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8723B
+	else if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723b2ant_display_coex_info(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_display_coex_info(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8703B
+	else if (IS_HARDWARE_TYPE_8703B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8703b1ant_display_coex_info(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8723D
+	else if (IS_HARDWARE_TYPE_8723D(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8723d2ant_display_coex_info(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723d1ant_display_coex_info(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8192E
+	else if (IS_HARDWARE_TYPE_8192E(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8192e2ant_display_coex_info(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8192e1ant_display_coex_info(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8812A
+	else if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_display_coex_info(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8812a1ant_display_coex_info(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8822B
+	else if (IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_display_coex_info(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_display_coex_info(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+	}
+#endif
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_display_coex_info(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_display_coex_info(pBtCoexist);
 	}
+#endif
 
 	halbtcoutsrc_ExitPwrLock(pBtCoexist);
 
@@ -3872,24 +4286,32 @@ void EXhalbtcoutsrc_DisplayAntDetection(PBTC_COEXIST pBtCoexist)
 	halbtcoutsrc_LeaveLowPower(pBtCoexist);
 
 	if (IS_HARDWARE_TYPE_8723B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8723B
 		if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8723b1ant_display_ant_detection(pBtCoexist);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_display_ant_detection(pBtCoexist);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_display_ant_detection(pBtCoexist);
 	}
+#endif
 
 	halbtcoutsrc_NormalLowPower(pBtCoexist);
 }
 
 void ex_halbtcoutsrc_pta_off_on_notify(PBTC_COEXIST pBtCoexist, u8 bBTON)
 {
+#ifdef CONFIG_RTL8812A
 	if (IS_HARDWARE_TYPE_8812(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8812a2ant_pta_off_on_notify(pBtCoexist, (bBTON == _TRUE) ? BTC_BT_ON : BTC_BT_OFF);
 	}
+#endif
 }
 
 void EXhalbtcoutsrc_set_rfe_type(u8 type)
@@ -3921,16 +4343,22 @@ void EXhalbtcoutsrc_switchband_notify(struct btc_coexist *pBtCoexist, u8 type)
 	/* halbtcoutsrc_LeaveLowPower(pBtCoexist); */
 
 	if(IS_HARDWARE_TYPE_8822B(pBtCoexist->Adapter)) {
+#ifdef CONFIG_RTL8822B
 		if(pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8822b1ant_switchband_notify(pBtCoexist, type);
 		else if(pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8822b2ant_switchband_notify(pBtCoexist, type);
-	} else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
+#endif
+	}
+
+#ifdef CONFIG_RTL8821C
+	else if (IS_HARDWARE_TYPE_8821C(pBtCoexist->Adapter)) {
 		if (pBtCoexist->board_info.btdm_ant_num == 2)
 			ex_halbtc8821c2ant_switchband_notify(pBtCoexist, type);
 		else if (pBtCoexist->board_info.btdm_ant_num == 1)
 			ex_halbtc8821c1ant_switchband_notify(pBtCoexist, type);
 	}
+#endif
 
 	/* halbtcoutsrc_NormalLowPower(pBtCoexist); */
 }
@@ -4319,10 +4747,6 @@ u8 hal_btcoex_Initialize(PADAPTER padapter)
 
 	_rtw_memset(&GLBtCoexist, 0, sizeof(GLBtCoexist));
 
-	hal_btcoex_SetBTCoexist(padapter, rtw_btcoex_get_bt_coexist(padapter));
-	hal_btcoex_SetChipType(padapter, rtw_btcoex_get_chip_type(padapter));
-	hal_btcoex_SetPgAntNum(padapter, rtw_btcoex_get_pg_ant_num(padapter));
-	
 	ret = EXhalbtcoutsrc_InitlizeVariables((void *)padapter);
 
 	return ret;
@@ -4331,6 +4755,15 @@ u8 hal_btcoex_Initialize(PADAPTER padapter)
 void hal_btcoex_PowerOnSetting(PADAPTER padapter)
 {
 	EXhalbtcoutsrc_PowerOnSetting(&GLBtCoexist);
+}
+
+void hal_btcoex_AntInfoSetting(PADAPTER padapter)
+{
+	hal_btcoex_SetBTCoexist(padapter, rtw_btcoex_get_bt_coexist(padapter));
+	hal_btcoex_SetChipType(padapter, rtw_btcoex_get_chip_type(padapter));
+	hal_btcoex_SetPgAntNum(padapter, rtw_btcoex_get_pg_ant_num(padapter));
+
+	EXhalbtcoutsrc_AntInfoSetting(padapter);
 }
 
 void hal_btcoex_PowerOffSetting(PADAPTER padapter)
@@ -4372,7 +4805,25 @@ void hal_btcoex_ScanNotify(PADAPTER padapter, u8 type)
 
 void hal_btcoex_ConnectNotify(PADAPTER padapter, u8 action)
 {
-	EXhalbtcoutsrc_connect_notify(&GLBtCoexist, action);
+	u8 assoType = 0;
+	u8 is_5g_band = _FALSE;
+
+	is_5g_band = (padapter->mlmeextpriv.cur_channel > 14) ? _TRUE : _FALSE;
+
+	if (action == _TRUE) {
+		if (is_5g_band == _TRUE)
+			assoType = BTC_ASSOCIATE_5G_START;
+		else
+			assoType = BTC_ASSOCIATE_START;
+	}
+	else {
+		if (is_5g_band == _TRUE)
+			assoType = BTC_ASSOCIATE_5G_FINISH;
+		else
+			assoType = BTC_ASSOCIATE_FINISH;
+	}
+	
+	EXhalbtcoutsrc_connect_notify(&GLBtCoexist, assoType);
 }
 
 void hal_btcoex_MediaStatusNotify(PADAPTER padapter, u8 mediaStatus)

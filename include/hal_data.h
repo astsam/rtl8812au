@@ -96,21 +96,6 @@ typedef enum _RT_AMPDU_BRUST_MODE {
 #define MAX_BASE_NUM_IN_PHY_REG_PG_2_4G			10 /* CCK:1, OFDM:1, HT:4, VHT:4 */
 #define MAX_BASE_NUM_IN_PHY_REG_PG_5G			9 /* OFDM:1, HT:4, VHT:4 */
 
-
-/* ###### duplicate code,will move to ODM ######### */
-/* #define IQK_MAC_REG_NUM		4 */
-/* #define IQK_ADDA_REG_NUM		16 */
-
-/* #define IQK_BB_REG_NUM			10 */
-#define IQK_BB_REG_NUM_92C	9
-#define IQK_BB_REG_NUM_92D	10
-#define IQK_BB_REG_NUM_test	6
-
-#define IQK_Matrix_Settings_NUM_92D	(1+24+21)
-
-/* #define HP_THERMAL_NUM		8 */
-/* ###### duplicate code,will move to ODM ######### */
-
 #ifdef RTW_RX_AGGREGATION
 typedef enum _RX_AGG_MODE {
 	RX_AGG_DISABLE,
@@ -207,9 +192,6 @@ typedef struct _BB_INIT_REGISTER {
 #define MACADDR_FILE_FAILED 1
 #define MACADDR_FILE_LOADED 2
 
-#define KFREE_FLAG_ON				BIT(0)
-#define KFREE_FLAG_THERMAL_K_ON		BIT(1)
-
 #define MAX_IQK_INFO_BACKUP_CHNL_NUM	5
 #define MAX_IQK_INFO_BACKUP_REG_NUM		10
 
@@ -244,6 +226,9 @@ struct hal_spec_t {
 	u8 port_num;
 	u8 proto_cap;	/* value of PROTO_CAP_XXX */
 	u8 wl_func;		/* value of WL_FUNC_XXX */
+
+	u8 pg_txpwr_saddr; /* starting address of PG tx power info */
+
 	u8 hci_type;	/* value of HCI Type */
 };
 
@@ -397,7 +382,6 @@ typedef struct hal_com_data {
 	u16	ForcedDataRate;	/* Force Data Rate. 0: Auto, 0x02: 1M ~ 0x6C: 54M. */
 	u8	bDumpRxPkt;
 	u8	bDumpTxPkt;
-	u8	bDisableTXPowerTraining;
 	u8	dis_turboedca;
 
 
@@ -492,8 +476,6 @@ typedef struct hal_com_data {
 	u8	txpwr_limit_from_file:1;
 	u8	rf_power_tracking_type;
 
-	u8	CurrentTxPwrIdx;
-
 	/* Read/write are allow for following hardware information variables	 */
 	u8	crystal_cap;
 
@@ -538,7 +520,7 @@ typedef struct hal_com_data {
 	_lock		IQKSpinLock;
 	u8			INIDATA_RATE[MACID_NUM_SW_LIMIT];
 
-	struct PHY_DM_STRUCT	 odmpriv;
+	struct dm_struct	 odmpriv;
 	u64			bk_rf_ability;
 	u8			bIQKInitialized;
 	u8			bNeedIQK;
@@ -563,6 +545,8 @@ typedef struct hal_com_data {
 
 	u8	RegIQKFWOffload;
 	struct submit_ctx	iqk_sctx;
+	u8 ch_switch_offload;
+	struct submit_ctx chsw_sctx;
 
 	RT_AMPDU_BRUST		AMPDUBurstMode; /* 92C maybe not use, but for compile successfully */
 
@@ -765,13 +749,16 @@ typedef struct hal_com_data {
 	u8 phydm_op_mode;
 
 	u8 in_cta_test;
+
+#ifdef CONFIG_RTW_LED
+	struct led_priv led;
+#endif
 } HAL_DATA_COMMON, *PHAL_DATA_COMMON;
 
-
-
 typedef struct hal_com_data HAL_DATA_TYPE, *PHAL_DATA_TYPE;
-#define GET_HAL_DATA(__pAdapter)			((HAL_DATA_TYPE *)((__pAdapter)->HalData))
+#define GET_HAL_DATA(__pAdapter)			((HAL_DATA_TYPE *)(((struct _ADAPTER*)__pAdapter)->HalData))
 #define GET_HAL_SPEC(__pAdapter)			(&(GET_HAL_DATA((__pAdapter))->hal_spec))
+#define adapter_to_led(adapter) (&(GET_HAL_DATA(adapter)->led))
 
 #define GET_HAL_RFPATH_NUM(__pAdapter)		(((HAL_DATA_TYPE *)((__pAdapter)->HalData))->NumTotalRFPath)
 #define RT_GetInterfaceSelection(_Adapter)		(GET_HAL_DATA(_Adapter)->InterfaceSel)
@@ -785,6 +772,7 @@ typedef struct hal_com_data HAL_DATA_TYPE, *PHAL_DATA_TYPE;
 #define get_hal_mac_addr(adapter)				(GET_HAL_DATA(adapter)->EEPROMMACAddr)
 #define is_boot_from_eeprom(adapter)			(GET_HAL_DATA(adapter)->EepromOrEfuse)
 #define rtw_get_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed)
+#define rtw_set_hw_init_completed(adapter, cmp)	(GET_HAL_DATA(adapter)->hw_init_completed = cmp)
 #define rtw_is_hw_init_completed(adapter)		(GET_HAL_DATA(adapter)->hw_init_completed == _TRUE)
 #endif
 

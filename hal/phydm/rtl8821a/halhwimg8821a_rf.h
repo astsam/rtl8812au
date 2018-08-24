@@ -1,22 +1,17 @@
 /******************************************************************************
-*
-* Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
-*
-* This program is free software; you can redistribute it and/or modify it
-* under the terms of version 2 of the GNU General Public License as
-* published by the Free Software Foundation.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT
-* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-* more details.
-*
-* You should have received a copy of the GNU General Public License along with
-* this program; if not, write to the Free Software Foundation, Inc.,
-* 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
-*
-*
-******************************************************************************/
+ *
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ *****************************************************************************/
 
 /*Image2HeaderVersion: 2.18*/
 #if (RTL8821A_SUPPORT == 1)
@@ -30,19 +25,19 @@
 
 void
 odm_read_and_config_mp_8821a_radioa(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_radioa(void);
 
 /******************************************************************************
-*                           RadioB.TXT
+*                           TxPowerTrack_AP.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8821a_radiob(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+odm_read_and_config_mp_8821a_txpowertrack_ap(/* TC: Test Chip, MP: MP Chip*/
+	struct dm_struct  *dm
 );
-u32 odm_get_version_mp_8821a_radiob(void);
+u32 odm_get_version_mp_8821a_txpowertrack_ap(void);
 
 /******************************************************************************
 *                           TxPowerTrack_PCIE.TXT
@@ -50,7 +45,7 @@ u32 odm_get_version_mp_8821a_radiob(void);
 
 void
 odm_read_and_config_mp_8821a_txpowertrack_pcie(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_txpowertrack_pcie(void);
 
@@ -60,9 +55,9 @@ u32 odm_get_version_mp_8821a_txpowertrack_pcie(void);
 
 void
 odm_read_and_config_mp_8821a_txpowertrack_sdio(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
-u32 odm_get_version_mp_8821a_txpower_track_sdio(void);
+u32 odm_get_version_mp_8821a_txpowertrack_sdio(void);
 
 /******************************************************************************
 *                           TxPowerTrack_USB.TXT
@@ -70,9 +65,9 @@ u32 odm_get_version_mp_8821a_txpower_track_sdio(void);
 
 void
 odm_read_and_config_mp_8821a_txpowertrack_usb(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
-u32 odm_get_version_mp_8821a_txpower_track_usb(void);
+u32 odm_get_version_mp_8821a_txpowertrack_usb(void);
 
 /******************************************************************************
 *                           TXPWR_LMT_8811AU_FEM.TXT
@@ -80,7 +75,7 @@ u32 odm_get_version_mp_8821a_txpower_track_usb(void);
 
 void
 odm_read_and_config_mp_8821a_txpwr_lmt_8811a_u_fem(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_txpwr_lmt_8811a_u_fem(void);
 
@@ -90,7 +85,7 @@ u32 odm_get_version_mp_8821a_txpwr_lmt_8811a_u_fem(void);
 
 void
 odm_read_and_config_mp_8821a_txpwr_lmt_8811a_u_ipa(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_txpwr_lmt_8811a_u_ipa(void);
 
@@ -100,7 +95,7 @@ u32 odm_get_version_mp_8821a_txpwr_lmt_8811a_u_ipa(void);
 
 void
 odm_read_and_config_mp_8821a_txpwr_lmt_8821a(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_txpwr_lmt_8821a(void);
 
@@ -109,8 +104,8 @@ u32 odm_get_version_mp_8821a_txpwr_lmt_8821a(void);
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8821a_txpwr_lmt_8821A_e202sa(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+odm_read_and_config_mp_8821a_txpwr_lmt_8821a_e202sa(/* TC: Test Chip, MP: MP Chip*/
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_txpwr_lmt_8821a_e202sa(void);
 
@@ -119,18 +114,18 @@ u32 odm_get_version_mp_8821a_txpwr_lmt_8821a_e202sa(void);
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8821a_txpwr_lmt_8821a_sar_13dBm(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+odm_read_and_config_mp_8821a_txpwr_lmt_8821a_sar_13_dbm(/* TC: Test Chip, MP: MP Chip*/
+	struct dm_struct  *dm
 );
-u32 odm_get_version_mp_8821a_txpwr_lmt_8821a_sar_13dBm(void);
+u32 odm_get_version_mp_8821a_txpwr_lmt_8821a_sar_13_dbm(void);
 
 /******************************************************************************
 *                           TXPWR_LMT_8821A_SAR_5mm.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8821A_txpwr_lmt_8821a_sar_5mm(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+odm_read_and_config_mp_8821a_txpwr_lmt_8821a_sar_5mm(/* TC: Test Chip, MP: MP Chip*/
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_txpwr_lmt_8821a_sar_5mm(void);
 
@@ -140,10 +135,9 @@ u32 odm_get_version_mp_8821a_txpwr_lmt_8821a_sar_5mm(void);
 
 void
 odm_read_and_config_mp_8821a_txpwr_lmt_8821a_sar_8mm(/* TC: Test Chip, MP: MP Chip*/
-	struct PHY_DM_STRUCT  *p_dm_odm
+	struct dm_struct  *dm
 );
 u32 odm_get_version_mp_8821a_txpwr_lmt_8821a_sar_8mm(void);
 
 #endif
 #endif /* end of HWIMG_SUPPORT*/
-

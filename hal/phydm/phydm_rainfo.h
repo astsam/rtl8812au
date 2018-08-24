@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -49,18 +59,8 @@
 	#define		RA_FIRST_MACID	0
 #endif
 
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-#define AP_InitRateAdaptiveState		odm_rate_adaptive_state_ap_init
-#endif
 
-
-#define		DM_RATR_STA_INIT			0
-#define		DM_RATR_STA_HIGH			1
-#define		DM_RATR_STA_MIDDLE		2
-#define		DM_RATR_STA_LOW			3
-#define		DM_RATR_STA_ULTRA_LOW	4
-
-enum phydm_ra_dbg_para_e {
+enum phydm_ra_dbg_para {
 	RADBG_PCR_TH_OFFSET		=	0,
 	RADBG_RTY_PENALTY		=	1,
 	RADBG_N_HIGH				=	2,
@@ -80,8 +80,7 @@ enum phydm_ra_dbg_para_e {
 	NUM_RA_PARA
 };
 
-enum phydm_wireless_mode_e {
-
+enum phydm_wireless_mode {
 	PHYDM_WIRELESS_MODE_UNKNOWN = 0x00,
 	PHYDM_WIRELESS_MODE_A		= 0x01,
 	PHYDM_WIRELESS_MODE_B		= 0x02,
@@ -96,8 +95,7 @@ enum phydm_wireless_mode_e {
 	PHYDM_WIRELESS_MODE_ALL		= 0xFFFF
 };
 
-enum phydm_rateid_idx_e {
-
+enum phydm_rateid_idx {
 	PHYDM_BGN_40M_2SS	= 0,
 	PHYDM_BGN_40M_1SS	= 1,
 	PHYDM_BGN_20M_2SS	= 2,
@@ -162,7 +160,7 @@ struct _odm_ra_info_ {
 #endif
 
 
-struct _rate_adaptive_table_ {
+struct ra_table {
 	u8		firstconnect;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	boolean		PT_collision_pre;
@@ -192,7 +190,6 @@ struct _rate_adaptive_table_ {
 	u8	rate_length;
 #endif
 	/*u8	link_tx_rate[ODM_ASSOCIATE_ENTRY_NUM];*/
-	u8	ra_ratio[ODM_ASSOCIATE_ENTRY_NUM];
 	u8	mu1_rate[30];
 	u8	highest_client_tx_order;
 	u16	highest_client_tx_rate_order;
@@ -211,14 +208,12 @@ struct _rate_adaptive_table_ {
 #endif
 	u8	ldpc_thres;			/* if RSSI > ldpc_thres => switch from LPDC to BCC */
 
-	void (*record_ra_info)(void *p_dm_void, u8 macid, struct cmn_sta_info *p_sta, u64 ra_mask);
+	void (*record_ra_info)(void *dm_void, u8 macid, struct cmn_sta_info *sta, u64 ra_mask);
 };
-
-u8 phydm_rate_type_2_num_ss(void *dm_void, enum PDM_RATE_TYPE type);
 
 void
 phydm_h2C_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		*const dm_value,
 	u32		*_used,
 	char			*output,
@@ -229,20 +224,20 @@ phydm_h2C_debug(
 
 void
 odm_RA_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		*const dm_value
 );
 
 void
 odm_ra_para_adjust_init(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 #endif
 
 void
 phydm_ra_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	char		input[][16],
 	u32		*_used,
 	char		*output,
@@ -251,72 +246,72 @@ phydm_ra_debug(
 
 void
 odm_c2h_ra_para_report_handler(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	*cmd_buf,
 	u8	cmd_len
 );
 
 void
 odm_ra_para_adjust(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_ra_dynamic_retry_count(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_ra_dynamic_retry_limit(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_print_rate(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	rate,
 	u32	dbg_component
 );
 
 void
 phydm_c2h_ra_report_handler(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8   *cmd_buf,
 	u8   cmd_len
 );
 
 u8
 phydm_rate_order_compute(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	rate_idx
 );
 
 void
 phydm_ra_info_watchdog(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_ra_info_init(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_modify_RA_PCR_threshold(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		RA_offset_direction,
 	u8		RA_threshold_offset
 );
 
 u8
 phydm_vht_en_mapping(
-	void			*p_dm_void,
+	void			*dm_void,
 	u32			wireless_mode
 );
 
 u8
 phydm_rate_id_mapping(
-	void			*p_dm_void,
+	void			*dm_void,
 	u32			wireless_mode,
 	u8			rf_type,
 	u8			bw
@@ -324,7 +319,7 @@ phydm_rate_id_mapping(
 
 void
 phydm_update_hal_ra_mask(
-	void			*p_dm_void,
+	void			*dm_void,
 	u32			wireless_mode,
 	u8			rf_type,
 	u8			BW,
@@ -337,31 +332,31 @@ phydm_update_hal_ra_mask(
 
 void
 phydm_refresh_rate_adaptive_mask(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 u8
 phydm_rssi_lv_dec(
-	void			*p_dm_void,
+	void			*dm_void,
 	u32			rssi,
 	u8			ratr_state
 );
 
 void
 odm_ra_post_action_on_assoc(
-	void	*p_dm
+	void	*dm
 );
 
 u8
 odm_find_rts_rate(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8			tx_rate,
 	boolean			is_erp_protect
 );
 
 void
 phydm_show_sta_info(
-	void		*p_dm_void,
+	void		*dm_void,
 	char		input[][16],
 	u32		*_used,
 	char		*output,
@@ -369,25 +364,31 @@ phydm_show_sta_info(
 	u32		input_num
 );
 
+u8
+phydm_get_plcp(
+	void	*dm_void,
+	u16	macid
+);
+
 #ifdef	PHYDM_3RD_REFORM_RA_MASK
 
 void
 phydm_ra_registed(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	macid,
 	u8	rssi_from_assoc
 );
 
 void
 phydm_ra_offline(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	macid
 );
 
 
 void
 phydm_ra_mask_watchdog(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 #endif
@@ -397,36 +398,30 @@ phydm_ra_mask_watchdog(
 
 void
 odm_refresh_basic_rate_mask(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 odm_update_init_rate_work_item_callback(
-	void	*p_context
+	void	*context
 );
 
 void
 odm_refresh_ldpc_rts_mp(
-	struct _ADAPTER			*p_adapter,
-	struct PHY_DM_STRUCT			*p_dm,
+	void			*adapter,
+	struct dm_struct			*dm,
 	u8				m_mac_id,
 	u8				iot_peer,
 	s32				undecorated_smoothed_pwdb
-);
-
-void
-odm_rate_adaptive_state_ap_init(
-	void			*PADAPTER_VOID,
-	struct cmn_sta_info	*p_entry
 );
 
 #elif (DM_ODM_SUPPORT_TYPE & (ODM_AP))
 
 void
 phydm_gen_ramask_h2c_AP(
-	void			*p_dm_void,
+	void			*dm_void,
 	struct rtl8192cd_priv *priv,
-	struct sta_info *p_entry,
+	struct sta_info *entry,
 	u8			rssi_level
 );
 
@@ -436,19 +431,19 @@ phydm_gen_ramask_h2c_AP(
 #if (defined(CONFIG_RA_DYNAMIC_RATE_ID))
 void
 phydm_ra_dynamic_rate_id_on_assoc(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	wireless_mode,
 	u8	init_rate_id
 );
 
 void
 phydm_ra_dynamic_rate_id_init(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_update_rate_id(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	rate,
 	u8	platform_macid
 );

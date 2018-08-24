@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -25,16 +35,20 @@
 #define	RA_RSSI_STATE_SEND	1
 #define	RA_RSSI_STATE_HOLD	2
 
-#define	CFO_HW_RPT_2_MHZ(val) ((val<<1) + (val>>1))
-/* ((X* 3125)  / 10)>>7 = (X*10)>>2 = X*2.5 = X<<1 + X>>1  */
+#define	CFO_HW_RPT_2_KHZ(val) ((val<<1) + (val>>1))
+/* (X* 312.5 Khz)>>7 ~=  X*2.5 Khz= (X<<1 + X>>1)Khz  */
 
-#define PHYSTS_PATH_NUM 4
+#define	IGI_2_RSSI(igi)	(igi - 10)
+
+#define	PHY_STATUS_JRGUAR2_DW_LEN		7	/* 7*4 = 28 Byte */
+#define	SHOW_PHY_STATUS_UNLIMITED		0
+#define	RSSI_MA_FACTOR					4
 
 /* ************************************************************
  * structure and define
  * ************************************************************ */
 
-__PACK struct _phy_rx_agc_info {
+__PACK struct phy_rx_agc_info {
 #if (ODM_ENDIAN_TYPE == ODM_ENDIAN_LITTLE)
 	u8	gain: 7, trsw: 1;
 #else
@@ -42,8 +56,8 @@ __PACK struct _phy_rx_agc_info {
 #endif
 };
 
-__PACK struct _phy_status_rpt_8192cd {
-	struct _phy_rx_agc_info path_agc[2];
+__PACK struct phy_status_rpt_8192cd {
+	struct phy_rx_agc_info path_agc[2];
 	u8	ch_corr[2];
 	u8	cck_sig_qual_ofdm_pwdb_all;
 	u8	cck_agc_rpt_ofdm_cfosho_a;
@@ -80,7 +94,7 @@ __PACK struct _phy_status_rpt_8192cd {
 #endif
 };
 
-struct _phy_status_rpt_8812 {
+struct phy_status_rpt_8812 {
 	/*	DWORD 0*/
 	u8			gain_trsw[2];							/*path-A and path-B {TRSW, gain[6:0] }*/
 	u8			chl_num_LSB;							/*channel number[7:0]*/
@@ -170,7 +184,7 @@ struct _phy_status_rpt_8812 {
 
 #if (ODM_PHY_STATUS_NEW_TYPE_SUPPORT == 1)
 
-__PACK struct _phy_status_rpt_jaguar2_type0 {
+__PACK struct phy_status_rpt_jaguar2_type0 {
 	/* DW0 */
 	u8		page_num;
 	u8		pwdb;
@@ -242,7 +256,7 @@ __PACK struct _phy_status_rpt_jaguar2_type0 {
 	u32		rsvd_8;
 };
 
-__PACK struct _phy_status_rpt_jaguar2_type1 {
+__PACK struct phy_status_rpt_jaguar2_type1 {
 	/* DW0 and DW1 */
 	u8		page_num;
 	u8		pwdb[4];
@@ -326,7 +340,7 @@ __PACK struct _phy_status_rpt_jaguar2_type1 {
 	s8		rxsnr[4];			/* s(8,1) */
 };
 
-__PACK struct _phy_status_rpt_jaguar2_type2 {
+__PACK struct phy_status_rpt_jaguar2_type2 {
 	/* DW0 ane DW1 */
 	u8		page_num;
 	u8		pwdb[4];
@@ -428,9 +442,11 @@ __PACK struct _phy_status_rpt_jaguar2_type2 {
 	u8		syn_count: 5;
 #endif
 };
+#endif
+
 /*==============================================*/
-#elif (ODM_PHY_STATUS_NEW_TYPE_SUPPORT == 2)
-__PACK struct _phy_status_rpt_jaguar2_type0 {
+#if (CONFIG_PHYSTS_3RD_TYPE)
+__PACK struct _phy_status_rpt_jaguar3_type0 {
 	/* DW0 : Offset 0 */
 #if (ODM_ENDIAN_TYPE == ODM_ENDIAN_LITTLE)
 	u8		page_num:4;
@@ -582,7 +598,7 @@ __PACK struct _phy_status_rpt_jaguar2_type0 {
 #endif
 };
 
-__PACK struct _phy_status_rpt_jaguar2_type1 {
+__PACK struct _phy_status_rpt_jaguar3_type1 {
 	/* DW0 : Offset 0 */
 #if (ODM_ENDIAN_TYPE == ODM_ENDIAN_LITTLE)
 	u8		page_num:4;
@@ -684,7 +700,7 @@ __PACK struct _phy_status_rpt_jaguar2_type1 {
 	/* DW6 */
 	s8		rxsnr[4];			/* s(8,1) */
 };
-__PACK struct _phy_status_rpt_jaguar2_type2_type3 {
+__PACK struct _phy_status_rpt_jaguar3_type2_type3 {
 	/* Type2 is primary channel & type3 is secondary channel */
 	/* DW0 ane DW1 */
 #if (ODM_ENDIAN_TYPE == ODM_ENDIAN_LITTLE)
@@ -794,7 +810,7 @@ __PACK struct _phy_status_rpt_jaguar2_type2_type3 {
 #endif
 };
 
-__PACK struct _phy_status_rpt_jaguar2_type4 {
+__PACK struct _phy_status_rpt_jaguar3_type4 {
 	/* smart antenna */
 	/* DW0 ane DW1 */
 #if (ODM_ENDIAN_TYPE == ODM_ENDIAN_LITTLE)
@@ -990,15 +1006,15 @@ __PACK struct _phy_status_rpt_jaguar2_type5 {
 
 void
 phydm_rx_phy_status_new_type(
-	void						*p_dm_void,
-	u8						*p_phy_status,
-	struct phydm_perpkt_info_struct			*p_pktinfo,
-	struct phydm_phyinfo_struct			*p_phy_info
+	void						*dm_void,
+	u8						*phy_status_inf,
+	struct phydm_perpkt_info_struct			*pktinfo,
+	struct phydm_phyinfo_struct			*phy_info
 );
 
 boolean
 phydm_query_is_mu_api(
-	struct PHY_DM_STRUCT			*p_phydm,
+	struct dm_struct			*phydm,
 	u8								ppdu_idx,
 	u8								*p_data_rate,
 	u8								*p_gid
@@ -1007,59 +1023,61 @@ phydm_query_is_mu_api(
 
 void
 phydm_reset_phystatus_avg(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 );
 
 void
 phydm_reset_phystatus_statistic(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 );
 
 void
 phydm_reset_rssi_for_dm(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u8		station_id
 );
 
 void
 phydm_get_cck_rssi_table_from_reg(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 );
 
 u8
 phydm_rate_to_num_ss(
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 	u8			data_rate
 );
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 void
 phydm_normal_driver_rx_sniffer(
-	struct PHY_DM_STRUCT			*p_dm,
-	u8				*p_desc,
-	PRT_RFD_STATUS		p_rt_rfd_status,
-	u8				*p_drv_info,
+	struct dm_struct			*dm,
+	u8				*desc,
+	PRT_RFD_STATUS		rt_rfd_status,
+	u8				*drv_info,
 	u8				phy_status
 );
 #endif
 
+#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 s32
 phydm_signal_scale_mapping(
-	struct PHY_DM_STRUCT *p_dm,
+	struct dm_struct *dm,
 	s32 curr_sig
 );
+#endif
 
 void
 odm_phy_status_query(
-	struct PHY_DM_STRUCT					*p_dm,
-	struct phydm_phyinfo_struct			*p_phy_info,
-	u8						*p_phy_status,
-	struct phydm_perpkt_info_struct			*p_pktinfo
+	struct dm_struct					*dm,
+	struct phydm_phyinfo_struct			*phy_info,
+	u8						*phy_status_inf,
+	struct phydm_perpkt_info_struct			*pktinfo
 );
 
 void
 phydm_rx_phy_status_init(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 #endif /*#ifndef	__HALHWOUTSRC_H__*/

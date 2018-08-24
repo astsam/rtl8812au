@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -72,7 +82,7 @@
 
 void
 phy_set_tx_power_limit(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u8	*regulation,
 	u8	*band,
 	u8	*bandwidth,
@@ -84,14 +94,14 @@ phy_set_tx_power_limit(
 
 enum hal_status
 rtw_phydm_fw_iqk(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	u8 clear,
 	u8 segment
 );
 
 enum hal_status
 rtw_phydm_cfg_phy_para(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	enum phydm_halmac_param config_type,
 	u32 offset,
 	u32 data,
@@ -109,7 +119,7 @@ rtw_phydm_cfg_phy_para(
 #endif
 
 /* JJ ADD 20161014 */
-#if (DM_ODM_SUPPORT_TYPE & (ODM_AP|ODM_IOT))
+#if (DM_ODM_SUPPORT_TYPE & (ODM_CE|ODM_AP|ODM_IOT))
 #define RTL8710B_SUPPORT		0
 #endif
 
@@ -120,6 +130,11 @@ rtw_phydm_cfg_phy_para(
 	#else
 		#define RTL8188E_S_SUPPORT 0
 	#endif
+#endif
+
+#if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_CE))
+#define	RTL8195B_SUPPORT 0	/*Just for PHYDM API development*/
+#define	RTL8198F_SUPPORT 0	/*Just for PHYDM API development*/
 #endif
 
 #if (RTL8188E_SUPPORT == 1)
@@ -267,27 +282,6 @@ rtw_phydm_cfg_phy_para(
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE) && defined(DM_ODM_CE_MAC80211)
 #include "../halmac/halmac_reg2.h"
-
-#define	LDPC_HT_ENABLE_RX			BIT(0)
-#define	LDPC_HT_ENABLE_TX			BIT(1)
-#define	LDPC_HT_TEST_TX_ENABLE			BIT(2)
-#define	LDPC_HT_CAP_TX				BIT(3)
-
-#define	STBC_HT_ENABLE_RX			BIT(0)
-#define	STBC_HT_ENABLE_TX			BIT(1)
-#define	STBC_HT_TEST_TX_ENABLE			BIT(2)
-#define	STBC_HT_CAP_TX				BIT(3)
-
-
-#define	LDPC_VHT_ENABLE_RX			BIT(0)
-#define	LDPC_VHT_ENABLE_TX			BIT(1)
-#define	LDPC_VHT_TEST_TX_ENABLE			BIT(2)
-#define	LDPC_VHT_CAP_TX				BIT(3)
-
-#define	STBC_VHT_ENABLE_RX			BIT(0)
-#define	STBC_VHT_ENABLE_TX			BIT(1)
-#define	STBC_VHT_TEST_TX_ENABLE			BIT(2)
-#define	STBC_VHT_CAP_TX				BIT(3)
 #endif
 
 
@@ -398,6 +392,14 @@ rtw_phydm_cfg_phy_para(
 	#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
 		#include "rtl8821c_hal.h"
 	#endif
+#endif
+
+#if (RTL8195B_SUPPORT == 1)
+	#include "rtl8195b/phydm_hal_api8195b.h"
+#endif
+
+#if (RTL8198F_SUPPORT == 1)
+	#include "rtl8198f/phydm_hal_api8198F.h"
 #endif
 
 #endif /* __ODM_PRECOMP_H__ */

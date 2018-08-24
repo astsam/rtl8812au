@@ -15,27 +15,30 @@
 
 #ifndef	__ODM_RTL8812A_H__
 #define __ODM_RTL8812A_H__
+
+#ifdef DYN_ANT_WEIGHTING_SUPPORT
+void phydm_dynamic_ant_weighting_8812a(void	*dm_void);
+#endif
+
 #if (defined(CONFIG_PATH_DIVERSITY))
 
 void
-odm_path_statistics_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
-	u32			mac_id,
-	u32			RSSI_A,
-	u32			RSSI_B
-);
+odm_path_diversity_init_8812a(struct dm_struct	*dm);
 
 void
-odm_path_diversity_init_8812a(struct PHY_DM_STRUCT	*p_dm);
-
-void
-odm_path_diversity_8812a(struct PHY_DM_STRUCT	*p_dm);
+odm_path_diversity_8812a(struct dm_struct	*dm);
 
 void
 odm_set_tx_path_by_tx_info_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
-	u8			*p_desc,
+	struct dm_struct		*dm,
+	u8			*desc,
 	u8			mac_id
 );
 #endif
+
+void
+phydm_hwsetting_8812a(
+	struct dm_struct		*dm
+);
+
 #endif

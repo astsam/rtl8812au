@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -109,7 +119,7 @@ struct _RT_BEAMFORM_STAINFO {
 	u16						aid;
 	u16						mac_id;
 	u8						my_mac_addr[6];
-	WIRELESS_MODE				wireless_mode;
+	/*WIRELESS_MODE				wireless_mode;*/
 	enum channel_width				bw;
 	enum beamforming_cap			beamform_cap;
 	u8						ht_beamform_cap;
@@ -196,13 +206,8 @@ struct _RT_BEAMFORMING_INFO {
 	struct _RT_BEAMFORMER_ENTRY		beamformer_entry[BEAMFORMER_ENTRY_NUM];
 	struct _RT_BEAMFORM_STAINFO		beamform_sta_info;
 	u8					beamformee_cur_idx;
-#if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
-	struct legacy_timer_emu					beamforming_timer;
-	struct legacy_timer_emu					mu_timer;
-#else
-	struct timer_list					beamforming_timer;
-	struct timer_list					mu_timer;
-#endif //defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0))
+	struct phydm_timer_list					beamforming_timer;
+	struct phydm_timer_list					mu_timer;
 	struct _RT_SOUNDING_INFO			sounding_info;
 	struct _RT_BEAMFORMING_OID_INFO	beamforming_oid_info;
 	struct _HAL_TXBF_INFO			txbf_info;
@@ -223,7 +228,7 @@ struct _RT_BEAMFORMING_INFO {
 	boolean					apply_v_matrix;
 	boolean					snding3ss;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER				*source_adapter;
+	void				*source_adapter;
 #endif
 	/* Control register */
 	u32					reg_mu_tx_ctrl;		/* For USB/SDIO interfaces aync I/O */
@@ -231,6 +236,12 @@ struct _RT_BEAMFORMING_INFO {
 	u8					last_usb_hub;
 };
 
+
+void
+phydm_get_txbf_device_num(
+	void	*dm_void,
+	u8	macid
+);
 
 struct _RT_NDPA_STA_INFO {
 	u16	aid:12;
@@ -246,91 +257,91 @@ enum phydm_acting_type {
 
 enum beamforming_cap
 phydm_beamforming_get_entry_beam_cap_by_mac_id(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	mac_id
 );
 
 struct _RT_BEAMFORMEE_ENTRY *
 phydm_beamforming_get_bfee_entry_by_addr(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		*RA,
 	u8		*idx
 );
 
 struct _RT_BEAMFORMER_ENTRY *
 phydm_beamforming_get_bfer_entry_by_addr(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	*TA,
 	u8	*idx
 );
 
 void
 phydm_beamforming_notify(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 boolean
 phydm_acting_determine(
-	void		*p_dm_void,
+	void		*dm_void,
 	enum phydm_acting_type	type
 );
 
 void
 beamforming_enter(
-	void		*p_dm_void,
+	void		*dm_void,
 	u16	sta_idx
 );
 
 void
 beamforming_leave(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8			*RA
 );
 
 boolean
 beamforming_start_fw(
-	void			*p_dm_void,
+	void			*dm_void,
 	u8			idx
 );
 
 void
 beamforming_check_sounding_success(
-	void			*p_dm_void,
+	void			*dm_void,
 	boolean			status
 );
 
 void
 phydm_beamforming_end_sw(
-	void		*p_dm_void,
+	void		*dm_void,
 	boolean			status
 );
 
 void
 beamforming_timer_callback(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 void
 phydm_beamforming_init(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 
 
 enum beamforming_cap
 phydm_beamforming_get_beam_cap(
-	void			*p_dm_void,
-	struct _RT_BEAMFORMING_INFO	*p_beam_info
+	void			*dm_void,
+	struct _RT_BEAMFORMING_INFO	*beam_info
 );
 
 enum beamforming_cap
 phydm_get_beamform_cap(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 boolean
 beamforming_control_v1(
-	void			*p_dm_void,
+	void			*dm_void,
 	u8			*RA,
 	u8			AID,
 	u8			mode,
@@ -341,7 +352,7 @@ beamforming_control_v1(
 
 boolean
 phydm_beamforming_control_v2(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8			idx,
 	u8			mode,
 	enum channel_width	BW,
@@ -350,13 +361,13 @@ phydm_beamforming_control_v2(
 
 void
 phydm_beamforming_watchdog(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 beamforming_sw_timer_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct timer_list		*p_timer
+	struct phydm_timer_list		*timer
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 	void *function_context
 #endif
@@ -364,7 +375,7 @@ beamforming_sw_timer_callback(
 
 boolean
 beamforming_send_ht_ndpa_packet(
-	void			*p_dm_void,
+	void			*dm_void,
 	u8			*RA,
 	enum channel_width	BW,
 	u8			q_idx
@@ -373,7 +384,7 @@ beamforming_send_ht_ndpa_packet(
 
 boolean
 beamforming_send_vht_ndpa_packet(
-	void			*p_dm_void,
+	void			*dm_void,
 	u8			*RA,
 	u16			AID,
 	enum channel_width	BW,
@@ -381,19 +392,19 @@ beamforming_send_vht_ndpa_packet(
 );
 
 #else
-#define beamforming_gid_paid(adapter, p_tcb)
-#define	phydm_acting_determine(p_dm, type)	false
-#define beamforming_enter(p_dm, sta_idx)
-#define beamforming_leave(p_dm, RA)
-#define beamforming_end_fw(p_dm)
-#define beamforming_control_v1(p_dm, RA, AID, mode, BW, rate)		true
-#define beamforming_control_v2(p_dm, idx, mode, BW, period)		true
-#define phydm_beamforming_end_sw(p_dm, _status)
-#define beamforming_timer_callback(p_dm)
-#define phydm_beamforming_init(p_dm)
-#define phydm_beamforming_control_v2(p_dm, _idx, _mode, _BW, _period)	false
-#define beamforming_watchdog(p_dm)
-#define phydm_beamforming_watchdog(p_dm)
+#define beamforming_gid_paid(adapter, tcb)
+#define	phydm_acting_determine(dm, type)	false
+#define beamforming_enter(dm, sta_idx)
+#define beamforming_leave(dm, RA)
+#define beamforming_end_fw(dm)
+#define beamforming_control_v1(dm, RA, AID, mode, BW, rate)		true
+#define beamforming_control_v2(dm, idx, mode, BW, period)		true
+#define phydm_beamforming_end_sw(dm, _status)
+#define beamforming_timer_callback(dm)
+#define phydm_beamforming_init(dm)
+#define phydm_beamforming_control_v2(dm, _idx, _mode, _BW, _period)	false
+#define beamforming_watchdog(dm)
+#define phydm_beamforming_watchdog(dm)
 
 
 #endif

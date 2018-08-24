@@ -40,7 +40,7 @@
 	// USB_PIPE for WINCE , but handle can be use just integer under windows
 	typedef NDIS_HANDLE  _nic_hdl;
 
-	struct timer_list {
+	struct rtw_timer_list {
 		NDIS_MINIPORT_TIMER ndis_timer;
 		void (*function)(void *);
 		void *arg;

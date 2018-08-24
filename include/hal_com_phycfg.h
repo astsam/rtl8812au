@@ -236,6 +236,10 @@ void phy_reload_default_tx_power_ext_info(_adapter *adapter);
 
 const struct map_t *hal_pg_txpwr_def_info(_adapter *adapter);
 
+#ifdef CONFIG_EFUSE_CONFIG_FILE
+int check_phy_efuse_tx_power_info_valid(_adapter *adapter);
+#endif
+
 void dump_hal_txpwr_info_2g(void *sel, _adapter *adapter, u8 rfpath_num, u8 max_tx_cnt);
 void dump_hal_txpwr_info_5g(void *sel, _adapter *adapter, u8 rfpath_num, u8 max_tx_cnt);
 

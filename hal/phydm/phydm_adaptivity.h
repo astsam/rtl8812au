@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -32,7 +42,7 @@ enum phydm_regulation_type {
 };
 #endif
 
-enum phydm_adapinfo_e {
+enum phydm_adapinfo {
 	PHYDM_ADAPINFO_CARRIER_SENSE_ENABLE = 0,
 	PHYDM_ADAPINFO_DCBACKOFF,
 	PHYDM_ADAPINFO_DYNAMICLINKADAPTIVITY,
@@ -98,84 +108,84 @@ struct phydm_adaptivity_struct {
 
 void
 phydm_pause_edcca(
-	void	*p_dm_void,
+	void	*dm_void,
 	boolean	is_pasue_edcca
 );
 
 void
 phydm_check_environment(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 phydm_mac_edcca_state(
-	void					*p_dm_void,
+	void					*dm_void,
 	enum phydm_mac_edcca_type		state
 );
 
 void
 phydm_set_edcca_threshold(
-	void		*p_dm_void,
+	void		*dm_void,
 	s8		H2L,
 	s8		L2H
 );
 
 void
 phydm_set_trx_mux(
-	void			*p_dm_void,
+	void			*dm_void,
 	enum phydm_trx_mux_type			tx_mode,
 	enum phydm_trx_mux_type			rx_mode
 );
 
 void
 phydm_search_pwdb_lower_bound(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 phydm_adaptivity_info_init(
-	void			*p_dm_void,
-	enum phydm_adapinfo_e	cmn_info,
+	void			*dm_void,
+	enum phydm_adapinfo	cmn_info,
 	u32				value
 );
 
 void
 phydm_adaptivity_init(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 phydm_adaptivity(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 void
 phydm_set_edcca_threshold_api(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	IGI
 );
 
 void
 phydm_pause_edcca_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 phydm_resume_edcca_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 phydm_adaptivity_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		*const dm_value,
 	u32		*_used,
 	char		*output,
@@ -184,22 +194,22 @@ phydm_adaptivity_debug(
 
 void
 phydm_set_l2h_th_ini(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_set_forgetting_factor(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_set_pwdb_mode(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_set_edcca_val(
-	void			*p_dm_void,
+	void			*dm_void,
 	u32			*val_buf,
 	u8			val_len
 );

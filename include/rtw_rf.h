@@ -101,10 +101,10 @@ extern const u8 _band_to_band_cap[];
 
 
 extern const char *const _ch_width_str[];
-#define ch_width_str(bw) (((bw) >= CHANNEL_WIDTH_MAX) ? _ch_width_str[CHANNEL_WIDTH_MAX] : _ch_width_str[(bw)])
+#define ch_width_str(bw) (((bw) < CHANNEL_WIDTH_MAX) ? _ch_width_str[(bw)] : "CHANNEL_WIDTH_MAX")
 
 extern const u8 _ch_width_to_bw_cap[];
-#define ch_width_to_bw_cap(bw) (((bw) >= CHANNEL_WIDTH_MAX) ? _ch_width_to_bw_cap[CHANNEL_WIDTH_MAX] : _ch_width_to_bw_cap[(bw)])
+#define ch_width_to_bw_cap(bw) (((bw) < CHANNEL_WIDTH_MAX) ? _ch_width_to_bw_cap[(bw)] : 0)
 
 /*
  * Represent Extention Channel Offset in HT Capabilities
@@ -149,16 +149,17 @@ int rtw_ch2freq(int chan);
 int rtw_freq2ch(int freq);
 bool rtw_chbw_to_freq_range(u8 ch, u8 bw, u8 offset, u32 *hi, u32 *lo);
 
-#define RTW_MODULE_RTL8821AE_HMC_M2		BIT0 /* RTL8821AE(HMC + M.2) */
-#define RTW_MODULE_RTL8821AU			BIT1 /* RTL8821AU */
-#define RTW_MODULE_RTL8812AENF_NGFF		BIT2 /* RTL8812AENF(8812AE+8761)_NGFF */
-#define RTW_MODULE_RTL8812AEBT_HMC		BIT3 /* RTL8812AEBT(8812AE+8761)_HMC */
-#define RTW_MODULE_RTL8188EE_HMC_M2		BIT4 /* RTL8188EE(HMC + M.2) */
-#define RTW_MODULE_RTL8723BE_HMC_M2		BIT5 /* RTL8723BE(HMC + M.2) */
-#define RTW_MODULE_RTL8723BS_NGFF1216	BIT6 /* RTL8723BS(NGFF1216) */
-#define RTW_MODULE_RTL8192EEBT_HMC_M2	BIT7 /* RTL8192EEBT(8192EE+8761AU)_(HMC + M.2) */
-#define RTW_MODULE_RTL8723DE_NGFF1630	BIT8 /* RTL8723DE(NGFF1630) */
-#define RTW_MODULE_RTL8822BE			BIT9 /* RTL8822BE */
+#define RTW_MODULE_RTL8821AE_HMC_M2		BIT0	/* RTL8821AE(HMC + M.2) */
+#define RTW_MODULE_RTL8821AU			BIT1	/* RTL8821AU */
+#define RTW_MODULE_RTL8812AENF_NGFF		BIT2	/* RTL8812AENF(8812AE+8761)_NGFF */
+#define RTW_MODULE_RTL8812AEBT_HMC		BIT3	/* RTL8812AEBT(8812AE+8761)_HMC */
+#define RTW_MODULE_RTL8188EE_HMC_M2		BIT4	/* RTL8188EE(HMC + M.2) */
+#define RTW_MODULE_RTL8723BE_HMC_M2		BIT5	/* RTL8723BE(HMC + M.2) */
+#define RTW_MODULE_RTL8723BS_NGFF1216	BIT6	/* RTL8723BS(NGFF1216) */
+#define RTW_MODULE_RTL8192EEBT_HMC_M2	BIT7	/* RTL8192EEBT(8192EE+8761AU)_(HMC + M.2) */
+#define RTW_MODULE_RTL8723DE_NGFF1630	BIT8	/* RTL8723DE(NGFF1630) */
+#define RTW_MODULE_RTL8822BE			BIT9	/* RTL8822BE */
+#define RTW_MODULE_RTL8821CE			BIT10	/* RTL8821CE */
 
 #define IS_ALPHA2_NO_SPECIFIED(_alpha2) ((*((u16 *)(_alpha2))) == 0xFFFF)
 
@@ -196,7 +197,9 @@ typedef enum _REGULATION_TXPWR_LMT {
 	TXPWR_LMT_ETSI = 3,
 	TXPWR_LMT_IC = 4,
 	TXPWR_LMT_KCC = 5,
-	TXPWR_LMT_WW = 6, /* smallest of all available limit, keep last */
+	TXPWR_LMT_ACMA = 6,
+	TXPWR_LMT_CHILE = 7,
+	TXPWR_LMT_WW = 8, /* smallest of all available limit, keep last */
 } REGULATION_TXPWR_LMT;
 
 extern const char *const _regd_str[];
@@ -246,10 +249,22 @@ int rtw_ch_to_bb_gain_sel(int ch);
 void rtw_rf_set_tx_gain_offset(_adapter *adapter, u8 path, s8 offset);
 void rtw_rf_apply_tx_gain_offset(_adapter *adapter, u8 ch);
 
-u8 rtw_is_5g_band1(u8 ch);
-u8 rtw_is_5g_band2(u8 ch);
-u8 rtw_is_5g_band3(u8 ch);
-u8 rtw_is_5g_band4(u8 ch);
+/* only check channel ranges */
+#define rtw_is_2g_ch(ch) (ch >= 1 && ch <= 14)
+#define rtw_is_5g_ch(ch) ((ch) >= 36 && (ch) <= 177)
+#define rtw_is_same_band(a, b) \
+	((rtw_is_2g_ch(a) && rtw_is_2g_ch(b)) \
+	|| (rtw_is_5g_ch(a) && rtw_is_5g_ch(b)))
+
+#define rtw_is_5g_band1(ch) ((ch) >= 36 && (ch) <= 48)
+#define rtw_is_5g_band2(ch) ((ch) >= 52 && (ch) <= 64)
+#define rtw_is_5g_band3(ch) ((ch) >= 100 && (ch) <= 144)
+#define rtw_is_5g_band4(ch) ((ch) >= 149 && (ch) <= 177)
+#define rtw_is_same_5g_band(a, b) \
+	((rtw_is_5g_band1(a) && rtw_is_5g_band1(b)) \
+	|| (rtw_is_5g_band2(a) && rtw_is_5g_band2(b)) \
+	|| (rtw_is_5g_band3(a) && rtw_is_5g_band3(b)) \
+	|| (rtw_is_5g_band4(a) && rtw_is_5g_band4(b)))
 
 u8 rtw_is_dfs_range(u32 hi, u32 lo);
 u8 rtw_is_dfs_ch(u8 ch);

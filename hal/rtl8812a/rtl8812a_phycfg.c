@@ -542,7 +542,8 @@ PHY_GetTxPowerIndex_8812A(
 )
 {
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(pAdapter);
-	u8 base_idx = 0, power_idx = 0;
+	s16 power_idx;
+	u8 base_idx = 0;
 	s8 by_rate_diff = 0, limit = 0, tpt_offset = 0, extra_bias = 0;
 	u8 ntx_idx = phy_GetCurrentTxNum_8812A(pAdapter, Rate);
 	BOOLEAN bIn24G = _FALSE;
@@ -587,10 +588,9 @@ PHY_GetTxPowerIndex_8812A(
 	by_rate_diff = by_rate_diff > limit ? limit : by_rate_diff;
 	power_idx = base_idx + by_rate_diff + tpt_offset + extra_bias;
 
-	if (pAdapter->registrypriv.RegTxPowerIndexOverride)
-		power_idx = pAdapter->registrypriv.RegTxPowerIndexOverride;
-
-	if (power_idx > MAX_POWER_INDEX)
+	if (power_idx < 0)
+		power_idx = 0;
+	else if (power_idx > MAX_POWER_INDEX)
 		power_idx = MAX_POWER_INDEX;
 
 	if (power_idx % 2 == 1 && !IS_NORMAL_CHIP(pHalData->version_id))
@@ -615,9 +615,6 @@ PHY_SetTxPowerIndex_8812A(
 )
 {
 	HAL_DATA_TYPE		*pHalData	= GET_HAL_DATA(Adapter);
-
-	if (Adapter->registrypriv.RegTxPowerIndexOverride)
-		PowerIndex = (u32)Adapter->registrypriv.RegTxPowerIndexOverride;
 
 	/* <20120928, Kordan> A workaround in 8812A/8821A testchip, to fix the bug of odd Tx power indexes. */
 	if ((PowerIndex % 2 == 1) && IS_HARDWARE_TYPE_JAGUAR(Adapter) && IS_TEST_CHIP(pHalData->version_id))
@@ -968,8 +965,8 @@ u32 phy_get_tx_bb_swing_8812a(
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(GetDefaultAdapter(Adapter));
-	struct PHY_DM_STRUCT		*pDM_Odm = &pHalData->odmpriv;
-	struct odm_rf_calibration_structure	*pRFCalibrateInfo = &(pDM_Odm->rf_calibrate_info);
+	struct dm_struct		*pDM_Odm = &pHalData->odmpriv;
+	struct dm_rf_calibration_struct	*pRFCalibrateInfo = &(pDM_Odm->rf_calibrate_info);
 
 	s8	bbSwing_2G = -1 * GetRegTxBBSwing_2G(Adapter);
 	s8	bbSwing_5G = -1 * GetRegTxBBSwing_5G(Adapter);
@@ -1146,6 +1143,12 @@ phy_SetRFEReg8812(
 			rtw_write8(Adapter, rA_RFE_Inv_Jaguar + 3, (u1tmp &= ~BIT0));
 			phy_set_bb_reg(Adapter, rB_RFE_Inv_Jaguar, bMask_RFEInv_Jaguar, 0x000);
 			break;
+		case 6:
+			phy_set_bb_reg(Adapter, rA_RFE_Pinmux_Jaguar, bMaskDWord, 0x07772770);
+			phy_set_bb_reg(Adapter, rB_RFE_Pinmux_Jaguar, bMaskDWord, 0x07772770);
+			phy_set_bb_reg(Adapter, rA_RFE_Inv_Jaguar, bMaskDWord, 0x00000077);
+			phy_set_bb_reg(Adapter, rB_RFE_Inv_Jaguar, bMaskDWord, 0x00000077);
+			break;
 		default:
 			break;
 		}
@@ -1193,6 +1196,12 @@ phy_SetRFEReg8812(
 			u1tmp = rtw_read8(Adapter, rA_RFE_Inv_Jaguar + 3);
 			rtw_write8(Adapter, rA_RFE_Inv_Jaguar + 3, (u1tmp |= BIT0));
 			phy_set_bb_reg(Adapter, rB_RFE_Inv_Jaguar, bMask_RFEInv_Jaguar, 0x010);
+			break;	
+		case 6:
+			phy_set_bb_reg(Adapter, rA_RFE_Pinmux_Jaguar, bMaskDWord, 0x07737717);
+			phy_set_bb_reg(Adapter, rB_RFE_Pinmux_Jaguar, bMaskDWord, 0x07737717);
+			phy_set_bb_reg(Adapter, rA_RFE_Inv_Jaguar, bMaskDWord, 0x00000077);
+			phy_set_bb_reg(Adapter, rB_RFE_Inv_Jaguar, bMaskDWord, 0x00000077);
 			break;
 		default:
 			break;
@@ -1214,8 +1223,8 @@ void phy_SetBBSwingByBand_8812A(
 		PMPT_CONTEXT	pMptCtx = &(Adapter->mppriv.mpt_ctx);
 #endif
 		s8	BBDiffBetweenBand = 0;
-		struct PHY_DM_STRUCT		*pDM_Odm = &pHalData->odmpriv;
-		struct odm_rf_calibration_structure	*pRFCalibrateInfo = &(pDM_Odm->rf_calibrate_info);
+		struct dm_struct		*pDM_Odm = &pHalData->odmpriv;
+		struct dm_rf_calibration_struct	*pRFCalibrateInfo = &(pDM_Odm->rf_calibrate_info);
 		u8	path = RF_PATH_A;
 
 		phy_set_bb_reg(Adapter, rA_TxScale_Jaguar, 0xFFE00000,
@@ -1303,16 +1312,15 @@ PHY_SwitchWirelessBand8812(
 
 	if (Band == BAND_ON_2_4G) {
 		/* 2.4G band */
-#if 0
+
 #ifdef CONFIG_RTL8821A
 		/* 20160224 yiwei ,  8811au one antenna  module don't support antenna  div , so driver must to control antenna  band , otherwise one of the band will has issue */
 		if (IS_HARDWARE_TYPE_8821(Adapter)) {
 			if (Adapter->registrypriv.drv_ant_band_switch == 1 && pHalData->AntDivCfg == 0) {
-				phydm_set_ext_band_switch_8821a(&(pHalData->odmpriv) , ODM_BAND_2_4G);
+				phydm_set_ext_band_switch_8821A(&(pHalData->odmpriv) , ODM_BAND_2_4G);
 				RTW_DBG("Switch ant band to ODM_BAND_2_4G\n");
 			}
 		}
-#endif
 #endif /*#ifdef CONFIG_RTL8821A*/
 
 		phy_set_bb_reg(Adapter, rOFDMCCKEN_Jaguar, bOFDMEN_Jaguar | bCCKEN_Jaguar, 0x03);
@@ -1362,16 +1370,14 @@ PHY_SwitchWirelessBand8812(
 	} else {	/* 5G band */
 		u16 count = 0, reg41A = 0;
 
-#if 0
 #ifdef CONFIG_RTL8821A
 		/* 20160224 yiwei ,  8811a one antenna  module don't support antenna  div , so driver must to control antenna  band , otherwise one of the band will has issue */
 		if (IS_HARDWARE_TYPE_8821(Adapter)) {
 			if (Adapter->registrypriv.drv_ant_band_switch == 1 && pHalData->AntDivCfg == 0) {
-				phydm_set_ext_band_switch_8821a(&(pHalData->odmpriv) , ODM_BAND_5G);
+				phydm_set_ext_band_switch_8821A(&(pHalData->odmpriv) , ODM_BAND_5G);
 				RTW_DBG("Switch ant band to ODM_BAND_5G\n");
 			}
 		}
-#endif
 #endif /*#ifdef CONFIG_RTL8821A*/
 
 		if (IS_HARDWARE_TYPE_8821(Adapter))
@@ -1687,20 +1693,20 @@ VOID phy_InitRssiTRSW(
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-	struct PHY_DM_STRUCT		*pDM_Odm = &pHalData->odmpriv;
+	struct dm_struct		*pDM_Odm = &pHalData->odmpriv;
 	u8			channel = pHalData->current_channel;
 
 	if (pHalData->rfe_type == 3) {
 
 		if (channel <= 14) {
-			pDM_Odm->RSSI_TRSW_H    = 70; /* Unit: percentage(%) */
-			pDM_Odm->RSSI_TRSW_iso  = 25;
+			pDM_Odm->rssi_trsw_h    = 70; /* Unit: percentage(%) */
+			pDM_Odm->rssi_trsw_iso  = 25;
 		} else {
-			pDM_Odm->RSSI_TRSW_H   = 80;
-			pDM_Odm->RSSI_TRSW_iso = 25;
+			pDM_Odm->rssi_trsw_h   = 80;
+			pDM_Odm->rssi_trsw_iso = 25;
 		}
 
-		pDM_Odm->RSSI_TRSW_L = pDM_Odm->RSSI_TRSW_H - pDM_Odm->RSSI_TRSW_iso - 10;
+		pDM_Odm->rssi_trsw_l = pDM_Odm->rssi_trsw_h - pDM_Odm->rssi_trsw_iso - 10;
 	}
 }
 
@@ -1846,7 +1852,7 @@ phy_SwChnlAndSetBwMode8812(
 )
 {
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
-	struct PHY_DM_STRUCT			*pDM_Odm = &pHalData->odmpriv;
+	struct dm_struct			*pDM_Odm = &pHalData->odmpriv;
 	/* RTW_INFO("phy_SwChnlAndSetBwMode8812(): bSwChnl %d, bSetChnlBW %d\n", pHalData->bSwChnl, pHalData->bSetChnlBW); */
 	if (Adapter->bNotifyChannelChange) {
 		RTW_INFO("[%s] bSwChnl=%d, ch=%d, bSetChnlBW=%d, bw=%d\n",

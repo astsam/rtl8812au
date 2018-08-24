@@ -313,6 +313,11 @@
 #define REG_MACID_SLEEP	0x04D4
 
 #define REG_NQOS_SEQ					0x04DC
+#define REG_HW_SEQ0						0x04D8
+#define REG_HW_SEQ1						0x04DA
+#define REG_HW_SEQ2						0x04DC
+#define REG_HW_SEQ3						0x04DE
+
 #define REG_QOS_SEQ					0x04DE
 #define REG_NEED_CPU_HANDLE			0x04E0
 #define REG_PKT_LOSE_RPT				0x04E1
@@ -379,6 +384,7 @@
 #define REG_PSTIMER						0x0580
 #define REG_TIMER0						0x0584
 #define REG_TIMER1						0x0588
+#define REG_HIQ_NO_LMT_EN				0x05A7
 #define REG_ACMHWCTRL					0x05C0
 #define REG_NOA_DESC_SEL				0x05CF
 #define REG_NOA_DESC_DURATION		0x05E0
@@ -1518,12 +1524,12 @@ Current IOREG MAP
 
 /* 2 ACMHWCTRL */
 #define AcmHw_HwEn				BIT(0)
-#define AcmHw_BeqEn			BIT(1)
+#define AcmHw_VoqEn			BIT(1)
 #define AcmHw_ViqEn				BIT(2)
-#define AcmHw_VoqEn			BIT(3)
-#define AcmHw_BeqStatus		BIT(4)
-#define AcmHw_ViqStatus			BIT(5)
-#define AcmHw_VoqStatus		BIT(6)
+#define AcmHw_BeqEn			BIT(3)
+#define AcmHw_VoqStatus		BIT(5)
+#define AcmHw_ViqStatus			BIT(6)
+#define AcmHw_BeqStatus		BIT(7)
 
 /* 2 */ /* REG_DUAL_TSF_RST (0x553) */
 #define DUAL_TSF_RST_P2P		BIT(4)

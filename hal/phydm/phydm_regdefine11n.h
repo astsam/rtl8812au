@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -42,8 +52,8 @@
 #define	ODM_REG_BB_PWR_SAV5_11N			0x818
 #define	ODM_REG_CCK_RPT_FORMAT_11N		0x824
 #define	ODM_REG_CCK_RPT_FORMAT_11N_B	0x82C
-#define	ODM_REG_RX_DEFUALT_A_11N		0x858
-#define	ODM_REG_RX_DEFUALT_B_11N		0x85A
+#define	ODM_REG_RX_DEFAULT_A_11N		0x858
+#define	ODM_REG_RX_DEFAULT_B_11N		0x85A
 #define	ODM_REG_BB_PWR_SAV3_11N			0x85C
 #define	ODM_REG_ANTSEL_CTRL_11N			0x860
 #define	ODM_REG_RX_ANT_CTRL_11N			0x864
@@ -63,7 +73,7 @@
 #define	ODM_REG_CLM_RESULT_11N			0x8d0
 #define	ODM_REG_NHM_CNT_11N				0x8d8
 
-/* For struct _ACS_, Jeffery, 2014-12-26 */
+/* For struct acs_info, Jeffery, 2014-12-26 */
 #define	ODM_REG_NHM_CNT7_TO_CNT4_11N		0x8dc
 #define	ODM_REG_NHM_CNT9_TO_CNT8_11N		0x8d0
 #define	ODM_REG_NHM_CNT10_TO_CNT11_11N	0x8d4

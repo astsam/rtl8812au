@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -36,7 +46,7 @@ struct drp_rtl8822b_struct {
 
 #ifdef CONFIG_DYNAMIC_RX_PATH
 
-enum drp_state_e {
+enum drp_state {
 	DRP_INIT_STATE				= 0,
 	DRP_TRAINING_STATE_0	= 1,
 	DRP_TRAINING_STATE_1		= 2,
@@ -44,7 +54,7 @@ enum drp_state_e {
 	DRP_DECISION_STATE		= 4
 };
 
-enum adjustable_value_e {
+enum adjustable_value {
 	DRP_TRAINING_TIME		= 0,
 	DRP_TRAINING_PERIOD	= 1,
 	DRP_RSSI_THRESHOLD	= 2,
@@ -74,7 +84,7 @@ struct _DYNAMIC_RX_PATH_ {
 	RT_WORK_ITEM	phydm_dynamic_rx_path_workitem;
 #endif
 #endif
-	struct timer_list		phydm_dynamic_rx_path_timer;
+	struct phydm_timer_list		phydm_dynamic_rx_path_timer;
 
 };
 
@@ -82,25 +92,25 @@ struct _DYNAMIC_RX_PATH_ {
 
 void
 phydm_process_phy_status_for_dynamic_rx_path(
-	void			*p_dm_void,
-	void			*p_phy_info_void,
-	void			*p_pkt_info_void
+	void			*dm_void,
+	void			*phy_info_void,
+	void			*pkt_info_void
 );
 
 void
 phydm_dynamic_rx_path(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 void
 phydm_dynamic_rx_path_callback(
-	struct timer_list		*p_timer
+	struct phydm_timer_list		*timer
 );
 
 void
 phydm_dynamic_rx_path_workitem_callback(
-	void		*p_context
+	void		*context
 );
 
 #else if (DM_ODM_SUPPORT_TYPE == ODM_CE)
@@ -114,18 +124,18 @@ phydm_dynamic_rx_path_callback(
 
 void
 phydm_dynamic_rx_path_timers(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		state
 );
 
 void
 phydm_dynamic_rx_path_init(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 void
 phydm_drp_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		*const dm_value,
 	u32		*_used,
 	char			*output,
@@ -134,7 +144,7 @@ phydm_drp_debug(
 
 void
 phydm_dynamic_rx_path_caller(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 #endif

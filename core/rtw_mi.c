@@ -216,12 +216,13 @@ void _rtw_mi_status(_adapter *adapter, struct mi_state *mstate, u8 target_sel)
 				MSTATE_STA_LG_NUM(mstate)++;
 
 #ifdef CONFIG_AP_MODE
-		} else if (check_fwstate(&iface->mlmepriv, WIFI_AP_STATE) == _TRUE
-			&& check_fwstate(&iface->mlmepriv, _FW_LINKED) == _TRUE
-		) {
-			MSTATE_AP_NUM(mstate)++;
-			if (iface->stapriv.asoc_sta_count > 2)
-				MSTATE_AP_LD_NUM(mstate)++;
+		} else if (check_fwstate(&iface->mlmepriv, WIFI_AP_STATE) == _TRUE ) {
+			if (check_fwstate(&iface->mlmepriv, _FW_LINKED) == _TRUE) {
+				MSTATE_AP_NUM(mstate)++;
+				if (iface->stapriv.asoc_sta_count > 2)
+					MSTATE_AP_LD_NUM(mstate)++;
+			} else
+				MSTATE_AP_STARTING_NUM(mstate)++;
 #endif
 
 		} else if (check_fwstate(&iface->mlmepriv, WIFI_ADHOC_STATE | WIFI_ADHOC_MASTER_STATE) == _TRUE
@@ -321,6 +322,7 @@ void dump_mi_status(void *sel, struct dvobj_priv *dvobj)
 #endif
 #ifdef CONFIG_AP_MODE
 	RTW_PRINT_SEL(sel, "ap_num:%d\n", DEV_AP_NUM(dvobj));
+	RTW_PRINT_SEL(sel, "starting_ap_num:%d\n", DEV_AP_STARTING_NUM(dvobj));
 	RTW_PRINT_SEL(sel, "linked_ap_num:%d\n", DEV_AP_LD_NUM(dvobj));
 #endif
 	RTW_PRINT_SEL(sel, "adhoc_num:%d\n", DEV_ADHOC_NUM(dvobj));
@@ -330,9 +332,9 @@ void dump_mi_status(void *sel, struct dvobj_priv *dvobj)
 	RTW_PRINT_SEL(sel, "linked_mesh_num:%d\n", DEV_MESH_LD_NUM(dvobj));
 #endif
 #ifdef CONFIG_P2P
-	RTW_PRINT_SEL(sel, "p2p_device_num:%d\n", rtw_mi_stay_in_p2p_mode(dvobj->padapters[IFACE_ID0]));
+	RTW_PRINT_SEL(sel, "p2p_device_num:%d\n", rtw_mi_stay_in_p2p_mode(dvobj_get_primary_adapter(dvobj)));
 #endif
-	RTW_PRINT_SEL(sel, "scan_num:%d\n", DEV_STA_NUM(dvobj));
+	RTW_PRINT_SEL(sel, "scan_num:%d\n", DEV_SCAN_NUM(dvobj));
 	RTW_PRINT_SEL(sel, "under_wps_num:%d\n", DEV_WPS_NUM(dvobj));
 #if defined(CONFIG_IOCTL_CFG80211)
 	#if defined(CONFIG_P2P)
@@ -637,18 +639,33 @@ void rtw_mi_buddy_scan_abort(_adapter *adapter, bool bwait)
 	_rtw_mi_process(adapter, _TRUE, &in_data, _rtw_mi_scan_abort);
 }
 
-static u8 _rtw_mi_start_drv_threads(_adapter *adapter, void *data)
+static u32 _rtw_mi_start_drv_threads(_adapter *adapter, bool exclude_self)
 {
-	rtw_start_drv_threads(adapter);
-	return _TRUE;
+	int i;
+	_adapter *iface = NULL;
+	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
+	u32 _status = _SUCCESS;
+
+	for (i = 0; i < dvobj->iface_nums; i++) {
+		iface = dvobj->padapters[i];
+		if (iface) {
+			if ((exclude_self) && (iface == adapter))
+				continue;
+			if (rtw_start_drv_threads(iface) == _FAIL) {
+				_status = _FAIL;
+				break;
+			}
+		}
+	}
+	return _status;
 }
-void rtw_mi_start_drv_threads(_adapter *adapter)
+u32 rtw_mi_start_drv_threads(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _FALSE, NULL, _rtw_mi_start_drv_threads);
+	return _rtw_mi_start_drv_threads(adapter, _FALSE);
 }
-void rtw_mi_buddy_start_drv_threads(_adapter *adapter)
+u32 rtw_mi_buddy_start_drv_threads(_adapter *adapter)
 {
-	_rtw_mi_process(adapter, _TRUE, NULL, _rtw_mi_start_drv_threads);
+	return _rtw_mi_start_drv_threads(adapter, _TRUE);
 }
 
 static void _rtw_mi_stop_drv_threads(_adapter *adapter, bool exclude_self)
@@ -659,10 +676,11 @@ static void _rtw_mi_stop_drv_threads(_adapter *adapter, bool exclude_self)
 
 	for (i = 0; i < dvobj->iface_nums; i++) {
 		iface = dvobj->padapters[i];
-		if ((iface) && (iface->bup == _TRUE))
+		if (iface) {
 			if ((exclude_self) && (iface == adapter))
 				continue;
-		rtw_stop_drv_threads(iface);
+			rtw_stop_drv_threads(iface);
+		}
 	}
 }
 void rtw_mi_stop_drv_threads(_adapter *adapter)
@@ -779,48 +797,6 @@ void rtw_mi_buddy_set_scan_deny(_adapter *adapter, u32 ms)
 	_rtw_mi_process(adapter, _TRUE, &in_data, _rtw_mi_set_scan_deny);
 }
 #endif /*CONFIG_SET_SCAN_DENY_TIMER*/
-
-struct nulldata_param {
-	unsigned char *da;
-	unsigned int power_mode;
-	int try_cnt;
-	int wait_ms;
-};
-
-static u8 _rtw_mi_issue_nulldata(_adapter *padapter, void *data)
-{
-	struct nulldata_param *pnulldata_param = (struct nulldata_param *)data;
-
-	if (is_client_associated_to_ap(padapter) == _TRUE) {
-		/* TODO: TDLS peers */
-		issue_nulldata(padapter, pnulldata_param->da, pnulldata_param->power_mode, pnulldata_param->try_cnt, pnulldata_param->wait_ms);
-		return _TRUE;
-	}
-	return _FALSE;
-}
-
-u8 rtw_mi_issue_nulldata(_adapter *padapter, unsigned char *da, unsigned int power_mode, int try_cnt, int wait_ms)
-{
-	struct nulldata_param nparam;
-
-	nparam.da = da;
-	nparam.power_mode = power_mode;/*0 or 1*/
-	nparam.try_cnt = try_cnt;
-	nparam.wait_ms = wait_ms;
-
-	return _rtw_mi_process(padapter, _FALSE, &nparam, _rtw_mi_issue_nulldata);
-}
-u8 rtw_mi_buddy_issue_nulldata(_adapter *padapter, unsigned char *da, unsigned int power_mode, int try_cnt, int wait_ms)
-{
-	struct nulldata_param nparam;
-
-	nparam.da = da;
-	nparam.power_mode = power_mode;
-	nparam.try_cnt = try_cnt;
-	nparam.wait_ms = wait_ms;
-
-	return _rtw_mi_process(padapter, _TRUE, &nparam, _rtw_mi_issue_nulldata);
-}
 
 static u8 _rtw_mi_beacon_update(_adapter *padapter, void *data)
 {
@@ -1500,27 +1476,3 @@ void rtw_mi_update_ap_bmc_camid(_adapter *padapter, u8 camid_a, u8 camid_b)
 #endif
 }
 
-#ifdef CONFIG_AP_MODE
-static u8 _rtw_mi_ap_acdata_control(_adapter *padapter, void *data)
-{
-	u8 power_mode = *(u8 *)data;
-	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
-
-	if (MLME_IS_AP(padapter) || MLME_IS_MESH(padapter))
-		rtw_ap_acdata_control(padapter, power_mode);
-	return _TRUE;
-}
-
-void rtw_mi_ap_acdata_control(_adapter *padapter, u8 power_mode)
-{
-	u8 in_data = power_mode;
-
-	_rtw_mi_process(padapter, _FALSE, &in_data, _rtw_mi_ap_acdata_control);
-}
-void rtw_mi_buddy_ap_acdata_control(_adapter *padapter, u8 power_mode)
-{
-	u8 in_data = power_mode;
-
-	_rtw_mi_process(padapter, _TRUE, &in_data, _rtw_mi_ap_acdata_control);
-}
-#endif /*CONFIG_AP_MODE*/

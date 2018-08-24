@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -24,18 +34,16 @@
 #if (DM_ODM_SUPPORT_TYPE & (ODM_WIN | ODM_AP))
 
 #define	BB_GAIN_NUM		6
-#define KFREE_FLAG_ON				BIT(0)
-#define KFREE_FLAG_THERMAL_K_ON		BIT(1)
 
 #endif
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE) && defined(DM_ODM_CE_MAC80211)
 #define KFREE_FLAG_ON				BIT(0)
 #define KFREE_FLAG_THERMAL_K_ON		BIT(1)
-#endif
 
 #define KFREE_FLAG_ON_2G				BIT(2)
 #define KFREE_FLAG_ON_5G				BIT(3)
+
+#define PA_BIAS_FLAG_ON				BIT(4)
 
 #define PPG_THERMAL_OFFSET_8821C				0x1EF
 #define PPG_BB_GAIN_2G_TXAB_OFFSET_8821C		0x1EE
@@ -78,6 +86,7 @@
 
 struct odm_power_trim_data {
 	u8 flag;
+	u8 pa_bias_flag;
 	s8 bb_gain[KFREE_BAND_NUM][MAX_RF_PATH];
 	s8 thermal;
 };
@@ -97,27 +106,27 @@ enum phydm_kfree_channeltosw {
 
 void
 phydm_get_thermal_trim_offset(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_get_power_trim_offset(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_get_pa_bias_offset(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 s8
 phydm_get_thermal_offset(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_clear_kfree_to_rf(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		e_rf_path,
 	u8		data
 );
@@ -125,7 +134,7 @@ phydm_clear_kfree_to_rf(
 
 void
 phydm_config_kfree(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	channel_to_sw
 );
 

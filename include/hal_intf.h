@@ -82,6 +82,9 @@ typedef enum _HW_VARIABLES {
 	HW_VAR_SEC_DK_CFG,
 	HW_VAR_BCN_VALID,
 	HW_VAR_RF_TYPE,
+	HW_VAR_TSF,
+	HW_VAR_FREECNT,
+
 	/* PHYDM odm->SupportAbility */
 	HW_VAR_CAM_EMPTY_ENTRY,
 	HW_VAR_CAM_INVALID_ALL,
@@ -169,8 +172,6 @@ typedef enum _HW_VARIABLES {
 	HW_VAR_DL_RSVD_PAGE,
 	HW_VAR_MACID_LINK,
 	HW_VAR_MACID_NOLINK,
-	HW_VAR_MACID_SLEEP,
-	HW_VAR_MACID_WAKEUP,
 	HW_VAR_DUMP_MAC_QUEUE_INFO,
 	HW_VAR_ASIX_IOT,
 #ifdef CONFIG_MBSSID_CAM
@@ -194,6 +195,9 @@ typedef enum _HW_VARIABLES {
 #endif
 	HW_VAR_DUMP_MAC_TXFIFO,
 	HW_VAR_PWR_CMD,
+	HW_VAR_SET_SOML_PARAM,
+	HW_VAR_ENABLE_RX_BAR,
+	HW_VAR_TSF_AUTO_SYNC,
 } HW_VARIABLES;
 
 typedef enum _HAL_DEF_VARIABLE {
@@ -230,8 +234,6 @@ typedef enum _HAL_DEF_VARIABLE {
 	HAL_DEF_PCI_SUUPORT_L1_BACKDOOR, /* Determine if the L1 Backdoor setting is turned on. */
 	HAL_DEF_PCI_AMD_L1_SUPPORT,
 	HAL_DEF_PCI_ASPM_OSC, /* Support for ASPM OSC, added by Roger, 2013.03.27. */
-	HAL_DEF_MACID_SLEEP, /* Support for MACID sleep */
-	HAL_DEF_DBG_DIS_PWT, /* disable Tx power training or not. */
 	HAL_DEF_EFUSE_USAGE,	/* Get current EFUSE utilization. 2008.12.19. Added by Roger. */
 	HAL_DEF_EFUSE_BYTES,
 	HW_VAR_BEST_AMPDU_DENSITY,
@@ -350,6 +352,8 @@ struct hal_ops {
 	u32 (*read_rfreg)(_adapter *padapter, enum rf_path eRFPath, u32 RegAddr, u32 BitMask);
 	void	(*write_rfreg)(_adapter *padapter, enum rf_path eRFPath, u32 RegAddr, u32 BitMask, u32 Data);
 
+	void (*read_wmmedca_reg)(_adapter *padapter, u16 *vo_params, u16 *vi_params, u16 *be_params, u16 *bk_params);
+	
 #ifdef CONFIG_HOSTAPD_MLME
 	s32(*hostap_mgnt_xmit_entry)(_adapter *padapter, _pkt *pkt);
 #endif
@@ -738,8 +742,10 @@ s32 rtw_hal_c2h_id_handle_directly(_adapter *adapter, u8 id, u8 seq, u8 plen, u8
 
 s32 rtw_hal_is_disable_sw_channel_plan(PADAPTER padapter);
 
-s32 rtw_hal_macid_sleep(PADAPTER padapter, u8 macid);
-s32 rtw_hal_macid_wakeup(PADAPTER padapter, u8 macid);
+s32 rtw_hal_macid_sleep(_adapter *adapter, u8 macid);
+s32 rtw_hal_macid_wakeup(_adapter *adapter, u8 macid);
+s32 rtw_hal_macid_sleep_all_used(_adapter *adapter);
+s32 rtw_hal_macid_wakeup_all_used(_adapter *adapter);
 
 s32 rtw_hal_fill_h2c_cmd(PADAPTER padapter, u8 ElementID, u32 CmdLen, u8 *pCmdBuffer);
 void rtw_hal_fill_fake_txdesc(_adapter *padapter, u8 *pDesc, u32 BufferLen,

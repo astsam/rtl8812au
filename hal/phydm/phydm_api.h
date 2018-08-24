@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -50,7 +60,6 @@
  * 1 ============================================================ */
 
 struct phydm_api_stuc {
-
 	u32	rx_iqc_reg_1;	/*N-mode: for pathA REG0xc14*/
 	u32	rx_iqc_reg_2;	/*N-mode: for pathB REG0xc1c*/
 	u8	tx_queue_bitmap;/*REG0x520[23:16]*/
@@ -68,30 +77,58 @@ struct phydm_api_stuc {
  * 1 ============================================================ */
 
 void
+phydm_dynamic_ant_weighting(
+	void		*dm_void
+);
+
+#ifdef DYN_ANT_WEIGHTING_SUPPORT
+void
+phydm_dyn_ant_weight_dbg(
+	void		*dm_void,
+	char		input[][16],
+	u32		*_used,
+	char		*output,
+	u32		*_out_len,
+	u32		input_num
+);
+#endif
+
+void
+phydm_pathb_q_matrix_rotate_en(
+	void		*dm_void
+);
+
+void
+phydm_pathb_q_matrix_rotate(
+	void		*dm_void,
+	u16		phase_idx
+);
+
+void
 phydm_init_trx_antenna_setting(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_config_ofdm_rx_path(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		path
 );
 
 void
 phydm_config_cck_rx_path(
-	void		*p_dm_void,
+	void		*dm_void,
 	enum bb_path	path
 );
 
 void
 phydm_config_cck_rx_antenna_init(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_config_trx_path(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		*const dm_value,
 	u32		*_used,
 	char		*output,
@@ -99,20 +136,25 @@ phydm_config_trx_path(
 );
 
 void
+phydm_tx_2path(
+	void		*dm_void
+);
+
+void
 phydm_stop_3_wire(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		set_type
 );
 
 u8
 phydm_stop_ic_trx(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		set_type
 );
 
 void
 phydm_set_ext_switch(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		*const dm_value,
 	u32		*_used,
 	char		*output,
@@ -121,13 +163,13 @@ phydm_set_ext_switch(
 
 void
 phydm_nbi_enable(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		enable
 );
 
 u8
 phydm_csi_mask_setting(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		enable,
 	u32		channel,
 	u32		bw,
@@ -137,7 +179,7 @@ phydm_csi_mask_setting(
 
 u8
 phydm_nbi_setting(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		enable,
 	u32		channel,
 	u32		bw,
@@ -148,7 +190,7 @@ phydm_nbi_setting(
 
 void
 phydm_api_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		function_map,
 	u32		*const dm_value,
 	u32		*_used,
@@ -158,15 +200,22 @@ phydm_api_debug(
 
 void
 phydm_stop_ck320(
-	void			*p_dm_void,
+	void			*dm_void,
 	u8			enable
+);
+
+boolean
+phydm_set_bb_txagc_offset(
+	void			*dm_void,
+	s8			power_offset,
+	u8			add_half_db
 );
 
 #ifdef PHYDM_COMMON_API_SUPPORT
 
 boolean
 phydm_api_set_txagc(
-	void				*p_dm_void,
+	void				*dm_void,
 	u32				power_index,
 	enum rf_path		path,
 	u8				hw_rate,
@@ -175,14 +224,14 @@ phydm_api_set_txagc(
 
 u8
 phydm_api_get_txagc(
-	void				*p_dm_void,
+	void				*dm_void,
 	enum rf_path		path,
 	u8				hw_rate
 );
 
 boolean
 phydm_api_switch_bw_channel(
-	void					*p_dm_void,
+	void					*dm_void,
 	u8					central_ch,
 	u8					primary_ch_idx,
 	enum channel_width	bandwidth
@@ -190,7 +239,7 @@ phydm_api_switch_bw_channel(
 
 boolean
 phydm_api_trx_mode(
-	void				*p_dm_void,
+	void				*dm_void,
 	enum bb_path	tx_path,
 	enum bb_path	rx_path,
 	boolean			is_tx2_path

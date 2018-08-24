@@ -15,6 +15,9 @@
 #ifndef _RTW_VHT_H_
 #define _RTW_VHT_H_
 
+#define VHT_CAP_IE_LEN 12
+#define VHT_OP_IE_LEN 5
+
 #define	LDPC_VHT_ENABLE_RX			BIT0
 #define	LDPC_VHT_ENABLE_TX			BIT1
 #define	LDPC_VHT_TEST_TX_ENABLE		BIT2
@@ -93,6 +96,25 @@
 #define SET_EXT_CAPABILITY_ELE_OP_MODE_NOTIF(_pEleStart, _val)			SET_BITS_TO_LE_1BYTE((_pEleStart)+7, 6, 1, _val)
 #define GET_EXT_CAPABILITY_ELE_OP_MODE_NOTIF(_pEleStart)				LE_BITS_TO_1BYTE((_pEleStart)+7, 6, 1)
 
+#define VHT_MAX_MPDU_LEN_MAX 3
+extern const u16 _vht_max_mpdu_len[];
+#define vht_max_mpdu_len(val) (((val) >= VHT_MAX_MPDU_LEN_MAX) ? _vht_max_mpdu_len[VHT_MAX_MPDU_LEN_MAX] : _vht_max_mpdu_len[(val)])
+
+#define VHT_SUP_CH_WIDTH_SET_MAX 3
+extern const u8 _vht_sup_ch_width_set_to_bw_cap[];
+#define vht_sup_ch_width_set_to_bw_cap(set) (((set) >= VHT_SUP_CH_WIDTH_SET_MAX) ? _vht_sup_ch_width_set_to_bw_cap[VHT_SUP_CH_WIDTH_SET_MAX] : _vht_sup_ch_width_set_to_bw_cap[(set)])
+extern const char *const _vht_sup_ch_width_set_str[];
+#define vht_sup_ch_width_set_str(set) (((set) >= VHT_SUP_CH_WIDTH_SET_MAX) ? _vht_sup_ch_width_set_str[VHT_SUP_CH_WIDTH_SET_MAX] : _vht_sup_ch_width_set_str[(set)])
+
+#define VHT_MAX_AMPDU_LEN(f) ((1 << (13 + f)) - 1)
+void dump_vht_cap_ie(void *sel, const u8 *ie, u32 ie_len);
+
+#define VHT_OP_CH_WIDTH_MAX 4
+extern const char *const _vht_op_ch_width_str[];
+#define vht_op_ch_width_str(ch_width) (((ch_width) >= VHT_OP_CH_WIDTH_MAX) ? _vht_op_ch_width_str[VHT_OP_CH_WIDTH_MAX] : _vht_op_ch_width_str[(ch_width)])
+
+void dump_vht_op_ie(void *sel, const u8 *ie, u32 ie_len);
+
 struct vht_priv {
 	u8	vht_option;
 
@@ -103,11 +125,15 @@ struct vht_priv {
 	u8	sgi_80m;/* short GI */
 	u8	ampdu_len;
 
-	u8	vht_op_mode_notify;
 	u8	vht_highest_rate;
 	u8	vht_mcs_map[2];
 
-	u8	vht_cap[32];
+	u8 op_present:1; /* vht_op is present */
+	u8 notify_present:1; /* vht_op_mode_notify is present */
+
+	u8 vht_cap[32];
+	u8 vht_op[VHT_OP_IE_LEN];
+	u8 vht_op_mode_notify;
 };
 
 u8	rtw_get_vht_highest_rate(u8 *pvht_mcs_map);
@@ -128,7 +154,5 @@ u8	rtw_vht_mcsmap_to_nss(u8 *pvht_mcs_map);
 void rtw_vht_nss_to_mcsmap(u8 nss, u8 *target_mcs_map, u8 *cur_mcs_map);
 void rtw_vht_ies_attach(_adapter *padapter, WLAN_BSSID_EX *pcur_network);
 void rtw_vht_ies_detach(_adapter *padapter, WLAN_BSSID_EX *pcur_network);
-#ifdef CONFIG_VHT_EXTRAS
-extern const u16 VHT_MCS_DATA_RATE[3][2][30];
-#endif //CONFIG_VHT_EXTRAS
+void rtw_check_for_vht20(_adapter *adapter, u8 *ies, int ies_len);
 #endif /* _RTW_VHT_H_ */

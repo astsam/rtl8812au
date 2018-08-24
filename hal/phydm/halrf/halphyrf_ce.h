@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -54,7 +64,7 @@ typedef void	(*func_swing8814only)(void *, u8 **, u8 **, u8 **, u8 **);
 typedef void(*func_swing_xtal)(void *, s8 **, s8 **);
 typedef void(*func_set_xtal)(void *);
 
-struct _TXPWRTRACK_CFG {
+struct txpwrtrack_cfg {
 	u8		swing_table_size_cck;
 	u8		swing_table_size_ofdm;
 	u8		threshold_iqk;
@@ -73,24 +83,24 @@ struct _TXPWRTRACK_CFG {
 
 void
 configure_txpower_track(
-	void					*p_dm_void,
-	struct _TXPWRTRACK_CFG	*p_config
+	void					*dm_void,
+	struct txpwrtrack_cfg	*config
 );
 
 
 void
 odm_clear_txpowertracking_state(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 odm_txpowertracking_callback_thermal_meter(
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	void					*p_dm_void
-#elif (DM_ODM_SUPPORT_TYPE & ODM_CE) && defined(DM_ODM_CE_MAC80211)
-	void	*p_dm
+	void					*dm_void
+#elif (DM_ODM_SUPPORT_TYPE & ODM_CE)
+	void	*dm
 #else
-	struct _ADAPTER	*adapter
+	void	*adapter
 #endif
 );
 
@@ -101,14 +111,14 @@ odm_txpowertracking_callback_thermal_meter(
 
 void
 odm_reset_iqk_result(
-	void					*p_dm_void
+	void					*dm_void
 );
 u8
 odm_get_right_chnl_place_for_iqk(
 	u8 chnl
 );
 
-void phydm_rf_init(void					*p_dm_void);
-void phydm_rf_watchdog(void					*p_dm_void);
+void phydm_rf_init(void					*dm_void);
+void phydm_rf_watchdog(void					*dm_void);
 
 #endif	/*  #ifndef __HAL_PHY_RF_H__ */

@@ -29,14 +29,21 @@
 #endif
 
 #define NUM_ACL 16
+
+#define RTW_ACL_PERIOD_DEV 0
+#define RTW_ACL_PERIOD_BSS 1
+#define RTW_ACL_PERIOD_NUM 2
+
 #define RTW_ACL_MODE_DISABLED				0
 #define RTW_ACL_MODE_ACCEPT_UNLESS_LISTED	1
 #define RTW_ACL_MODE_DENY_UNLESS_LISTED		2
 #define RTW_ACL_MODE_MAX					3
 
 #if CONFIG_RTW_MACADDR_ACL
-extern const char *const _acl_mode_str[];
-#define acl_mode_str(mode) (((mode) >= RTW_ACL_MODE_MAX) ? _acl_mode_str[RTW_ACL_MODE_DISABLED] : _acl_mode_str[(mode)])
+extern const char *const _acl_period_str[RTW_ACL_PERIOD_NUM];
+#define acl_period_str(mode) (((mode) >= RTW_ACL_PERIOD_NUM) ? "INVALID" : _acl_period_str[(mode)])
+extern const char *const _acl_mode_str[RTW_ACL_MODE_MAX];
+#define acl_mode_str(mode) (((mode) >= RTW_ACL_MODE_MAX) ? "INVALID" : _acl_mode_str[(mode)])
 #endif
 
 #ifndef RTW_PRE_LINK_STA_NUM
@@ -89,6 +96,7 @@ struct wlan_acl_pool {
 };
 
 struct	stainfo_stats	{
+	systime last_rx_time;
 
 	u64 rx_mgnt_pkts;
 		u64 rx_beacon_pkts;
@@ -224,6 +232,21 @@ struct sta_recv_dframe_info {
 };
 #endif
 
+#ifdef CONFIG_RTW_MESH
+struct mesh_plink_ent;
+struct rtw_ewma_err_rate {
+	unsigned long internal;
+};
+
+/* Mesh airtime link metrics parameters */
+struct rtw_atlm_param {
+	struct rtw_ewma_err_rate err_rate; /* Now is PACKET error rate */
+	u16 data_rate; /* The unit is 100Kbps */
+	u16 total_pkt;
+	u16 overhead; /* Channel access overhead */
+};
+#endif
+
 struct sta_info {
 
 	_lock	lock;
@@ -249,23 +272,40 @@ struct sta_info {
 	uint qos_option;
 	u16 hwseq;
 
+#ifdef CONFIG_RTW_80211K
+	u8 rm_en_cap[5];
+	u8 rm_diag_token;
+#endif /* CONFIG_RTW_80211K */
+
 	uint	ieee8021x_blocked;	/* 0: allowed, 1:blocked */
 	uint	dot118021XPrivacy; /* aes, tkip... */
 	union Keytype	dot11tkiptxmickey;
 	union Keytype	dot11tkiprxmickey;
 	union Keytype	dot118021x_UncstKey;
 	union pn48		dot11txpn;			/* PN48 used for Unicast xmit */
+	union pn48		dot11rxpn;			/* PN48 used for Unicast recv. */
+#ifdef CONFIG_RTW_MESH
+	/* peer's GTK, RX only */
+	u8 group_privacy;
+	u8 gtk_bmp;
+	union Keytype gtk;
+	union pn48 gtk_pn;
+	#ifdef CONFIG_IEEE80211W
+	/* peer's IGTK, RX only */
+	u8 igtk_bmp;
+	u8 igtk_id;
+	union Keytype igtk;
+	union pn48 igtk_pn;
+	#endif /* CONFIG_IEEE80211W */
+#endif /* CONFIG_RTW_MESH */
 #ifdef CONFIG_GTK_OL
 	u8 kek[RTW_KEK_LEN];
 	u8 kck[RTW_KCK_LEN];
 	u8 replay_ctr[RTW_REPLAY_CTR_LEN];
 #endif /* CONFIG_GTK_OL */
 #ifdef CONFIG_IEEE80211W
-	union pn48		dot11wtxpn;			/* PN48 used for Unicast mgmt xmit. */
 	_timer dot11w_expire_timer;
 #endif /* CONFIG_IEEE80211W */
-	union pn48		dot11rxpn;			/* PN48 used for Unicast recv. */
-
 
 	u8	bssrateset[16];
 	u32	bssratelen;
@@ -416,6 +456,16 @@ struct sta_info {
 
 #endif /* CONFIG_AP_MODE	 */
 
+#ifdef CONFIG_RTW_MESH
+	struct mesh_plink_ent *plink;
+
+	u8 local_mps;
+	u8 peer_mps;
+	u8 nonpeer_mps;
+
+	struct rtw_atlm_param metrics;
+#endif
+
 #ifdef CONFIG_IOCTL_CFG80211
 	u8 *passoc_req;
 	u32 assoc_req_len;
@@ -434,6 +484,12 @@ struct sta_info {
 	u8 curr_rx_rate;
 	u8 curr_rx_rate_bmc;
 };
+
+#ifdef CONFIG_RTW_MESH
+#define STA_SET_MESH_PLINK(sta, link) (sta)->plink = link
+#else
+#define STA_SET_MESH_PLINK(sta, link) do {} while (0)
+#endif
 
 #define sta_tx_pkts(sta) \
 	(sta->sta_stats.tx_pkts)
@@ -546,6 +602,8 @@ struct sta_info {
 #define STA_SET_OP_WFD_MODE(sta, mode) do {} while (0)
 #endif
 
+#define AID_BMP_LEN(max_aid) ((max_aid + 1) / 8 + (((max_aid + 1) % 8) ? 1 : 0))
+
 struct	sta_priv {
 
 	u8 *pallocated_stainfo_buf;
@@ -574,19 +632,22 @@ struct	sta_priv {
 	unsigned int assoc_to; /* sec, time to expire before associating. */
 	unsigned int expire_to; /* sec , time to expire after associated. */
 
-	/* pointers to STA info; based on allocated AID or NULL if AID free
-	 * AID is in the range 1-2007, so sta_aid[0] corresponders to AID 1
-	 * and so on
-	 */
-	struct sta_info *sta_aid[NUM_STA];
-
-	u16 sta_dz_bitmap;/* only support 15 stations, staion aid bitmap for sleeping sta. */
-	u16 tim_bitmap;/* only support 15 stations, aid=0~15 mapping bit0~bit15	 */
+	/*
+	* pointers to STA info; based on allocated AID or NULL if AID free
+	* AID is in the range 1-2007, so sta_aid[0] corresponders to AID 1
+	*/
+	struct sta_info **sta_aid;
+	u16 max_aid;
+	u16 started_aid; /* started AID for allocation search */
+	bool rr_aid; /* round robin AID allocation, will modify started_aid */
+	u8 aid_bmp_len; /* in byte */
+	u8 *sta_dz_bitmap;
+	u8 *tim_bitmap;
 
 	u16 max_num_sta;
 
 #if CONFIG_RTW_MACADDR_ACL
-	struct wlan_acl_pool acl_list;
+	struct wlan_acl_pool acl_list[RTW_ACL_PERIOD_NUM];
 #endif
 
 	#if CONFIG_RTW_PRE_LINK_STA
@@ -598,12 +659,13 @@ struct	sta_priv {
 #ifdef CONFIG_ATMEL_RC_PATCH
 	u8 atmel_rc_pattern[6];
 #endif
-	struct sta_info *c2h_sta;
+	u8 c2h_sta_mac[ETH_ALEN];
+	u8 c2h_adapter_id;
 	struct submit_ctx *gotc2h;
 };
 
 
-__inline static u32 wifi_mac_hash(u8 *mac)
+__inline static u32 wifi_mac_hash(const u8 *mac)
 {
 	u32 x;
 
@@ -628,15 +690,20 @@ extern u32	_rtw_free_sta_priv(struct sta_priv *pstapriv);
 int rtw_stainfo_offset(struct sta_priv *stapriv, struct sta_info *sta);
 struct sta_info *rtw_get_stainfo_by_offset(struct sta_priv *stapriv, int offset);
 
-extern struct sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, u8 *hwaddr);
+extern struct sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr);
 extern u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta);
 extern void rtw_free_all_stainfo(_adapter *padapter);
-extern struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, u8 *hwaddr);
+extern struct sta_info *rtw_get_stainfo(struct sta_priv *pstapriv, const u8 *hwaddr);
 extern u32 rtw_init_bcmc_stainfo(_adapter *padapter);
 extern struct sta_info *rtw_get_bcmc_stainfo(_adapter *padapter);
 
+#ifdef CONFIG_AP_MODE
+u16 rtw_aid_alloc(_adapter *adapter, struct sta_info *sta);
+void dump_aid_status(void *sel, _adapter *adapter);
+#endif
+
 #if CONFIG_RTW_MACADDR_ACL
-extern u8 rtw_access_ctrl(_adapter *adapter, u8 *mac_addr);
+extern u8 rtw_access_ctrl(_adapter *adapter, const u8 *mac_addr);
 void dump_macaddr_acl(void *sel, _adapter *adapter);
 #endif
 

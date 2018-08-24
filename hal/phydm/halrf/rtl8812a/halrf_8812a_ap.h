@@ -25,14 +25,14 @@
 
 #if 0
 void configure_txpower_track_8812a(
-	struct _TXPWRTRACK_CFG	*p_config
+	struct txpwrtrack_cfg	*config
 );
 
 
 
 
 void do_iqk_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		delta_thermal_index,
 	u8		thermal_value,
 	u8		threshold
@@ -40,7 +40,7 @@ void do_iqk_8812a(
 
 void
 odm_tx_pwr_track_set_pwr8812a(
-	struct PHY_DM_STRUCT			*p_dm,
+	struct dm_struct			*dm,
 	enum pwrtrack_method	method,
 	u8				rf_path,
 	u8				channel_mapped_index
@@ -53,13 +53,13 @@ odm_tx_pwr_track_set_pwr8812a(
 
 void
 _phy_iq_calibrate_8812a(
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 	u8		channel
 );
 
 void
 phy_iq_calibrate_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	boolean	is_recovery
 );
 
@@ -69,12 +69,12 @@ phy_iq_calibrate_8812a(
  *   */
 void
 phy_lc_calibrate_8812a(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 halrf_rf_lna_setting_8812a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	enum phydm_lna_set type
 );
 

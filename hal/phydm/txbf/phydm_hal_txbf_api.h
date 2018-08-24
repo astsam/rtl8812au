@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2011 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 #ifndef	__PHYDM_HAL_TXBF_API_H__
@@ -22,13 +32,13 @@
 
 u8
 beamforming_get_htndp_tx_rate(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	comp_steering_num_of_bfer
 );
 
 u8
 beamforming_get_vht_ndp_tx_rate(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8	comp_steering_num_of_bfer
 );
 
@@ -37,7 +47,7 @@ beamforming_get_vht_ndp_tx_rate(
 #if (RTL8822B_SUPPORT == 1)
 u8
 phydm_get_beamforming_sounding_info(
-	void		*p_dm_void,
+	void		*dm_void,
 	u16	*troughput,
 	u8	total_bfee_num,
 	u8	*tx_rate
@@ -45,19 +55,19 @@ phydm_get_beamforming_sounding_info(
 
 u8
 phydm_get_ndpa_rate(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 u8
 phydm_get_mu_bfee_snding_decision(
-	void		*p_dm_void,
+	void		*dm_void,
 	u16	throughput
 );
 
 #else
-#define phydm_get_beamforming_sounding_info(p_dm_void, troughput, total_bfee_num, tx_rate) 0
-#define phydm_get_ndpa_rate(p_dm_void)
-#define phydm_get_mu_bfee_snding_decision(p_dm_void, troughput)
+#define phydm_get_beamforming_sounding_info(dm_void, troughput, total_bfee_num, tx_rate) 0
+#define phydm_get_ndpa_rate(dm_void)
+#define phydm_get_mu_bfee_snding_decision(dm_void, troughput)
 
 #endif
 

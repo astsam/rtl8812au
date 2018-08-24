@@ -99,8 +99,8 @@ void interrupt_handler_8812au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 		usb_c2h_hisr_hdl(padapter, pbuf);
 #endif
 }
-#endif /* CONFIG_SUPPORT_USB_INT */
-#if 0
+#endif
+
 int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 {
 	u8	*pbuf;
@@ -184,10 +184,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 			} else if (pattrib->pkt_rpt_type == HIS_REPORT) {
 				/*RTW_INFO("%s rx USB HISR\n", __func__);*/
 #ifdef CONFIG_SUPPORT_USB_INT
-#if ((RTL8812A_SUPPORT == 1) || (RTL8821A_SUPPORT == 1))
-			if (p_dm->support_ic_type & (ODM_RTL8812A | ODM_RTL8821A))
 				interrupt_handler_8812au(padapter, pattrib->pkt_len, precvframe->u.hdr.rx_data);
-#endif
 #endif
 			}
 			rtw_free_recvframe(precvframe, pfree_recv_queue);
@@ -208,7 +205,7 @@ _exit_recvbuf2recvframe:
 
 	return _SUCCESS;
 }
-#endif
+
 
 void rtl8812au_xmit_tasklet(void *priv)
 {

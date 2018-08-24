@@ -1597,60 +1597,22 @@ hal_EfusePgPacketWriteData(
 	return _TRUE;
 }
 
-
-#define EFUSE_CTRL				0x30		/* E-Fuse Control. */
-
-/*  11/16/2008 MH Read one byte from real Efuse. */
-u8
-efuse_OneByteRead(
-	IN	PADAPTER	pAdapter,
-	IN	u16			addr,
-	IN	u8			*data,
-	IN	BOOLEAN		bPseudoTest)
+u8 efuse_OneByteRead(struct _ADAPTER *a, u16 addr, u8 *data, u8 bPseudoTest)
 {
-	u32	tmpidx = 0;
-	u8	bResult;
-	u8	readbyte;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
+		struct dvobj_priv *d;
+		int err;
+		u8 ret = _TRUE;
 
-	if (IS_HARDWARE_TYPE_8723B(pAdapter) ||
-	    (IS_HARDWARE_TYPE_8192E(pAdapter) && (!IS_A_CUT(pHalData->version_id))) ||
-	    (IS_VENDOR_8188E_I_CUT_SERIES(pAdapter)) || (IS_CHIP_VENDOR_SMIC(pHalData->version_id))
-	   ) {
-		/* <20130121, Kordan> For SMIC EFUSE specificatoin. */
-		/* 0x34[11]: SW force PGMEN input of efuse to high. (for the bank selected by 0x34[9:8])	 */
-		/* phy_set_mac_reg(pAdapter, 0x34, BIT11, 0); */
-		rtw_write16(pAdapter, 0x34, rtw_read16(pAdapter, 0x34) & (~BIT11));
-	}
+		d = adapter_to_dvobj(a);
+		err = rtw_halmac_read_physical_efuse(d, addr, 1, data);
+		if (err) {
+			RTW_ERR("%s: addr=0x%x FAIL!!!\n", __FUNCTION__, addr);
+			ret = _FALSE;
+		}
 
-	/* -----------------e-fuse reg ctrl --------------------------------- */
-	/* address			 */
-	rtw_write8(pAdapter, EFUSE_CTRL + 1, (u8)(addr & 0xff));
-	rtw_write8(pAdapter, EFUSE_CTRL + 2, ((u8)((addr >> 8) & 0x03)) |
-		   (rtw_read8(pAdapter, EFUSE_CTRL + 2) & 0xFC));
-
-	/* rtw_write8(pAdapter, EFUSE_CTRL+3,  0x72); */ /* read cmd	 */
-	/* Write bit 32 0 */
-	readbyte = rtw_read8(pAdapter, EFUSE_CTRL + 3);
-	rtw_write8(pAdapter, EFUSE_CTRL + 3, (readbyte & 0x7f));
-
-	while (!(0x80 & rtw_read8(pAdapter, EFUSE_CTRL + 3)) && (tmpidx < 1000)) {
-		rtw_mdelay_os(1);
-		tmpidx++;
-	}
-	if (tmpidx < 100) {
-		*data = rtw_read8(pAdapter, EFUSE_CTRL);
-		bResult = _TRUE;
-	} else {
-		*data = 0xff;
-		bResult = _FALSE;
-		RTW_INFO("%s: [ERROR] addr=0x%x bResult=%d time out 1s !!!\n", __FUNCTION__, addr, bResult);
-		RTW_INFO("%s: [ERROR] EFUSE_CTRL =0x%08x !!!\n", __FUNCTION__, rtw_read32(pAdapter, EFUSE_CTRL));
-	}
-
-	return bResult;
+		return ret;
+	
 }
-
 
 static u16
 hal_EfuseGetCurrentSize_BT(
@@ -3067,7 +3029,7 @@ u8 rtw_efuse_file_read(PADAPTER padapter, u8 *filepatch, u8 *buf, u32 len)
 		return _FALSE;
 
 	count = rtw_retrieve_from_file(filepatch, ptmpbuf, bufsize);
-	if (count <= 100) {
+	if (count <= 90) {
 		rtw_mfree(ptmpbuf, bufsize);
 		RTW_ERR("%s, filepatch %s, size=%d, FAIL!!\n", __FUNCTION__, filepatch, count);
 		return _FALSE;

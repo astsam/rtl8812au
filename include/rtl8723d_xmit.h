@@ -212,9 +212,8 @@
 	SET_BITS_TO_LE_4BYTE(__pTxDesc+8, 30, 1, __Value)
 
 /* Dword 3 */
-#define SET_TX_DESC_NAV_USE_HDR_8723D(__pTxDesc, __Value) \
-	SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 5, 1, __Value)
-#define SET_TX_DESC_HWSEQ_SEL_8723D(__pTxDesc, __Value) SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 6, 2, __Value)
+#define SET_TX_DESC_HWSEQ_SEL_8723D(__pTxDesc, __Value) \
+	SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 6, 2, __Value)
 #define SET_TX_DESC_USE_RATE_8723D(__pTxDesc, __Value) \
 	SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 8, 1, __Value)
 #define SET_TX_DESC_DISABLE_RTS_FB_8723D(__pTxDesc, __Value) \
@@ -229,6 +228,8 @@
 	SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 13, 1, __Value)
 #define SET_TX_DESC_PORT_ID_8723D(__pTxDesc, __Value) \
 	SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 14, 2, __Value)
+#define SET_TX_DESC_NAV_USE_HDR_8723D(__pTxDesc, __Value) \
+	SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 15, 1, __Value)
 #define SET_TX_DESC_USE_MAX_LEN_8723D(__pTxDesc, __Value) \
 	SET_BITS_TO_LE_4BYTE(__pTxDesc+12, 16, 1, __Value)
 #define SET_TX_DESC_MAX_AGG_NUM_8723D(__pTxDesc, __Value) \

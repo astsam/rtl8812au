@@ -492,13 +492,12 @@ void linked_info_dump(_adapter *padapter, u8 benable);
 #endif
 void rtw_store_phy_info(_adapter *padapter, union recv_frame *prframe);
 #define		HWSET_MAX_SIZE			1024
+
 #ifdef CONFIG_EFUSE_CONFIG_FILE
-	#define		EFUSE_FILE_COLUMN_NUM		16
-	u32 Hal_readPGDataFromConfigFile(PADAPTER padapter);
-	u32 Hal_ReadMACAddrFromFile(PADAPTER padapter, u8 *mac_addr);
+u32 Hal_readPGDataFromConfigFile(PADAPTER padapter);
+u32 Hal_ReadMACAddrFromFile(PADAPTER padapter, u8 *mac_addr);
 #endif /* CONFIG_EFUSE_CONFIG_FILE */
 
-int check_phy_efuse_tx_power_info_valid(PADAPTER padapter);
 int hal_efuse_macaddr_offset(_adapter *adapter);
 int Hal_GetPhyEfuseMACAddr(PADAPTER padapter, u8 *mac_addr);
 void rtw_dump_cur_efuse(PADAPTER padapter);
@@ -512,7 +511,6 @@ u8 rtw_hal_busagg_qsel_check(_adapter *padapter, u8 pre_qsel, u8 next_qsel);
 
 u8 rtw_get_current_tx_rate(_adapter *padapter, struct sta_info *psta);
 u8 rtw_get_current_tx_sgi(_adapter *padapter, struct sta_info *psta);
-void rtw_hal_construct_NullFunctionData(PADAPTER, u8 *pframe, u32 *pLength, u8 *StaAddr, u8 bQoS, u8 AC, u8 bEosp, u8 bForcePowerSave);
 
 void rtw_hal_set_fw_rsvd_page(_adapter *adapter, bool finished);
 u8 rtw_hal_get_rsvd_page_num(struct _ADAPTER *adapter);
@@ -601,6 +599,9 @@ enum lps_pg_hdl_id {
 #endif
 
 int rtw_hal_get_rsvd_page(_adapter *adapter, u32 page_offset, u32 page_num, u8 *buffer, u32 buffer_size);
+void rtw_hal_construct_beacon(_adapter *padapter, u8 *pframe, u32 *pLength);
+void rtw_hal_construct_NullFunctionData(PADAPTER, u8 *pframe, u32 *pLength,
+				u8 *StaAddr, u8 bQoS, u8 AC, u8 bEosp, u8 bForcePowerSave);
 
 #ifdef CONFIG_WOWLAN
 struct rtl_wow_pattern {
@@ -651,6 +652,11 @@ s32 rtw_set_ps_rsvd_page(_adapter *adapter);
 void rtw_set_p2p_ps_offload_cmd(_adapter *adapter, u8 p2p_ps_state);
 #endif
 #endif
+
+#ifdef RTW_CHANNEL_SWITCH_OFFLOAD
+void rtw_hal_switch_chnl_and_set_bw_offload(_adapter *adapter, u8 central_ch, u8 pri_ch_idx, u8 bw);
+#endif
+
 s16 translate_dbm_to_percentage(s16 signal);
 
 #ifdef CONFIG_SWTIMER_BASED_TXBCN
@@ -662,4 +668,11 @@ u8 rtw_ap_bcn_queue_empty_check(_adapter *padapter, u32 txbcn_timer_ms);
 #endif
 #endif /*CONFIG_SWTIMER_BASED_TXBCN*/
 
+void rtw_hal_get_rf_path(struct dvobj_priv *d, enum rf_type *type,
+			 enum bb_path *tx, enum bb_path *rx);
+#ifdef CONFIG_BEAMFORMING
+#ifdef RTW_BEAMFORMING_VERSION_2
+void rtw_hal_beamforming_config_csirate(PADAPTER adapter);
+#endif
+#endif
 #endif /* __HAL_COMMON_H__ */

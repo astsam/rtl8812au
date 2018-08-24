@@ -120,7 +120,7 @@ static void _init_mp_priv_(struct mp_priv *pmp_priv)
 
 	pmp_priv->channel = 1;
 	pmp_priv->bandwidth = CHANNEL_WIDTH_20;
-	pmp_priv->prime_channel_offset = HAL_PRIME_CHNL_OFFSET_DONT_CARE;
+	pmp_priv->prime_channel_offset = HAL_PRIME_CHNL_OFFSET_LOWER;
 	pmp_priv->rateidx = RATE_1M;
 	pmp_priv->txpoweridx = 0x2A;
 
@@ -158,6 +158,8 @@ static void _init_mp_priv_(struct mp_priv *pmp_priv)
 #ifdef CONFIG_80211N_HT
 	pmp_priv->tx.attrib.ht_en = 1;
 #endif
+
+	pmp_priv->mpt_ctx.mpt_rate_index = 1;
 
 }
 
@@ -525,48 +527,69 @@ static u8 PHY_QueryRFPathSwitch(PADAPTER padapter)
 
 static void  PHY_SetRFPathSwitch(PADAPTER padapter , BOOLEAN bMain) {
 
+	PHAL_DATA_TYPE hal = GET_HAL_DATA(padapter);
+	struct dm_struct *phydm = &hal->odmpriv;
+
 	if (IS_HARDWARE_TYPE_8723B(padapter)) {
 #ifdef CONFIG_RTL8723B
-		phy_set_rf_path_switch_8723b(padapter, bMain);
+		phy_set_rf_path_switch_8723b(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8188E(padapter)) {
 #ifdef CONFIG_RTL8188E
-		phy_set_rf_path_switch_8188e(padapter, bMain);
+		phy_set_rf_path_switch_8188e(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8814A(padapter)) {	
 #ifdef CONFIG_RTL8814A
-		phy_set_rf_path_switch_8814a(padapter, bMain);
+		phy_set_rf_path_switch_8814a(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8812(padapter) || IS_HARDWARE_TYPE_8821(padapter)) {
 #if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
-		phy_set_rf_path_switch_8812a(padapter, bMain);
+		phy_set_rf_path_switch_8812a(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8192E(padapter)) {
 #ifdef CONFIG_RTL8192E
-		phy_set_rf_path_switch_8192e(padapter, bMain);
+		phy_set_rf_path_switch_8192e(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8703B(padapter)) {
 #ifdef CONFIG_RTL8703B
-		phy_set_rf_path_switch_8703b(padapter, bMain);
+		phy_set_rf_path_switch_8703b(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8188F(padapter)) {
 #ifdef CONFIG_RTL8188F
-		phy_set_rf_path_switch_8188f(padapter, bMain);
+		phy_set_rf_path_switch_8188f(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8822B(padapter)) {
 #ifdef CONFIG_RTL8822B
-		phy_set_rf_path_switch_8822b(padapter, bMain);
+		phy_set_rf_path_switch_8822b(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8723D(padapter)) {
 #ifdef CONFIG_RTL8723D
-		phy_set_rf_path_switch_8723d(padapter, bMain);
+		phy_set_rf_path_switch_8723d(phydm, bMain);
 #endif
 	} else if (IS_HARDWARE_TYPE_8821C(padapter)) {
 #ifdef CONFIG_RTL8821C
-		phy_set_rf_path_switch_8821c(padapter, bMain);
+		phy_set_rf_path_switch_8821c(phydm, bMain);
 #endif
 	}
 }
+
+
+static void phy_switch_rf_path_set(PADAPTER padapter , u8 *prf_set_State) {
+
+	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
+	struct dm_struct *p_dm = &pHalData->odmpriv;
+
+#ifdef CONFIG_RTL8821C
+	if (IS_HARDWARE_TYPE_8821C(padapter)) {
+		config_phydm_set_ant_path(p_dm, *prf_set_State, p_dm->current_ant_num_8821c);
+		/* Do IQK when switching to BTG/WLG, requested by RF Binson */
+		if (*prf_set_State == SWITCH_TO_BTG || *prf_set_State == SWITCH_TO_WLG)
+			PHY_IQCalibrate(padapter, FALSE);
+	}		
+#endif
+
+}
+
 
 #ifdef CONFIG_ANTENNA_DIVERSITY
 u8 rtw_mp_set_antdiv(PADAPTER padapter, BOOLEAN bMain)
@@ -620,11 +643,12 @@ MPT_InitializeAdapter(
 		/* <20130522, Kordan> Turn off equalizer to improve Rx sensitivity. (Asked by EEChou)*/
 		phy_set_bb_reg(pAdapter, 0xA00, BIT8, 0x0);
 		PHY_SetRFPathSwitch(pAdapter, 1/*pHalData->bDefaultAntenna*/); /*default use Main*/
-		/*<20130522, Kordan> 0x51 and 0x71 should be set immediately after path switched, or they might be overwritten. */
-		if ((pHalData->PackageType == PACKAGE_TFBGA79) || (pHalData->PackageType == PACKAGE_TFBGA90))
-			phy_set_rf_reg(pAdapter, RF_PATH_A, 0x51, bRFRegOffsetMask, 0x6B10E);
-		else
+
+		if (pHalData->PackageType == PACKAGE_DEFAULT) 
 			phy_set_rf_reg(pAdapter, RF_PATH_A, 0x51, bRFRegOffsetMask, 0x6B04E);
+		else 
+			phy_set_rf_reg(pAdapter, RF_PATH_A, 0x51, bRFRegOffsetMask, 0x6F10E);
+
 	}
 	/*set ant to wifi side in mp mode*/
 	rtw_write16(pAdapter, 0x870, 0x300);
@@ -759,7 +783,7 @@ static void init_mp_data(PADAPTER padapter)
 {
 	u8 v8;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct PHY_DM_STRUCT		*pDM_Odm = &pHalData->odmpriv;
+	struct dm_struct		*pDM_Odm = &pHalData->odmpriv;
 
 	/*disable BCN*/
 	v8 = rtw_read8(padapter, REG_BCN_CTRL);
@@ -772,7 +796,7 @@ static void init_mp_data(PADAPTER padapter)
 void MPT_PwrCtlDM(PADAPTER padapter, u32 bstart)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct PHY_DM_STRUCT		*pDM_Odm = &pHalData->odmpriv;
+	struct dm_struct		*pDM_Odm = &pHalData->odmpriv;
 	u32	rf_ability;
 
 	if (bstart == 1) {
@@ -791,9 +815,9 @@ void MPT_PwrCtlDM(PADAPTER padapter, u32 bstart)
 		pDM_Odm->rf_calibrate_info.txpowertrack_control = _FALSE;
 		padapter->mppriv.mp_dm = 0;
 		{
-			struct _TXPWRTRACK_CFG	c;
+			struct txpwrtrack_cfg c;
 			u1Byte	chnl = 0 ;
-			_rtw_memset(&c, 0, sizeof(struct _TXPWRTRACK_CFG));
+			_rtw_memset(&c, 0, sizeof(struct txpwrtrack_cfg));
 			configure_txpower_track(pDM_Odm, &c);
 			odm_clear_txpowertracking_state(pDM_Odm);
 			if (*c.odm_tx_pwr_track_set_pwr) {
@@ -918,13 +942,8 @@ end_of_mp_start_test:
 			/* set msr to WIFI_FW_ADHOC_STATE */
 			pmlmeinfo->state = WIFI_FW_ADHOC_STATE;
 			Set_MSR(padapter, (pmlmeinfo->state & 0x3));
-
 			rtw_hal_set_hwreg(padapter, HW_VAR_BSSID, padapter->registrypriv.dev_network.MacAddress);
-			join_type = 0;
-			rtw_hal_set_hwreg(padapter, HW_VAR_MLME_JOIN, (u8 *)(&join_type));
 			rtw_hal_rcr_set_chk_bssid(padapter, MLME_ADHOC_STARTED);
-
-			report_join_res(padapter, 1);
 			pmlmeinfo->state |= WIFI_FW_ASSOC_SUCCESS;
 		} else {
 			Set_MSR(padapter, WIFI_FW_STATION_STATE);
@@ -1192,6 +1211,13 @@ void MP_PHY_SetRFPathSwitch(PADAPTER pAdapter , BOOLEAN bMain)
 {
 
 	PHY_SetRFPathSwitch(pAdapter, bMain);
+
+}
+
+void mp_phy_switch_rf_path_set(PADAPTER pAdapter , u8 *pstate)
+{
+
+	phy_switch_rf_path_set(pAdapter, pstate);
 
 }
 
@@ -1952,6 +1978,7 @@ void SetPacketRx(PADAPTER pAdapter, u8 bStartRx, u8 bAB)
 				 MAC_ARG(pmppriv->network_macaddr));
 			pHalData->ReceiveConfig = 0;
 			pHalData->ReceiveConfig |= RCR_CBSSID_DATA | RCR_CBSSID_BCN |RCR_APM | RCR_AM | RCR_AB |RCR_AMF;
+			pHalData->ReceiveConfig |= RCR_APP_PHYST_RXFF;
 
 #if defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
 			write_bbreg(pAdapter, 0x550, BIT3, bEnable);
@@ -2054,7 +2081,11 @@ static u32 rtw_GetPSDData(PADAPTER pAdapter, u32 point)
 	rtw_mdelay_os(1);
 
 	psd_val = rtw_read32(pAdapter, psd_regL);
+#if defined(CONFIG_RTL8821C)
+	psd_val = (psd_val & 0x00FFFFFF) / 32;
+#else
 	psd_val &= 0x0000FFFF;
+#endif
 
 	return psd_val;
 }

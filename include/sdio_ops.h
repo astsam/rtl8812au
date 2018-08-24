@@ -159,4 +159,39 @@ extern void ClearInterrupt8188FSdio(PADAPTER padapter);
 #endif /* defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN) */
 #endif
 
+/**
+ * rtw_sdio_get_block_size() - Get block size of SDIO transfer
+ * @d		struct dvobj_priv*
+ *
+ * The unit of return value is byte.
+ */
+static inline u32 rtw_sdio_get_block_size(struct dvobj_priv *d)
+{
+	return d->intf_data.block_transfer_len;
+}
+
+/**
+ * rtw_sdio_cmd53_align_size() - Align size to one CMD53 could complete
+ * @d		struct dvobj_priv*
+ * @len		length to align
+ *
+ * Adjust len to align block size, and the new size could be transfered by one
+ * CMD53.
+ * If len < block size, it would keep original value, otherwise the value
+ * would be rounded up by block size.
+ *
+ * Return adjusted length.
+ */
+static inline size_t rtw_sdio_cmd53_align_size(struct dvobj_priv *d, size_t len)
+{
+	u32 blk_sz;
+
+
+	blk_sz = rtw_sdio_get_block_size(d);
+	if (len <= blk_sz)
+		return len;
+
+	return _RND(len, blk_sz);
+}
+
 #endif /* !__SDIO_OPS_H__ */

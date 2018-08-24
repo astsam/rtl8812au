@@ -224,7 +224,7 @@ dm_InitGPIOSetting(
 static void Init_ODM_ComInfo_8812(PADAPTER	Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct PHY_DM_STRUCT		*pDM_Odm = &(pHalData->odmpriv);
+	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
 	u8	cut_ver, fab_ver;
 
 	Init_ODM_ComInfo(Adapter);
@@ -253,12 +253,12 @@ rtl8812_InitHalDm(
 )
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct PHY_DM_STRUCT		*pDM_Odm = &(pHalData->odmpriv);
+	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
 
 #ifdef CONFIG_USB_HCI
 	dm_InitGPIOSetting(Adapter);
 #endif
-	odm_dm_init(pDM_Odm);
+	rtw_phydm_init(Adapter);
 	/* Adapter->fix_rate = 0xFF; */
 }
 
@@ -271,7 +271,7 @@ rtl8812_HalDmWatchDog(
 	BOOLEAN		bFwCurrentInPSMode = _FALSE;
 	u8 bFwPSAwake = _TRUE;
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct PHY_DM_STRUCT		*pDM_Odm = &(pHalData->odmpriv);
+	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
 
 
 	if (!rtw_is_hw_init_completed(Adapter))
@@ -327,7 +327,7 @@ skip_dm:
 void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct PHY_DM_STRUCT		*podmpriv = &pHalData->odmpriv;
+	struct dm_struct		*podmpriv = &pHalData->odmpriv;
 
 	/* _rtw_spinlock_init(&(pHalData->odm_stainfo_lock)); */
 
@@ -344,13 +344,12 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 
 	Init_ODM_ComInfo_8812(Adapter);
 	odm_init_all_timers(podmpriv);
-	pHalData->CurrentTxPwrIdx = 18;
 }
 
 void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
-	struct PHY_DM_STRUCT		*podmpriv = &pHalData->odmpriv;
+	struct dm_struct		*podmpriv = &pHalData->odmpriv;
 	/* _rtw_spinlock_free(&pHalData->odm_stainfo_lock); */
 	odm_cancel_all_timers(podmpriv);
 }

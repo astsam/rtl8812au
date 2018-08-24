@@ -22,7 +22,6 @@
 
 extern unsigned char MCS_rate_2R[16];
 extern unsigned char MCS_rate_1R[16];
-extern void process_wmmps_data(_adapter *padapter, union recv_frame *precv_frame);
 
 inline void rtw_tdls_set_link_established(_adapter *adapter, bool en)
 {
@@ -928,6 +927,20 @@ u8 *rtw_tdls_set_ch_sw(u8 *pframe, struct pkt_attrib *pattrib, struct sta_info *
 
 void rtw_tdls_set_ch_sw_oper_control(_adapter *padapter, u8 enable)
 {
+	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(padapter);
+
+	if (enable == _TRUE) {
+#ifdef CONFIG_TDLS_CH_SW_V2
+		pHalData->ch_switch_offload = _TRUE;
+#endif
+
+#ifdef CONFIG_TDLS_CH_SW_BY_DRV
+		pHalData->ch_switch_offload = _FALSE;
+#endif
+	}
+	else
+		pHalData->ch_switch_offload = _FALSE;
+	
 	if (ATOMIC_READ(&padapter->tdlsinfo.chsw_info.chsw_on) != enable)
 		ATOMIC_SET(&padapter->tdlsinfo.chsw_info.chsw_on, enable);
 
@@ -980,8 +993,8 @@ s32 rtw_tdls_do_ch_sw(_adapter *padapter, struct sta_info *ptdls_sta, u8 chnl_ty
 
 	/* set mac_id sleep before channel switch */
 	rtw_hal_macid_sleep(padapter, ptdls_sta->cmn.mac_id);
-	
-#ifdef CONFIG_TDLS_CH_SW_BY_DRV
+
+#if defined(CONFIG_TDLS_CH_SW_BY_DRV) || defined(CONFIG_TDLS_CH_SW_V2)
 	set_channel_bwmode(padapter, channel, channel_offset, bwmode);
 	ret = _SUCCESS;
 #else

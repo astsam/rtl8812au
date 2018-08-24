@@ -225,4 +225,6 @@ u8 WapiIncreasePN(u8 *PN, u8 AddCount);
 
 bool rtw_wapi_drop_for_key_absent(_adapter *padapter, u8 *pRA);
 
+void rtw_wapi_set_set_encryption(_adapter *padapter, struct ieee_param *param);
+
 #endif

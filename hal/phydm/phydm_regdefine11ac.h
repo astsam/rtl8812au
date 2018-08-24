@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -60,6 +70,12 @@
 #define	ODM_REG_HT_CRC32_CNT_11AC		0xF10
 #define	ODM_REG_OFDM_CRC32_CNT_11AC	0xF14
 #define	ODM_REG_OFDM_FA_11AC			0xF48
+#define	ODM_REG_OFDM_FA_TYPE1_11AC		0xFCC
+#define	ODM_REG_OFDM_FA_TYPE2_11AC		0xFD0
+#define	ODM_REG_OFDM_FA_TYPE3_11AC		0xFBC
+#define	ODM_REG_OFDM_FA_TYPE4_11AC		0xFC0
+#define	ODM_REG_OFDM_FA_TYPE5_11AC		0xFC4
+#define	ODM_REG_OFDM_FA_TYPE6_11AC		0xFC8
 #define	ODM_REG_RPT_11AC					0xfa0
 #define	ODM_REG_CLM_RESULT_11AC			0xfa4
 #define	ODM_REG_NHM_CNT_11AC			0xfa8
@@ -67,7 +83,6 @@
 
 #define	ODM_REG_NHM_CNT7_TO_CNT4_11AC   0xfac
 #define	ODM_REG_NHM_CNT11_TO_CNT8_11AC  0xfb0
-#define	ODM_REG_OFDM_FA_TYPE2_11AC		0xFD0
 /* PAGE 18 */
 #define	ODM_REG_IGI_C_11AC				0x1850
 /* PAGE 1A */

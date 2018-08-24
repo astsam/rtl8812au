@@ -17,6 +17,41 @@
 /* #include <drv_types.h> */
 #include <rtl8812a_hal.h>
 
+void _dbg_dump_tx_info(_adapter	*padapter, int frame_tag, u8 *ptxdesc)
+{
+	u8 bDumpTxPkt;
+	u8 bDumpTxDesc = _FALSE;
+	rtw_hal_get_def_var(padapter, HAL_DEF_DBG_DUMP_TXPKT, &(bDumpTxPkt));
+
+	if (bDumpTxPkt == 1) { /* dump txdesc for data frame */
+		RTW_INFO("dump tx_desc for data frame\n");
+		if ((frame_tag & 0x0f) == DATA_FRAMETAG)
+			bDumpTxDesc = _TRUE;
+	} else if (bDumpTxPkt == 2) { /* dump txdesc for mgnt frame */
+		RTW_INFO("dump tx_desc for mgnt frame\n");
+		if ((frame_tag & 0x0f) == MGNT_FRAMETAG)
+			bDumpTxDesc = _TRUE;
+	} else if (bDumpTxPkt == 3) { /* dump early info */
+	}
+
+	if (bDumpTxDesc) {
+		/* ptxdesc->txdw4 = cpu_to_le32(0x00001006); */ /* RTS Rate=24M */
+		/*	ptxdesc->txdw6 = 0x6666f800; */
+		RTW_INFO("=====================================\n");
+		RTW_INFO("Offset00(0x%08x)\n", *((u32 *)(ptxdesc)));
+		RTW_INFO("Offset04(0x%08x)\n", *((u32 *)(ptxdesc + 4)));
+		RTW_INFO("Offset08(0x%08x)\n", *((u32 *)(ptxdesc + 8)));
+		RTW_INFO("Offset12(0x%08x)\n", *((u32 *)(ptxdesc + 12)));
+		RTW_INFO("Offset16(0x%08x)\n", *((u32 *)(ptxdesc + 16)));
+		RTW_INFO("Offset20(0x%08x)\n", *((u32 *)(ptxdesc + 20)));
+		RTW_INFO("Offset24(0x%08x)\n", *((u32 *)(ptxdesc + 24)));
+		RTW_INFO("Offset28(0x%08x)\n", *((u32 *)(ptxdesc + 28)));
+		RTW_INFO("Offset32(0x%08x)\n", *((u32 *)(ptxdesc + 32)));
+		RTW_INFO("Offset36(0x%08x)\n", *((u32 *)(ptxdesc + 36)));
+		RTW_INFO("=====================================\n");
+	}
+
+}
 
 /*
  * Description:

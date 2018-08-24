@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -49,7 +59,6 @@ enum	primary_cca_ch_position {  /*N-series REG0xc6c[8:7]*/
 };
 
 struct phydm_pricca_struct {
-
 	#if (RTL8188E_SUPPORT == 1) || (RTL8192E_SUPPORT == 1)
 	u8	pri_cca_flag;
 	u8	intf_flag;
@@ -74,14 +83,14 @@ struct phydm_pricca_struct {
 
 void
 odm_dynamic_primary_cca_mp_8192e(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 #elif (DM_ODM_SUPPORT_TYPE == ODM_AP)
 
 void
 odm_dynamic_primary_cca_ap_8192e(
-	void			*p_dm_void
+	void			*dm_void
 );
 #endif
 #endif
@@ -90,7 +99,7 @@ odm_dynamic_primary_cca_ap_8192e(
 
 void
 odm_dynamic_primary_cca_8188e(
-	void			*p_dm_void
+	void			*dm_void
 );
 #endif
 #endif
@@ -100,17 +109,17 @@ odm_dynamic_primary_cca_8188e(
 
 boolean
 odm_dynamic_primary_cca_dup_rts(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 void
 phydm_primary_cca_init(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 void
 phydm_primary_cca(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -90,7 +100,6 @@ enum lna_sat_timer_state {
 /*--------------------Define Struct-----------------------------------*/
 
 struct phydm_dig_struct {
-
 	boolean	is_ignore_dig; /*for old pause function*/
 	boolean	is_dbg_fa_th;
 	u8		dig_mode_decision;
@@ -109,7 +118,6 @@ struct phydm_dig_struct {
 	u8		pause_dig_value[PHYDM_PAUSE_MAX_NUM];
 	enum dig_goupcheck_level		dig_go_up_check_level;
 	u8		aaa_default;
-	u8		a0a_default;
 	u16		fa_th[3];
 #if (RTL8822B_SUPPORT == 1 || RTL8197F_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
 	u8		rf_gain_idx;
@@ -142,12 +150,13 @@ struct phydm_fa_struct {
 	u32		cnt_parity_fail;
 	u32		cnt_rate_illegal;
 	u32		cnt_crc8_fail;
+	u32		cnt_crc8_fail_vht;
 	u32		cnt_mcs_fail;
+	u32		cnt_mcs_fail_vht;
 	u32		cnt_ofdm_fail;
 	u32		cnt_ofdm_fail_pre;	/* For RTL8881A */
 	u32		cnt_cck_fail;
 	u32		cnt_all;
-	u32		cnt_all_accumulated;  /*accumulate cnt_all*/
 	u32		cnt_all_pre;
 	u32		cnt_fast_fsync;
 	u32		cnt_sb_search_fail;
@@ -168,6 +177,7 @@ struct phydm_fa_struct {
 	u32		cnt_vht_crc32_ok;
 	u32		cnt_crc32_error_all;
 	u32		cnt_crc32_ok_all;
+	u32		time_fa_all;
 	boolean	cck_block_enable;
 	boolean	ofdm_block_enable;
 	u32		dbg_port0;
@@ -213,7 +223,7 @@ struct phydm_lna_sat_info_struct {
 	u32			check_time;
 	boolean		pre_sat_status;
 	boolean		cur_sat_status;
-	struct timer_list	phydm_lna_sat_chk_timer;
+	struct phydm_timer_list	phydm_lna_sat_chk_timer;
 	u32			cur_timer_check_cnt;
 	u32			pre_timer_check_cnt;
 };
@@ -221,20 +231,20 @@ struct phydm_lna_sat_info_struct {
 /*--------------------Function declaration-----------------------------*/
 void
 odm_write_dig(
-	void					*p_dm_void,
+	void					*dm_void,
 	u8					current_igi
 );
 
 void
 phydm_set_dig_val(
-	void			*p_dm_void,
+	void			*dm_void,
 	u32			*val_buf,
 	u8			val_len
 );
 
 void
 odm_pause_dig(
-	void					*p_dm_void,
+	void					*dm_void,
 	enum phydm_pause_type		pause_type,
 	enum phydm_pause_level		pause_level,
 	u8					igi_value
@@ -242,106 +252,106 @@ odm_pause_dig(
 
 void
 phydm_dig_init(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 phydm_dig(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 phydm_dig_lps_32k(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_dig_by_rssi_lps(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 odm_false_alarm_counter_statistics(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 #ifdef PHYDM_TDMA_DIG_SUPPORT
 void
 phydm_set_tdma_dig_timer(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 phydm_tdma_dig_timer_check(
-	void					*p_dm_void
+	void					*dm_void
 );
 
 void
 phydm_tdma_dig(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_tdma_false_alarm_counter_check(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_tdma_dig_add_interrupt_mask_handler(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_false_alarm_counter_reset(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_false_alarm_counter_acc(
-	void		*p_dm_void,
+	void		*dm_void,
 	boolean		rssi_dump_en
 	);
 
 void
 phydm_false_alarm_counter_acc_reset(
-	void		*p_dm_void
+	void		*dm_void
 	);
 
 #endif	/*#ifdef PHYDM_TDMA_DIG_SUPPORT*/
 
 void
 phydm_set_ofdm_agc_tab(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8		tab_sel
 );
 
 #ifdef PHYDM_LNA_SAT_CHK_SUPPORT
 u8
 phydm_get_ofdm_agc_tab(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 phydm_lna_sat_chk(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_lna_sat_chk_timers(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8			state
 );
 
 void
 phydm_lna_sat_chk_watchdog(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 #endif	/*#if (PHYDM_LNA_SAT_CHK_SUPPORT == 1)*/
 
 void
 phydm_dig_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	char		input[][16],
 	u32		*_used,
 	char		*output,

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -462,57 +472,57 @@ u32 tx_scaling_table_jaguar[TXSCALE_TABLE_SIZE] = {
 
 void
 odm_txpowertracking_init(
-	void	*p_dm_void
+	void	*dm_void
 )
 {
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
 #if (DM_ODM_SUPPORT_TYPE & (ODM_AP))
-	if (!(p_dm->support_ic_type & (ODM_RTL8814A | ODM_IC_11N_SERIES | ODM_RTL8822B)))
+	if (!(dm->support_ic_type & (ODM_RTL8814A | ODM_IC_11N_SERIES | ODM_RTL8822B)))
 		return;
 #endif
 
-	odm_txpowertracking_thermal_meter_init(p_dm);
+	odm_txpowertracking_thermal_meter_init(dm);
 }
 
 u8
 get_swing_index(
-	void	*p_dm_void
+	void	*dm_void
 )
 {
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
 #if ((RTL8812A_SUPPORT == 1) || (RTL8821A_SUPPORT == 1))
-	struct _ADAPTER		*adapter = p_dm->adapter;
-	HAL_DATA_TYPE	*p_hal_data = GET_HAL_DATA(adapter);
+	void		*adapter = dm->adapter;
+	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(adapter);
 #endif
 	u8			i = 0;
 	u32			bb_swing;
 	u32			swing_table_size;
-	u32			*p_swing_table;
+	u32			*swing_table;
 
-	if (p_dm->support_ic_type == ODM_RTL8188E || p_dm->support_ic_type == ODM_RTL8723B
-	    || p_dm->support_ic_type == ODM_RTL8192E || p_dm->support_ic_type == ODM_RTL8188F || p_dm->support_ic_type == ODM_RTL8703B || p_dm->support_ic_type == ODM_RTL8723D || p_dm->support_ic_type == ODM_RTL8710B
+	if (dm->support_ic_type == ODM_RTL8188E || dm->support_ic_type == ODM_RTL8723B
+	    || dm->support_ic_type == ODM_RTL8192E || dm->support_ic_type == ODM_RTL8188F || dm->support_ic_type == ODM_RTL8703B || dm->support_ic_type == ODM_RTL8723D || dm->support_ic_type == ODM_RTL8710B
 	   ) {
-		bb_swing = odm_get_bb_reg(p_dm, REG_OFDM_0_XA_TX_IQ_IMBALANCE, 0xFFC00000);
+		bb_swing = odm_get_bb_reg(dm, REG_OFDM_0_XA_TX_IQ_IMBALANCE, 0xFFC00000);
 
-		p_swing_table = ofdm_swing_table_new;
+		swing_table = ofdm_swing_table_new;
 		swing_table_size = OFDM_TABLE_SIZE;
 	} else {
 #if ((RTL8812A_SUPPORT == 1) || (RTL8821A_SUPPORT == 1))
-		if (p_dm->support_ic_type == ODM_RTL8812 || p_dm->support_ic_type == ODM_RTL8821) {
-			bb_swing = phy_get_tx_bb_swing_8812a(adapter, p_hal_data->current_band_type, RF_PATH_A);
-			p_swing_table = tx_scaling_table_jaguar;
+		if (dm->support_ic_type == ODM_RTL8812 || dm->support_ic_type == ODM_RTL8821) {
+			bb_swing = phy_get_tx_bb_swing_8812a(adapter, hal_data->current_band_type, RF_PATH_A);
+			swing_table = tx_scaling_table_jaguar;
 			swing_table_size = TXSCALE_TABLE_SIZE;
 		} else
 #endif
 		{
 			bb_swing = 0;
-			p_swing_table = ofdm_swing_table;
+			swing_table = ofdm_swing_table;
 			swing_table_size = OFDM_TABLE_SIZE;
 		}
 	}
 
 	for (i = 0; i < swing_table_size; ++i) {
-		u32 table_value = p_swing_table[i];
+		u32 table_value = swing_table[i];
 
 		if (table_value >= 0x100000)
 			table_value >>= 22;
@@ -524,24 +534,24 @@ get_swing_index(
 
 u8
 get_cck_swing_index(
-	void		*p_dm_void
+	void		*dm_void
 )
 {
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
 
 	u8			i = 0;
 	u32			bb_cck_swing;
 
-	if (p_dm->support_ic_type == ODM_RTL8188E || p_dm->support_ic_type == ODM_RTL8723B ||
-	    p_dm->support_ic_type == ODM_RTL8192E) {
-		bb_cck_swing = odm_read_1byte(p_dm, 0xa22);
+	if (dm->support_ic_type == ODM_RTL8188E || dm->support_ic_type == ODM_RTL8723B ||
+	    dm->support_ic_type == ODM_RTL8192E) {
+		bb_cck_swing = odm_read_1byte(dm, 0xa22);
 
 		for (i = 0; i < CCK_TABLE_SIZE; i++) {
 			if (bb_cck_swing == cck_swing_table_ch1_ch13_new[i][0])
 				break;
 		}
-	} else if (p_dm->support_ic_type == ODM_RTL8703B) {
-		bb_cck_swing = odm_read_1byte(p_dm, 0xa22);
+	} else if (dm->support_ic_type == ODM_RTL8703B) {
+		bb_cck_swing = odm_read_1byte(dm, 0xa22);
 
 		for (i = 0; i < CCK_TABLE_SIZE_88F; i++) {
 			if (bb_cck_swing == cck_swing_table_ch1_ch14_88f[i][0])
@@ -555,123 +565,123 @@ get_cck_swing_index(
 
 void
 odm_txpowertracking_thermal_meter_init(
-	void	*p_dm_void
+	void	*dm_void
 )
 {
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	u8 default_swing_index = get_swing_index(p_dm);
-	u8 default_cck_swing_index = get_cck_swing_index(p_dm);
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
+	u8 default_swing_index = get_swing_index(dm);
+	u8 default_cck_swing_index = get_cck_swing_index(dm);
 	u8			p = 0;
-	struct odm_rf_calibration_structure	*p_rf_calibrate_info = &(p_dm->rf_calibrate_info);
+	struct dm_rf_calibration_struct	*cali_info = &dm->rf_calibrate_info;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter = p_dm->adapter;
-	HAL_DATA_TYPE	*p_hal_data = GET_HAL_DATA(adapter);
+	void		*adapter = dm->adapter;
+	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(adapter);
 
-	if (*(p_dm->p_mp_mode) == false)
-		p_hal_data->txpowertrack_control = true;
+	if (*dm->mp_mode == false)
+		hal_data->txpowertrack_control = true;
 #elif (DM_ODM_SUPPORT_TYPE == ODM_CE)
 #ifdef DM_ODM_CE_MAC80211
-	struct rtl_priv *rtlpriv = (struct rtl_priv *)p_dm->adapter;
+	struct rtl_priv *rtlpriv = (struct rtl_priv *)dm->adapter;
 	struct rtl_efuse *rtlefu = rtl_efuse(rtlpriv);
 #else
-	struct _ADAPTER		*adapter = p_dm->adapter;
-	HAL_DATA_TYPE	*p_hal_data = GET_HAL_DATA(adapter);
+	void		*adapter = dm->adapter;
+	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(adapter);
 #endif
 
-	p_rf_calibrate_info->is_txpowertracking = true;
-	p_rf_calibrate_info->tx_powercount = 0;
-	p_rf_calibrate_info->is_txpowertracking_init = false;
+	cali_info->is_txpowertracking = true;
+	cali_info->tx_powercount = 0;
+	cali_info->is_txpowertracking_init = false;
 
-	if (*(p_dm->p_mp_mode) == false)
-		p_rf_calibrate_info->txpowertrack_control = true;
+	if (*dm->mp_mode == false)
+		cali_info->txpowertrack_control = true;
 	else
-		p_rf_calibrate_info->txpowertrack_control = false;
+		cali_info->txpowertrack_control = false;
 
-	if (*(p_dm->p_mp_mode) == false)
-		p_rf_calibrate_info->txpowertrack_control = true;
+	if (*dm->mp_mode == false)
+		cali_info->txpowertrack_control = true;
 
-	ODM_RT_TRACE(p_dm, ODM_COMP_CALIBRATION, ODM_DBG_LOUD, ("p_dm txpowertrack_control = %d\n", p_rf_calibrate_info->txpowertrack_control));
+	PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "dm txpowertrack_control = %d\n", cali_info->txpowertrack_control);
 
 #elif (DM_ODM_SUPPORT_TYPE & (ODM_AP))
 #ifdef RTL8188E_SUPPORT
 	{
-		p_rf_calibrate_info->is_txpowertracking = true;
-		p_rf_calibrate_info->tx_powercount = 0;
-		p_rf_calibrate_info->is_txpowertracking_init = false;
-		p_rf_calibrate_info->txpowertrack_control = true;
+		cali_info->is_txpowertracking = true;
+		cali_info->tx_powercount = 0;
+		cali_info->is_txpowertracking_init = false;
+		cali_info->txpowertrack_control = true;
 	}
 #endif
 #endif
 
-	/* p_dm->rf_calibrate_info.txpowertrack_control = true; */
+	/* dm->rf_calibrate_info.txpowertrack_control = true; */
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE) && defined(DM_ODM_CE_MAC80211)
-	p_rf_calibrate_info->thermal_value = rtlefu->eeprom_thermalmeter;
-	p_rf_calibrate_info->thermal_value_iqk = rtlefu->eeprom_thermalmeter;
-	p_rf_calibrate_info->thermal_value_lck = rtlefu->eeprom_thermalmeter;
+	cali_info->thermal_value = rtlefu->eeprom_thermalmeter;
+	cali_info->thermal_value_iqk = rtlefu->eeprom_thermalmeter;
+	cali_info->thermal_value_lck = rtlefu->eeprom_thermalmeter;
 #else
-	p_rf_calibrate_info->thermal_value = p_hal_data->eeprom_thermal_meter;
-	p_rf_calibrate_info->thermal_value_iqk = p_hal_data->eeprom_thermal_meter;
-	p_rf_calibrate_info->thermal_value_lck = p_hal_data->eeprom_thermal_meter;
+	cali_info->thermal_value = hal_data->eeprom_thermal_meter;
+	cali_info->thermal_value_iqk = hal_data->eeprom_thermal_meter;
+	cali_info->thermal_value_lck = hal_data->eeprom_thermal_meter;
 #endif
 
-	if (p_rf_calibrate_info->default_bb_swing_index_flag != true) {
+	if (cali_info->default_bb_swing_index_flag != true) {
 		/*The index of "0 dB" in SwingTable.*/
-		if (p_dm->support_ic_type == ODM_RTL8188E || p_dm->support_ic_type == ODM_RTL8723B ||
-		    p_dm->support_ic_type == ODM_RTL8192E || p_dm->support_ic_type == ODM_RTL8703B) {
-			p_rf_calibrate_info->default_ofdm_index = (default_swing_index >= OFDM_TABLE_SIZE) ? 30 : default_swing_index;
-			p_rf_calibrate_info->default_cck_index = (default_cck_swing_index >= CCK_TABLE_SIZE) ? 20 : default_cck_swing_index;
-		} else if (p_dm->support_ic_type == ODM_RTL8188F) {          /*add by Mingzhi.Guo  2015-03-23*/
-			p_rf_calibrate_info->default_ofdm_index = 28;							/*OFDM: -1dB*/
-			p_rf_calibrate_info->default_cck_index = 20;							/*CCK:-6dB*/
-		} else if (p_dm->support_ic_type == ODM_RTL8723D) {			 /*add by zhaohe  2015-10-27*/
-			p_rf_calibrate_info->default_ofdm_index = 28;						 	   /*OFDM: -1dB*/
-			p_rf_calibrate_info->default_cck_index = 28;							/*CCK:   -6dB*/
-		} else if (p_dm->support_ic_type == ODM_RTL8710B) {		/* JJ ADD 20161014 */
-			p_rf_calibrate_info->default_ofdm_index = 28;						 	   /*OFDM: -1dB*/
-			p_rf_calibrate_info->default_cck_index = 28;							   /*CCK:   -6dB*/
+		if (dm->support_ic_type == ODM_RTL8188E || dm->support_ic_type == ODM_RTL8723B ||
+		    dm->support_ic_type == ODM_RTL8192E || dm->support_ic_type == ODM_RTL8703B) {
+			cali_info->default_ofdm_index = (default_swing_index >= OFDM_TABLE_SIZE) ? 30 : default_swing_index;
+			cali_info->default_cck_index = (default_cck_swing_index >= CCK_TABLE_SIZE) ? 20 : default_cck_swing_index;
+		} else if (dm->support_ic_type == ODM_RTL8188F) {          /*add by Mingzhi.Guo  2015-03-23*/
+			cali_info->default_ofdm_index = 28;							/*OFDM: -1dB*/
+			cali_info->default_cck_index = 20;							/*CCK:-6dB*/
+		} else if (dm->support_ic_type == ODM_RTL8723D) {			 /*add by zhaohe  2015-10-27*/
+			cali_info->default_ofdm_index = 28;						 	   /*OFDM: -1dB*/
+			cali_info->default_cck_index = 28;							/*CCK:   -6dB*/
+		} else if (dm->support_ic_type == ODM_RTL8710B) {		/* JJ ADD 20161014 */
+			cali_info->default_ofdm_index = 28;						 	   /*OFDM: -1dB*/
+			cali_info->default_cck_index = 28;							   /*CCK:   -6dB*/
 		} else {
-			p_rf_calibrate_info->default_ofdm_index = (default_swing_index >= TXSCALE_TABLE_SIZE) ? 24 : default_swing_index;
-			p_rf_calibrate_info->default_cck_index = 24;
+			cali_info->default_ofdm_index = (default_swing_index >= TXSCALE_TABLE_SIZE) ? 24 : default_swing_index;
+			cali_info->default_cck_index = 24;
 		}
-		p_rf_calibrate_info->default_bb_swing_index_flag = true;
+		cali_info->default_bb_swing_index_flag = true;
 	}
 
-	p_rf_calibrate_info->bb_swing_idx_cck_base = p_rf_calibrate_info->default_cck_index;
-	p_rf_calibrate_info->CCK_index = p_rf_calibrate_info->default_cck_index;
+	cali_info->bb_swing_idx_cck_base = cali_info->default_cck_index;
+	cali_info->CCK_index = cali_info->default_cck_index;
 
 	for (p = RF_PATH_A; p < MAX_RF_PATH; ++p) {
-		p_rf_calibrate_info->bb_swing_idx_ofdm_base[p] = p_rf_calibrate_info->default_ofdm_index;
-		p_rf_calibrate_info->OFDM_index[p] = p_rf_calibrate_info->default_ofdm_index;
-		p_rf_calibrate_info->delta_power_index[p] = 0;
-		p_rf_calibrate_info->delta_power_index_last[p] = 0;
-		p_rf_calibrate_info->power_index_offset[p] = 0;
+		cali_info->bb_swing_idx_ofdm_base[p] = cali_info->default_ofdm_index;
+		cali_info->OFDM_index[p] = cali_info->default_ofdm_index;
+		cali_info->delta_power_index[p] = 0;
+		cali_info->delta_power_index_last[p] = 0;
+		cali_info->power_index_offset[p] = 0;
 	}
-	p_rf_calibrate_info->modify_tx_agc_value_ofdm = 0;
-	p_rf_calibrate_info->modify_tx_agc_value_cck = 0;
-
+	cali_info->modify_tx_agc_value_ofdm = 0;
+	cali_info->modify_tx_agc_value_cck = 0;
+	cali_info->tm_trigger = 0;
 }
 
 
 void
 odm_txpowertracking_check(
-	void	*p_dm_void
+	void	*dm_void
 )
 {
 	/* 2011/09/29 MH In HW integration first stage, we provide 4 different handle to operate
 	at the same time. In the stage2/3, we need to prive universal interface and merge all
 	HW dynamic mechanism. */
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	switch	(p_dm->support_platform) {
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
+	switch	(dm->support_platform) {
 	case	ODM_WIN:
-		odm_txpowertracking_check_mp(p_dm);
+		odm_txpowertracking_check_mp(dm);
 		break;
 
 	case	ODM_CE:
-		odm_txpowertracking_check_ce(p_dm);
+		odm_txpowertracking_check_ce(dm);
 		break;
 
 	case	ODM_AP:
-		odm_txpowertracking_check_ap(p_dm);
+		odm_txpowertracking_check_ap(dm);
 		break;
 
 	default:
@@ -682,41 +692,35 @@ odm_txpowertracking_check(
 
 void
 odm_txpowertracking_check_ce(
-	void	*p_dm_void
+	void	*dm_void
 )
 {
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	struct _hal_rf_				*p_rf = &(p_dm->rf_table);
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
+	struct _hal_rf_				*rf = &dm->rf_table;
 #if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	struct _ADAPTER	*adapter = p_dm->adapter;
+	void	*adapter = dm->adapter;
 
 
-	if (!(p_rf->rf_supportability & HAL_RF_TX_PWR_TRACK))
+	if (!(rf->rf_supportability & HAL_RF_TX_PWR_TRACK))
 		return;
 
-	if (!p_dm->rf_calibrate_info.tm_trigger) {
-
+	if (!dm->rf_calibrate_info.tm_trigger) {
 		if (IS_HARDWARE_TYPE_8188E(adapter) || IS_HARDWARE_TYPE_8188F(adapter) || IS_HARDWARE_TYPE_8192E(adapter)
 		    || IS_HARDWARE_TYPE_8723B(adapter) || IS_HARDWARE_TYPE_JAGUAR(adapter) || IS_HARDWARE_TYPE_8814A(adapter)
 		    || IS_HARDWARE_TYPE_8703B(adapter) || IS_HARDWARE_TYPE_8723D(adapter) || IS_HARDWARE_TYPE_8822B(adapter)
-		    || IS_HARDWARE_TYPE_8821C(adapter)  || (p_dm->support_ic_type == ODM_RTL8710B)
+		    || IS_HARDWARE_TYPE_8821C(adapter)  || (dm->support_ic_type == ODM_RTL8710B)
 		   )/* JJ ADD 20161014 */
-			odm_set_rf_reg(p_dm, RF_PATH_A, RF_T_METER_NEW, (BIT(17) | BIT(16)), 0x03);
+			odm_set_rf_reg(dm, RF_PATH_A, RF_T_METER_NEW, (BIT(17) | BIT(16)), 0x03);
 		else
-			odm_set_rf_reg(p_dm, RF_PATH_A, RF_T_METER_OLD, RFREGOFFSETMASK, 0x60);
+			odm_set_rf_reg(dm, RF_PATH_A, RF_T_METER_OLD, RFREGOFFSETMASK, 0x60);
 
 
 
-		p_dm->rf_calibrate_info.tm_trigger = 1;
+		dm->rf_calibrate_info.tm_trigger = 1;
 		return;
 	} else {
-
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE) && defined(DM_ODM_CE_MAC80211)
-		odm_txpowertracking_callback_thermal_meter(p_dm);
-#else
-		odm_txpowertracking_callback_thermal_meter(adapter);
-#endif
-		p_dm->rf_calibrate_info.tm_trigger = 0;
+		odm_txpowertracking_callback_thermal_meter(dm);
+		dm->rf_calibrate_info.tm_trigger = 0;
 	}
 
 #endif
@@ -724,12 +728,12 @@ odm_txpowertracking_check_ce(
 
 void
 odm_txpowertracking_check_mp(
-	void	*p_dm_void
+	void	*dm_void
 )
 {
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	struct _ADAPTER	*adapter = p_dm->adapter;
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
+	void	*adapter = dm->adapter;
 
 	if (odm_check_power_status(adapter) == false) {
 		RT_TRACE(COMP_POWER_TRACKING, DBG_LOUD, ("check_pow_status, return false\n"));
@@ -744,12 +748,12 @@ odm_txpowertracking_check_mp(
 
 void
 odm_txpowertracking_check_ap(
-	void	*p_dm_void
+	void	*dm_void
 )
 {
 #if (DM_ODM_SUPPORT_TYPE == ODM_AP)
-	struct PHY_DM_STRUCT		*p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
-	struct rtl8192cd_priv	*priv		= p_dm->priv;
+	struct dm_struct		*dm = (struct dm_struct *)dm_void;
+	struct rtl8192cd_priv	*priv		= dm->priv;
 
 	return;
 

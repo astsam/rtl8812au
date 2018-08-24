@@ -85,7 +85,7 @@ enum rf_type {
 	RF_3T3R			= 5,
 	RF_3T4R			= 6,
 	RF_4T4R			= 7,
-	RF_TYPE_MAX = 0x0F,
+	RF_TYPE_MAX,
 };
 
 enum bb_path {
@@ -181,8 +181,8 @@ struct ra_sta_info {
 
 struct dtp_info {
 	u8	dyn_tx_power;	/*Dynamic Tx power offset*/
-	u8	sta_tx_high_power_lvl;
-	u8	sta_last_dtp_lvl;
+	u8	sta_tx_high_power_lvl:4;
+	u8	sta_last_dtp_lvl:4;
 };
 
 struct cmn_sta_info {
@@ -204,8 +204,8 @@ struct cmn_sta_info {
 #endif
 	u8	sm_ps:2;
 	struct dtp_info dtp_stat;	/*Dynamic Tx power offset*/
-	u8		pw2cca_over_TH_cnt;
-	u8		total_pw2cca_cnt;
+	/*u8		pw2cca_over_TH_cnt;*/
+	/*u8		total_pw2cca_cnt;*/
 };
 
 struct phydm_phyinfo_struct {

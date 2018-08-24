@@ -472,7 +472,7 @@ int _rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
 
 #ifdef CONFIG_TX_MCAST2UNI
 	if (!rtw_mc2u_disable
-		&& (MLME_IS_AP(padapter) || MLME_IS_MESH(padapter))
+		&& MLME_IS_AP(padapter)
 		&& (IP_MCAST_MAC(pkt->data)
 			|| ICMPV6_MCAST_MAC(pkt->data)
 			#ifdef CONFIG_TX_BCAST2UNI
@@ -522,9 +522,10 @@ int rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
 	if (pkt) {
 		if (check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) == _TRUE) {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 24))
-			ret = rtw_monitor_xmit_entry((struct sk_buff *)pkt, pnetdev);
+			rtw_monitor_xmit_entry((struct sk_buff *)pkt, pnetdev);
 #endif
-		} else {
+		}
+		else {
 			rtw_mstat_update(MSTAT_TYPE_SKB, MSTAT_ALLOC_SUCCESS, pkt->truesize);
 			ret = _rtw_xmit_entry(pkt, pnetdev);
 		}

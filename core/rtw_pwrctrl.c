@@ -192,9 +192,6 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 	struct mlme_priv *pmlmepriv;
 #ifdef CONFIG_P2P
 	struct wifidirect_info	*pwdinfo;
-#ifdef CONFIG_IOCTL_CFG80211
-	struct cfg80211_wifidirect_info *pcfg80211_wdinfo;
-#endif
 #endif
 
 	bool ret = _FALSE;
@@ -204,7 +201,7 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 		goto exit;
 	}
 
-	if (time_after(adapter_to_pwrctl(adapter)->ips_deny_time, rtw_get_current_time())) {
+	if (rtw_time_after(adapter_to_pwrctl(adapter)->ips_deny_time, rtw_get_current_time())) {
 		/* RTW_INFO("%s ips_deny_time\n", __func__); */
 		goto exit;
 	}
@@ -215,9 +212,6 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 			pmlmepriv = &(iface->mlmepriv);
 #ifdef CONFIG_P2P
 			pwdinfo = &(iface->wdinfo);
-#ifdef CONFIG_IOCTL_CFG80211
-			pcfg80211_wdinfo = &iface->cfg80211_wdinfo;
-#endif
 #endif
 			if (check_fwstate(pmlmepriv, WIFI_ASOC_STATE | WIFI_SITE_MONITOR)
 				|| check_fwstate(pmlmepriv, WIFI_UNDER_LINKING | WIFI_UNDER_WPS)
@@ -226,12 +220,11 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 				|| check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE | WIFI_ADHOC_STATE)
 				#if defined(CONFIG_P2P) && defined(CONFIG_IOCTL_CFG80211)
 				|| rtw_cfg80211_get_is_roch(iface) == _TRUE
+				|| (rtw_cfg80211_is_ro_ch_once(adapter)
+					&& rtw_cfg80211_get_last_ro_ch_passing_ms(adapter) < 3000)
 				#elif defined(CONFIG_P2P)
 				|| rtw_p2p_chk_state(pwdinfo, P2P_STATE_IDLE)
 				|| rtw_p2p_chk_state(pwdinfo, P2P_STATE_LISTEN)
-				#endif
-				#if defined(CONFIG_P2P) && defined(CONFIG_IOCTL_CFG80211)
-				|| rtw_get_passing_time_ms(pcfg80211_wdinfo->last_ro_ch_time) < 3000
 				#endif
 			)
 				goto exit;
@@ -286,7 +279,7 @@ void rtw_ps_processor(_adapter *padapter)
 	ps_deny = rtw_ps_deny_get(padapter);
 	_exit_pwrlock(&adapter_to_pwrctl(padapter)->lock);
 	if (ps_deny != 0) {
-		RTW_DBG(FUNC_ADPT_FMT ": ps_deny=0x%08X, skip power save!\n",
+		RTW_INFO(FUNC_ADPT_FMT ": ps_deny=0x%08X, skip power save!\n",
 			 FUNC_ADPT_ARG(padapter), ps_deny);
 		goto exit;
 	}
@@ -2042,7 +2035,7 @@ void rtw_init_pwrctrl_priv(PADAPTER padapter)
 	u8 val8 = 0;
 
 #if defined(CONFIG_CONCURRENT_MODE)
-	if (padapter->adapter_type != PRIMARY_ADAPTER)
+	if (!is_primary_adapter(padapter))
 		return;
 #endif
 
@@ -2147,7 +2140,6 @@ void rtw_init_pwrctrl_priv(PADAPTER padapter)
 		rtw_hal_set_output_gpio(padapter, WAKEUP_GPIO_IDX, 0);
 	#else
 	val8 = (pwrctrlpriv->is_high_active == 0) ? 1 : 0;
-	rtw_hal_switch_gpio_wl_ctrl(padapter, WAKEUP_GPIO_IDX, _TRUE);
 	rtw_hal_set_output_gpio(padapter, WAKEUP_GPIO_IDX, val8);
 	RTW_INFO("%s: set GPIO_%d %d as default.\n",
 		 __func__, WAKEUP_GPIO_IDX, val8);
@@ -2187,7 +2179,7 @@ void rtw_free_pwrctrl_priv(PADAPTER adapter)
 	struct pwrctrl_priv *pwrctrlpriv = adapter_to_pwrctl(adapter);
 
 #if defined(CONFIG_CONCURRENT_MODE)
-	if (adapter->adapter_type != PRIMARY_ADAPTER)
+	if (!is_primary_adapter(adapter))
 		return;
 #endif
 
@@ -2205,6 +2197,14 @@ void rtw_free_pwrctrl_priv(PADAPTER adapter)
 #ifdef CONFIG_LPS_POFF
 	rtw_hal_set_hwreg(adapter, HW_VAR_LPS_POFF_DEINIT, 0);
 #endif
+
+#ifdef CONFIG_LPS_LCLK
+	_cancel_workitem_sync(&pwrctrlpriv->cpwm_event);
+	_cancel_workitem_sync(&pwrctrlpriv->dma_event);
+	#ifdef CONFIG_LPS_RPWM_TIMER
+	_cancel_workitem_sync(&pwrctrlpriv->rpwmtimeoutwi);
+	#endif
+#endif /* CONFIG_LPS_LCLK */
 
 #ifdef CONFIG_WOWLAN
 #ifdef CONFIG_PNO_SUPPORT
@@ -2421,7 +2421,7 @@ int _rtw_pwr_wakeup(_adapter *padapter, u32 ips_deffer_ms, const char *caller)
 	padapter = GET_PRIMARY_ADAPTER(padapter);
 	pmlmepriv = &padapter->mlmepriv;
 
-	if (time_after(rtw_get_current_time() + rtw_ms_to_systime(ips_deffer_ms), pwrpriv->ips_deny_time))
+	if (rtw_time_after(rtw_get_current_time() + rtw_ms_to_systime(ips_deffer_ms), pwrpriv->ips_deny_time))
 		pwrpriv->ips_deny_time = rtw_get_current_time() + rtw_ms_to_systime(ips_deffer_ms);
 
 
@@ -2547,7 +2547,7 @@ int _rtw_pwr_wakeup(_adapter *padapter, u32 ips_deffer_ms, const char *caller)
 	}
 
 exit:
-	if (time_after(rtw_get_current_time() + rtw_ms_to_systime(ips_deffer_ms), pwrpriv->ips_deny_time))
+	if (rtw_time_after(rtw_get_current_time() + rtw_ms_to_systime(ips_deffer_ms), pwrpriv->ips_deny_time))
 		pwrpriv->ips_deny_time = rtw_get_current_time() + rtw_ms_to_systime(ips_deffer_ms);
 	return ret;
 

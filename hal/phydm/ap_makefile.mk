@@ -15,7 +15,6 @@ _PHYDM_FILES :=\
 	phydm/phydm_hwconfig.o\
 	phydm/phydm_dfs.o\
 	phydm/phydm_cfotracking.o\
-	phydm/phydm_acs.o\
 	phydm/phydm_adc_sampling.o\
 	phydm/phydm_ccx.o\
 	phydm/phydm_primary_cca.o\

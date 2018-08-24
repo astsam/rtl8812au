@@ -113,10 +113,6 @@ void rtw_reset_securitypriv(_adapter *adapter)
 		backupPMKIDIndex = adapter->securitypriv.PMKIDIndex;
 		backupTKIPCountermeasure = adapter->securitypriv.btkip_countermeasure;
 		backupTKIPcountermeasure_time = adapter->securitypriv.btkip_countermeasure_time;
-#ifdef CONFIG_IEEE80211W
-		/* reset RX BIP packet number */
-		pmlmeext->mgnt_80211w_IPN_rx = 0;
-#endif /* CONFIG_IEEE80211W */
 		_rtw_memset((unsigned char *)&adapter->securitypriv, 0, sizeof(struct security_priv));
 
 		/* Added by Albert 2009/02/18 */
@@ -228,7 +224,7 @@ void rtw_indicate_sta_assoc_event(_adapter *padapter, struct sta_info *psta)
 	if (psta == NULL)
 		return;
 
-	if (psta->cmn.aid > NUM_STA)
+	if (psta->cmn.aid > pstapriv->max_aid)
 		return;
 
 	if (pstapriv->sta_aid[psta->cmn.aid - 1] != psta)
@@ -255,7 +251,7 @@ void rtw_indicate_sta_disassoc_event(_adapter *padapter, struct sta_info *psta)
 	if (psta == NULL)
 		return;
 
-	if (psta->cmn.aid > NUM_STA)
+	if (psta->cmn.aid > pstapriv->max_aid)
 		return;
 
 	if (pstapriv->sta_aid[psta->cmn.aid - 1] != psta)

@@ -29,8 +29,6 @@
 /* ****************************************************
  *			EEPROM/Efuse PG Offset for 88EE/88EU/88ES
  * **************************************************** */
-#define EEPROM_TX_PWR_INX_88E					0x10
-
 #define EEPROM_ChannelPlan_88E					0xB8
 #define EEPROM_XTAL_88E						0xB9
 #define EEPROM_THERMAL_METER_88E				0xBA
@@ -68,9 +66,6 @@
 
 #define PPG_BB_GAIN_2G_TXA_OFFSET_8192E	0x1F6
 #define PPG_THERMAL_OFFSET_8192E		0x1F5
-
-/* 0x10 ~ 0x63 = TX power area. */
-#define	EEPROM_TX_PWR_INX_8192E				0x10
 
 #define	EEPROM_ChannelPlan_8192E				0xB8
 #define	EEPROM_XTAL_8192E						0xB9
@@ -112,10 +107,8 @@
 #define	EEPROM_MAC_ADDR_8192ES				0x11A
 /* ****************************************************
  *			EEPROM/Efuse PG Offset for 8812AE/8812AU/8812AS
- * ****************************************************
- * 0x10 ~ 0x63 = TX power area. */
+ * *****************************************************/
 #define EEPROM_USB_MODE_8812					0x08
-#define EEPROM_TX_PWR_INX_8812				0x10
 
 #define EEPROM_ChannelPlan_8812				0xB8
 #define EEPROM_XTAL_8812						0xB9
@@ -180,7 +173,6 @@
 
 #define PPG_THERMAL_OFFSET_8814A		0x3EF
 
-#define EEPROM_TX_PWR_INX_8814				0x10
 #define EEPROM_USB_MODE_8814A				0x0E
 #define EEPROM_ChannelPlan_8814				0xB8
 #define EEPROM_XTAL_8814					0xB9
@@ -227,8 +219,6 @@
 #define PPG_BB_GAIN_5GMB1_TXA_OFFSET_8821A	0x1F2
 #define PPG_BB_GAIN_5GMB2_TXA_OFFSET_8821A	0x1F1
 #define PPG_BB_GAIN_5GHB_TXA_OFFSET_8821A	0x1F0
-
-#define EEPROM_TX_PWR_INX_8821				0x10
 
 #define EEPROM_ChannelPlan_8821				0xB8
 #define EEPROM_XTAL_8821						0xB9
@@ -297,9 +287,6 @@
 #define PPG_BB_GAIN_2G_TXA_OFFSET_8188F	0xEE
 #define PPG_THERMAL_OFFSET_8188F		0xEF
 
-/* 0x10 ~ 0x63 = TX power area. */
-#define	EEPROM_TX_PWR_INX_8188F				0x10
-
 #define	EEPROM_ChannelPlan_8188F			0xB8
 #define	EEPROM_XTAL_8188F					0xB9
 #define	EEPROM_THERMAL_METER_8188F			0xBA
@@ -335,10 +322,7 @@
 
 /* ****************************************************
  *			EEPROM/Efuse PG Offset for 8723BE/8723BU/8723BS
- * ****************************************************
- * 0x10 ~ 0x63 = TX power area. */
-#define	EEPROM_TX_PWR_INX_8723B				0x10
-
+ * *****************************************************/
 #define	EEPROM_ChannelPlan_8723B				0xB8
 #define	EEPROM_XTAL_8723B						0xB9
 #define	EEPROM_THERMAL_METER_8723B			0xBA
@@ -386,8 +370,6 @@
 #define PPG_BB_GAIN_2G_TXA_OFFSET_8703B	0xEE
 #define PPG_THERMAL_OFFSET_8703B		0xEF
 
-#define	EEPROM_TX_PWR_INX_8703B				0x10
-
 #define	EEPROM_ChannelPlan_8703B				0xB8
 #define	EEPROM_XTAL_8703B					0xB9
 #define	EEPROM_THERMAL_METER_8703B			0xBA
@@ -424,8 +406,6 @@
  *	EEPROM/Efuse PG Offset for 8822B
  * ====================================================
  */
-#define	EEPROM_TX_PWR_INX_8822B			0x10
-
 #define	EEPROM_ChannelPlan_8822B		0xB8
 #define	EEPROM_XTAL_8822B			0xB9
 #define	EEPROM_THERMAL_METER_8822B		0xBA
@@ -468,8 +448,6 @@
  *	EEPROM/Efuse PG Offset for 8821C
  * ====================================================
  */
-#define	EEPROM_TX_PWR_INX_8821C			0x10
-
 #define	EEPROM_CHANNEL_PLAN_8821C		0xB8
 #define	EEPROM_XTAL_8821C			0xB9
 #define	EEPROM_THERMAL_METER_8821C		0xBA
@@ -522,8 +500,6 @@
 #define PPG_BB_GAIN_2G_TXA_OFFSET_8723D		0xEE
 #define PPG_BB_GAIN_2G_TX_OFFSET_8723D		0x1EE
 #define PPG_THERMAL_OFFSET_8723D		0xEF
-
-#define	EEPROM_TX_PWR_INX_8723D			0x10
 
 #define	EEPROM_ChannelPlan_8723D		0xB8
 #define	EEPROM_XTAL_8723D			0xB9
@@ -659,16 +635,6 @@
 #define EEPROM_Default_LNAType						0
 
 /* New EFUSE default value */
-#define EEPROM_DEFAULT_24G_INDEX                0x2D
-#define EEPROM_DEFAULT_24G_HT20_DIFF            0X02
-#define EEPROM_DEFAULT_24G_OFDM_DIFF    	0X04
-
-#define EEPROM_DEFAULT_5G_INDEX                 0X2A
-#define EEPROM_DEFAULT_5G_HT20_DIFF             0X00
-#define EEPROM_DEFAULT_5G_OFDM_DIFF             0X04
-
-#define EEPROM_DEFAULT_DIFF                     0XFE
-
 #define EEPROM_DEFAULT_CHANNEL_PLAN		0x7F
 #define EEPROM_DEFAULT_BOARD_OPTION		0x00
 #define EEPROM_DEFAULT_RFE_OPTION_8192E 0xFF

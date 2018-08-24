@@ -25,12 +25,12 @@
 
 
 void configure_txpower_track_8812a(
-	struct _TXPWRTRACK_CFG	*p_config
+	struct txpwrtrack_cfg	*config
 );
 
 void
 get_delta_swing_table_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8 **temperature_up_a,
 	u8 **temperature_down_a,
 	u8 **temperature_up_b,
@@ -38,7 +38,7 @@ get_delta_swing_table_8812a(
 );
 
 void do_iqk_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		delta_thermal_index,
 	u8		thermal_value,
 	u8		threshold
@@ -46,7 +46,7 @@ void do_iqk_8812a(
 
 void
 odm_tx_pwr_track_set_pwr8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	enum pwrtrack_method	method,
 	u8				rf_path,
 	u8				channel_mapped_index
@@ -56,7 +56,7 @@ odm_tx_pwr_track_set_pwr8812a(
 
 void
 phy_iq_calibrate_8812a(
-	void		*p_dm_void,
+	void		*dm_void,
 	boolean	is_recovery
 );
 
@@ -66,31 +66,31 @@ phy_iq_calibrate_8812a(
  *   */
 void
 phy_lc_calibrate_8812a(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 #if 0
 void
-phy_digital_predistortion_8812a(struct _ADAPTER	*p_adapter);
+phy_digital_predistortion_8812a(void	*adapter);
 #endif
 
 void
 phy_dp_calibrate_8812a(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 );
 
 void
 halrf_rf_lna_setting_8812a(
-	struct PHY_DM_STRUCT	*p_dm,
+	struct dm_struct	*dm,
 	enum phydm_lna_set type
 );
 
 
 void phy_set_rf_path_switch_8812a(
 #if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct PHY_DM_STRUCT		*p_dm,
+	struct dm_struct		*dm,
 #else
-	struct _ADAPTER	*p_adapter,
+	void	*adapter,
 #endif
 	boolean		is_main
 );

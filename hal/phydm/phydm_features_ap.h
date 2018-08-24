@@ -14,7 +14,17 @@
  *****************************************************************************/
 
 #ifndef	__PHYDM_FEATURES_AP_H__
-#define __PHYDM_FEATURES_AP
+#define __PHYDM_FEATURES_AP_H__
+
+#if (RTL8822B_SUPPORT == 1 || RTL8812A_SUPPORT == 1 || RTL8197F_SUPPORT == 1)
+	#define DYN_ANT_WEIGHTING_SUPPORT
+#endif
+
+#if (RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
+	#define FAHM_SUPPORT
+#endif
+	#define NHM_SUPPORT
+	#define CLM_SUPPORT
 
 #if (RTL8822B_SUPPORT == 1)
 	/*#define PHYDM_PHYSTAUS_SMP_MODE*/
@@ -52,13 +62,16 @@
 	/*#define	CONFIG_ADAPTIVE_SOML*/
 #endif
 
+#if (RTL8812A_SUPPORT == 1 || RTL8821A_SUPPORT == 1 || RTL8881A_SUPPORT == 1 || RTL8192E_SUPPORT == 1 || RTL8723B_SUPPORT == 1)
+	/*#define	CONFIG_RA_FW_DBG_CODE*/
+#endif
+
+/* #define CONFIG_DYNAMIC_TX_TWR */
 #define PHYDM_DIG_MODE_DECISION_SUPPORT
 /*#define	CONFIG_PSD_TOOL*/
 #define PHYDM_SUPPORT_CCKPD
 #define RA_MASK_PHYDMLIZE_AP
 /* #define	CONFIG_RA_DBG_CMD*/
-/*#define	CONFIG_RA_FW_DBG_CODE*/
-
 /*#define	CONFIG_PATH_DIVERSITY*/
 /*#define	CONFIG_RA_DYNAMIC_RTY_LIMIT*/
 #define	CONFIG_RA_DYNAMIC_RATE_ID

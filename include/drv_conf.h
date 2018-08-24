@@ -120,6 +120,33 @@
 	#undef CONFIG_DFS_MASTER
 #endif
 
+#ifdef CONFIG_RTW_MESH
+	#ifndef CONFIG_RTW_MESH_OFFCH_CAND
+	#define CONFIG_RTW_MESH_OFFCH_CAND 1
+	#endif
+
+	#ifndef CONFIG_RTW_MESH_PEER_BLACKLIST
+	#define CONFIG_RTW_MESH_PEER_BLACKLIST 1
+	#endif
+
+	#ifndef CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST
+	#define CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST 1
+	#endif
+
+	#ifndef CONFIG_RTW_MPM_TX_IES_SYNC_BSS
+	#define CONFIG_RTW_MPM_TX_IES_SYNC_BSS 1
+	#endif
+	#if CONFIG_RTW_MPM_TX_IES_SYNC_BSS
+		#ifndef CONFIG_RTW_MESH_AEK
+		#define CONFIG_RTW_MESH_AEK
+		#endif
+	#endif
+
+	#ifndef CONFIG_RTW_MESH_DATA_BMC_TO_UC
+	#define CONFIG_RTW_MESH_DATA_BMC_TO_UC 1
+	#endif
+#endif
+
 #if !defined(CONFIG_SCAN_BACKOP) && defined(CONFIG_AP_MODE)
 #define CONFIG_SCAN_BACKOP
 #endif
@@ -372,6 +399,12 @@
 		#endif
 	#endif
 #endif
+
+#ifdef CONFIG_RTW_80211K
+	#ifndef CONFIG_RTW_ACS
+		#define CONFIG_RTW_ACS
+	#endif
+#endif /*CONFIG_RTW_80211K*/
 
 #ifdef DBG_CONFIG_ERROR_RESET
 #ifndef CONFIG_IPS

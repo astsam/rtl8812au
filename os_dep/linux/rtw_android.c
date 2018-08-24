@@ -93,6 +93,7 @@ const char *android_wifi_cmd_str[ANDROID_WIFI_CMD_MAX] = {
 #endif /* CONFIG_GTK_OL */
 /*	Private command for	P2P disable*/
 	"P2P_DISABLE",
+	"SET_AEK",
 	"DRIVER_VERSION"
 };
 
@@ -564,6 +565,38 @@ int rtw_gtk_offload(struct net_device *net, u8 *cmd_ptr)
 }
 #endif /* CONFIG_GTK_OL */
 
+#ifdef CONFIG_RTW_MESH_AEK
+static int rtw_android_set_aek(struct net_device *ndev, char *command, int total_len)
+{
+#define SET_AEK_DATA_LEN (ETH_ALEN + 32)
+
+	_adapter *adapter = (_adapter *)rtw_netdev_priv(ndev);
+	u8 *addr;
+	u8 *aek;
+	int err = 0;
+
+	if (total_len - strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_SET_AEK]) - 1 != SET_AEK_DATA_LEN) {
+		err = -EINVAL;
+		goto exit;
+	}
+
+	addr = command + strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_SET_AEK]) + 1;
+	aek = addr + ETH_ALEN;
+
+	RTW_PRINT(FUNC_NDEV_FMT" addr="MAC_FMT"\n"
+		, FUNC_NDEV_ARG(ndev), MAC_ARG(addr));
+	if (0)
+		RTW_PRINT(FUNC_NDEV_FMT" aek="KEY_FMT KEY_FMT"\n"
+			, FUNC_NDEV_ARG(ndev), KEY_ARG(aek), KEY_ARG(aek + 16));
+
+	if (rtw_mesh_plink_set_aek(adapter, addr, aek) != _SUCCESS)
+		err = -ENOENT;
+
+exit:
+	return err;
+}
+#endif /* CONFIG_RTW_MESH_AEK */
+
 int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 {
 	int ret = 0;
@@ -856,19 +889,19 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 
 #if CONFIG_RTW_MACADDR_ACL
 	case ANDROID_WIFI_CMD_HOSTAPD_SET_MACADDR_ACL: {
-		rtw_set_macaddr_acl(padapter, get_int_from_command(command));
+		rtw_set_macaddr_acl(padapter, RTW_ACL_PERIOD_BSS, get_int_from_command(command));
 		break;
 	}
 	case ANDROID_WIFI_CMD_HOSTAPD_ACL_ADD_STA: {
 		u8 addr[ETH_ALEN] = {0x00};
 		macstr2num(addr, command + strlen("HOSTAPD_ACL_ADD_STA") + 3);	/* 3 is space bar + "=" + space bar these 3 chars */
-		rtw_acl_add_sta(padapter, addr);
+		rtw_acl_add_sta(padapter, RTW_ACL_PERIOD_BSS, addr);
 		break;
 	}
 	case ANDROID_WIFI_CMD_HOSTAPD_ACL_REMOVE_STA: {
 		u8 addr[ETH_ALEN] = {0x00};
 		macstr2num(addr, command + strlen("HOSTAPD_ACL_REMOVE_STA") + 3);	/* 3 is space bar + "=" + space bar these 3 chars */
-		rtw_acl_remove_sta(padapter, addr);
+		rtw_acl_remove_sta(padapter, RTW_ACL_PERIOD_BSS, addr);
 		break;
 	}
 #endif /* CONFIG_RTW_MACADDR_ACL */
@@ -887,6 +920,13 @@ int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
 #endif /* CONFIG_P2P */
 		break;
 	}
+
+#ifdef CONFIG_RTW_MESH_AEK
+	case ANDROID_WIFI_CMD_SET_AEK:
+		bytes_written = rtw_android_set_aek(net, command, priv_cmd.total_len);
+		break;
+#endif
+	
 	case ANDROID_WIFI_CMD_DRIVERVERSION: {
 		bytes_written = strlen(DRIVERVERSION);
 		snprintf(command, bytes_written + 1, DRIVERVERSION);

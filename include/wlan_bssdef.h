@@ -77,6 +77,7 @@ typedef enum _NDIS_802_11_NETWORK_INFRASTRUCTURE {
 	Ndis802_11InfrastructureMax,     /* Not a real value, defined as upper bound */
 	Ndis802_11APMode,
 	Ndis802_11Monitor,
+	Ndis802_11_mesh,
 } NDIS_802_11_NETWORK_INFRASTRUCTURE, *PNDIS_802_11_NETWORK_INFRASTRUCTURE;
 
 
@@ -521,7 +522,12 @@ typedef struct _WLAN_PHY_INFO {
 	u8	SignalStrength;/* (in percentage) */
 	u8	SignalQuality;/* (in percentage) */
 	u8	Optimum_antenna;  /* for Antenna diversity */
-	u8	Reserved_0;
+	u8	is_cck_rate;	/* 1:cck_rate */
+	s8	rx_snr[4];
+#ifdef CONFIG_RTW_80211K
+	u32	free_cnt; 	/* freerun counter */
+	u8	rm_en_cap[5];
+#endif
 } WLAN_PHY_INFO, *PWLAN_PHY_INFO;
 
 typedef struct _WLAN_BCN_INFO {
@@ -556,6 +562,7 @@ typedef struct _WLAN_BSSID_EX {
 	NDIS_802_11_MAC_ADDRESS  MacAddress;
 	UCHAR  Reserved[2];/* [0]: IS beacon frame , bss_type*/
 	NDIS_802_11_SSID  Ssid;
+	NDIS_802_11_SSID  mesh_id;
 	ULONG  Privacy;
 	NDIS_802_11_RSSI  Rssi;/* (in dBM,raw data ,get from PHY) */
 	NDIS_802_11_NETWORK_TYPE  NetworkTypeInUse;

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -76,33 +86,12 @@ odm_sign_conversion(
 	return value;
 }
 
-/*threshold must form low to high*/
-u16 phydm_find_intrvl(void *dm_void, u16 val, u16 *threshold, u16 th_len)
-{
-	struct PHY_DM_STRUCT *dm = (struct PHY_DM_STRUCT *)dm_void;
-	u16 i = 0;
-	u16 ret_val = 0;
-	u16 max_th = threshold[th_len - 1];
-
-	for (i = 0; i < th_len; i++) {
-		if (val < threshold[i]) {
-			ret_val = i;
-			break;
-		} else if (val >= max_th) {
-			ret_val = th_len;
-			break;
-		}
-	}
-
-	return ret_val;
-}
-
 void
 phydm_seq_sorting(
-	void	*p_dm_void,
-	u32	*p_value,
+	void	*dm_void,
+	u32	*value,
 	u32	*rank_idx,
-	u32	*p_idx_out,
+	u32	*idx_out,
 	u8	seq_length
 )
 {
@@ -116,18 +105,16 @@ phydm_seq_sorting(
 	}
 
 	for (i = 0; i < (seq_length - 1); i++) {
-
 		for (j = 0; j < (seq_length - 1 - i); j++) {
-
-			tmp_a = p_value[j];
-			tmp_b = p_value[j + 1];
+			tmp_a = value[j];
+			tmp_b = value[j + 1];
 
 			tmp_idx_a = rank_idx[j];
 			tmp_idx_b = rank_idx[j + 1];
 
 			if (tmp_a < tmp_b) {
-				p_value[j] = tmp_b;
-				p_value[j + 1] = tmp_a;
+				value[j] = tmp_b;
+				value[j + 1] = tmp_a;
 
 				rank_idx[j] = tmp_idx_b;
 				rank_idx[j + 1] = tmp_idx_a;
@@ -136,7 +123,7 @@ phydm_seq_sorting(
 	}
 
 	for (i = 0; i < seq_length; i++) {
-		p_idx_out[rank_idx[i]] = i + 1;
+		idx_out[rank_idx[i]] = i + 1;
 		/**/
 	}
 }

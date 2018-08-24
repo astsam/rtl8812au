@@ -32,21 +32,21 @@ struct _halrf_psd_data {
 
 enum rt_status
 halrf_psd_init (
-		void	*p_dm_void
+	struct	dm_struct	*dm
 	);
 
 
 
 enum rt_status
 halrf_psd_query (
-	void	*p_dm_void,
+	struct	dm_struct	*dm,
 	u32		*outbuf,
 	u32		buf_size
 );
 
 enum rt_status
 halrf_psd_init_query(
-	void	*p_dm_void,
+	struct	dm_struct	*dm,
 	u32		*outbuf,
 	u32		point,
 	u32		start_point,

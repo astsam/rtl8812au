@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -123,7 +133,7 @@ struct smt_ant {
 #if (defined(CONFIG_CUMITEK_SMART_ANTENNA))
 void
 phydm_cumitek_smt_tx_ant_update(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		tx_ant_idx_path_a,
 	u8		tx_ant_idx_path_b,
 	u32		mac_id
@@ -131,14 +141,14 @@ phydm_cumitek_smt_tx_ant_update(
 
 void
 phydm_cumitek_smt_rx_default_ant_update(
-	void		*p_dm_void,
+	void		*dm_void,
 	u8		rx_ant_idx_path_a,
 	u8		rx_ant_idx_path_b
 );
 
 void
 phydm_cumitek_smt_ant_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	char		input[][16],
 	u32		*_used,
 	char		*output,
@@ -153,12 +163,12 @@ phydm_cumitek_smt_ant_debug(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 void
 phydm_beam_switch_workitem_callback(
-	void	*p_context
+	void	*context
 );
 
 void
 phydm_beam_decision_workitem_callback(
-	void	*p_context
+	void	*context
 );
 #endif /*#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)*/
 
@@ -167,24 +177,24 @@ phydm_beam_decision_workitem_callback(
 #ifdef CONFIG_HL_SMART_ANTENNA_TYPE2
 void
 phydm_hl_smart_ant_type2_init_8822b(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_update_beam_pattern_type2(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		codeword,
 	u32		codeword_length
 );
 
 void
 phydm_set_rfu_beam_pattern_type2(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_hl_smart_ant_debug_type2(
-	void		*p_dm_void,
+	void		*dm_void,
 	char		input[][16],
 	u32		*_used,
 	char		*output,
@@ -194,9 +204,9 @@ phydm_hl_smart_ant_debug_type2(
 
 void
 phydm_process_rssi_for_hb_smtant_type2(
-	void		*p_dm_void,
-	void		*p_phy_info_void,
-	void		*p_pkt_info_void,
+	void		*dm_void,
+	void		*phy_info_void,
+	void		*pkt_info_void,
 	u8		rssi_avg	
 );
 
@@ -207,19 +217,19 @@ phydm_process_rssi_for_hb_smtant_type2(
 
 void
 phydm_update_beam_pattern(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		codeword,
 	u32		codeword_length
 );
 
 void
 phydm_set_all_ant_same_beam_num(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 phydm_hl_smart_ant_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	char		input[][16],
 	u32		*_used,
 	char		*output,
@@ -233,7 +243,7 @@ phydm_hl_smart_ant_debug(
 
 void
 phydm_smt_ant_init(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 #endif

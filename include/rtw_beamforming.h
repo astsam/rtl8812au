@@ -208,6 +208,7 @@ struct beamforming_info {
 	u32 beamformee_mu_reg_maping;
 	u8 first_mu_bfee_index;
 	u8 mu_bfer_curidx;
+	u8 cur_csi_rpt_rate;
 
 	struct sounding_info sounding_info;
 	/* schedule regular timer for sounding */
@@ -256,6 +257,21 @@ void rtw_bf_update_traffic(PADAPTER);
 #define beamforming_wk_hdl				rtw_bf_cmd_hdl
 #define beamforming_wk_cmd				rtw_bf_cmd
 #define update_attrib_txbf_info				rtw_bf_update_attrib
+
+#define HT_BF_CAP(adapter) ((adapter)->mlmepriv.htpriv.beamform_cap)
+#define VHT_BF_CAP(adapter) ((adapter)->mlmepriv.vhtpriv.beamform_cap)
+
+#define IS_HT_BEAMFORMEE(adapter) \
+		(HT_BF_CAP(adapter) & \
+		(BEAMFORMING_HT_BEAMFORMEE_ENABLE))
+
+#define IS_VHT_BEAMFORMEE(adapter) \
+		(VHT_BF_CAP(adapter) & \
+		(BEAMFORMING_VHT_BEAMFORMEE_ENABLE | \
+		 BEAMFORMING_VHT_MU_MIMO_STA_ENABLE))
+
+#define IS_BEAMFORMEE(adapter) (IS_HT_BEAMFORMEE(adapter) | \
+				IS_VHT_BEAMFORMEE(adapter))
 
 #else /* !RTW_BEAMFORMING_VERSION_2 */
 

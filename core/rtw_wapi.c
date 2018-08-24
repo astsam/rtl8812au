@@ -1252,4 +1252,61 @@ bool rtw_wapi_drop_for_key_absent(_adapter *padapter, u8 *pRA)
 	return bDrop;
 }
 
+void rtw_wapi_set_set_encryption(_adapter *padapter, struct ieee_param *param)
+{
+	struct security_priv *psecuritypriv = &padapter->securitypriv;
+	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
+	PRT_WAPI_T			pWapiInfo = &padapter->wapiInfo;
+	PRT_WAPI_STA_INFO	pWapiSta;
+	u8					WapiASUEPNInitialValueSrc[16] = {0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C} ;
+	u8					WapiAEPNInitialValueSrc[16] = {0x37, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C} ;
+	u8					WapiAEMultiCastPNInitialValueSrc[16] = {0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C} ;
+
+	if (param->u.crypt.set_tx == 1) {
+		list_for_each_entry(pWapiSta, &pWapiInfo->wapiSTAUsedList, list) {
+			if (_rtw_memcmp(pWapiSta->PeerMacAddr, param->sta_addr, 6)) {
+				_rtw_memcpy(pWapiSta->lastTxUnicastPN, WapiASUEPNInitialValueSrc, 16);
+
+				pWapiSta->wapiUsk.bSet = true;
+				_rtw_memcpy(pWapiSta->wapiUsk.dataKey, param->u.crypt.key, 16);
+				_rtw_memcpy(pWapiSta->wapiUsk.micKey, param->u.crypt.key + 16, 16);
+				pWapiSta->wapiUsk.keyId = param->u.crypt.idx ;
+				pWapiSta->wapiUsk.bTxEnable = true;
+
+				_rtw_memcpy(pWapiSta->lastRxUnicastPNBEQueue, WapiAEPNInitialValueSrc, 16);
+				_rtw_memcpy(pWapiSta->lastRxUnicastPNBKQueue, WapiAEPNInitialValueSrc, 16);
+				_rtw_memcpy(pWapiSta->lastRxUnicastPNVIQueue, WapiAEPNInitialValueSrc, 16);
+				_rtw_memcpy(pWapiSta->lastRxUnicastPNVOQueue, WapiAEPNInitialValueSrc, 16);
+				_rtw_memcpy(pWapiSta->lastRxUnicastPN, WapiAEPNInitialValueSrc, 16);
+				pWapiSta->wapiUskUpdate.bTxEnable = false;
+				pWapiSta->wapiUskUpdate.bSet = false;
+
+				if (psecuritypriv->sw_encrypt == false || psecuritypriv->sw_decrypt == false) {
+					/* set unicast key for ASUE */
+					rtw_wapi_set_key(padapter, &pWapiSta->wapiUsk, pWapiSta, false, false);
+				}
+			}
+		}
+	} else {
+		list_for_each_entry(pWapiSta, &pWapiInfo->wapiSTAUsedList, list) {
+			if (_rtw_memcmp(pWapiSta->PeerMacAddr, get_bssid(pmlmepriv), 6)) {
+				pWapiSta->wapiMsk.bSet = true;
+				_rtw_memcpy(pWapiSta->wapiMsk.dataKey, param->u.crypt.key, 16);
+				_rtw_memcpy(pWapiSta->wapiMsk.micKey, param->u.crypt.key + 16, 16);
+				pWapiSta->wapiMsk.keyId = param->u.crypt.idx ;
+				pWapiSta->wapiMsk.bTxEnable = false;
+				if (!pWapiSta->bSetkeyOk)
+					pWapiSta->bSetkeyOk = true;
+				pWapiSta->bAuthenticateInProgress = false;
+
+				_rtw_memcpy(pWapiSta->lastRxMulticastPN, WapiAEMultiCastPNInitialValueSrc, 16);
+
+				if (psecuritypriv->sw_decrypt == false) {
+					/* set rx broadcast key for ASUE */
+					rtw_wapi_set_key(padapter, &pWapiSta->wapiMsk, pWapiSta, true, false);
+				}
+			}
+		}
+	}
+}
 #endif

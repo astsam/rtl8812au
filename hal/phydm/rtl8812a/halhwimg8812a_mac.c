@@ -20,54 +20,54 @@
 #if (RTL8812A_SUPPORT == 1)
 static boolean
 check_positive(
-	struct PHY_DM_STRUCT *p_dm,
+	struct dm_struct *dm,
 	const u32	condition1,
 	const u32	condition2,
 	const u32	condition3,
 	const u32	condition4
 )
 {
-	u8	_board_type = ((p_dm->board_type & BIT(4)) >> 4) << 0 | /* _GLNA*/
-			((p_dm->board_type & BIT(3)) >> 3) << 1 | /* _GPA*/
-			((p_dm->board_type & BIT(7)) >> 7) << 2 | /* _ALNA*/
-			((p_dm->board_type & BIT(6)) >> 6) << 3 | /* _APA */
-			((p_dm->board_type & BIT(2)) >> 2) << 4 | /* _BT*/
-			((p_dm->board_type & BIT(1)) >> 1) << 5 | /* _NGFF*/
-			((p_dm->board_type & BIT(5)) >> 5) << 6;  /* _TRSWT*/
+	u8	_board_type = ((dm->board_type & BIT(4)) >> 4) << 0 | /* _GLNA*/
+			((dm->board_type & BIT(3)) >> 3) << 1 | /* _GPA*/
+			((dm->board_type & BIT(7)) >> 7) << 2 | /* _ALNA*/
+			((dm->board_type & BIT(6)) >> 6) << 3 | /* _APA */
+			((dm->board_type & BIT(2)) >> 2) << 4 | /* _BT*/
+			((dm->board_type & BIT(1)) >> 1) << 5 | /* _NGFF*/
+			((dm->board_type & BIT(5)) >> 5) << 6;  /* _TRSWT*/
 
 	u32	cond1 = condition1, cond2 = condition2, cond3 = condition3, cond4 = condition4;
 
-	u8	cut_version_for_para = (p_dm->cut_version ==  ODM_CUT_A) ? 15 : p_dm->cut_version;
-	u8	pkg_type_for_para = (p_dm->package_type == 0) ? 15 : p_dm->package_type;
+	u8	cut_version_for_para = (dm->cut_version ==  ODM_CUT_A) ? 15 : dm->cut_version;
+	u8	pkg_type_for_para = (dm->package_type == 0) ? 15 : dm->package_type;
 
 	u32	driver1 = cut_version_for_para << 24 |
-			(p_dm->support_interface & 0xF0) << 16 |
-			p_dm->support_platform << 16 |
+			(dm->support_interface & 0xF0) << 16 |
+			dm->support_platform << 16 |
 			pkg_type_for_para << 12 |
-			(p_dm->support_interface & 0x0F) << 8  |
+			(dm->support_interface & 0x0F) << 8  |
 			_board_type;
 
-	u32	driver2 = (p_dm->type_glna & 0xFF) <<  0 |
-			(p_dm->type_gpa & 0xFF)  <<  8 |
-			(p_dm->type_alna & 0xFF) << 16 |
-			(p_dm->type_apa & 0xFF)  << 24;
+	u32	driver2 = (dm->type_glna & 0xFF) <<  0 |
+			(dm->type_gpa & 0xFF)  <<  8 |
+			(dm->type_alna & 0xFF) << 16 |
+			(dm->type_apa & 0xFF)  << 24;
 
 	u32	driver3 = 0;
 
-	u32	driver4 = (p_dm->type_glna & 0xFF00) >>  8 |
-			(p_dm->type_gpa & 0xFF00) |
-			(p_dm->type_alna & 0xFF00) << 8 |
-			(p_dm->type_apa & 0xFF00)  << 16;
+	u32	driver4 = (dm->type_glna & 0xFF00) >>  8 |
+			(dm->type_gpa & 0xFF00) |
+			(dm->type_alna & 0xFF00) << 8 |
+			(dm->type_apa & 0xFF00)  << 16;
 
-	PHYDM_DBG(p_dm, ODM_COMP_INIT,
-	("===> check_positive (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n", cond1, cond2, cond3, cond4));
-	PHYDM_DBG(p_dm, ODM_COMP_INIT,
-	("===> check_positive (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n", driver1, driver2, driver3, driver4));
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+	"===> check_positive (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n", cond1, cond2, cond3, cond4);
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+	"===> check_positive (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n", driver1, driver2, driver3, driver4);
 
-	PHYDM_DBG(p_dm, ODM_COMP_INIT,
-	("	(Platform, Interface) = (0x%X, 0x%X)\n", p_dm->support_platform, p_dm->support_interface));
-	PHYDM_DBG(p_dm, ODM_COMP_INIT,
-	("	(Board, Package) = (0x%X, 0x%X)\n", p_dm->board_type, p_dm->package_type));
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+	"	(Platform, Interface) = (0x%X, 0x%X)\n", dm->support_platform, dm->support_interface);
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+	"	(Board, Package) = (0x%X, 0x%X)\n", dm->board_type, dm->package_type);
 
 
 	/*============== value Defined Check ===============*/
@@ -108,7 +108,7 @@ check_positive(
 }
 static boolean
 check_negative(
-	struct PHY_DM_STRUCT *p_dm,
+	struct dm_struct *dm,
 	const u32	condition1,
 	const u32	condition2
 )
@@ -237,7 +237,7 @@ u32 array_mp_8812a_mac_reg[] = {
 
 void
 odm_read_and_config_mp_8812a_mac_reg(
-	struct	PHY_DM_STRUCT *p_dm
+	struct	dm_struct *dm
 )
 {
 	u32	i = 0;
@@ -248,7 +248,7 @@ odm_read_and_config_mp_8812a_mac_reg(
 
 	u32	v1 = 0, v2 = 0, pre_v1 = 0, pre_v2 = 0;
 
-	PHYDM_DBG(p_dm, ODM_COMP_INIT, ("===> odm_read_and_config_mp_8812a_mac_reg\n"));
+	PHYDM_DBG(dm, ODM_COMP_INIT, "===> odm_read_and_config_mp_8812a_mac_reg\n");
 
 	while ((i + 1) < array_len) {
 		v1 = array[i];
@@ -260,18 +260,18 @@ odm_read_and_config_mp_8812a_mac_reg(
 				if (c_cond == COND_ENDIF) {/*end*/
 					is_matched = true;
 					is_skipped = false;
-					PHYDM_DBG(p_dm, ODM_COMP_INIT, ("ENDIF\n"));
+					PHYDM_DBG(dm, ODM_COMP_INIT, "ENDIF\n");
 				} else if (c_cond == COND_ELSE) { /*else*/
 					is_matched = is_skipped?false:true;
-					PHYDM_DBG(p_dm, ODM_COMP_INIT, ("ELSE\n"));
+					PHYDM_DBG(dm, ODM_COMP_INIT, "ELSE\n");
 				} else {/*if , else if*/
 					pre_v1 = v1;
 					pre_v2 = v2;
-					PHYDM_DBG(p_dm, ODM_COMP_INIT, ("IF or ELSE IF\n"));
+					PHYDM_DBG(dm, ODM_COMP_INIT, "IF or ELSE IF\n");
 				}
 			} else if (v1 & BIT(30)) { /*negative condition*/
 				if (is_skipped == false) {
-					if (check_positive(p_dm, pre_v1, pre_v2, v1, v2)) {
+					if (check_positive(dm, pre_v1, pre_v2, v1, v2)) {
 						is_matched = true;
 						is_skipped = true;
 					} else {
@@ -283,7 +283,7 @@ odm_read_and_config_mp_8812a_mac_reg(
 			}
 		} else {
 			if (is_matched)
-				odm_config_mac_8812a(p_dm, v1, (u8)v2);
+				odm_config_mac_8812a(dm, v1, (u8)v2);
 		}
 		i = i + 2;
 	}

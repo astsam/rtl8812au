@@ -267,8 +267,6 @@ u8 GetHalDefVar8723D(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval);
 /* register */
 void rtl8723d_InitBeaconParameters(PADAPTER padapter);
 void rtl8723d_InitBeaconMaxError(PADAPTER padapter, u8 InfraMode);
-void _InitBurstPktLen_8723DS(PADAPTER Adapter);
-void _InitLTECoex_8723DS(PADAPTER Adapter);
 void _InitMacAPLLSetting_8723D(PADAPTER Adapter);
 void _8051Reset8723(PADAPTER padapter);
 #ifdef CONFIG_WOWLAN

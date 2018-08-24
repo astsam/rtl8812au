@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -37,7 +47,6 @@
 
 #ifdef PHYDM_SUPPORT_CCKPD
 struct phydm_cckpd_struct {
-
 	u8		cur_cck_cca_thres; /*0xA0A*/
 	u8		cck_cca_th_aaa; /*0xAAA*/
 	u32		cck_fa_ma;
@@ -59,19 +68,19 @@ struct phydm_cckpd_struct {
 
 void
 phydm_set_cckpd_val(
-	void			*p_dm_void,
+	void			*dm_void,
 	u32			*val_buf,
 	u8			val_len
 );
 
 void
 phydm_cck_pd_th(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 void
 odm_pause_cck_packet_detection(
-	void					*p_dm_void,
+	void					*dm_void,
 	enum phydm_pause_type		pause_type,
 	enum phydm_pause_level		pause_level,
 	u8					cck_pd_threshold
@@ -79,7 +88,7 @@ odm_pause_cck_packet_detection(
 
 void
 phydm_cck_pd_init(
-	void		*p_dm_void
+	void		*dm_void
 );
 
 #endif

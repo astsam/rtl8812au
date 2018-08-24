@@ -123,12 +123,21 @@ PHY_SetTxPowerLevel8814(
 );
 
 u8
-PHY_GetTxPowerIndex_8814A(
+phy_get_tx_power_index_8814a(
 	IN	PADAPTER		Adapter,
 	IN	enum rf_path		RFPath,
-	IN	u8			Rate,
-	IN	u8 			BandWidth,
-	IN	u8			Channel,
+	IN	u8				Rate,
+	IN	enum channel_width BandWidth,
+	IN	u8				Channel
+);
+
+u8
+PHY_GetTxPowerIndex8814A(
+	IN	PADAPTER		Adapter,
+	IN	enum rf_path		RFPath,
+	IN	u8				Rate,
+	IN	u8				BandWidth,
+	IN	u8				Channel,
 	struct txpwr_idx_comp *tic
 );
 
@@ -158,12 +167,12 @@ PHY_GetTxBBSwing_8814A(
 
 
 /* 1 6. Channel setting API */
-
+#if 0
 VOID
 PHY_SwChnlTimerCallback8814A(
 	IN	struct timer_list		*p_timer
 );
-
+#endif
 VOID
 PHY_SwChnlWorkItemCallback8814A(
 	IN PVOID            pContext

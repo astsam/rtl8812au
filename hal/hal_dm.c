@@ -17,9 +17,9 @@
 #include <hal_data.h>
 
 /* A mapping from HalData to ODM. */
-enum odm_board_type_e boardType(u8 InterfaceSel)
+enum odm_board_type boardType(u8 InterfaceSel)
 {
-	enum odm_board_type_e        board	= ODM_BOARD_DEFAULT;
+	enum odm_board_type        board	= ODM_BOARD_DEFAULT;
 
 #ifdef CONFIG_PCI_HCI
 	INTERFACE_SELECT_PCIE   pcie	= (INTERFACE_SELECT_PCIE)InterfaceSel;
@@ -68,7 +68,7 @@ enum odm_board_type_e boardType(u8 InterfaceSel)
 void rtw_hal_update_iqk_fw_offload_cap(_adapter *adapter)
 {
 	PHAL_DATA_TYPE hal = GET_HAL_DATA(adapter);
-	struct PHY_DM_STRUCT *p_dm_odm = adapter_to_phydm(adapter);
+	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
 	if (hal->RegIQKFWOffload) {
 		rtw_sctx_init(&hal->iqk_sctx, 0);
@@ -82,8 +82,8 @@ void rtw_hal_update_iqk_fw_offload_cap(_adapter *adapter)
 #if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
 void rtw_phydm_iqk_trigger(_adapter *adapter)
 {
-	struct PHY_DM_STRUCT *p_dm_odm = adapter_to_phydm(adapter);
-	u8 clear = _FALSE;
+	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
+	u8 clear = _TRUE;
 	u8 segment = _FALSE;
 	u8 rfk_forbidden = _FALSE;
 
@@ -96,7 +96,7 @@ void rtw_phydm_iqk_trigger(_adapter *adapter)
 
 void rtw_phydm_iqk_trigger_dbg(_adapter *adapter, bool recovery, bool clear, bool segment)
 {
-	struct PHY_DM_STRUCT *p_dm_odm = adapter_to_phydm(adapter);
+	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
 #if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
 		halrf_segment_iqk_trigger(p_dm_odm, clear, segment);
@@ -106,14 +106,14 @@ void rtw_phydm_iqk_trigger_dbg(_adapter *adapter, bool recovery, bool clear, boo
 }
 void rtw_phydm_lck_trigger(_adapter *adapter)
 {
-	struct PHY_DM_STRUCT *p_dm_odm = adapter_to_phydm(adapter);
+	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
 	halrf_lck_trigger(p_dm_odm);
 }
 #ifdef CONFIG_DBG_RF_CAL
 void rtw_hal_iqk_test(_adapter *adapter, bool recovery, bool clear, bool segment)
 {
-	struct PHY_DM_STRUCT *p_dm_odm = adapter_to_phydm(adapter);
+	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
 	rtw_ps_deny(adapter, PS_DENY_IOCTL);
 	LeaveAllPowerSaveModeDirect(adapter);
@@ -131,7 +131,7 @@ void rtw_hal_iqk_test(_adapter *adapter, bool recovery, bool clear, bool segment
 
 void rtw_hal_lck_test(_adapter *adapter)
 {
-	struct PHY_DM_STRUCT *p_dm_odm = adapter_to_phydm(adapter);
+	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
 	rtw_ps_deny(adapter, PS_DENY_IOCTL);
 	LeaveAllPowerSaveModeDirect(adapter);
@@ -151,7 +151,7 @@ void rtw_hal_lck_test(_adapter *adapter)
 #ifdef CONFIG_FW_OFFLOAD_PARAM_INIT
 void rtw_hal_update_param_init_fw_offload_cap(_adapter *adapter)
 {
-	struct PHY_DM_STRUCT *p_dm_odm = adapter_to_phydm(adapter);
+	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
 	if (adapter->registrypriv.fw_param_init)
 		phydm_fwoffload_ability_init(p_dm_odm, PHYDM_PHY_PARAM_OFFLOAD);
@@ -164,7 +164,7 @@ void rtw_hal_update_param_init_fw_offload_cap(_adapter *adapter)
 
 void record_ra_info(void *p_dm_void, u8 macid, struct cmn_sta_info *p_sta, u64 ra_mask)
 {
-	struct PHY_DM_STRUCT *p_dm = (struct PHY_DM_STRUCT *)p_dm_void;
+	struct dm_struct *p_dm = (struct dm_struct *)p_dm_void;
 	_adapter *adapter = p_dm->adapter;
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
@@ -177,9 +177,9 @@ void record_ra_info(void *p_dm_void, u8 macid, struct cmn_sta_info *p_sta, u64 r
 	rtw_update_tx_rate_bmp(adapter_to_dvobj(adapter));
 }
 
-void rtw_phydm_ops_func_init(struct PHY_DM_STRUCT *p_phydm)
+void rtw_phydm_ops_func_init(struct dm_struct *p_phydm)
 {
-	struct _rate_adaptive_table_ *p_ra_t = &p_phydm->dm_ra_table;
+	struct ra_table *p_ra_t = &p_phydm->dm_ra_table;
 
 	p_ra_t->record_ra_info = record_ra_info;
 }
@@ -188,7 +188,7 @@ void Init_ODM_ComInfo(_adapter *adapter)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(adapter);
-	struct PHY_DM_STRUCT		*pDM_Odm = &(pHalData->odmpriv);
+	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(adapter);
 	int i;
 
@@ -284,8 +284,6 @@ void Init_ODM_ComInfo(_adapter *adapter)
 
 	/*halrf info init*/
 	halrf_cmn_info_init(pDM_Odm, HALRF_CMNINFO_EEPROM_THERMAL_VALUE, pHalData->eeprom_thermal_meter);
-	halrf_cmn_info_init(pDM_Odm, HALRF_CMNINFO_FW_VER,
-		((pHalData->firmware_version << 16) | pHalData->firmware_sub_version));
 
 	if (rtw_odm_adaptivity_needed(adapter) == _TRUE)
 		rtw_odm_adaptivity_config_msg(RTW_DBGDUMP, adapter);
@@ -328,6 +326,10 @@ void Init_ODM_ComInfo(_adapter *adapter)
 #endif /*CONFIG_RTL8723B*/
 #ifdef CONFIG_USB_HCI
 	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_HUBUSBMODE, &(dvobj->usb_speed));
+#endif
+
+#ifdef CONFIG_DYNAMIC_SOML
+	odm_cmn_info_hook(pDM_Odm, ODM_CMNINFO_ADAPTIVE_SOML, &(adapter->registrypriv.dyn_soml_en));
 #endif
 
 	/*halrf info hook*/
@@ -520,54 +522,54 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 
 s8 rtw_phydm_get_min_rssi(_adapter *adapter)
 {
-	struct PHY_DM_STRUCT *phydm = adapter_to_phydm(adapter);
+	struct dm_struct *phydm = adapter_to_phydm(adapter);
 	s8 rssi_min = 0;
 
-	rssi_min = phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_RSSI_MIN);
+	rssi_min = phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_RSSI_MIN);
 	return rssi_min;
 }
 
 u8 rtw_phydm_get_cur_igi(_adapter *adapter)
 {
-	struct PHY_DM_STRUCT *phydm = adapter_to_phydm(adapter);
+	struct dm_struct *phydm = adapter_to_phydm(adapter);
 	u8 cur_igi = 0;
 
-	cur_igi = phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CURR_IGI);
+	cur_igi = phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CURR_IGI);
 	return cur_igi;
 }
 
 u32 rtw_phydm_get_phy_cnt(_adapter *adapter, enum phy_cnt cnt)
 {
-	struct PHY_DM_STRUCT *phydm = adapter_to_phydm(adapter);
+	struct dm_struct *phydm = adapter_to_phydm(adapter);
 
 	if (cnt == FA_OFDM)
-		return  phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_FA_OFDM);
+		return  phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_FA_OFDM);
 	else if (cnt == FA_CCK)
-		return  phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_FA_CCK);
+		return  phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_FA_CCK);
 	else if (cnt == FA_TOTAL)
-		return  phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_FA_TOTAL);
+		return  phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_FA_TOTAL);
 	else if (cnt == CCA_OFDM)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CCA_OFDM);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CCA_OFDM);
 	else if (cnt == CCA_CCK)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CCA_CCK);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CCA_CCK);
 	else if (cnt == CCA_ALL)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CCA_ALL);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CCA_ALL);
 	else if (cnt == CRC32_OK_VHT)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_OK_VHT);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_OK_VHT);
 	else if (cnt == CRC32_OK_HT)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_OK_HT);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_OK_HT);
 	else if (cnt == CRC32_OK_LEGACY)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_OK_LEGACY);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_OK_LEGACY);
 	else if (cnt == CRC32_OK_CCK)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_OK_CCK);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_OK_CCK);
 	else if (cnt == CRC32_ERROR_VHT)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_ERROR_VHT);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_ERROR_VHT);
 	else if (cnt == CRC32_ERROR_HT)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_ERROR_HT);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_ERROR_HT);
 	else if (cnt == CRC32_ERROR_LEGACY)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_ERROR_LEGACY);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_ERROR_LEGACY);
 	else if (cnt == CRC32_ERROR_CCK)
-		return	phydm_cmn_info_query(phydm, (enum phydm_info_query_e) PHYDM_INFO_CRC32_ERROR_CCK);
+		return	phydm_cmn_info_query(phydm, (enum phydm_info_query) PHYDM_INFO_CRC32_ERROR_CCK);
 	else
 		return 0;
 }
@@ -575,7 +577,7 @@ u32 rtw_phydm_get_phy_cnt(_adapter *adapter, enum phy_cnt cnt)
 u8 rtw_phydm_is_iqk_in_progress(_adapter *adapter)
 {
 	u8 rts = _FALSE;
-	struct PHY_DM_STRUCT *podmpriv = adapter_to_phydm(adapter);
+	struct dm_struct *podmpriv = adapter_to_phydm(adapter);
 
 	odm_acquire_spin_lock(podmpriv, RT_IQK_SPINLOCK);
 	if (podmpriv->rf_calibrate_info.is_iqk_in_progress == _TRUE) {
@@ -593,7 +595,7 @@ void SetHalODMVar(
 	PVOID					pValue1,
 	BOOLEAN					bSet)
 {
-	struct PHY_DM_STRUCT *podmpriv = adapter_to_phydm(Adapter);
+	struct dm_struct *podmpriv = adapter_to_phydm(Adapter);
 	/* _irqL irqL; */
 	switch (eVariable) {
 	case HAL_ODM_STA_INFO: {
@@ -658,10 +660,10 @@ void SetHalODMVar(
 		if (podmpriv->is_linked) {
 			_RTW_PRINT_SEL(sel, "rx_rate = %s", HDATA_RATE(podmpriv->rx_rate));
 			if (IS_HARDWARE_TYPE_8814A(Adapter))
-				_RTW_PRINT_SEL(sel, " RSSI_A = %d(%%), RSSI_B = %d(%%), RSSI_C = %d(%%), RSSI_D = %d(%%)\n",
-					podmpriv->RSSI_A, podmpriv->RSSI_B, podmpriv->RSSI_C, podmpriv->RSSI_D);
+				_RTW_PRINT_SEL(sel, " rssi_a = %d(%%), rssi_b = %d(%%), rssi_c = %d(%%), rssi_d = %d(%%)\n",
+					podmpriv->rssi_a, podmpriv->rssi_b, podmpriv->rssi_c, podmpriv->rssi_d);
 			else
-				_RTW_PRINT_SEL(sel, " RSSI_A = %d(%%), RSSI_B = %d(%%)\n", podmpriv->RSSI_A, podmpriv->RSSI_B);
+				_RTW_PRINT_SEL(sel, " rssi_a = %d(%%), rssi_b = %d(%%)\n", podmpriv->rssi_a, podmpriv->rssi_b);
 #ifdef DBG_RX_SIGNAL_DISPLAY_RAW_DATA
 			rtw_dump_raw_rssi_info(Adapter, sel);
 #endif
@@ -683,7 +685,7 @@ void SetHalODMVar(
 #ifdef CONFIG_ANTENNA_DIVERSITY
 	case HAL_ODM_ANTDIV_SELECT: {
 		u8	antenna = (*(u8 *)pValue1);
-
+		HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 		/*switch antenna*/
 		odm_update_rx_idle_ant(&pHalData->odmpriv, antenna);
 		/*RTW_INFO("==> HAL_ODM_ANTDIV_SELECT, Ant_(%s)\n", (antenna == MAIN_ANT) ? "MAIN_ANT" : "AUX_ANT");*/
@@ -703,7 +705,7 @@ void GetHalODMVar(
 	PVOID					pValue1,
 	PVOID					pValue2)
 {
-	struct PHY_DM_STRUCT *podmpriv = adapter_to_phydm(Adapter);
+	struct dm_struct *podmpriv = adapter_to_phydm(Adapter);
 
 	switch (eVariable) {
 #ifdef CONFIG_ANTENNA_DIVERSITY
@@ -727,7 +729,7 @@ void GetHalODMVar(
 
 enum hal_status
 rtw_phydm_fw_iqk(
-	struct PHY_DM_STRUCT	*p_dm_odm,
+	struct dm_struct	*p_dm_odm,
 	u8 clear,
 	u8 segment
 )
@@ -743,7 +745,7 @@ rtw_phydm_fw_iqk(
 
 enum hal_status
 rtw_phydm_cfg_phy_para(
-	struct PHY_DM_STRUCT	*p_dm_odm,
+	struct dm_struct	*p_dm_odm,
 	enum phydm_halmac_param config_type,
 	u32 offset,
 	u32 data,
@@ -761,7 +763,7 @@ rtw_phydm_cfg_phy_para(
 		para.data.mac.offset = offset;
 		para.data.mac.value = data;
 		para.data.mac.msk = mask;
-		para.data.mac.msk_en = 1;
+		para.data.mac.msk_en = (mask) ? 1 : 0;
 		para.data.mac.size = 1;
 	break;
 	case PHYDM_HALMAC_CMD_MAC_W16:
@@ -769,7 +771,7 @@ rtw_phydm_cfg_phy_para(
 		para.data.mac.offset = offset;
 		para.data.mac.value = data;
 		para.data.mac.msk = mask;
-		para.data.mac.msk_en = 1;
+		para.data.mac.msk_en = (mask) ? 1 : 0;
 		para.data.mac.size = 2;
 	break;
 	case PHYDM_HALMAC_CMD_MAC_W32:
@@ -777,7 +779,7 @@ rtw_phydm_cfg_phy_para(
 		para.data.mac.offset = offset;
 		para.data.mac.value = data;
 		para.data.mac.msk = mask;
-		para.data.mac.msk_en = 1;
+		para.data.mac.msk_en = (mask) ? 1 : 0;
 		para.data.mac.size = 4;
 	break;
 	case PHYDM_HALMAC_CMD_BB_W8:
@@ -785,7 +787,7 @@ rtw_phydm_cfg_phy_para(
 		para.data.bb.offset = offset;
 		para.data.bb.value = data;
 		para.data.bb.msk = mask;
-		para.data.bb.msk_en = 1;
+		para.data.bb.msk_en = (mask) ? 1 : 0;
 		para.data.bb.size = 1;
 	break;
 	case PHYDM_HALMAC_CMD_BB_W16:
@@ -793,7 +795,7 @@ rtw_phydm_cfg_phy_para(
 		para.data.bb.offset = offset;
 		para.data.bb.value = data;
 		para.data.bb.msk = mask;
-		para.data.bb.msk_en = 1;
+		para.data.bb.msk_en = (mask) ? 1 : 0;
 		para.data.bb.size = 2;
 	break;
 	case PHYDM_HALMAC_CMD_BB_W32:
@@ -801,7 +803,7 @@ rtw_phydm_cfg_phy_para(
 		para.data.bb.offset = offset;
 		para.data.bb.value = data;
 		para.data.bb.msk = mask;
-		para.data.bb.msk_en = 1;
+		para.data.bb.msk_en = (mask) ? 1 : 0;
 		para.data.bb.size = 4;
 	break;
 	case PHYDM_HALMAC_CMD_RF_W:
@@ -809,7 +811,7 @@ rtw_phydm_cfg_phy_para(
 		para.data.rf.offset = offset;
 		para.data.rf.value = data;
 		para.data.rf.msk = mask;
-		para.data.rf.msk_en = 1;
+		para.data.rf.msk_en = (mask) ? 1 : 0;
 		if (e_rf_path == RF_PATH_A)
 			para.data.rf.path = 0;
 		else if (e_rf_path == RF_PATH_B)
@@ -850,7 +852,7 @@ void rtw_phydm_wd_lps_lclk_hdl(_adapter *adapter)
 {
 	struct mlme_priv *pmlmepriv = &adapter->mlmepriv;
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(adapter);
-	struct PHY_DM_STRUCT	*podmpriv = &(pHalData->odmpriv);
+	struct dm_struct	*podmpriv = &(pHalData->odmpriv);
 	struct sta_priv *pstapriv = &adapter->stapriv;
 	struct sta_info *psta = NULL;
 	u8 rssi_min = 0;
@@ -964,29 +966,29 @@ void dump_sta_info(void *sel, struct sta_info *psta)
 
 	ra_info = &psta->cmn.ra_info;
 
-	_RTW_PRINT_SEL(sel, "============ STA [" MAC_FMT "]  ===================\n",
+	RTW_PRINT_SEL(sel, "============ STA [" MAC_FMT "]  ===================\n",
 		MAC_ARG(psta->cmn.mac_addr));
-	_RTW_PRINT_SEL(sel, "mac_id : %d\n", psta->cmn.mac_id);
-	_RTW_PRINT_SEL(sel, "wireless_mode : 0x%02x\n", psta->wireless_mode);
-	_RTW_PRINT_SEL(sel, "mimo_type : %d\n", psta->cmn.mimo_type);
-	_RTW_PRINT_SEL(sel, "bw_mode : %s, ra_bw_mode : %s\n",
+	RTW_PRINT_SEL(sel, "mac_id : %d\n", psta->cmn.mac_id);
+	RTW_PRINT_SEL(sel, "wireless_mode : 0x%02x\n", psta->wireless_mode);
+	RTW_PRINT_SEL(sel, "mimo_type : %d\n", psta->cmn.mimo_type);
+	RTW_PRINT_SEL(sel, "bw_mode : %s, ra_bw_mode : %s\n",
 			ch_width_str(psta->cmn.bw_mode), ch_width_str(ra_info->ra_bw_mode));
-	_RTW_PRINT_SEL(sel, "rate_id : %d\n", ra_info->rate_id);
-	_RTW_PRINT_SEL(sel, "rssi : %d (%%), rssi_level : %d\n", psta->cmn.rssi_stat.rssi, ra_info->rssi_level);
-	_RTW_PRINT_SEL(sel, "is_support_sgi : %s, is_vht_enable : %s\n",
+	RTW_PRINT_SEL(sel, "rate_id : %d\n", ra_info->rate_id);
+	RTW_PRINT_SEL(sel, "rssi : %d (%%), rssi_level : %d\n", psta->cmn.rssi_stat.rssi, ra_info->rssi_level);
+	RTW_PRINT_SEL(sel, "is_support_sgi : %s, is_vht_enable : %s\n",
 			(ra_info->is_support_sgi) ? "Y" : "N", (ra_info->is_vht_enable) ? "Y" : "N");
-	_RTW_PRINT_SEL(sel, "disable_ra : %s, disable_pt : %s\n",
+	RTW_PRINT_SEL(sel, "disable_ra : %s, disable_pt : %s\n",
 				(ra_info->disable_ra) ? "Y" : "N", (ra_info->disable_pt) ? "Y" : "N");
-	_RTW_PRINT_SEL(sel, "is_noisy : %s\n", (ra_info->is_noisy) ? "Y" : "N");
-	_RTW_PRINT_SEL(sel, "txrx_state : %d\n", ra_info->txrx_state);/*0: uplink, 1:downlink, 2:bi-direction*/
+	RTW_PRINT_SEL(sel, "is_noisy : %s\n", (ra_info->is_noisy) ? "Y" : "N");
+	RTW_PRINT_SEL(sel, "txrx_state : %d\n", ra_info->txrx_state);/*0: uplink, 1:downlink, 2:bi-direction*/
 
 	curr_tx_sgi = (ra_info->curr_tx_rate & 0x80) ? _TRUE : _FALSE;
 	curr_tx_rate = ra_info->curr_tx_rate & 0x7F;
-	_RTW_PRINT_SEL(sel, "curr_tx_rate : %s (%s)\n",
+	RTW_PRINT_SEL(sel, "curr_tx_rate : %s (%s)\n",
 			HDATA_RATE(curr_tx_rate), (curr_tx_sgi) ? "S" : "L");
-	_RTW_PRINT_SEL(sel, "curr_tx_bw : %s\n", ch_width_str(ra_info->curr_tx_bw));
-	_RTW_PRINT_SEL(sel, "curr_retry_ratio : %d\n", ra_info->curr_retry_ratio);
-	_RTW_PRINT_SEL(sel, "ra_mask : 0x%016llx\n", ra_info->ramask);
+	RTW_PRINT_SEL(sel, "curr_tx_bw : %s\n", ch_width_str(ra_info->curr_tx_bw));
+	RTW_PRINT_SEL(sel, "curr_retry_ratio : %d\n", ra_info->curr_retry_ratio);
+	RTW_PRINT_SEL(sel, "ra_mask : 0x%016llx\n\n", ra_info->ramask);
 }
 
 void rtw_phydm_ra_registed(_adapter *adapter, struct sta_info *psta)
@@ -1001,6 +1003,30 @@ void rtw_phydm_ra_registed(_adapter *adapter, struct sta_info *psta)
 
 	phydm_ra_registed(&hal_data->odmpriv, psta->cmn.mac_id, psta->cmn.rssi_stat.rssi);
 	dump_sta_info(RTW_DBGDUMP, psta);
+}
+
+static void init_phydm_info(_adapter *adapter)
+{
+	PHAL_DATA_TYPE	hal_data = GET_HAL_DATA(adapter);
+	struct dm_struct *phydm = &(hal_data->odmpriv);
+
+	halrf_cmn_info_init(phydm, HALRF_CMNINFO_FW_VER,
+		((hal_data->firmware_version << 16) | hal_data->firmware_sub_version));
+
+	#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1))
+	/*PHYDM API - thermal trim*/
+	phydm_get_thermal_trim_offset(phydm);
+	/*PHYDM API - power trim*/
+	phydm_get_power_trim_offset(phydm);
+	#endif
+}
+void rtw_phydm_init(_adapter *adapter)
+{
+	PHAL_DATA_TYPE	hal_data = GET_HAL_DATA(adapter);
+	struct dm_struct	*phydm = &(hal_data->odmpriv);
+
+	init_phydm_info(adapter);
+	odm_dm_init(phydm);
 }
 
 #ifdef CONFIG_LPS_PG
@@ -1091,6 +1117,53 @@ static u8 _rtw_phydm_pwr_tracking_rate_check(_adapter *adapter)
 	return tx_rate;
 }
 
+#ifdef CONFIG_DYNAMIC_SOML
+void rtw_dyn_soml_byte_update(_adapter *adapter, u8 data_rate, u32 size)
+{
+	struct dm_struct *phydm = adapter_to_phydm(adapter);
+
+	phydm_soml_bytes_acq(phydm, data_rate, size);
+}
+
+void rtw_dyn_soml_para_set(_adapter *adapter, u8 train_num, u8 intvl,
+			u8 period, u8 delay)
+{
+	struct dm_struct *phydm = adapter_to_phydm(adapter);
+
+	phydm_adaptive_soml_para_set(phydm, train_num, intvl, period, delay);
+	RTW_INFO("%s.\n", __func__);
+}
+
+void rtw_dyn_soml_config(_adapter *adapter)
+{
+	RTW_INFO("%s.\n", __func__);
+
+	if (adapter->registrypriv.dyn_soml_en == 1) {
+		/* Must after phydm_adaptive_soml_init() */
+		rtw_hal_set_hwreg(adapter , HW_VAR_SET_SOML_PARAM , NULL);
+		RTW_INFO("dyn_soml_en = 1\n");
+	} else {
+		if (adapter->registrypriv.dyn_soml_en == 2) {
+			rtw_dyn_soml_para_set(adapter, 
+				adapter->registrypriv.dyn_soml_train_num, 
+				adapter->registrypriv.dyn_soml_interval, 
+				adapter->registrypriv.dyn_soml_period,
+				adapter->registrypriv.dyn_soml_delay);
+			RTW_INFO("dyn_soml_en = 2\n");
+			RTW_INFO("dyn_soml_en, param = %d, %d, %d, %d\n",
+				adapter->registrypriv.dyn_soml_train_num,
+				adapter->registrypriv.dyn_soml_interval, 
+				adapter->registrypriv.dyn_soml_period,
+				adapter->registrypriv.dyn_soml_delay);
+		} else if (adapter->registrypriv.dyn_soml_en == 0) {
+			RTW_INFO("dyn_soml_en = 0\n");
+		} else
+			RTW_ERR("%s, wrong setting: dyn_soml_en = %d\n", __func__,
+				adapter->registrypriv.dyn_soml_en);
+	}
+}
+#endif
+
 void rtw_phydm_watchdog(_adapter *adapter)
 {
 	u8	bLinked = _FALSE;
@@ -1125,8 +1198,6 @@ void rtw_phydm_watchdog(_adapter *adapter)
 #endif /* CONFIG_BT_COEXIST */
 	odm_cmn_info_update(&pHalData->odmpriv, ODM_CMNINFO_BT_ENABLED,
 							(bBtDisabled == _TRUE) ? _FALSE : _TRUE);
-	odm_cmn_info_update(&pHalData->odmpriv, ODM_CMNINFO_POWER_TRAINING,
-							(pHalData->bDisableTXPowerTraining) ? _TRUE : _FALSE);
 #ifdef CONFIG_LPS_PG
 	_lps_pg_state_update(adapter);
 #endif
@@ -1167,70 +1238,3 @@ _exit:
 	return;
 }
 
-/* ************************************************************************************
- *
- * 20100209 Joseph:
- * This function is used only for 92C to set REG_BCN_CTRL(0x550) register.
- * We just reserve the value of the register in variable pHalData->RegBcnCtrlVal and then operate
- * the value of the register via atomic operation.
- * This prevents from race condition when setting this register.
- * The value of pHalData->RegBcnCtrlVal is initialized in HwConfigureRTL8192CE() function.
- *   */
-void SetBcnCtrlReg(
-	PADAPTER	padapter,
-	u8		SetBits,
-	u8		ClearBits)
-{
-	PHAL_DATA_TYPE pHalData;
-	u8 RegBcnCtrlVal = 0;
-
-	pHalData = GET_HAL_DATA(padapter);
-	RegBcnCtrlVal = rtw_read8(padapter, REG_BCN_CTRL);
-
-	RegBcnCtrlVal |= SetBits;
-	RegBcnCtrlVal &= ~ClearBits;
-
-#if 0
-	/* #ifdef CONFIG_SDIO_HCI */
-	if (pHalData->sdio_himr & (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK))
-		RegBcnCtrlVal |= EN_TXBCN_RPT;
-#endif
-	rtw_write8(padapter, REG_BCN_CTRL, RegBcnCtrlVal);
-}
-
-
-void _dbg_dump_tx_info(_adapter	*padapter, int frame_tag, u8 *ptxdesc)
-{
-	u8 bDumpTxPkt;
-	u8 bDumpTxDesc = _FALSE;
-	rtw_hal_get_def_var(padapter, HAL_DEF_DBG_DUMP_TXPKT, &(bDumpTxPkt));
-
-	if (bDumpTxPkt == 1) { /* dump txdesc for data frame */
-		RTW_INFO("dump tx_desc for data frame\n");
-		if ((frame_tag & 0x0f) == DATA_FRAMETAG)
-			bDumpTxDesc = _TRUE;
-	} else if (bDumpTxPkt == 2) { /* dump txdesc for mgnt frame */
-		RTW_INFO("dump tx_desc for mgnt frame\n");
-		if ((frame_tag & 0x0f) == MGNT_FRAMETAG)
-			bDumpTxDesc = _TRUE;
-	} else if (bDumpTxPkt == 3) { /* dump early info */
-	}
-
-	if (bDumpTxDesc) {
-		/* ptxdesc->txdw4 = cpu_to_le32(0x00001006); */ /* RTS Rate=24M */
-		/*	ptxdesc->txdw6 = 0x6666f800; */
-		RTW_INFO("=====================================\n");
-		RTW_INFO("Offset00(0x%08x)\n", *((u32 *)(ptxdesc)));
-		RTW_INFO("Offset04(0x%08x)\n", *((u32 *)(ptxdesc + 4)));
-		RTW_INFO("Offset08(0x%08x)\n", *((u32 *)(ptxdesc + 8)));
-		RTW_INFO("Offset12(0x%08x)\n", *((u32 *)(ptxdesc + 12)));
-		RTW_INFO("Offset16(0x%08x)\n", *((u32 *)(ptxdesc + 16)));
-		RTW_INFO("Offset20(0x%08x)\n", *((u32 *)(ptxdesc + 20)));
-		RTW_INFO("Offset24(0x%08x)\n", *((u32 *)(ptxdesc + 24)));
-		RTW_INFO("Offset28(0x%08x)\n", *((u32 *)(ptxdesc + 28)));
-		RTW_INFO("Offset32(0x%08x)\n", *((u32 *)(ptxdesc + 32)));
-		RTW_INFO("Offset36(0x%08x)\n", *((u32 *)(ptxdesc + 36)));
-		RTW_INFO("=====================================\n");
-	}
-
-}

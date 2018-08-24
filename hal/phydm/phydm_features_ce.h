@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,13 +8,33 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
 #ifndef	__PHYDM_FEATURES_CE_H__
-#define __PHYDM_FEATURES_CE
+#define __PHYDM_FEATURES_CE_H__
+
+#if (RTL8822B_SUPPORT == 1 || RTL8812A_SUPPORT == 1 || RTL8197F_SUPPORT == 1)
+	#define DYN_ANT_WEIGHTING_SUPPORT
+#endif
+
+#if (RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
+	#define FAHM_SUPPORT
+#endif
+	#define NHM_SUPPORT
+	#define CLM_SUPPORT
 
 #if (RTL8822B_SUPPORT == 1)
 	/*#define PHYDM_PHYSTAUS_SMP_MODE*/
@@ -52,6 +72,8 @@
 #if (RTL8188E_SUPPORT == 1 || RTL8192E_SUPPORT == 1)
 	#define	CONFIG_RECEIVER_BLOCKING
 #endif
+
+/* #define CONFIG_DYNAMIC_TX_TWR */
 #define PHYDM_SUPPORT_CCKPD
 #define RA_MASK_PHYDMLIZE_CE
 
@@ -61,7 +83,7 @@
 
 	#ifdef CONFIG_PHYDM_ANTENNA_DIVERSITY
 
-		#if (RTL8723B_SUPPORT == 1) || (RTL8821A_SUPPORT == 1) || (RTL8188F_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8723D_SUPPORT == 1)
+		#if (RTL8723B_SUPPORT == 1) || (RTL8821A_SUPPORT == 1) || (RTL8188F_SUPPORT == 1) || (RTL8821C_SUPPORT == 1)
 			#define	CONFIG_S0S1_SW_ANTENNA_DIVERSITY
 		#endif
 
@@ -72,7 +94,6 @@
 		#if (RTL8822B_SUPPORT == 1)
 			/*#define CONFIG_HL_SMART_ANTENNA_TYPE2*/
 		#endif
-
 	#endif
 #endif
 
@@ -87,10 +108,13 @@
 	#define CONFIG_PHYDM_DFS_MASTER
 #endif
 
+#if (RTL8812A_SUPPORT == 1 || RTL8821A_SUPPORT == 1 || RTL8881A_SUPPORT == 1 || RTL8192E_SUPPORT == 1 || RTL8723B_SUPPORT == 1)
+	/*#define	CONFIG_RA_FW_DBG_CODE*/
+#endif
+
 /*#define PHYDM_DIG_MODE_DECISION_SUPPORT*/
 #define	CONFIG_PSD_TOOL
 /*#define	CONFIG_RA_DBG_CMD*/
-/*#define	CONFIG_RA_FW_DBG_CODE*/
 /*#define	CONFIG_ANT_DETECTION*/
 /*#define	CONFIG_PATH_DIVERSITY*/
 /*#define	CONFIG_RA_DYNAMIC_RTY_LIMIT*/

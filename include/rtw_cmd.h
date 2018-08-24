@@ -206,6 +206,11 @@ u8 p2p_roch_cmd(_adapter *adapter
 );
 u8 p2p_cancel_roch_cmd(_adapter *adapter, u64 cookie, struct wireless_dev *wdev, u8 flags);
 
+#endif /* CONFIG_IOCTL_CFG80211 */
+#endif /* CONFIG_P2P */
+
+#ifdef CONFIG_IOCTL_CFG80211 
+u8 rtw_mgnt_tx_cmd(_adapter *adapter, u8 tx_ch, u8 no_cck, const u8 *buf, size_t len, int wait_ack, u8 flags);
 struct mgnt_tx_parm {
 	u8 tx_ch;
 	u8 no_cck;
@@ -213,9 +218,7 @@ struct mgnt_tx_parm {
 	size_t len;
 	int wait_ack;
 };
-u8 rtw_mgnt_tx_cmd(_adapter *adapter, u8 tx_ch, u8 no_cck, const u8 *buf, size_t len, int wait_ack, u8 flags);
-#endif /* CONFIG_IOCTL_CFG80211 */
-#endif /* CONFIG_P2P */
+#endif
 
 #else
 /* #include <ieee80211.h> */
@@ -253,6 +256,10 @@ enum rtw_drvextra_cmd_id {
 	RSON_SCAN_WK_CID,
 #endif
 	MGNT_TX_WK_CID,
+#ifdef CONFIG_MCC_MODE
+	MCC_SET_DURATION_WK_CID,
+#endif /* CONFIG_MCC_MODE */
+	REQ_PER_CMD_WK_CID,
 	MAX_WK_CID
 };
 
@@ -381,6 +388,11 @@ struct sitesurvey_parm {
 	u8 ch_num;
 	NDIS_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
 	struct rtw_ieee80211_channel ch[RTW_CHANNEL_SCAN_AMOUNT];
+
+	u32 token; 	/* 80211k use it to identify caller */
+	u16 duration;	/* 0: use default, otherwise: channel scan time */
+	u8 igi;		/* 0: use defalut */
+	u8 bw;		/* 0: use default */
 };
 
 /*
@@ -412,7 +424,6 @@ when 802.1x ==> keyid > 2 ==> unicast key
 struct setkey_parm {
 	u8	algorithm;	/* encryption algorithm, could be none, wep40, TKIP, CCMP, wep104 */
 	u8	keyid;
-	u8	grpkey;		/* 1: this is the grpkey for 802.1x. 0: this is the unicast key for 802.1x */
 	u8	set_tx;		/* 1: main tx key for wep. 0: other key. */
 	u8	key[16];	/* this could be 40 or 104 */
 };
@@ -427,10 +438,11 @@ when shared key ==> algorithm/keyid
 
 */
 struct set_stakey_parm {
-	u8	addr[ETH_ALEN];
-	u8	algorithm;
-	u8	keyid;
-	u8	key[16];
+	u8 addr[ETH_ALEN];
+	u8 algorithm;
+	u8 keyid;
+	u8 key[16];
+	u8 gk;
 };
 
 struct set_stakey_rsp {
@@ -997,10 +1009,15 @@ Result:
 
 extern u8 rtw_setassocsta_cmd(_adapter  *padapter, u8 *mac_addr);
 extern u8 rtw_setstandby_cmd(_adapter *padapter, uint action);
-u8 rtw_sitesurvey_cmd(_adapter  *padapter, NDIS_802_11_SSID *ssid, int ssid_num, struct rtw_ieee80211_channel *ch, int ch_num);
-
+void rtw_init_sitesurvey_parm(_adapter *padapter, struct sitesurvey_parm *pparm);
+u8 rtw_sitesurvey_cmd(_adapter *padapter, struct sitesurvey_parm *pparm);
 u8 rtw_create_ibss_cmd(_adapter *adapter, int flags);
 u8 rtw_startbss_cmd(_adapter *adapter, int flags);
+
+#define REQ_CH_NONE		-1
+#define REQ_BW_NONE		-1
+#define REQ_OFFSET_NONE	-1
+
 u8 rtw_change_bss_chbw_cmd(_adapter *adapter, int flags, s16 req_ch, s8 req_bw, s8 req_offset);
 
 extern u8 rtw_setphy_cmd(_adapter  *padapter, u8 modem, u8 ch);
@@ -1011,7 +1028,7 @@ extern u8 rtw_clearstakey_cmd(_adapter *padapter, struct sta_info *sta, u8 enque
 
 extern u8 rtw_joinbss_cmd(_adapter  *padapter, struct wlan_network *pnetwork);
 u8 rtw_disassoc_cmd(_adapter *padapter, u32 deauth_timeout_ms, int flags);
-extern u8 rtw_setopmode_cmd(_adapter  *padapter, NDIS_802_11_NETWORK_INFRASTRUCTURE networktype, bool enqueue);
+extern u8 rtw_setopmode_cmd(_adapter  *padapter, NDIS_802_11_NETWORK_INFRASTRUCTURE networktype, u8 flags);
 extern u8 rtw_setdatarate_cmd(_adapter  *padapter, u8 *rateset);
 extern u8 rtw_setbasicrate_cmd(_adapter  *padapter, u8 *rateset);
 extern u8 rtw_getmacreg_cmd(_adapter *padapter, u8 len, u32 addr);
@@ -1104,6 +1121,10 @@ u8 rtw_run_in_thread_cmd(PADAPTER padapter, void (*func)(void *), void *context)
 u8 session_tracker_chk_cmd(_adapter *adapter, struct sta_info *sta);
 u8 session_tracker_add_cmd(_adapter *adapter, struct sta_info *sta, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port);
 u8 session_tracker_del_cmd(_adapter *adapter, struct sta_info *sta, u8 *local_naddr, u8 *local_port, u8 *remote_naddr, u8 *remote_port);
+
+#if defined(CONFIG_RTW_MESH) && defined(RTW_PER_CMD_SUPPORT_FW)
+u8 rtw_req_per_cmd(_adapter * adapter);
+#endif
 
 u8 rtw_drvextra_cmd_hdl(_adapter *padapter, unsigned char *pbuf);
 
@@ -1201,6 +1222,7 @@ enum rtw_h2c_cmd {
 
 	GEN_CMD_CODE(_RunInThreadCMD), /*64*/
 	GEN_CMD_CODE(_AddBARsp) , /*65*/
+	GEN_CMD_CODE(_RM_POST_EVENT), /*66*/
 
 	MAX_H2CCMD
 };
@@ -1288,6 +1310,7 @@ struct _cmd_callback	rtw_cmd_callback[] = {
 
 	{GEN_CMD_CODE(_RunInThreadCMD), NULL},/*64*/
 	{GEN_CMD_CODE(_AddBARsp), NULL}, /*65*/
+	{GEN_CMD_CODE(_RM_POST_EVENT), NULL}, /*66*/
 };
 #endif
 

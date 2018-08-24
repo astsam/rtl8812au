@@ -15,9 +15,12 @@
 #ifndef __IOCTL_CFG80211_H__
 #define __IOCTL_CFG80211_H__
 
-
 #ifndef RTW_CFG80211_ALWAYS_INFORM_STA_DISCONNECT_EVENT
-	#define RTW_CFG80211_ALWAYS_INFORM_STA_DISCONNECT_EVENT 0
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 2, 0))
+#define RTW_CFG80211_ALWAYS_INFORM_STA_DISCONNECT_EVENT 1
+#else
+#define RTW_CFG80211_ALWAYS_INFORM_STA_DISCONNECT_EVENT 0
+#endif
 #endif
 
 #if defined(RTW_USE_CFG80211_STA_EVENT)
@@ -65,6 +68,12 @@
 
 #if defined(RTW_DEDICATED_P2P_DEVICE) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 7, 0))
 	#error "RTW_DEDICATED_P2P_DEVICE can't be enabled when kernel < 3.7.0\n"
+#endif
+
+#ifdef CONFIG_RTW_MESH
+	#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 10, 0))
+		#error "CONFIG_RTW_MESH can't be enabled when kernel < 3.10.0\n"
+	#endif
 #endif
 
 struct rtw_wdev_invit_info {
@@ -160,6 +169,7 @@ struct rtw_wdev_priv {
 	u16 report_mgmt;
 
 	u8 is_mgmt_tx;
+	u16 mgmt_tx_cookie;
 
 	_mutex roch_mutex;
 
@@ -168,6 +178,8 @@ struct rtw_wdev_priv {
 #endif
 
 };
+
+bool rtw_cfg80211_is_connect_requested(_adapter *adapter);
 
 #if RTW_CFG80211_ALWAYS_INFORM_STA_DISCONNECT_EVENT
 #define rtw_wdev_not_indic_disco(rtw_wdev_data) 0
@@ -262,12 +274,15 @@ void rtw_cfg80211_indicate_scan_done_for_buddy(_adapter *padapter, bool bscan_ab
 
 #ifdef CONFIG_AP_MODE
 void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint frame_len);
-void rtw_cfg80211_indicate_sta_disassoc(_adapter *padapter, unsigned char *da, unsigned short reason);
+void rtw_cfg80211_indicate_sta_disassoc(_adapter *padapter, const u8 *da, unsigned short reason);
 #endif /* CONFIG_AP_MODE */
 
 #ifdef CONFIG_P2P
 void rtw_cfg80211_set_is_roch(_adapter *adapter, bool val);
 bool rtw_cfg80211_get_is_roch(_adapter *adapter);
+bool rtw_cfg80211_is_ro_ch_once(_adapter *adapter);
+void rtw_cfg80211_set_last_ro_ch_time(_adapter *adapter);
+s32 rtw_cfg80211_get_last_ro_ch_passing_ms(_adapter *adapter);
 
 int rtw_cfg80211_iface_has_p2p_group_cap(_adapter *adapter);
 int rtw_cfg80211_is_p2p_scan(_adapter *adapter);
@@ -288,11 +303,15 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 void rtw_cfg80211_rx_p2p_action_public(_adapter *padapter, union recv_frame *rframe);
 void rtw_cfg80211_rx_action_p2p(_adapter *padapter, union recv_frame *rframe);
 void rtw_cfg80211_rx_action(_adapter *adapter, union recv_frame *rframe, const char *msg);
+void rtw_cfg80211_rx_mframe(_adapter *adapter, union recv_frame *rframe, const char *msg);
 void rtw_cfg80211_rx_probe_request(_adapter *padapter, union recv_frame *rframe);
 
 int rtw_cfg80211_set_mgnt_wpsp2pie(struct net_device *net, char *buf, int len, int type);
 
 bool rtw_cfg80211_pwr_mgmt(_adapter *adapter);
+#ifdef CONFIG_RTW_80211K
+void rtw_cfg80211_rx_rrm_action(_adapter *adapter, union recv_frame *rframe);
+#endif
 
 #ifdef CONFIG_RFKILL_POLL
 void rtw_cfg80211_init_rfkill(struct wiphy *wiphy);
@@ -350,13 +369,26 @@ void rtw_cfg80211_deinit_rfkill(struct wiphy *wiphy);
 #endif
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
+#define rtw_cfg80211_notify_new_peer_candidate(wdev, addr, ie, ie_len, gfp) cfg80211_notify_new_peer_candidate(wdev_to_ndev(wdev), addr, ie, ie_len, gfp)
+#endif
+
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 5, 0))
 u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset, u8 ht);
 #endif
 
-#if (KERNEL_VERSION(4, 7, 0) >= LINUX_VERSION_CODE)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 26)) && (LINUX_VERSION_CODE < KERNEL_VERSION(4, 7, 0))
+#define NL80211_BAND_2GHZ IEEE80211_BAND_2GHZ
+#define NL80211_BAND_5GHZ IEEE80211_BAND_5GHZ
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
+#define NL80211_BAND_60GHZ IEEE80211_BAND_60GHZ
+#endif
 #define NUM_NL80211_BANDS IEEE80211_NUM_BANDS
 #endif
+
+#define rtw_band_to_nl80211_band(band) \
+	(band == BAND_ON_2_4G) ? NL80211_BAND_2GHZ : \
+	(band == BAND_ON_5G) ? NL80211_BAND_5GHZ : NUM_NL80211_BANDS
 
 #include "rtw_cfgvendor.h"
 

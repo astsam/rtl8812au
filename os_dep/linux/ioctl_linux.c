@@ -68,29 +68,6 @@ static const char *const iw_operation_mode[] = {
 	"Auto", "Ad-Hoc", "Managed",  "Master", "Repeater", "Secondary", "Monitor"
 };
 
-static int hex2num_i(char c)
-{
-	if (c >= '0' && c <= '9')
-		return c - '0';
-	if (c >= 'a' && c <= 'f')
-		return c - 'a' + 10;
-	if (c >= 'A' && c <= 'F')
-		return c - 'A' + 10;
-	return -1;
-}
-
-static int hex2byte_i(const char *hex)
-{
-	int a, b;
-	a = hex2num_i(*hex++);
-	if (a < 0)
-		return -1;
-	b = hex2num_i(*hex++);
-	if (b < 0)
-		return -1;
-	return (a << 4) | b;
-}
-
 /**
  * hwaddr_aton - Convert ASCII string to MAC address
  * @txt: MAC address as a string (e.g., "00:11:22:33:44:55")
@@ -931,7 +908,7 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 		wep_key_idx = param->u.crypt.idx;
 		wep_key_len = param->u.crypt.key_len;
 
-		if ((wep_key_idx > WEP_KEYS) || (wep_key_len <= 0)) {
+		if ((wep_key_idx >= WEP_KEYS) || (wep_key_len <= 0)) {
 			ret = -EINVAL;
 			goto exit;
 		}
@@ -959,6 +936,7 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 
 		psecuritypriv->key_mask |= BIT(wep_key_idx);
 
+		padapter->mlmeextpriv.mlmext_info.key_index = wep_key_idx;
 		goto exit;
 	}
 
@@ -980,25 +958,23 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 					psta->dot118021XPrivacy = padapter->securitypriv.dot11PrivacyAlgrthm;
 
 				if (param->u.crypt.set_tx == 1) { /* pairwise key */
+					RTW_INFO(FUNC_ADPT_FMT" set %s PTK idx:%u, len:%u\n"
+						, FUNC_ADPT_ARG(padapter), param->u.crypt.alg, param->u.crypt.idx, param->u.crypt.key_len);
 					_rtw_memcpy(psta->dot118021x_UncstKey.skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-
 					if (strcmp(param->u.crypt.alg, "TKIP") == 0) { /* set mic key */
-						/* DEBUG_ERR(("\nset key length :param->u.crypt.key_len=%d\n", param->u.crypt.key_len)); */
 						_rtw_memcpy(psta->dot11tkiptxmickey.skey, &(param->u.crypt.key[16]), 8);
 						_rtw_memcpy(psta->dot11tkiprxmickey.skey, &(param->u.crypt.key[24]), 8);
-
 						padapter->securitypriv.busetkipkey = _FALSE;
 					}
-
-					/* DEBUG_ERR((" param->u.crypt.key_len=%d\n",param->u.crypt.key_len)); */
-					RTW_INFO(" ~~~~set sta key:unicastkey\n");
-
-					rtw_setstakey_cmd(padapter, psta, UNICAST_KEY, _TRUE);
-
+					psta->dot11txpn.val = RTW_GET_LE64(param->u.crypt.seq);
+					psta->dot11rxpn.val = RTW_GET_LE64(param->u.crypt.seq);
 					psta->bpairwise_key_installed = _TRUE;
+					rtw_setstakey_cmd(padapter, psta, UNICAST_KEY, _TRUE);
 
 				} else { /* group key */
 					if (strcmp(param->u.crypt.alg, "TKIP") == 0 || strcmp(param->u.crypt.alg, "CCMP") == 0) {
+						RTW_INFO(FUNC_ADPT_FMT" set %s GTK idx:%u, len:%u\n"
+							, FUNC_ADPT_ARG(padapter), param->u.crypt.alg, param->u.crypt.idx, param->u.crypt.key_len);
 						_rtw_memcpy(padapter->securitypriv.dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key,
 							(param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
 						/* only TKIP group key need to install this */
@@ -1007,31 +983,23 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 							_rtw_memcpy(padapter->securitypriv.dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
 						}
 						padapter->securitypriv.binstallGrpkey = _TRUE;
-						/* DEBUG_ERR((" param->u.crypt.key_len=%d\n", param->u.crypt.key_len)); */
-						if (param->u.crypt.idx < 4) 
-							_rtw_memcpy(padapter->securitypriv.iv_seq[param->u.crypt.idx], param->u.crypt.seq, 8);							
-						RTW_INFO(" ~~~~set sta key:groupkey\n");
-
+						if (param->u.crypt.idx < 4)
+							_rtw_memcpy(padapter->securitypriv.iv_seq[param->u.crypt.idx], param->u.crypt.seq, 8);
 						padapter->securitypriv.dot118021XGrpKeyid = param->u.crypt.idx;
-
 						rtw_set_key(padapter, &padapter->securitypriv, param->u.crypt.idx, 1, _TRUE);
-					}
-#ifdef CONFIG_IEEE80211W
-					else if (strcmp(param->u.crypt.alg, "BIP") == 0) {
-						int no;
-						/* printk("BIP key_len=%d , index=%d @@@@@@@@@@@@@@@@@@\n", param->u.crypt.key_len, param->u.crypt.idx); */
-						/* save the IGTK key, length 16 bytes */
+
+					#ifdef CONFIG_IEEE80211W
+					} else if (strcmp(param->u.crypt.alg, "BIP") == 0) {
+						RTW_INFO(FUNC_ADPT_FMT" set IGTK idx:%u, len:%u\n"
+							, FUNC_ADPT_ARG(padapter), param->u.crypt.idx, param->u.crypt.key_len);
 						_rtw_memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey,  param->u.crypt.key,
 							(param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-						/*printk("IGTK key below:\n");
-						for(no=0;no<16;no++)
-							printk(" %02x ", padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey[no]);
-						printk("\n");*/
-						padapter->securitypriv.dot11wBIPKeyid = param->u.crypt.idx;
-						padapter->securitypriv.binstallBIPkey = _TRUE;
-						RTW_INFO(" ~~~~set sta key:IGKT\n");
+						psecuritypriv->dot11wBIPKeyid = param->u.crypt.idx;
+						psecuritypriv->dot11wBIPrxpn.val = RTW_GET_LE64(param->u.crypt.seq);
+						psecuritypriv->binstallBIPkey = _TRUE;
+					#endif /* CONFIG_IEEE80211W */
+
 					}
-#endif /* CONFIG_IEEE80211W */
 
 #ifdef CONFIG_P2P
 					if (rtw_p2p_chk_state(pwdinfo, P2P_STATE_PROVISIONING_ING))
@@ -1058,61 +1026,8 @@ static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	}
 
 #ifdef CONFIG_WAPI_SUPPORT
-	if (strcmp(param->u.crypt.alg, "SMS4") == 0) {
-		PRT_WAPI_T			pWapiInfo = &padapter->wapiInfo;
-		PRT_WAPI_STA_INFO	pWapiSta;
-		u8					WapiASUEPNInitialValueSrc[16] = {0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C} ;
-		u8					WapiAEPNInitialValueSrc[16] = {0x37, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C} ;
-		u8					WapiAEMultiCastPNInitialValueSrc[16] = {0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C, 0x36, 0x5C} ;
-
-		if (param->u.crypt.set_tx == 1) {
-			list_for_each_entry(pWapiSta, &pWapiInfo->wapiSTAUsedList, list) {
-				if (_rtw_memcmp(pWapiSta->PeerMacAddr, param->sta_addr, 6)) {
-					_rtw_memcpy(pWapiSta->lastTxUnicastPN, WapiASUEPNInitialValueSrc, 16);
-
-					pWapiSta->wapiUsk.bSet = true;
-					_rtw_memcpy(pWapiSta->wapiUsk.dataKey, param->u.crypt.key, 16);
-					_rtw_memcpy(pWapiSta->wapiUsk.micKey, param->u.crypt.key + 16, 16);
-					pWapiSta->wapiUsk.keyId = param->u.crypt.idx ;
-					pWapiSta->wapiUsk.bTxEnable = true;
-
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNBEQueue, WapiAEPNInitialValueSrc, 16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNBKQueue, WapiAEPNInitialValueSrc, 16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNVIQueue, WapiAEPNInitialValueSrc, 16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPNVOQueue, WapiAEPNInitialValueSrc, 16);
-					_rtw_memcpy(pWapiSta->lastRxUnicastPN, WapiAEPNInitialValueSrc, 16);
-					pWapiSta->wapiUskUpdate.bTxEnable = false;
-					pWapiSta->wapiUskUpdate.bSet = false;
-
-					if (psecuritypriv->sw_encrypt == false || psecuritypriv->sw_decrypt == false) {
-						/* set unicast key for ASUE */
-						rtw_wapi_set_key(padapter, &pWapiSta->wapiUsk, pWapiSta, false, false);
-					}
-				}
-			}
-		} else {
-			list_for_each_entry(pWapiSta, &pWapiInfo->wapiSTAUsedList, list) {
-				if (_rtw_memcmp(pWapiSta->PeerMacAddr, get_bssid(pmlmepriv), 6)) {
-					pWapiSta->wapiMsk.bSet = true;
-					_rtw_memcpy(pWapiSta->wapiMsk.dataKey, param->u.crypt.key, 16);
-					_rtw_memcpy(pWapiSta->wapiMsk.micKey, param->u.crypt.key + 16, 16);
-					pWapiSta->wapiMsk.keyId = param->u.crypt.idx ;
-					pWapiSta->wapiMsk.bTxEnable = false;
-					if (!pWapiSta->bSetkeyOk)
-						pWapiSta->bSetkeyOk = true;
-					pWapiSta->bAuthenticateInProgress = false;
-
-					_rtw_memcpy(pWapiSta->lastRxMulticastPN, WapiAEMultiCastPNInitialValueSrc, 16);
-
-					if (psecuritypriv->sw_decrypt == false) {
-						/* set rx broadcast key for ASUE */
-						rtw_wapi_set_key(padapter, &pWapiSta->wapiMsk, pWapiSta, true, false);
-					}
-				}
-
-			}
-		}
-	}
+	if (strcmp(param->u.crypt.alg, "SMS4") == 0)
+		rtw_wapi_set_set_encryption(padapter, param);
 #endif
 
 exit:
@@ -1126,6 +1041,7 @@ static int rtw_set_wpa_ie(_adapter *padapter, char *pie, unsigned short ielen)
 	u8 *buf = NULL, *pos = NULL;
 	u32 left;
 	int group_cipher = 0, pairwise_cipher = 0;
+	u8 mfp_opt = MFP_NO;
 	int ret = 0;
 	u8 null_addr[] = {0, 0, 0, 0, 0, 0};
 #ifdef CONFIG_P2P
@@ -1163,26 +1079,13 @@ static int rtw_set_wpa_ie(_adapter *padapter, char *pie, unsigned short ielen)
 			goto exit;
 		}
 
-#if 0
-		pos += RSN_HEADER_LEN;
-		left  = ielen - RSN_HEADER_LEN;
-
-		if (left >= RSN_SELECTOR_LEN) {
-			pos += RSN_SELECTOR_LEN;
-			left -= RSN_SELECTOR_LEN;
-		} else if (left > 0) {
-			ret = -1;
-			goto exit;
-		}
-#endif
-
 		if (rtw_parse_wpa_ie(buf, ielen, &group_cipher, &pairwise_cipher, NULL) == _SUCCESS) {
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
 			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPAPSK;
 			_rtw_memcpy(padapter->securitypriv.supplicant_ie, &buf[0], ielen);
 		}
 
-		if (rtw_parse_wpa2_ie(buf, ielen, &group_cipher, &pairwise_cipher, NULL) == _SUCCESS) {
+		if (rtw_parse_wpa2_ie(buf, ielen, &group_cipher, &pairwise_cipher, NULL, &mfp_opt) == _SUCCESS) {
 			padapter->securitypriv.dot11AuthAlgrthm = dot11AuthAlgrthm_8021X;
 			padapter->securitypriv.ndisauthtype = Ndis802_11AuthModeWPA2PSK;
 			_rtw_memcpy(padapter->securitypriv.supplicant_ie, &buf[0], ielen);
@@ -1238,6 +1141,13 @@ static int rtw_set_wpa_ie(_adapter *padapter, char *pie, unsigned short ielen)
 			padapter->securitypriv.ndisencryptstatus = Ndis802_11Encryption1Enabled;
 			break;
 		}
+
+		if (mfp_opt == MFP_INVALID) {
+			RTW_INFO(FUNC_ADPT_FMT" invalid MFP setting\n", FUNC_ADPT_ARG(padapter));
+			ret = -EINVAL;
+			goto exit;
+		}
+		padapter->securitypriv.mfp_opt = mfp_opt;
 
 		_clr_fwstate_(&padapter->mlmepriv, WIFI_UNDER_WPS);
 		{/* set wps_ie	 */
@@ -1495,7 +1405,6 @@ static int rtw_wx_set_mode(struct net_device *dev, struct iw_request_info *a,
 	case IW_MODE_MASTER:
 		networkType = Ndis802_11APMode;
 		RTW_INFO("set_mode = IW_MODE_MASTER\n");
-		/* rtw_setopmode_cmd(padapter, networkType,_TRUE);	 */
 		break;
 	case IW_MODE_INFRA:
 		networkType = Ndis802_11Infrastructure;
@@ -1507,17 +1416,6 @@ static int rtw_wx_set_mode(struct net_device *dev, struct iw_request_info *a,
 		goto exit;
 	}
 
-	/*
-		if(Ndis802_11APMode == networkType)
-		{
-			rtw_setopmode_cmd(padapter, networkType,_TRUE);
-		}
-		else
-		{
-			rtw_setopmode_cmd(padapter, Ndis802_11AutoUnknown,_TRUE);
-		}
-	*/
-
 	if (rtw_set_802_11_infrastructure_mode(padapter, networkType) == _FALSE) {
 
 		ret = -EPERM;
@@ -1525,7 +1423,7 @@ static int rtw_wx_set_mode(struct net_device *dev, struct iw_request_info *a,
 
 	}
 
-	rtw_setopmode_cmd(padapter, networkType, _TRUE);
+	rtw_setopmode_cmd(padapter, networkType, RTW_CMDF_WAIT_ACK);
 
 	if (check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) == _TRUE)
 		rtw_indicate_connect(padapter);
@@ -2033,7 +1931,7 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 	int ret = 0;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
-	NDIS_802_11_SSID ssid[RTW_SSID_SCAN_AMOUNT];
+	struct sitesurvey_parm parm;
 
 #ifdef CONFIG_P2P
 	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
@@ -2112,8 +2010,6 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 	}
 #endif /* CONFIG_P2P */
 
-	_rtw_memset(ssid, 0, sizeof(NDIS_802_11_SSID) * RTW_SSID_SCAN_AMOUNT);
-
 #if WIRELESS_EXT >= 17
 	if (wrqu->data.length == sizeof(struct iw_scan_req)) {
 		struct iw_scan_req *req = (struct iw_scan_req *)extra;
@@ -2121,12 +2017,14 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 		if (wrqu->data.flags & IW_SCAN_THIS_ESSID) {
 			int len = min((int)req->essid_len, IW_ESSID_MAX_SIZE);
 
-			_rtw_memcpy(ssid[0].Ssid, req->essid, len);
-			ssid[0].SsidLength = len;
+			rtw_init_sitesurvey_parm(padapter, &parm);
+			_rtw_memcpy(&parm.ssid[0].Ssid, &req->essid, len);
+			parm.ssid[0].SsidLength = len;
+			parm.ssid_num = 1;
 
 			RTW_INFO("IW_SCAN_THIS_ESSID, ssid=%s, len=%d\n", req->essid, req->essid_len);
 
-			_status = rtw_set_802_11_bssid_list_scan(padapter, ssid, 1, NULL, 0);
+			_status = rtw_set_802_11_bssid_list_scan(padapter, &parm);
 
 		} else if (req->scan_type == IW_SCAN_TYPE_PASSIVE)
 			RTW_INFO("rtw_wx_set_scan, req->scan_type == IW_SCAN_TYPE_PASSIVE\n");
@@ -2144,6 +2042,7 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 			int ssid_index = 0;
 
 			/* RTW_INFO("%s COMBO_SCAN header is recognized\n", __FUNCTION__); */
+			rtw_init_sitesurvey_parm(padapter, &parm);
 
 			while (len >= 1) {
 				section = *(pos++);
@@ -2161,10 +2060,12 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 					len -= 1;
 
 					if (sec_len > 0 && sec_len <= len) {
-						ssid[ssid_index].SsidLength = sec_len;
-						_rtw_memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
-						/* RTW_INFO("%s COMBO_SCAN with specific ssid:%s, %d\n", __FUNCTION__ */
-						/*	, ssid[ssid_index].Ssid, ssid[ssid_index].SsidLength); */
+
+						parm.ssid[ssid_index].SsidLength = sec_len;
+						_rtw_memcpy(&parm.ssid[ssid_index].Ssid, pos, sec_len);
+
+						/* RTW_INFO("%s COMBO_SCAN with specific parm.ssid:%s, %d\n", __FUNCTION__ */
+						/*	, parm.ssid[ssid_index].Ssid, parm.ssid[ssid_index].SsidLength); */
 						ssid_index++;
 					}
 
@@ -2211,13 +2112,14 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
 				/* RTW_INFO("len:%d\n", len); */
 
 			}
+			parm.ssid_num = ssid_index;
 
 			/* jeff: it has still some scan paramater to parse, we only do this now... */
-			_status = rtw_set_802_11_bssid_list_scan(padapter, ssid, RTW_SSID_SCAN_AMOUNT, NULL, 0);
+			_status = rtw_set_802_11_bssid_list_scan(padapter, &parm);
 
 		} else
 
-			_status = rtw_set_802_11_bssid_list_scan(padapter, NULL, 0, NULL, 0);
+			_status = rtw_set_802_11_bssid_list_scan(padapter, NULL);
 
 	if (_status == _FALSE)
 		ret = -1;
@@ -3465,6 +3367,22 @@ static int rtw_wx_priv_null(struct net_device *dev, struct iw_request_info *a,
 {
 	return -1;
 }
+
+#ifdef CONFIG_RTW_80211K
+extern void rm_dbg_cmd(_adapter *padapter, char *s);
+static int rtw_wx_priv_rrm(struct net_device *dev, struct iw_request_info *a,
+			    union iwreq_data *wrqu, char *b)
+{
+	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
+	u32 path, addr, data32;
+
+
+	rm_dbg_cmd(padapter, b);
+	wrqu->data.length = strlen(b);
+
+	return 0;
+}
+#endif
 
 static int dummy(struct net_device *dev, struct iw_request_info *a,
 		 union iwreq_data *wrqu, char *b)
@@ -4868,13 +4786,9 @@ static int rtw_p2p_connect(struct net_device *dev,
 			u8 union_ch = rtw_mi_get_union_chan(padapter);
 			u8 union_bw = rtw_mi_get_union_bw(padapter);
 			u8 union_offset = rtw_mi_get_union_offset(padapter);
-			/*	Have to enter the power saving with the AP */
+
 			set_channel_bwmode(padapter, union_ch, union_offset, union_bw);
-			#ifdef CONFIG_AP_MODE
-			/*mac-id sleep or wake-up for AP mode*/
-			rtw_mi_buddy_ap_acdata_control(padapter, 1);
-			#endif
-			rtw_mi_buddy_issue_nulldata(padapter, NULL, 1, 3, 500);
+			rtw_leave_opch(padapter);
 		}
 #endif /* CONFIG_CONCURRENT_MODE */
 
@@ -4901,7 +4815,7 @@ static int rtw_p2p_connect(struct net_device *dev,
 		 * driver will do scanning itself
 		 */
 		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL, 0, NULL, 0);
+		rtw_sitesurvey_cmd(padapter, NULL);
 		_exit_critical_bh(&pmlmepriv->lock, &irqL);
 #endif /* CONFIG_INTEL_WIDI */
 		ret = -1;
@@ -5063,13 +4977,10 @@ static int rtw_p2p_invite_req(struct net_device *dev,
 			u8 union_ch = rtw_mi_get_union_chan(padapter);
 			u8 union_bw = rtw_mi_get_union_bw(padapter);
 			u8 union_offset = rtw_mi_get_union_offset(padapter);
-			/*	Have to enter the power saving with the AP */
+
 			set_channel_bwmode(padapter, union_ch, union_offset, union_bw);
-			#ifdef CONFIG_AP_MODE
-			/*mac-id sleep or wake-up for AP mode*/
-			rtw_mi_buddy_ap_acdata_control(padapter, 1);
-			#endif/*CONFIG_AP_MODE*/
-			rtw_mi_buddy_issue_nulldata(padapter, NULL, 1, 3, 500);
+			rtw_leave_opch(padapter);
+
 		} else
 			set_channel_bwmode(padapter, uintPeerChannel, HAL_PRIME_CHNL_OFFSET_DONT_CARE, CHANNEL_WIDTH_20);
 #else
@@ -5142,23 +5053,6 @@ exit:
 
 	return ret;
 
-}
-
-static int hexstr2bin(const char *hex, u8 *buf, size_t len)
-{
-	size_t i;
-	int a;
-	const char *ipos = hex;
-	u8 *opos = buf;
-
-	for (i = 0; i < len; i++) {
-		a = hex2byte_i(ipos);
-		if (a < 0)
-			return -1;
-		*opos++ = a;
-		ipos += 2;
-	}
-	return 0;
 }
 
 static int uuid_str2bin(const char *str, u8 *bin)
@@ -5629,13 +5523,9 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 			u8 union_bw = rtw_mi_get_union_bw(padapter);
 			u8 union_offset = rtw_mi_get_union_offset(padapter);
 
-			/*	Have to enter the power saving with the AP */
 			set_channel_bwmode(padapter, union_ch, union_offset, union_bw);
-			#ifdef CONFIG_AP_MODE
-			/*mac-id sleep or wake-up for AP mode*/
-			rtw_mi_buddy_ap_acdata_control(padapter, 1);
-			#endif/*CONFIG_AP_MODE*/
-			rtw_mi_buddy_issue_nulldata(padapter, NULL, 1, 3, 500);
+			rtw_leave_opch(padapter);
+
 		} else
 			set_channel_bwmode(padapter, uintPeerChannel, HAL_PRIME_CHNL_OFFSET_DONT_CARE, CHANNEL_WIDTH_20);
 #else
@@ -5661,7 +5551,7 @@ static int rtw_p2p_prov_disc(struct net_device *dev,
 		rtw_p2p_findphase_ex_set(pwdinfo, P2P_FINDPHASE_EX_NONE);
 		rtw_free_network_queue(padapter, _TRUE);
 		_enter_critical_bh(&pmlmepriv->lock, &irqL);
-		rtw_sitesurvey_cmd(padapter, NULL, 0, NULL, 0);
+		rtw_sitesurvey_cmd(padapter, NULL);
 		_exit_critical_bh(&pmlmepriv->lock, &irqL);
 #endif /* CONFIG_INTEL_WIDI */
 	}
@@ -5967,10 +5857,6 @@ static int rtw_rereg_nd_name(struct net_device *dev,
 		goto exit;
 
 	if (_rtw_memcmp(rereg_priv->old_ifname, "disable%d", 9) == _TRUE) {
-		#ifdef CONFIG_RTW_SW_LED
-		padapter->ledpriv.bRegUseLed = rereg_priv->old_bRegUseLed;
-		rtw_hal_sw_led_init(padapter);
-		#endif
 		/* rtw_ips_mode_req(&padapter->pwrctrlpriv, rereg_priv->old_ips_mode); */
 	}
 
@@ -5983,13 +5869,6 @@ static int rtw_rereg_nd_name(struct net_device *dev,
 		/* free network queue for Android's timming issue */
 		rtw_free_network_queue(padapter, _TRUE);
 
-		/* close led */
-		rtw_led_control(padapter, LED_CTL_POWER_OFF);
-		#ifdef CONFIG_RTW_SW_LED
-		rereg_priv->old_bRegUseLed = padapter->ledpriv.bRegUseLed;
-		padapter->ledpriv.bRegUseLed = _FALSE;
-		rtw_hal_sw_led_deinit(padapter);
-		#endif
 		/* the interface is being "disabled", we can do deeper IPS */
 		/* rereg_priv->old_ips_mode = rtw_get_ips_mode_req(&padapter->pwrctrlpriv); */
 		/* rtw_ips_mode_req(&padapter->pwrctrlpriv, IPS_NORMAL); */
@@ -6372,7 +6251,8 @@ static int rtw_dbg_port(struct net_device *dev,
 			_list	*plist, *phead;
 
 #ifdef CONFIG_AP_MODE
-			RTW_INFO("sta_dz_bitmap=0x%x, tim_bitmap=0x%x\n", pstapriv->sta_dz_bitmap, pstapriv->tim_bitmap);
+			RTW_INFO_DUMP("sta_dz_bitmap:", pstapriv->sta_dz_bitmap, pstapriv->aid_bmp_len);
+			RTW_INFO_DUMP("tim_bitmap:", pstapriv->tim_bitmap, pstapriv->aid_bmp_len);
 #endif
 			_enter_critical_bh(&pstapriv->sta_hash_lock, &irqL);
 
@@ -7192,72 +7072,61 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 	if (!psta && check_fwstate(pmlmepriv, WIFI_AP_STATE)) /*  */ { /* group key */
 		if (param->u.crypt.set_tx == 1) {
 			if (strcmp(param->u.crypt.alg, "WEP") == 0) {
-				RTW_INFO("%s, set group_key, WEP\n", __FUNCTION__);
-
+				RTW_INFO(FUNC_ADPT_FMT" set WEP TX GTK idx:%u, len:%u\n"
+					, FUNC_ADPT_ARG(padapter), param->u.crypt.idx, param->u.crypt.key_len);
 				_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-
 				psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
 				if (param->u.crypt.key_len == 13)
 					psecuritypriv->dot118021XGrpPrivacy = _WEP104_;
 
 			} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
-				RTW_INFO("%s, set group_key, TKIP\n", __FUNCTION__);
-
+				RTW_INFO(FUNC_ADPT_FMT" set TKIP TX GTK idx:%u, len:%u\n"
+					, FUNC_ADPT_ARG(padapter), param->u.crypt.idx, param->u.crypt.key_len);
 				psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
-
 				_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-
-				/* DEBUG_ERR("set key length :param->u.crypt.key_len=%d\n", param->u.crypt.key_len); */
 				/* set mic key */
 				_rtw_memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
 				_rtw_memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
-
 				psecuritypriv->busetkipkey = _TRUE;
 
 			} else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
-				RTW_INFO("%s, set group_key, CCMP\n", __FUNCTION__);
-
+				RTW_INFO(FUNC_ADPT_FMT" set CCMP TX GTK idx:%u, len:%u\n"
+					, FUNC_ADPT_ARG(padapter), param->u.crypt.idx, param->u.crypt.key_len);
 				psecuritypriv->dot118021XGrpPrivacy = _AES_;
-
 				_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-			}
-#ifdef CONFIG_IEEE80211W
-			else if (strcmp(param->u.crypt.alg, "BIP") == 0) {
-				int no;
 
-				RTW_INFO("BIP key_len=%d , index=%d\n", param->u.crypt.key_len, param->u.crypt.idx);
-				/* save the IGTK key, length 16 bytes */
+			#ifdef CONFIG_IEEE80211W
+			} else if (strcmp(param->u.crypt.alg, "BIP") == 0) {
+				RTW_INFO(FUNC_ADPT_FMT" set TX IGTK idx:%u, len:%u\n"
+					, FUNC_ADPT_ARG(padapter), param->u.crypt.idx, param->u.crypt.key_len);
 				_rtw_memcpy(padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-				/* RTW_INFO("IGTK key below:\n");
-				for(no=0;no<16;no++)
-					printk(" %02x ", padapter->securitypriv.dot11wBIPKey[param->u.crypt.idx].skey[no]);
-				RTW_INFO("\n"); */
-				padapter->securitypriv.dot11wBIPKeyid = param->u.crypt.idx;
-				padapter->securitypriv.binstallBIPkey = _TRUE;
-				RTW_INFO(" ~~~~set sta key:IGKT\n");
+				psecuritypriv->dot11wBIPKeyid = param->u.crypt.idx;
+				psecuritypriv->dot11wBIPtxpn.val = RTW_GET_LE64(param->u.crypt.seq);
+				psecuritypriv->binstallBIPkey = _TRUE;
 				goto exit;
-			}
-#endif /* CONFIG_IEEE80211W */
-			else {
-				RTW_INFO("%s, set group_key, none\n", __FUNCTION__);
+			#endif /* CONFIG_IEEE80211W */
 
+			} else if (strcmp(param->u.crypt.alg, "none") == 0) {
+				RTW_INFO(FUNC_ADPT_FMT" clear group key, idx:%u\n"
+					, FUNC_ADPT_ARG(padapter), param->u.crypt.idx);
 				psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
+			} else {
+				RTW_WARN(FUNC_ADPT_FMT" set group key, not support\n"
+					, FUNC_ADPT_ARG(padapter));
+				goto exit;
 			}
 
 			psecuritypriv->dot118021XGrpKeyid = param->u.crypt.idx;
-
-			psecuritypriv->binstallGrpkey = _TRUE;
-
-			psecuritypriv->dot11PrivacyAlgrthm = psecuritypriv->dot118021XGrpPrivacy;/* !!! */
-
-			rtw_ap_set_group_key(padapter, param->u.crypt.key, psecuritypriv->dot118021XGrpPrivacy, param->u.crypt.idx);
-
 			pbcmc_sta = rtw_get_bcmc_stainfo(padapter);
 			if (pbcmc_sta) {
+				pbcmc_sta->dot11txpn.val = RTW_GET_LE64(param->u.crypt.seq);
 				pbcmc_sta->ieee8021x_blocked = _FALSE;
 				pbcmc_sta->dot118021XPrivacy = psecuritypriv->dot118021XGrpPrivacy; /* rx will use bmc_sta's dot118021XPrivacy			 */
 			}
+			psecuritypriv->binstallGrpkey = _TRUE;
+			psecuritypriv->dot11PrivacyAlgrthm = psecuritypriv->dot118021XGrpPrivacy;/* !!! */
 
+			rtw_ap_set_group_key(padapter, param->u.crypt.key, psecuritypriv->dot118021XGrpPrivacy, param->u.crypt.idx);
 		}
 
 		goto exit;
@@ -7270,80 +7139,51 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, 
 				_rtw_memcpy(psta->dot118021x_UncstKey.skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
 
 				if (strcmp(param->u.crypt.alg, "WEP") == 0) {
-					RTW_INFO("%s, set pairwise key, WEP\n", __FUNCTION__);
-
+					RTW_INFO(FUNC_ADPT_FMT" set WEP PTK of "MAC_FMT" idx:%u, len:%u\n"
+						, FUNC_ADPT_ARG(padapter), MAC_ARG(psta->cmn.mac_addr)
+						, param->u.crypt.idx, param->u.crypt.key_len);
 					psta->dot118021XPrivacy = _WEP40_;
 					if (param->u.crypt.key_len == 13)
 						psta->dot118021XPrivacy = _WEP104_;
+
 				} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
-					RTW_INFO("%s, set pairwise key, TKIP\n", __FUNCTION__);
-
+					RTW_INFO(FUNC_ADPT_FMT" set TKIP PTK of "MAC_FMT" idx:%u, len:%u\n"
+						, FUNC_ADPT_ARG(padapter), MAC_ARG(psta->cmn.mac_addr)
+						, param->u.crypt.idx, param->u.crypt.key_len);
 					psta->dot118021XPrivacy = _TKIP_;
-
-					/* DEBUG_ERR("set key length :param->u.crypt.key_len=%d\n", param->u.crypt.key_len); */
 					/* set mic key */
 					_rtw_memcpy(psta->dot11tkiptxmickey.skey, &(param->u.crypt.key[16]), 8);
 					_rtw_memcpy(psta->dot11tkiprxmickey.skey, &(param->u.crypt.key[24]), 8);
-
 					psecuritypriv->busetkipkey = _TRUE;
 
 				} else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
-
-					RTW_INFO("%s, set pairwise key, CCMP\n", __FUNCTION__);
-
+					RTW_INFO(FUNC_ADPT_FMT" set CCMP PTK of "MAC_FMT" idx:%u, len:%u\n"
+						, FUNC_ADPT_ARG(padapter), MAC_ARG(psta->cmn.mac_addr)
+						, param->u.crypt.idx, param->u.crypt.key_len);
 					psta->dot118021XPrivacy = _AES_;
-				} else {
-					RTW_INFO("%s, set pairwise key, none\n", __FUNCTION__);
 
+				} else if (strcmp(param->u.crypt.alg, "none") == 0) {
+					RTW_INFO(FUNC_ADPT_FMT" clear pairwise key of "MAC_FMT" idx:%u\n"
+						, FUNC_ADPT_ARG(padapter), MAC_ARG(psta->cmn.mac_addr)
+						, param->u.crypt.idx);
 					psta->dot118021XPrivacy = _NO_PRIVACY_;
+
+				} else {
+					RTW_WARN(FUNC_ADPT_FMT" set pairwise key of "MAC_FMT", not support\n"
+						, FUNC_ADPT_ARG(padapter), MAC_ARG(psta->cmn.mac_addr));
+					goto exit;
 				}
 
+				psta->dot11txpn.val = RTW_GET_LE64(param->u.crypt.seq);
+				psta->dot11rxpn.val = RTW_GET_LE64(param->u.crypt.seq);
+				psta->ieee8021x_blocked = _FALSE;
+				psta->bpairwise_key_installed = _TRUE;
 				rtw_ap_set_pairwise_key(padapter, psta);
 
-				psta->ieee8021x_blocked = _FALSE;
-
-				psta->bpairwise_key_installed = _TRUE;
-
-			} else { /* group key??? */
-				if (strcmp(param->u.crypt.alg, "WEP") == 0) {
-					_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-
-					psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
-					if (param->u.crypt.key_len == 13)
-						psecuritypriv->dot118021XGrpPrivacy = _WEP104_;
-				} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
-					psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
-
-					_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-
-					/* DEBUG_ERR("set key length :param->u.crypt.key_len=%d\n", param->u.crypt.key_len); */
-					/* set mic key */
-					_rtw_memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
-					_rtw_memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
-
-					psecuritypriv->busetkipkey = _TRUE;
-
-				} else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
-					psecuritypriv->dot118021XGrpPrivacy = _AES_;
-
-					_rtw_memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey,  param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-				} else
-					psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
-
-				psecuritypriv->dot118021XGrpKeyid = param->u.crypt.idx;
-
-				psecuritypriv->binstallGrpkey = _TRUE;
-
-				psecuritypriv->dot11PrivacyAlgrthm = psecuritypriv->dot118021XGrpPrivacy;/* !!! */
-
-				rtw_ap_set_group_key(padapter, param->u.crypt.key, psecuritypriv->dot118021XGrpPrivacy, param->u.crypt.idx);
-
-				pbcmc_sta = rtw_get_bcmc_stainfo(padapter);
-				if (pbcmc_sta) {
-					pbcmc_sta->ieee8021x_blocked = _FALSE;
-					pbcmc_sta->dot118021XPrivacy = psecuritypriv->dot118021XGrpPrivacy; /* rx will use bmc_sta's dot118021XPrivacy			 */
-				}
-
+			} else {
+				RTW_WARN(FUNC_ADPT_FMT" set group key of "MAC_FMT", not support\n"
+					, FUNC_ADPT_ARG(padapter), MAC_ARG(psta->cmn.mac_addr));
+				goto exit;
 			}
 
 		}
@@ -7839,7 +7679,7 @@ static int rtw_ioctl_acl_remove_sta(struct net_device *dev, struct ieee_param *p
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff)
 		return -EINVAL;
 
-	ret = rtw_acl_remove_sta(padapter, param->sta_addr);
+	ret = rtw_acl_remove_sta(padapter, RTW_ACL_PERIOD_BSS, param->sta_addr);
 
 	return ret;
 
@@ -7859,7 +7699,7 @@ static int rtw_ioctl_acl_add_sta(struct net_device *dev, struct ieee_param *para
 	    param->sta_addr[4] == 0xff && param->sta_addr[5] == 0xff)
 		return -EINVAL;
 
-	ret = rtw_acl_add_sta(padapter, param->sta_addr);
+	ret = rtw_acl_add_sta(padapter, RTW_ACL_PERIOD_BSS, param->sta_addr);
 
 	return ret;
 
@@ -7874,7 +7714,7 @@ static int rtw_ioctl_set_macaddr_acl(struct net_device *dev, struct ieee_param *
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != _TRUE)
 		return -EINVAL;
 
-	rtw_set_macaddr_acl(padapter, param->u.mlme.command);
+	rtw_set_macaddr_acl(padapter, RTW_ACL_PERIOD_BSS, param->u.mlme.command);
 
 	return ret;
 }
@@ -9821,7 +9661,8 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 
 		if (padapter->registrypriv.bFileMaskEfuse != _TRUE && pmp_priv->bloadefusemap == _TRUE) {
 			RTW_INFO("%s: File eFuse mask file not to be loaded\n", __FUNCTION__);
-			sprintf(extra, "Not load eFuse mask file yet, Please use the efuse_mask CMD.\n");
+			sprintf(extra, "Not load eFuse mask file yet, Please use the efuse_mask CMD, now remove the interface !!!!\n");
+			rtw_set_surprise_removed(padapter);
 			err = 0;
 			goto exit;
 		}
@@ -10157,6 +9998,10 @@ static int rtw_priv_mp_get(struct net_device *dev,
 		RTW_INFO("set case mp_channel\n");
 		rtw_mp_channel(dev , info, wrqu, extra);
 		break;
+    	case  MP_CHL_OFFSET:
+       		RTW_INFO("set case mp_ch_offset\n");
+        	rtw_mp_ch_offset(dev , info, wrqu, extra);
+        	break;
 	case READ_REG:
 		RTW_INFO("mp_get  READ_REG\n");
 		rtw_mp_read_reg(dev, info, wrqu, extra);
@@ -10275,7 +10120,11 @@ static int rtw_priv_mp_get(struct net_device *dev,
 	case  BT_EFUSE_FILE:
 		RTW_INFO("mp_get BT EFUSE_FILE\n");
 		rtw_bt_efuse_file_map(dev, info, wdata, extra);
-		break;	
+		break;
+	case  MP_SWRFPath:
+		RTW_INFO("mp_get MP_SWRFPath\n");
+		rtw_mp_switch_rf_path(dev, info, wrqu, extra);
+		break;
 	default:
 		return -EIO;
 	}
@@ -10514,7 +10363,7 @@ static int rtw_priv_get(struct net_device *dev,
 	if (subcmd < MP_NULL) {
 #ifdef CONFIG_MP_INCLUDED
 		rtw_priv_mp_get(dev, info, wdata, extra);
-#endif		
+#endif
 		return 0;
 	}
 
@@ -11518,7 +11367,7 @@ static s32 initpseudoadhoc(PADAPTER padapter)
 	if (err == _FALSE)
 		return _FAIL;
 
-	err = rtw_setopmode_cmd(padapter, networkType, _TRUE);
+	err = rtw_setopmode_cmd(padapter, networkType, RTW_CMDF_WAIT_ACK);
 	if (err == _FAIL)
 		return _FAIL;
 
@@ -12020,7 +11869,7 @@ static int rtw_test(
 	}
 
 	pbuf[len] = '\0';
-	
+
 	RTW_INFO("%s: string=\"%s\"\n", __func__, pbuf);
 
 	ptmp = (char *)pbuf;
@@ -12268,7 +12117,12 @@ static const struct iw_priv_args rtw_private_args[] = {
 		SIOCIWFIRSTPRIV + 0x16,
 		IW_PRIV_TYPE_CHAR | 64, 0, "pm_set"
 	},
-
+#ifdef CONFIG_RTW_80211K
+	{
+		SIOCIWFIRSTPRIV + 0x17,
+		IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | 1024 , "rrm"
+	},
+#endif
 	{SIOCIWFIRSTPRIV + 0x18, IW_PRIV_TYPE_CHAR | IFNAMSIZ , 0 , "rereg_nd_name"},
 #ifdef CONFIG_MP_INCLUDED
 	{SIOCIWFIRSTPRIV + 0x1A, IW_PRIV_TYPE_CHAR | 1024, 0,  "NULL"},
@@ -12326,6 +12180,7 @@ static const struct iw_priv_args rtw_mp_private_args[] = {
 	{ MP_PHYPARA, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_phypara" },
 	{ MP_STOP , IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_stop" },
 	{ MP_CHANNEL , IW_PRIV_TYPE_CHAR | 1024 , IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_channel" },
+	{ MP_CHL_OFFSET , IW_PRIV_TYPE_CHAR | 1024 , IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_ch_offset" },
 	{ MP_BANDWIDTH , IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_bandwidth"},
 	{ MP_RATE , IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_rate" },
 	{ MP_RESET_STATS , IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_reset_stats"},
@@ -12364,6 +12219,7 @@ static const struct iw_priv_args rtw_mp_private_args[] = {
 	{ MP_IQK, IW_PRIV_TYPE_CHAR | 1024, 0, "mp_iqk"},
 	{ MP_LCK, IW_PRIV_TYPE_CHAR | 1024, 0, "mp_lck"},
 	{ BT_EFUSE_FILE, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "bt_efuse_file" },
+	{ MP_SWRFPath, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "mp_swrfpath" },
 #ifdef CONFIG_RTW_CUSTOMER_STR
 	{ MP_CUSTOMER_STR, IW_PRIV_TYPE_CHAR | 1024, IW_PRIV_TYPE_CHAR | IW_PRIV_SIZE_MASK, "customer_str" },
 #endif
@@ -12411,12 +12267,16 @@ static iw_handler rtw_private_handler[] = {
 	rtw_tdls_get,					/* 0x15 */
 
 	rtw_pm_set,						/* 0x16 */
+#ifdef CONFIG_RTW_80211K
+	rtw_wx_priv_rrm,				/* 0x17 */
+#else
 	rtw_wx_priv_null,				/* 0x17 */
+#endif
 	rtw_rereg_nd_name,				/* 0x18 */
 	rtw_wx_priv_null,				/* 0x19 */
 #ifdef CONFIG_MP_INCLUDED
 	rtw_wx_priv_null,				/* 0x1A */
-	rtw_wx_priv_null,				/* 0x1B */	
+	rtw_wx_priv_null,				/* 0x1B */
 #else
 	rtw_wx_priv_null,				/* 0x1A */
 	rtw_mp_efuse_get,				/* 0x1B */
@@ -12495,9 +12355,8 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 }
 #endif
 
-#if defined(CONFIG_WIRELESS_EXT) && !defined(CONFIG_CFG80211_WEXT)
-struct iw_handler_def rtw_handlers_def =
-{
+#ifdef CONFIG_WIRELESS_EXT
+struct iw_handler_def rtw_handlers_def = {
 	.standard = rtw_handlers,
 	.num_standard = sizeof(rtw_handlers) / sizeof(iw_handler),
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)) || defined(CONFIG_WEXT_PRIV)

@@ -38,18 +38,18 @@
 
 enum bt_info_src_8821a_1ant {
 	BT_INFO_SRC_8821A_1ANT_WIFI_FW			= 0x0,
-	BT_INFO_SRC_8821A_1ANT_BT_RSP				= 0x1,
-	BT_INFO_SRC_8821A_1ANT_BT_ACTIVE_SEND		= 0x2,
+	BT_INFO_SRC_8821A_1ANT_BT_RSP			= 0x1,
+	BT_INFO_SRC_8821A_1ANT_BT_ACTIVE_SEND	= 0x2,
 	BT_INFO_SRC_8821A_1ANT_MAX
 };
 
 enum bt_8821a_1ant_bt_status {
 	BT_8821A_1ANT_BT_STATUS_NON_CONNECTED_IDLE	= 0x0,
 	BT_8821A_1ANT_BT_STATUS_CONNECTED_IDLE		= 0x1,
-	BT_8821A_1ANT_BT_STATUS_INQ_PAGE				= 0x2,
-	BT_8821A_1ANT_BT_STATUS_ACL_BUSY				= 0x3,
-	BT_8821A_1ANT_BT_STATUS_SCO_BUSY				= 0x4,
-	BT_8821A_1ANT_BT_STATUS_ACL_SCO_BUSY			= 0x5,
+	BT_8821A_1ANT_BT_STATUS_INQ_PAGE			= 0x2,
+	BT_8821A_1ANT_BT_STATUS_ACL_BUSY			= 0x3,
+	BT_8821A_1ANT_BT_STATUS_SCO_BUSY			= 0x4,
+	BT_8821A_1ANT_BT_STATUS_ACL_SCO_BUSY		= 0x5,
 	BT_8821A_1ANT_BT_STATUS_MAX
 };
 
@@ -57,28 +57,43 @@ enum bt_8821a_1ant_wifi_status {
 	BT_8821A_1ANT_WIFI_STATUS_NON_CONNECTED_IDLE				= 0x0,
 	BT_8821A_1ANT_WIFI_STATUS_NON_CONNECTED_ASSO_AUTH_SCAN		= 0x1,
 	BT_8821A_1ANT_WIFI_STATUS_CONNECTED_SCAN					= 0x2,
-	BT_8821A_1ANT_WIFI_STATUS_CONNECTED_SPECIFIC_PKT				= 0x3,
+	BT_8821A_1ANT_WIFI_STATUS_CONNECTED_SPECIFIC_PKT			= 0x3,
 	BT_8821A_1ANT_WIFI_STATUS_CONNECTED_IDLE					= 0x4,
 	BT_8821A_1ANT_WIFI_STATUS_CONNECTED_BUSY					= 0x5,
 	BT_8821A_1ANT_WIFI_STATUS_MAX
 };
 
 enum bt_8821a_1ant_coex_algo {
-	BT_8821A_1ANT_COEX_ALGO_UNDEFINED			= 0x0,
+	BT_8821A_1ANT_COEX_ALGO_UNDEFINED		= 0x0,
 	BT_8821A_1ANT_COEX_ALGO_SCO				= 0x1,
 	BT_8821A_1ANT_COEX_ALGO_HID				= 0x2,
-	BT_8821A_1ANT_COEX_ALGO_A2DP				= 0x3,
+	BT_8821A_1ANT_COEX_ALGO_A2DP			= 0x3,
 	BT_8821A_1ANT_COEX_ALGO_A2DP_PANHS		= 0x4,
 	BT_8821A_1ANT_COEX_ALGO_PANEDR			= 0x5,
 	BT_8821A_1ANT_COEX_ALGO_PANHS			= 0x6,
 	BT_8821A_1ANT_COEX_ALGO_PANEDR_A2DP		= 0x7,
 	BT_8821A_1ANT_COEX_ALGO_PANEDR_HID		= 0x8,
 	BT_8821A_1ANT_COEX_ALGO_HID_A2DP_PANEDR	= 0x9,
-	BT_8821A_1ANT_COEX_ALGO_HID_A2DP			= 0xa,
+	BT_8821A_1ANT_COEX_ALGO_HID_A2DP		= 0xa,
 	BT_8821A_1ANT_COEX_ALGO_MAX				= 0xb,
 };
 
+enum bt_8821a_1ant_phase {
+	BT_8821A_1ANT_PHASE_COEX_INIT								= 0x0,
+	BT_8821A_1ANT_PHASE_WLANONLY_INIT							= 0x1,
+	BT_8821A_1ANT_PHASE_WLAN_OFF								= 0x2,
+	BT_8821A_1ANT_PHASE_2G_RUNTIME								= 0x3,
+	BT_8821A_1ANT_PHASE_5G_RUNTIME								= 0x4,
+	BT_8821A_1ANT_PHASE_BTMPMODE								= 0x5,
+	BT_8821A_1ANT_PHASE_ANTENNA_DET								= 0x6,
+	BT_8821A_1ANT_PHASE_COEX_POWERON							= 0x7,
+	BT_8821A_1ANT_PHASE_MAX
+};
+
+
 struct coex_dm_8821a_1ant {
+	u32		pre_ant_pos_type;
+	u32		cur_ant_pos_type;
 	/* fw mechanism */
 	boolean		cur_ignore_wlan_act;
 	boolean		pre_ignore_wlan_act;
@@ -174,6 +189,25 @@ struct coex_sta_8821a_1ant {
 	u8					bt_retry_cnt;
 	u8					bt_info_ext;
 	boolean				bt_whck_test;	/* Add for ASUS WHQL TEST that enable wifi test bt */
+
+	u8					hid_busy_num;
+	u8					bt_info_ext2;
+
+	boolean				is_rf_state_off;
+	u8					switch_band_notify_to;
+	boolean				freeze_coexrun_by_btinfo;
+	boolean				force_lps_ctrl;
+	u8                  bt_info;
+	u8					wl_fw_dbg_info[10];
+	u8					coex_table_type;
+	boolean				acl_busy;
+
+	boolean				cck_lock;
+	boolean				cck_lock_ever;
+	boolean				cck_lock_warn;
+
+	u8					wl_rx_rate;
+	u8					wl_rts_rx_rate;
 };
 
 /* *******************************************
@@ -199,6 +233,12 @@ void ex_halbtc8821a1ant_specific_packet_notify(IN struct btc_coexist *btcoexist,
 		IN u8 type);
 void ex_halbtc8821a1ant_bt_info_notify(IN struct btc_coexist *btcoexist,
 				       IN u8 *tmp_buf, IN u8 length);
+void ex_halbtc8821a1ant_wl_fwdbginfo_notify(IN struct btc_coexist *btcoexist,
+				       IN u8 *tmp_buf, IN u8 length);
+void ex_halbtc8821a1ant_rx_rate_change_notify(IN struct btc_coexist *btcoexist,
+		IN BOOLEAN is_data_frame, IN u8 btc_rate_id);
+void ex_halbtc8821a1ant_rf_status_notify(IN struct btc_coexist *btcoexist,
+		IN u8 type);
 void ex_halbtc8821a1ant_halt_notify(IN struct btc_coexist *btcoexist);
 void ex_halbtc8821a1ant_pnp_notify(IN struct btc_coexist *btcoexist,
 				   IN u8 pnp_state);
@@ -217,6 +257,9 @@ void ex_halbtc8821a1ant_display_coex_info(IN struct btc_coexist *btcoexist);
 #define	ex_halbtc8821a1ant_media_status_notify(btcoexist, type)
 #define	ex_halbtc8821a1ant_specific_packet_notify(btcoexist, type)
 #define	ex_halbtc8821a1ant_bt_info_notify(btcoexist, tmp_buf, length)
+#define	ex_halbtc8821a1ant_wl_fwdbginfo_notify(btcoexist, tmp_buf, length)
+#define	ex_halbtc8821a1ant_rx_rate_change_notify(btcoexist, is_data_frame, btc_rate_id)
+#define   ex_halbtc8821a1ant_rf_status_notify(btcoexist, type)
 #define	ex_halbtc8821a1ant_halt_notify(btcoexist)
 #define	ex_halbtc8821a1ant_pnp_notify(btcoexist, pnp_state)
 #define	ex_halbtc8821a1ant_periodical(btcoexist)

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2016 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 #ifndef __HAL_COM_TXBF_H__
@@ -18,14 +28,14 @@
 /*
 typedef	bool
 (*TXBF_GET)(
-	void*			p_adapter,
+	void*			adapter,
 	u8			get_type,
 	void*			p_out_buf
 	);
 
 typedef	bool
 (*TXBF_SET)(
-	void*			p_adapter,
+	void*			adapter,
 	u8			set_type,
 	void*			p_in_buf
 	);
@@ -59,7 +69,7 @@ struct _HAL_TXBF_INFO {
 	u8				BW;
 	u8				rate;
 
-	struct timer_list			txbf_fw_ndpa_timer;
+	struct phydm_timer_list			txbf_fw_ndpa_timer;
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	RT_WORK_ITEM		txbf_enter_work_item;
 	RT_WORK_ITEM		txbf_leave_work_item;
@@ -77,108 +87,108 @@ struct _HAL_TXBF_INFO {
 
 void
 hal_com_txbf_beamform_init(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 void
 hal_com_txbf_config_gtab(
-	void			*p_dm_void
+	void			*dm_void
 );
 
 void
 hal_com_txbf_enter_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 hal_com_txbf_leave_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 hal_com_txbf_fw_ndpa_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 hal_com_txbf_clk_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 hal_com_txbf_reset_tx_path_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 hal_com_txbf_get_tx_rate_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 hal_com_txbf_rate_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 void
 hal_com_txbf_fw_ndpa_timer_callback(
-	struct timer_list		*p_timer
+	struct phydm_timer_list		*timer
 );
 
 void
 hal_com_txbf_status_work_item_callback(
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	struct _ADAPTER		*adapter
+	void		*adapter
 #else
-	void			*p_dm_void
+	void			*dm_void
 #endif
 );
 
 boolean
 hal_com_txbf_set(
-	void			*p_dm_void,
+	void			*dm_void,
 	u8			set_type,
 	void			*p_in_buf
 );
 
 boolean
 hal_com_txbf_get(
-	struct _ADAPTER		*adapter,
+	void		*adapter,
 	u8			get_type,
 	void			*p_out_buf
 );
 
 #else
-#define hal_com_txbf_beamform_init(p_dm_void)					NULL
-#define hal_com_txbf_config_gtab(p_dm_void)				NULL
+#define hal_com_txbf_beamform_init(dm_void)					NULL
+#define hal_com_txbf_config_gtab(dm_void)				NULL
 #define hal_com_txbf_enter_work_item_callback(_adapter)		NULL
 #define hal_com_txbf_leave_work_item_callback(_adapter)		NULL
 #define hal_com_txbf_fw_ndpa_work_item_callback(_adapter)		NULL

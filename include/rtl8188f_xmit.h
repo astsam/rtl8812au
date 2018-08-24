@@ -301,9 +301,10 @@ thread_return rtl8188fs_xmit_thread(thread_context context);
 #endif
 
 #ifdef CONFIG_USB_HCI
+#ifdef CONFIG_XMIT_THREAD_MODE
 s32 rtl8188fu_xmit_buf_handler(PADAPTER padapter);
 #define hal_xmit_handler rtl8188fu_xmit_buf_handler
-
+#endif
 
 s32 rtl8188fu_init_xmit_priv(PADAPTER padapter);
 void rtl8188fu_free_xmit_priv(PADAPTER padapter);

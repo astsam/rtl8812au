@@ -73,6 +73,44 @@ _ConfigChipOutEP_8812(
 
 }
 
+static VOID _FourOutPipeMapping88212AU(
+	IN	PADAPTER	pAdapter,
+	IN	BOOLEAN		bWIFICfg
+)
+{
+	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(pAdapter);
+
+	if (bWIFICfg) { /* for WMM */
+
+		/* 0:H, 1:N, 2:L ,3:E */
+
+		pdvobjpriv->Queue2Pipe[0] = pdvobjpriv->RtOutPipe[0];/* VO */
+		pdvobjpriv->Queue2Pipe[1] = pdvobjpriv->RtOutPipe[1];/* VI */
+		pdvobjpriv->Queue2Pipe[2] = pdvobjpriv->RtOutPipe[2];/* BE */
+		pdvobjpriv->Queue2Pipe[3] = pdvobjpriv->RtOutPipe[1];/* BK */
+
+		pdvobjpriv->Queue2Pipe[4] = pdvobjpriv->RtOutPipe[0];/* BCN */
+		pdvobjpriv->Queue2Pipe[5] = pdvobjpriv->RtOutPipe[0];/* MGT */
+		pdvobjpriv->Queue2Pipe[6] = pdvobjpriv->RtOutPipe[3];/* HIGH */
+		pdvobjpriv->Queue2Pipe[7] = pdvobjpriv->RtOutPipe[0];/* TXCMD */
+
+	} else { /* typical setting */
+
+		/* 0:H, 1:N, 2:L, 3:E */
+
+		pdvobjpriv->Queue2Pipe[0] = pdvobjpriv->RtOutPipe[1];/* VO */
+		pdvobjpriv->Queue2Pipe[1] = pdvobjpriv->RtOutPipe[1];/* VI */
+		pdvobjpriv->Queue2Pipe[2] = pdvobjpriv->RtOutPipe[2];/* BE */
+		pdvobjpriv->Queue2Pipe[3] = pdvobjpriv->RtOutPipe[2];/* BK */
+
+		pdvobjpriv->Queue2Pipe[4] = pdvobjpriv->RtOutPipe[0];/* BCN */
+		pdvobjpriv->Queue2Pipe[5] = pdvobjpriv->RtOutPipe[3];/* MGT */
+		pdvobjpriv->Queue2Pipe[6] = pdvobjpriv->RtOutPipe[0];/* HIGH */
+		pdvobjpriv->Queue2Pipe[7] = pdvobjpriv->RtOutPipe[3];/* TXCMD */
+	}
+
+}
+
 static BOOLEAN HalUsbSetQueuePipeMapping8812AUsb(
 	IN	PADAPTER	pAdapter,
 	IN	u8		NumInPipe,
@@ -81,6 +119,8 @@ static BOOLEAN HalUsbSetQueuePipeMapping8812AUsb(
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
 	BOOLEAN			result		= _FALSE;
+	struct registry_priv *pregistrypriv = &pAdapter->registrypriv;
+	BOOLEAN	 bWIFICfg = (pregistrypriv->wifi_spec) ? _TRUE : _FALSE;
 
 	_ConfigChipOutEP_8812(pAdapter, NumOutPipe);
 
@@ -95,6 +135,10 @@ static BOOLEAN HalUsbSetQueuePipeMapping8812AUsb(
 	/*	return result; */
 	/* } */
 
+	if (NumOutPipe == 4) {
+		result = _TRUE;
+		_FourOutPipeMapping88212AU(pAdapter, bWIFICfg);
+	} else
 	result = Hal_MappingOutPipe(pAdapter, NumOutPipe);
 
 	return result;
@@ -651,6 +695,43 @@ _InitNormalChipThreeOutEpPriority_8812AUsb(
 }
 
 static VOID
+init_hi_queue_config_8812a_usb(
+	IN	PADAPTER Adapter
+)
+{
+	/* Packet in Hi Queue Tx immediately (No constraint for ATIM Period)*/
+	rtw_write8(Adapter, REG_HIQ_NO_LMT_EN, 0xFF);
+}
+
+static VOID
+_InitNormalChipFourOutEpPriority_8812AUsb(
+	IN	PADAPTER Adapter
+)
+{
+	struct registry_priv *pregistrypriv = &Adapter->registrypriv;
+	u16			beQ, bkQ, viQ, voQ, mgtQ, hiQ;
+
+	if (!pregistrypriv->wifi_spec) { /* typical setting */
+		beQ		= QUEUE_LOW;
+		bkQ		= QUEUE_LOW;
+		viQ		= QUEUE_NORMAL;
+		voQ		= QUEUE_NORMAL;
+		mgtQ	= QUEUE_EXTRA;
+		hiQ		= QUEUE_HIGH;
+	} else { /* for WMM */
+		beQ		= QUEUE_LOW;
+		bkQ		= QUEUE_NORMAL;
+		viQ		= QUEUE_NORMAL;
+		voQ		= QUEUE_HIGH;
+		mgtQ	= QUEUE_HIGH;
+		hiQ		= QUEUE_HIGH;
+	}
+	_InitNormalChipRegPriority_8812AUsb(Adapter, beQ, bkQ, viQ, voQ, mgtQ, hiQ);
+	init_hi_queue_config_8812a_usb(Adapter);
+}
+
+
+static VOID
 _InitQueuePriority_8812AUsb(
 	IN	PADAPTER Adapter
 )
@@ -662,8 +743,10 @@ _InitQueuePriority_8812AUsb(
 		_InitNormalChipTwoOutEpPriority_8812AUsb(Adapter);
 		break;
 	case 3:
-	case 4:
 		_InitNormalChipThreeOutEpPriority_8812AUsb(Adapter);
+		break;
+	case 4:
+		_InitNormalChipFourOutEpPriority_8812AUsb(Adapter);
 		break;
 	default:
 		RTW_INFO("_InitQueuePriority_8812AUsb(): Shall not reach here!\n");
@@ -849,7 +932,7 @@ _InitBeaconMaxError_8812A(
 #ifdef CONFIG_RTW_LED
 static void _InitHWLed(PADAPTER Adapter)
 {
-	struct led_priv *pledpriv = &(Adapter->ledpriv);
+	struct led_priv *pledpriv = adapter_to_led(Adapter);
 
 	if (pledpriv->LedStrategy != HW_LED)
 		return;
@@ -2043,7 +2126,7 @@ hal_CustomizedBehavior_8812AU(
 {
 #ifdef CONFIG_RTW_SW_LED
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	struct led_priv	*pledpriv = &(Adapter->ledpriv);
+	struct led_priv	*pledpriv = adapter_to_led(Adapter);
 
 
 	/* Led mode */
@@ -2201,7 +2284,7 @@ ReadLEDSetting_8812AU(
 )
 {
 #ifdef CONFIG_RTW_LED
-	struct led_priv *pledpriv = &(Adapter->ledpriv);
+	struct led_priv *pledpriv = adapter_to_led(Adapter);
 
 #ifdef CONFIG_RTW_SW_LED
 	pledpriv->bRegUseLed = _TRUE;
@@ -2256,6 +2339,9 @@ InitAdapterVariablesByPROM_8812AU(
 
 	if (IS_HARDWARE_TYPE_8821U(Adapter))
 		Hal_EfuseParseKFreeData_8821A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
+
+	/* set coex. ant info once efuse parsing is done */
+	rtw_btcoex_set_ant_info(Adapter);
 }
 
 static void Hal_ReadPROMContent_8812A(

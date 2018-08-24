@@ -35,3 +35,8 @@ void rtw_btcoex_wifionly_initialize(PADAPTER padapter)
 {
 	hal_btcoex_wifionly_initlizevariables(padapter);
 }
+
+void rtw_btcoex_wifionly_AntInfoSetting(PADAPTER padapter)
+{
+	hal_btcoex_wifionly_AntInfoSetting(padapter);
+}

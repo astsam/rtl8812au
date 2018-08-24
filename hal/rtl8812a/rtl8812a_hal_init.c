@@ -18,8 +18,7 @@
 #include <rtl8812a_hal.h>
 #ifdef CONFIG_RTL8812A
 #include "hal8812a_fw.h"
-#endif
-#ifdef CONFIG_RTL8821A
+#else
 #include "hal8821a_fw.h"
 #endif
 /* -------------------------------------------------------------------------
@@ -143,7 +142,36 @@ void Hal_DetectWoWMode(PADAPTER pAdapter)
 }
 #endif
 
+/* ************************************************************************************
+ *
+ * 20100209 Joseph:
+ * This function is used only for 92C to set REG_BCN_CTRL(0x550) register.
+ * We just reserve the value of the register in variable pHalData->RegBcnCtrlVal and then operate
+ * the value of the register via atomic operation.
+ * This prevents from race condition when setting this register.
+ * The value of pHalData->RegBcnCtrlVal is initialized in HwConfigureRTL8192CE() function.
+ *   */
+void SetBcnCtrlReg(
+	PADAPTER	padapter,
+	u8		SetBits,
+	u8		ClearBits)
+{
+	PHAL_DATA_TYPE pHalData;
+	u8 RegBcnCtrlVal = 0;
 
+	pHalData = GET_HAL_DATA(padapter);
+	RegBcnCtrlVal = rtw_read8(padapter, REG_BCN_CTRL);
+
+	RegBcnCtrlVal |= SetBits;
+	RegBcnCtrlVal &= ~ClearBits;
+
+#if 0
+	/* #ifdef CONFIG_SDIO_HCI */
+	if (pHalData->sdio_himr & (SDIO_HIMR_TXBCNOK_MSK | SDIO_HIMR_TXBCNERR_MSK))
+		RegBcnCtrlVal |= EN_TXBCN_RPT;
+#endif
+	rtw_write8(padapter, REG_BCN_CTRL, RegBcnCtrlVal);
+}
 
 static VOID
 _FWDownloadEnable_8812(
@@ -520,16 +548,11 @@ FirmwareDownload8812(
 		#ifdef CONFIG_WOWLAN
 			if (pwrpriv->wowlan_mode) {
 #ifdef CONFIG_RTL8812A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812)
-					pFirmware->szFwBuffer = array_mp_8812a_fw_wowlan;
-					pFirmware->ulFwLength = array_length_mp_8812a_fw_wowlan;
-				}
-#endif
-#ifdef CONFIG_RTL8821A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821)
-					pFirmware->szFwBuffer = array_mp_8821a_fw_wowlan;
-					pFirmware->ulFwLength = array_length_mp_8821a_fw_wowlan;
-				}
+				pFirmware->szFwBuffer = array_mp_8812a_fw_wowlan;
+				pFirmware->ulFwLength = array_length_mp_8812a_fw_wowlan;
+#else
+				pFirmware->szFwBuffer = array_mp_8821a_fw_wowlan;
+				pFirmware->ulFwLength = array_length_mp_8821a_fw_wowlan;
 #endif
 				RTW_INFO("%s fw:%s, size: %d\n", __func__, "WoWLAN", pFirmware->ulFwLength);
 
@@ -539,16 +562,11 @@ FirmwareDownload8812(
 		#ifdef CONFIG_AP_WOWLAN
 			if (pwrpriv->wowlan_ap_mode) {
 #ifdef CONFIG_RTL8812A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812) {
-					pFirmware->szFwBuffer = array_mp_8812a_fw_ap;
-					pFirmware->ulFwLength = array_length_mp_8812a_fw_ap;
-				}
-#endif
-#ifdef CONFIG_RTL8821A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821) {
-					pFirmware->szFwBuffer = array_mp_8821a_fw_ap;
-					pFirmware->ulFwLength = array_length_mp_8821a_fw_ap;
-				}
+				pFirmware->szFwBuffer = array_mp_8812a_fw_ap;
+				pFirmware->ulFwLength = array_length_mp_8812a_fw_ap;
+#else
+				pFirmware->szFwBuffer = array_mp_8821a_fw_ap;
+				pFirmware->ulFwLength = array_length_mp_8821a_fw_ap;
 #endif
 
 				RTW_INFO("%s fw: %s, size: %d\n", __func__, "AP_WoWLAN", pFirmware->ulFwLength);
@@ -559,16 +577,11 @@ FirmwareDownload8812(
 			if (pHalData->EEPROMBluetoothCoexist == _TRUE) {
 
 #ifdef CONFIG_RTL8812A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812) {
-					pFirmware->szFwBuffer = array_mp_8812a_fw_nic_bt;
-					pFirmware->ulFwLength = array_length_mp_8812a_fw_nic_bt;
-				}
-#endif
-#ifdef CONFIG_RTL8821A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821) {
-					pFirmware->szFwBuffer = array_mp_8821a_fw_nic_bt;
-					pFirmware->ulFwLength = array_length_mp_8821a_fw_nic_bt;
-				}
+				pFirmware->szFwBuffer = array_mp_8812a_fw_nic_bt;
+				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic_bt;
+#else
+				pFirmware->szFwBuffer = array_mp_8821a_fw_nic_bt;
+				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic_bt;
 #endif
 
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC-BTCOEX", pFirmware->ulFwLength);
@@ -577,16 +590,11 @@ FirmwareDownload8812(
 			{
 
 #ifdef CONFIG_RTL8812A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8812) {
-					pFirmware->szFwBuffer = array_mp_8812a_fw_nic;
-					pFirmware->ulFwLength = array_length_mp_8812a_fw_nic;
-				}
-#endif
-#ifdef CONFIG_RTL8821A
-				if (pHalData->odmpriv.support_ic_type == ODM_RTL8821) {
-					pFirmware->szFwBuffer = array_mp_8821a_fw_nic;
-					pFirmware->ulFwLength = array_length_mp_8821a_fw_nic;
-				}
+				pFirmware->szFwBuffer = array_mp_8812a_fw_nic;
+				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic;
+#else
+				pFirmware->szFwBuffer = array_mp_8821a_fw_nic;
+				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic;
 #endif
 
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC", pFirmware->ulFwLength);
@@ -2489,7 +2497,7 @@ rtl8812_Efuse_PgPacketRead(IN	PADAPTER	pAdapter,
 }
 
 
-static BOOLEAN
+BOOLEAN
 hal_EfuseFixHeaderProcess(
 	IN		PADAPTER			pAdapter,
 	IN		u8				efuseType,
@@ -2690,7 +2698,7 @@ hal_EfusePgPacketWriteData(
 	return _TRUE;
 }
 
-static BOOLEAN efuse_PgPacketCheck(
+BOOLEAN efuse_PgPacketCheck(
 	PADAPTER	pAdapter,
 	u8		efuseType,
 	BOOLEAN		bPseudoTest
@@ -2707,7 +2715,7 @@ static BOOLEAN efuse_PgPacketCheck(
 }
 
 
-static VOID
+VOID
 efuse_PgPacketConstruct(
 	IN	    u8			offset,
 	IN	    u8			word_en,
@@ -2797,7 +2805,7 @@ Hal_EfusePgPacketExceptionHandle_8812A(
 }
 
 
-static BOOLEAN hal_EfuseCheckIfDatafollowed(
+BOOLEAN hal_EfuseCheckIfDatafollowed(
 	IN		PADAPTER		pAdapter,
 	IN		u8			word_cnts,
 	IN		u16			startAddr,
@@ -2816,7 +2824,7 @@ static BOOLEAN hal_EfuseCheckIfDatafollowed(
 }
 
 
-static BOOLEAN
+BOOLEAN
 hal_EfuseWordEnMatched(
 	IN	PPGPKT_STRUCT	pTargetPkt,
 	IN	PPGPKT_STRUCT	pCurPkt,
@@ -2852,7 +2860,7 @@ hal_EfuseWordEnMatched(
 }
 
 
-static BOOLEAN
+BOOLEAN
 efuse_PgPacketPartialWrite(
 	IN	    PADAPTER		pAdapter,
 	IN	    u8			efuseType,
@@ -3007,7 +3015,7 @@ efuse_PgPacketPartialWrite(
 	return bRet;
 }
 
-static BOOLEAN	efuse_PgPacketWriteHeader(
+BOOLEAN	efuse_PgPacketWriteHeader(
 	PADAPTER		pAdapter,
 	u8			efuseType,
 	u16			*pAddr,
@@ -3445,15 +3453,13 @@ Hal_PatchwithJaguar_8812(
 		rtw_write8(Adapter, REG_TCR + 3, BIT2);
 	} else {
 		rtw_write8(Adapter, rVhtlen_Use_Lsig_Jaguar, 0x3F);
-		rtw_write8(Adapter, REG_TCR+3, BIT0|BIT1|BIT2);
-		#if 0
+		/* rtw_write8(Adapter, REG_TCR+3, BIT0|BIT1|BIT2); */
 		/*
 		* 20150707 yiwei.sun
 		* set 0x604[24] = 0 , to fix 11ac vht 80Mhz mode  mcs 8 , 9 udp pkt lose issue
 		* suggest by MAC team Jong & Scott
 		*/
 		rtw_write8(Adapter , REG_TCR + 3 , BIT1 | BIT2);
-		#endif
 	}
 
 
@@ -3492,6 +3498,15 @@ void init_hal_spec_8821a(_adapter *adapter)
 			    | WL_FUNC_MIRACAST
 			    | WL_FUNC_TDLS
 			    ;
+
+	hal_spec->pg_txpwr_saddr = 0x10;
+
+	rtw_macid_ctl_init_sleep_reg(adapter_to_macidctl(adapter)
+		, REG_MACID_SLEEP
+		, REG_MACID_SLEEP_1
+		, REG_MACID_SLEEP_2
+		, REG_MACID_SLEEP_3);
+
 }
 #endif /* CONFIG_RTL8821A */
 
@@ -3518,6 +3533,14 @@ void init_hal_spec_8812a(_adapter *adapter)
 			    | WL_FUNC_MIRACAST
 			    | WL_FUNC_TDLS
 			    ;
+
+	hal_spec->pg_txpwr_saddr = 0x10;
+
+	rtw_macid_ctl_init_sleep_reg(adapter_to_macidctl(adapter)
+		, REG_MACID_SLEEP
+		, REG_MACID_SLEEP_1
+		, REG_MACID_SLEEP_2
+		, REG_MACID_SLEEP_3);
 }
 
 void InitDefaultValue8821A(PADAPTER padapter)
@@ -3537,10 +3560,7 @@ void InitDefaultValue8821A(PADAPTER padapter)
 	/* init dm default value */
 	pHalData->bChnlBWInitialized = _FALSE;
 	pHalData->bIQKInitialized = _FALSE;
-	pHalData->odmpriv.rf_calibrate_info.tm_trigger = 0;/* for IQK */
-	pHalData->odmpriv.rf_calibrate_info.thermal_value_hp_index = 0;
-	for (i = 0; i < HP_THERMAL_NUM; i++)
-		pHalData->odmpriv.rf_calibrate_info.thermal_value_hp[i] = 0;
+
 	pHalData->EfuseHal.fakeEfuseBank = 0;
 	pHalData->EfuseHal.fakeEfuseUsedBytes = 0;
 	_rtw_memset(pHalData->EfuseHal.fakeEfuseContent, 0xFF, EFUSE_MAX_HW_SIZE);
@@ -4031,7 +4051,7 @@ SetBeamformDownloadNDPA_8812(
 	rtw_write8(Adapter,  REG_CR + 1, (u1bTmp | BIT0));
 
 	rtw_write8(Adapter, REG_CR + 1,
-	rtw_read8(Adapter, REG_CR + 1) | BIT0);
+		rtw_read8(Adapter, REG_CR + 1) | BIT0);
 
 	/* Set FWHW_TXQ_CTRL 0x422[6]=0 to tell Hw the packet is not a real beacon frame. */
 	tmpReg422 = rtw_read8(Adapter, REG_FWHW_TXQ_CTRL + 2);
@@ -5068,7 +5088,7 @@ u8 SetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval)
 		if (acm_ctrl > 1)
 			AcmCtrl = AcmCtrl | 0x1;
 
-		if (acm_ctrl & BIT(3))
+		if (acm_ctrl & BIT(1))
 			AcmCtrl |= AcmHw_VoqEn;
 		else
 			AcmCtrl &= (~AcmHw_VoqEn);
@@ -5078,7 +5098,7 @@ u8 SetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval)
 		else
 			AcmCtrl &= (~AcmHw_ViqEn);
 
-		if (acm_ctrl & BIT(1))
+		if (acm_ctrl & BIT(3))
 			AcmCtrl |= AcmHw_BeqEn;
 		else
 			AcmCtrl &= (~AcmHw_BeqEn);
@@ -5428,75 +5448,7 @@ u8 SetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval)
 #endif
 
 #endif/*#ifdef CONFIG_BEAMFORMING*/
-	case HW_VAR_MACID_SLEEP: {
-		u32 reg_macid_sleep;
-		u8 bit_shift;
-		u8 id = *(u8 *)pval;
-		u32 val32;
 
-		if (id < 32) {
-			reg_macid_sleep = REG_MACID_SLEEP;
-			bit_shift = id;
-		} else if (id < 64) {
-			reg_macid_sleep = REG_MACID_SLEEP_1;
-			bit_shift = id - 32;
-		} else if (id < 96) {
-			reg_macid_sleep = REG_MACID_SLEEP_2;
-			bit_shift = id - 64;
-		} else if (id < 128) {
-			reg_macid_sleep = REG_MACID_SLEEP_3;
-			bit_shift = id - 96;
-		} else {
-			rtw_warn_on(1);
-			break;
-		}
-
-		val32 = rtw_read32(padapter, reg_macid_sleep);
-		RTW_INFO(FUNC_ADPT_FMT ": [HW_VAR_MACID_SLEEP] macid=%d, org reg_0x%03x=0x%08X\n",
-			FUNC_ADPT_ARG(padapter), id, reg_macid_sleep, val32);
-
-		if (val32 & BIT(bit_shift))
-			break;
-
-		val32 |= BIT(bit_shift);
-		rtw_write32(padapter, reg_macid_sleep, val32);
-	}
-		break;
-
-	case HW_VAR_MACID_WAKEUP: {
-		u32 reg_macid_sleep;
-		u8 bit_shift;
-		u8 id = *(u8 *)pval;
-		u32 val32;
-
-		if (id < 32) {
-			reg_macid_sleep = REG_MACID_SLEEP;
-			bit_shift = id;
-		} else if (id < 64) {
-			reg_macid_sleep = REG_MACID_SLEEP_1;
-			bit_shift = id - 32;
-		} else if (id < 96) {
-			reg_macid_sleep = REG_MACID_SLEEP_2;
-			bit_shift = id - 64;
-		} else if (id < 128) {
-			reg_macid_sleep = REG_MACID_SLEEP_3;
-			bit_shift = id - 96;
-		} else {
-			rtw_warn_on(1);
-			break;
-		}
-
-		val32 = rtw_read32(padapter, reg_macid_sleep);
-		/*RTW_INFO(FUNC_ADPT_FMT ": [HW_VAR_MACID_WAKEUP] macid=%d, org reg_0x%03x=0x%08X\n",
-			FUNC_ADPT_ARG(padapter), id, reg_macid_sleep, val32);*/
-
-		if (!(val32 & BIT(bit_shift)))
-			break;
-
-		val32 &= ~BIT(bit_shift);
-		rtw_write32(padapter, reg_macid_sleep, val32);
-	}
-		break;
 #ifdef CONFIG_GPIO_WAKEUP
 	case HW_SET_GPIO_WL_CTRL: {
 		u8 enable = *pval;
@@ -5645,6 +5597,48 @@ static void dump_mac_txfifo_8812a(void *sel, _adapter *adapter)
 	}
 }
 
+void rtl8812a_read_wmmedca_reg(PADAPTER adapter, u16 *vo_params, u16 *vi_params, u16 *be_params, u16 *bk_params)
+{
+	u8 vo_reg_params[4];
+	u8 vi_reg_params[4];
+	u8 be_reg_params[4];
+	u8 bk_reg_params[4];
+
+	GetHwReg8812A(adapter, HW_VAR_AC_PARAM_VO, vo_reg_params);
+	GetHwReg8812A(adapter, HW_VAR_AC_PARAM_VI, vi_reg_params);
+	GetHwReg8812A(adapter, HW_VAR_AC_PARAM_BE, be_reg_params);
+	GetHwReg8812A(adapter, HW_VAR_AC_PARAM_BK, bk_reg_params);
+
+	vo_params[0] = vo_reg_params[0];
+	vo_params[1] = vo_reg_params[1] & 0x0F;
+	vo_params[2] = (vo_reg_params[1] & 0xF0) >> 4;
+	vo_params[3] = ((vo_reg_params[3] << 8) | (vo_reg_params[2])) * 32;
+
+	vi_params[0] = vi_reg_params[0];
+	vi_params[1] = vi_reg_params[1] & 0x0F;
+	vi_params[2] = (vi_reg_params[1] & 0xF0) >> 4;
+	vi_params[3] = ((vi_reg_params[3] << 8) | (vi_reg_params[2])) * 32;
+
+	be_params[0] = be_reg_params[0];
+	be_params[1] = be_reg_params[1] & 0x0F;
+	be_params[2] = (be_reg_params[1] & 0xF0) >> 4;
+	be_params[3] = ((be_reg_params[3] << 8) | (be_reg_params[2])) * 32;
+
+	bk_params[0] = bk_reg_params[0];
+	bk_params[1] = bk_reg_params[1] & 0x0F;
+	bk_params[2] = (bk_reg_params[1] & 0xF0) >> 4;
+	bk_params[3] = ((bk_reg_params[3] << 8) | (bk_reg_params[2])) * 32;
+
+	vo_params[1] = (1 << vo_params[1]) - 1;
+	vo_params[2] = (1 << vo_params[2]) - 1;
+	vi_params[1] = (1 << vi_params[1]) - 1;
+	vi_params[2] = (1 << vi_params[2]) - 1;
+	be_params[1] = (1 << be_params[1]) - 1;
+	be_params[2] = (1 << be_params[2]) - 1;
+	bk_params[1] = (1 << bk_params[1]) - 1;
+	bk_params[2] = (1 << bk_params[2]) - 1;
+}
+
 void GetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval)
 {
 	PHAL_DATA_TYPE pHalData;
@@ -5672,6 +5666,38 @@ void GetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval)
 			val8 = rtw_read8(padapter, REG_TDECTRL + 2);
 			*pval = (BIT(0) & val8) ? _TRUE : _FALSE;
 		}
+		break;
+		
+	case HW_VAR_AC_PARAM_VO:
+		val32 = rtw_read32(padapter, REG_EDCA_VO_PARAM);
+		pval[0] = val32 & 0xFF;
+		pval[1] = (val32 >> 8) & 0xFF;
+		pval[2] = (val32 >> 16) & 0xFF;
+		pval[3] = (val32 >> 24) & 0x07;
+		break;
+
+	case HW_VAR_AC_PARAM_VI:
+		val32 = rtw_read32(padapter, REG_EDCA_VI_PARAM);
+		pval[0] = val32 & 0xFF;
+		pval[1] = (val32 >> 8) & 0xFF;
+		pval[2] = (val32 >> 16) & 0xFF;
+		pval[3] = (val32 >> 24) & 0x07;
+		break;
+
+	case HW_VAR_AC_PARAM_BE:
+		val32 = rtw_read32(padapter, REG_EDCA_BE_PARAM);
+		pval[0] = val32 & 0xFF;
+		pval[1] = (val32 >> 8) & 0xFF;
+		pval[2] = (val32 >> 16) & 0xFF;
+		pval[3] = (val32 >> 24) & 0x07;
+		break;
+
+	case HW_VAR_AC_PARAM_BK:
+		val32 = rtw_read32(padapter, REG_EDCA_BK_PARAM);
+		pval[0] = val32 & 0xFF;
+		pval[1] = (val32 >> 8) & 0xFF;
+		pval[2] = (val32 >> 16) & 0xFF;
+		pval[3] = (val32 >> 24) & 0x07;
 		break;
 
 	case HW_VAR_EFUSE_BYTES: /* To get EFUE total used bytes, added by Roger, 2008.12.22. */
@@ -5891,7 +5917,7 @@ u8 GetHalDefVar8812A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval)
 		break;
 
 	case HAL_DEF_RX_STBC:
-		*(u8 *)pval = 2;
+		*(u8 *)pval = 1;
 		break;
 
 	case HAL_DEF_EXPLICIT_BEAMFORMER:
@@ -5932,10 +5958,6 @@ u8 GetHalDefVar8812A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval)
 
 	case HAL_DEF_TX_PAGE_BOUNDARY_WOWLAN:
 		*(u8 *)pval = TX_PAGE_BOUNDARY_WOWLAN_8812;
-		break;
-
-	case HAL_DEF_MACID_SLEEP:
-		*(u8 *)pval = _TRUE; /* support macid sleep */
 		break;
 	case HAL_DEF_RX_DMA_SZ_WOW:
 		if (IS_HARDWARE_TYPE_8821(padapter))
@@ -6039,6 +6061,7 @@ void rtl8812_set_hal_ops(struct hal_ops *pHalFunc)
 	pHalFunc->read_rfreg = &PHY_QueryRFReg8812;
 	pHalFunc->write_rfreg = &PHY_SetRFReg8812;
 
+	pHalFunc->read_wmmedca_reg = &rtl8812a_read_wmmedca_reg;
 
 	/* Efuse related function */
 	pHalFunc->EfusePowerSwitch = &rtl8812_EfusePowerSwitch;

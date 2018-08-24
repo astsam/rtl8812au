@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -48,9 +58,9 @@ enum phydm_path_div_type {
 
 void
 phydm_process_rssi_for_path_div(
-	void			*p_dm_void,
-	void			*p_phy_info_void,
-	void			*p_pkt_info_void
+	void			*dm_void,
+	void			*phy_info_void,
+	void			*pkt_info_void
 );
 
 struct _ODM_PATH_DIVERSITY_ {
@@ -100,24 +110,24 @@ struct _ODM_PATH_DIVERSITY_ {
 
 void
 phydm_c2h_dtp_handler(
-	void	*p_dm_void,
+	void	*dm_void,
 	u8   *cmd_buf,
 	u8	cmd_len
 );
 
 void
 phydm_path_diversity_init(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 odm_path_diversity(
-	void	*p_dm_void
+	void	*dm_void
 );
 
 void
 odm_pathdiv_debug(
-	void		*p_dm_void,
+	void		*dm_void,
 	u32		*const dm_value,
 	u32		*_used,
 	char		*output,
@@ -165,126 +175,126 @@ struct _path_div_parameter_define_ {
 
 void
 odm_path_diversity_init_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 void
 odm_2t_path_diversity_init_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 void
 odm_1t_path_diversity_init_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 boolean
 odm_is_connected_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 boolean
 odm_path_diversity_before_link92c(
-	/* struct _ADAPTER*	adapter */
-	struct PHY_DM_STRUCT		*p_dm
+	/* struct void*	adapter */
+	struct dm_struct		*dm
 );
 
 void
 odm_path_diversity_after_link_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 void
 odm_set_resp_path_92c(
-	struct _ADAPTER	*adapter,
+	void	*adapter,
 	u8	default_resp_path
 );
 
 void
 odm_ofdm_tx_path_diversity_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 void
 odm_cck_tx_path_diversity_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 void
 odm_reset_path_diversity_92c(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 void
 odm_cck_tx_path_diversity_callback(
-	struct timer_list		*p_timer
+	struct phydm_timer_list		*timer
 );
 
 void
 odm_cck_tx_path_diversity_work_item_callback(
-	void            *p_context
+	void            *context
 );
 
 void
 odm_path_div_chk_ant_switch_callback(
-	struct timer_list		*p_timer
+	struct phydm_timer_list		*timer
 );
 
 void
 odm_path_div_chk_ant_switch_workitem_callback(
-	void            *p_context
+	void            *context
 );
 
 
 void
 odm_path_div_chk_ant_switch(
-	struct PHY_DM_STRUCT    *p_dm
+	struct dm_struct    *dm
 );
 
 void
 odm_cck_path_diversity_chk_per_pkt_rssi(
-	struct _ADAPTER		*adapter,
+	void		*adapter,
 	boolean			is_def_port,
 	boolean			is_match_bssid,
-	struct _WLAN_STA	*p_entry,
-	PRT_RFD			p_rfd,
-	u8			*p_desc
+	struct _WLAN_STA	*entry,
+	PRT_RFD			rfd,
+	u8			*desc
 );
 
 void
 odm_path_div_chk_per_pkt_rssi(
-	struct _ADAPTER		*adapter,
+	void		*adapter,
 	boolean			is_def_port,
 	boolean			is_match_bssid,
-	struct _WLAN_STA	*p_entry,
-	PRT_RFD			p_rfd
+	struct _WLAN_STA	*entry,
+	PRT_RFD			rfd
 );
 
 void
 odm_path_div_rest_after_link(
-	struct PHY_DM_STRUCT		*p_dm
+	struct dm_struct		*dm
 );
 
 void
 odm_fill_tx_path_in_txdesc(
-	struct _ADAPTER	*adapter,
-	PRT_TCB		p_tcb,
-	u8		*p_desc
+	void	*adapter,
+	PRT_TCB		tcb,
+	u8		*desc
 );
 
 void
 odm_path_div_init_92d(
-	struct PHY_DM_STRUCT	*p_dm
+	struct dm_struct	*dm
 );
 
 u8
 odm_sw_ant_div_select_scan_chnl(
-	struct _ADAPTER	*adapter
+	void	*adapter
 );
 
 void
 odm_sw_ant_div_construct_scan_chnl(
-	struct _ADAPTER	*adapter,
+	void	*adapter,
 	u8		scan_chnl
 );
 

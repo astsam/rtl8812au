@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2017  Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -8,8 +8,18 @@
  *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
  * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
 
@@ -26,14 +36,14 @@
 #define	RXIQK2 2
 #define kcount_limit_80m 2
 #define kcount_limit_others 4
-#define rxiqk_gs_limit 4
+#define rxiqk_gs_limit 10
 
 #define	NUM 4
 /*---------------------------End Define Parameters-------------------------------*/
 
-struct _IQK_INFORMATION {
-	boolean		LOK_fail[NUM];
-	boolean		IQK_fail[2][NUM];
+struct dm_iqk_info {
+	boolean		lok_fail[NUM];
+	boolean		iqk_fail[2][NUM];
 	u32		iqc_matrix[2][NUM];
 	u8      iqk_times;
 	u32		rf_reg18;
@@ -45,18 +55,18 @@ struct _IQK_INFORMATION {
 	boolean rfk_forbidden;	
 #if (RTL8814A_SUPPORT == 1 || RTL8822B_SUPPORT == 1 || RTL8821C_SUPPORT == 1)
 	u32		iqk_channel[2];
-	boolean		IQK_fail_report[2][4][2]; /*channel/path/TRX(TX:0, RX:1) */
-	u32		IQK_CFIR_real[3][4][2][8]; /*channel / path / TRX(TX:0, RX:1) / CFIR_real*/ /*channel index = 2 is just for debug*/
-	u32		IQK_CFIR_imag[3][4][2][8]; /*channel / path / TRX(TX:0, RX:1) / CFIR_imag*/ /*channel index = 2 is just for debug*/
+	boolean		iqk_fail_report[2][4][2]; /*channel/path/TRX(TX:0, RX:1) */
+	u32		iqk_cfir_real[3][4][2][8]; /*channel / path / TRX(TX:0, RX:1) / CFIR_real*/ /*channel index = 2 is just for debug*/
+	u32		iqk_cfir_imag[3][4][2][8]; /*channel / path / TRX(TX:0, RX:1) / CFIR_imag*/ /*channel index = 2 is just for debug*/
 	u8		retry_count[2][4][3]; /* channel / path / (TXK:0, RXK1:1, RXK2:2) */
 	u8		gs_retry_count[2][4][2]; /* channel / path / (GSRXK1:0, GSRXK2:1) */
-	u8		RXIQK_fail_code[2][4]; /* channel / path 0:SRXK1 fail, 1:RXK1 fail 2:RXK2 fail */
-	u32		LOK_IDAC[2][4];		/*channel / path*/
-	u16		RXIQK_AGC[2][4];	 /*channel / path*/
+	u8		rxiqk_fail_code[2][4]; /* channel / path 0:SRXK1 fail, 1:RXK1 fail 2:RXK2 fail */
+	u32		lok_idac[2][4];		/*channel / path*/
+	u16		rxiqk_agc[2][4];	 /*channel / path*/
 	u32		bypass_iqk[2][4];	/*channel / 0xc94/0xe94*/
 	u32		txgap_result[8]; /*txagpK result  */
-	u32		tmp_GNTWL;
-	boolean		is_BTG;
+	u32		tmp_gntwl;
+	boolean		is_btg;
 	boolean		isbnd;
 	boolean is_reload;
 	boolean segment_iqk;
