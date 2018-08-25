@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2017 - 2018 Realtek Corporation.
+ * Copyright(c) 2016 - 2017 Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -12,17 +12,25 @@
  * more details.
  *
  *****************************************************************************/
-#ifndef __PLATFORM_HISILICON_HI3798_SDIO_H__
-#define __PLATFORM_HISILICON_HI3798_SDIO_H__
+#ifndef __INC_HAL8822BWIFIONLYHWCFG_H
+#define __INC_HAL8822BWIFIONLYHWCFG_H
 
-typedef unsigned int	HI_U32;
-
-typedef int		HI_S32;
-
-#define HI_SUCCESS	0
-#define HI_FAILURE	(-1)
-
-extern HI_S32 HI_DRV_GPIO_SetDirBit(HI_U32 u32GpioNo, HI_U32 u32DirBit);
-extern HI_S32 HI_DRV_GPIO_WriteBit(HI_U32 u32GpioNo, HI_U32 u32BitValue);
-
-#endif /* __PLATFORM_HISILICON_HI3798_SDIO_H__ */
+VOID
+ex_hal8822b_wifi_only_hw_config(
+	IN struct wifi_only_cfg *pwifionlycfg
+	);
+VOID
+ex_hal8822b_wifi_only_scannotify(
+	IN struct wifi_only_cfg *pwifionlycfg,
+	IN u1Byte  is_5g
+	);
+VOID
+ex_hal8822b_wifi_only_switchbandnotify(
+	IN struct wifi_only_cfg *pwifionlycfg,
+	IN u1Byte  is_5g
+	);
+VOID
+hal8822b_wifi_only_switch_antenna(IN struct wifi_only_cfg *pwifionlycfg,
+	IN u1Byte  is_5g
+	);
+#endif

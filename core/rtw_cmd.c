@@ -904,8 +904,10 @@ u8 rtw_sitesurvey_cmd(_adapter *padapter, struct sitesurvey_parm *pparm)
 		u32 scan_timeout_ms;
 
 		pmlmepriv->scan_start_time = rtw_get_current_time();
+#if 0 /*fariouche: looking at other wlan drivers, they do not handle timeout. It is conflicting with long scans */
 		scan_timeout_ms = rtw_scan_timeout_decision(padapter);
 		mlme_set_scan_to_timer(pmlmepriv,scan_timeout_ms);
+#endif
 
 		rtw_led_control(padapter, LED_CTL_SITE_SURVEY);
 	} else

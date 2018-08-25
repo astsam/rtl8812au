@@ -1,8 +1,8 @@
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
 EXTRA_CFLAGS += -O1
 #EXTRA_CFLAGS += -O3
-#EXTRA_CFLAGS += -Wall
-#EXTRA_CFLAGS += -Wextra
+EXTRA_CFLAGS += -Wall
+EXTRA_CFLAGS += -Wextra
 #EXTRA_CFLAGS += -Werror
 #EXTRA_CFLAGS += -pedantic
 #EXTRA_CFLAGS += -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
@@ -13,11 +13,17 @@ EXTRA_CFLAGS += -Wno-unused-label
 EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
-#EXTRA_CFLAGS += -Wno-uninitialized
+EXTRA_CFLAGS += -Wno-date-time
+#EXTRA_CFLAGS += -Wno-misleading-indentation
+EXTRA_CFLAGS += -Wno-uninitialized
+# Relax some warnings from '-Wextra' so we won't get flooded with warnings
+EXTRA_CFLAGS += -Wno-sign-compare
+#EXTRA_CFLAGS += -Wno-missing-field-initializers
+EXTRA_CFLAGS += -Wno-type-limits
 
 GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )
 ifeq ($(GCC_VER_49),1)
-EXTRA_CFLAGS += -Wno-date-time	# Fix compile error && warning on gcc 4.9 and later
+EXTRA_CFLAGS += -Wno-date-time -Wno-error=date-time # Fix compile error && warning on gcc 4.9 and later
 endif
 
 EXTRA_CFLAGS += -I$(src)/include
@@ -29,11 +35,11 @@ CONFIG_AUTOCFG_CP = n
 ########################## WIFI IC ############################
 CONFIG_MULTIDRV = n
 CONFIG_RTL8188E = n
-CONFIG_RTL8812A = n
+CONFIG_RTL8812A = y
 CONFIG_RTL8821A = y
 CONFIG_RTL8192E = n
 CONFIG_RTL8723B = n
-CONFIG_RTL8814A = n
+CONFIG_RTL8814A = y
 CONFIG_RTL8723C = n
 CONFIG_RTL8188F = n
 CONFIG_RTL8822B = n
@@ -46,11 +52,11 @@ CONFIG_SDIO_HCI = n
 CONFIG_GSPI_HCI = n
 ########################## Features ###########################
 CONFIG_MP_INCLUDED = y
-CONFIG_POWER_SAVING = y
+CONFIG_POWER_SAVING = n
 CONFIG_USB_AUTOSUSPEND = n
 CONFIG_HW_PWRP_DETECTION = n
 CONFIG_WIFI_TEST = n
-CONFIG_BT_COEXIST = y
+CONFIG_BT_COEXIST = n
 CONFIG_INTEL_WIDI = n
 CONFIG_WAPI_SUPPORT = n
 CONFIG_EFUSE_CONFIG_FILE = y
@@ -67,7 +73,12 @@ CONFIG_80211W = n
 CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
 CONFIG_TDLS = n
-CONFIG_WIFI_MONITOR = n
+CONFIG_WIFI_MONITOR = y
+# If you are setting up AP (e.g. by hostapd) in 802.11ac mode, you may have to choose 'y' below.
+# Otherwise some channels may be  flagged 'NO-IR' (i.e. Passive scanning) by the driver.
+# Please check your country's regulatory domain first,
+# to see whether active scanning is permitted by law/regulations on the desired channels.
+CONFIG_DISABLE_REGD_C=y
 CONFIG_MCC_MODE = n
 CONFIG_APPEND_VENDOR_IE_ENABLE = n
 CONFIG_RTW_NAPI = y
@@ -77,7 +88,7 @@ CONFIG_RTW_IPCAM_APPLICATION = n
 CONFIG_RTW_REPEATER_SON = n
 CONFIG_RTW_WIFI_HAL = y
 ########################## Debug ###########################
-CONFIG_RTW_DEBUG = y
+CONFIG_RTW_DEBUG = n
 # default log level is _DRV_INFO_ = 4,
 # please refer to "How_to_set_driver_debug_log_level.doc" to set the available level.
 CONFIG_RTW_LOG_LEVEL = 4
@@ -93,7 +104,7 @@ CONFIG_AP_WOWLAN = n
 ######### Notify SDIO Host Keep Power During Syspend ##########
 CONFIG_RTW_SDIO_PM_KEEP_POWER = y
 ###################### MP HW TX MODE FOR VHT #######################
-CONFIG_MP_VHT_HW_TX_MODE = n
+CONFIG_MP_VHT_HW_TX_MODE = y
 ###################### Platform Related #######################
 CONFIG_PLATFORM_I386_PC = y
 CONFIG_PLATFORM_ANDROID_X86 = n
@@ -177,6 +188,38 @@ ifeq ($(CONFIG_PCI_HCI), y)
 HCI_NAME = pci
 endif
 
+ifeq ($(DEBUG), 1)
+EXTRA_CFLAGS += -DDBG=1 -DCONFIG_RTW_DEBUG -DCONFIG_DBG_COUNTER -DRTW_LOG_LEVEL=5
+EXTRA_CFLAGS += -DCONFIG_RADIOTAP_WITH_RXDESC
+else ifeq ($(DEBUG), 2)
+EXTRA_CFLAGS += -DDBG=1 -DCONFIG_RTW_DEBUG -DCONFIG_DBG_COUNTER -DRTW_LOG_LEVEL=5
+EXTRA_CFLAGS += -DCONFIG_DEBUG_RTL871X
+EXTRA_CFLAGS += -DCONFIG_RADIOTAP_WITH_RXDESC
+else
+EXTRA_CFLAGS += -DDBG=0
+endif
+
+ifeq ($(CONFIG_RTL8812A)_$(CONFIG_RTL8821A)_$(CONFIG_RTL8814A), y_y_y)
+
+EXTRA_CFLAGS += -DDRV_NAME=\"rtl88xxau\"
+ifeq ($(CONFIG_USB_HCI), y)
+USER_MODULE_NAME = 88XXau
+endif
+ifeq ($(CONFIG_PCI_HCI), y)
+USER_MODULE_NAME = 88XXae
+endif
+ifeq ($(CONFIG_SDIO_HCI), y)
+USER_MODULE_NAME = 88XXas
+endif
+
+else
+EXTRA_CFLAGS += -DDRV_NAME=\"rtl8812au\"
+endif
+
+
+ifeq ($(CONFIG_USB2_EXTERNAL_POWER), y)
+EXTRA_CFLAGS += -DCONFIG_USE_EXTERNAL_POWER
+endif
 
 _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/os_intfs.o \
@@ -228,6 +271,7 @@ _PLATFORM_FILES := platform/platform_ops.o
 
 EXTRA_CFLAGS += -I$(src)/hal/btc
 
+include $(TopDIR)/hal/phydm/phydm.mk
 ########### HAL_RTL8188E #################################
 ifeq ($(CONFIG_RTL8188E), y)
 
@@ -2068,5 +2112,6 @@ clean:
 	rm -fr Module.symvers ; rm -fr Module.markers ; rm -fr modules.order
 	rm -fr *.mod.c *.mod *.o .*.cmd *.ko *~
 	rm -fr .tmp_versions
+	rm -fr .cache.mk
 endif
 

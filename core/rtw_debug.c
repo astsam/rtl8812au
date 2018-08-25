@@ -6071,6 +6071,9 @@ ssize_t proc_set_lck(struct file *file, const char __user *buffer, size_t count,
 #endif /* CONFIG_DBG_RF_CAL */
 
 #endif /* CONFIG_PROC_DEBUG */
+
+#ifdef CONFIG_RTW_DEBUG
+
 #define RTW_BUFDUMP_BSIZE		16
 #if 1
 inline void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
@@ -6188,3 +6191,10 @@ inline void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
 }
 
 #endif
+#else
+inline void RTW_BUF_DUMP_SEL(uint _loglevel, void *sel, u8 *_titlestring,
+					bool _idx_show, const u8 *_hexdata, int _hexdatalen)
+{
+}
+#endif //#ifdef CONFIG_RTW_DEBUG
+

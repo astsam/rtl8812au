@@ -256,8 +256,8 @@ static	__inline	void	PHYDM_DBG(struct dm_struct	*dm, int comp, char *fmt, ...)
 static __inline void PHYDM_DBG_F(struct dm_struct	*dm, int comp, char *fmt, ...)
 {}
 #else
-#define PHYDM_DBG(dm, comp, fmt)
-#define PHYDM_DBG_F(dm, comp, fmt)
+#define PHYDM_DBG(dm, comp, fmt, args...)
+#define PHYDM_DBG_F(dm, comp, fmt, args...)
 #endif
 #define PHYDM_PRINT_ADDR(dm, comp, title_str, ptr)
 #define ODM_RT_TRACE(dm, comp, level, fmt)

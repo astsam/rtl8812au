@@ -22,7 +22,9 @@
  */
 #define AUTOCONF_INCLUDED
 #define RTL871X_MODULE_NAME "8821AU"
+#ifndef DRV_NAME
 #define DRV_NAME "rtl8821au"
+#endif
 
 
 #define CONFIG_USB_HCI
@@ -312,7 +314,7 @@
 /*
  * Debug Related Config
  */
-#define DBG	1
+//#define DBG	1
 
 #define CONFIG_PROC_DEBUG
 

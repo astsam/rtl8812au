@@ -455,9 +455,11 @@ phydm_hw_setting(
 		odm_hw_setting_8821a(dm);
 #endif
 
+#if 0 /* TODO: implementation done but may not work and do nothing with current flags. Commenting the code to match previous version behavior*/
 #if (RTL8814A_SUPPORT == 1)
 	if (dm->support_ic_type & ODM_RTL8814A)
 		phydm_hwsetting_8814a(dm);
+#endif
 #endif
 
 #if (RTL8822B_SUPPORT == 1)
