@@ -4004,19 +4004,33 @@ void init_hal_spec_8814a(_adapter *adapter)
 {
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 
+	hal_spec->ic_name = "rtl8814a";
 	hal_spec->macid_num = MACID_NUM_8814A;
 	hal_spec->sec_cam_ent_num = SEC_CAM_ENT_NUM_8814A;
 	hal_spec->sec_cap = SEC_CAP_CHK_BMC;
+	hal_spec->rfpath_num_2g = 3;
+	hal_spec->rfpath_num_5g = 3;
+	hal_spec->max_tx_cnt = 4;
 	hal_spec->tx_nss_num = 4;
 	hal_spec->rx_nss_num = 4;
 	hal_spec->band_cap = BAND_CAP_8814A;
 	hal_spec->bw_cap = BW_CAP_8814A;
+	hal_spec->port_num = 2;
+	hal_spec->proto_cap = PROTO_CAP_11B | PROTO_CAP_11G | PROTO_CAP_11N | PROTO_CAP_11AC;
 
 	hal_spec->wl_func = 0
 						| WL_FUNC_P2P
 						| WL_FUNC_MIRACAST
 						| WL_FUNC_TDLS
 						;
+
+	hal_spec->pg_txpwr_saddr = 0x10;
+	rtw_macid_ctl_init_sleep_reg(adapter_to_macidctl(adapter)
+		, REG_MACID_SLEEP
+		, REG_MACID_SLEEP_1
+		, REG_MACID_SLEEP_2
+		, REG_MACID_SLEEP_3);
+
 }
 
 void InitDefaultValue8814A(PADAPTER padapter)
