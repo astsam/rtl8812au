@@ -854,14 +854,12 @@ halrf_segment_iqk_trigger(
 		odm_acquire_spin_lock(dm, RT_IQK_SPINLOCK);
 		dm->rf_calibrate_info.is_iqk_in_progress = false;
 		odm_release_spin_lock(dm, RT_IQK_SPINLOCK);
-	} else
+	} else {
 		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "== Return the IQK CMD, because RFKs in Progress ==\n");
+	}
 }
 
-
-
 #endif
-
 
 
 u8 halrf_match_iqk_version(void	*dm_void)
@@ -1422,10 +1420,10 @@ halrf_iqk_trigger(
 		odm_acquire_spin_lock(dm, RT_IQK_SPINLOCK);
 		dm->rf_calibrate_info.is_iqk_in_progress = false;
 		odm_release_spin_lock(dm, RT_IQK_SPINLOCK);
-	} else
+	} else {
 		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "== Return the IQK CMD, because RFKs in Progress ==\n");
+	}
 }
-
 
 
 void
@@ -1548,8 +1546,9 @@ halrf_lck_trigger(
 		odm_acquire_spin_lock(dm, RT_IQK_SPINLOCK);
 		dm->rf_calibrate_info.is_lck_in_progress = false;
 		odm_release_spin_lock(dm, RT_IQK_SPINLOCK);		
-	}else
+	} else {
 		PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "== Return the LCK CMD, because RFK is in Progress ==\n");
+	}
 }
 
 void

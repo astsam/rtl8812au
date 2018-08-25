@@ -2358,6 +2358,7 @@ static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 	case NL80211_IFTYPE_P2P_CLIENT:
 		is_p2p = _TRUE;
 	#endif
+	/* intentional fallthrough */
 	case NL80211_IFTYPE_STATION:
 		networkType = Ndis802_11Infrastructure;
 
@@ -2382,6 +2383,7 @@ static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 	case NL80211_IFTYPE_P2P_GO:
 		is_p2p = _TRUE;
 	#endif
+	/* intentional fallthrough */
 	case NL80211_IFTYPE_AP:
 		networkType = Ndis802_11APMode;
 

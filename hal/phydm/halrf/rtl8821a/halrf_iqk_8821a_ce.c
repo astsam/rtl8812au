@@ -622,8 +622,9 @@ void _iqk_tx_8821a(
 
 		for (i = 0; i < rx_average; i++) {
 			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X0[0][%d] = %x ;; RX_Y0[0][%d] = %x\n", i, (RX_X0[0][i]) >> 21 & 0x000007ff, i, (RX_Y0[0][i]) >> 21 & 0x000007ff);
-			if (rx_iqk_loop == 2)
+			if (rx_iqk_loop == 2) {
 				PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "RX_X0[1][%d] = %x ;; RX_Y0[1][%d] = %x\n", i, (RX_X0[1][i]) >> 21 & 0x000007ff, i, (RX_Y0[1][i]) >> 21 & 0x000007ff);
+			}
 		}
 		for (i = 0; i < rx_average; i++) {
 			for (ii = i + 1; ii < rx_average; ii++) {
@@ -763,8 +764,9 @@ phy_iq_calibrate_8821a(
 	if ((dm->fw_offload_ability & PHYDM_RF_IQK_OFFLOAD) && !(*(dm->mp_mode))) {
 		_phy_iq_calibrate_by_fw_8821a(dm);
 		phydm_iqk_wait(dm, 500);
-		if (dm->rf_calibrate_info.is_iqk_in_progress)
+		if (dm->rf_calibrate_info.is_iqk_in_progress) {
 			PHYDM_DBG(dm, ODM_COMP_CALIBRATION, "== FW IQK TIMEOUT (Still in progress after 500ms) ==\n");
+		}
 	} else
 		_phy_iq_calibrate_8821a(dm);
 }

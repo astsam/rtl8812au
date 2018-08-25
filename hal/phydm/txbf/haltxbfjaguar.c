@@ -147,8 +147,9 @@ hal_txbf_jaguar_download_ndpa(
 		dl_bcn_count++;
 	} while (!(bcn_valid_reg & BIT(0)) && dl_bcn_count < 5);
 
-	if (!(bcn_valid_reg & BIT(0)))
+	if (!(bcn_valid_reg & BIT(0))) {
 		PHYDM_DBG(dm, DBG_TXBF, "%s Download RSVD page failed!\n", __func__);
+	}
 
 	/*TDECTRL[15:8] 0x209[7:0] = 0xF6	Beacon Head for TXDMA*/
 	odm_write_1byte(dm, REG_TDECTRL_8812A + 1, tx_page_bndy);
