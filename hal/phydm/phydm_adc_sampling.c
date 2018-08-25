@@ -66,12 +66,13 @@ phydm_la_buffer_allocate(
 		if (PlatformAllocateMemoryWithZero(adapter, (void **)&adc_smp_buf->octet, adc_smp_buf->buffer_size) != RT_STATUS_SUCCESS) {
 #else
 		odm_allocate_memory(dm, (void **)&adc_smp_buf->octet, adc_smp_buf->buffer_size);
-		if (!adc_smp_buf->octet)	{
+		if (!adc_smp_buf->octet) {
 #endif
 			ret = false;
-		} else
+		} else {
 			adc_smp_buf->length = adc_smp_buf->buffer_size;
 			ret = true;
+		}
 	}
 
 	return ret;

@@ -1123,8 +1123,9 @@ phydm_beamforming_notify(
 			/*if (sound_info->sound_mode == SOUNDING_SW_VHT_TIMER || sound_info->sound_mode == SOUNDING_SW_HT_TIMER)
 				odm_set_timer(dm, &beam_info->beamforming_timer, sound_info->sound_period);*/
 			odm_set_timer(dm, &beam_info->beamforming_timer, 1000); /*Do MU sounding every 1sec*/
-		} else
+		} else {
 			PHYDM_DBG(dm, DBG_TXBF, "%s: Less or larger than 2 MU STAs, not to set timer\n", __func__);
+		}
 		break;
 
 	case BEAMFORMEE_NOTIFY_DELETE_MU:
@@ -1243,8 +1244,9 @@ beamforming_init_entry(
 
 		if (beamformer_entry == NULL) {
 			beamformer_entry = beamforming_add_bfer_entry(dm, sta, beamform_cap, num_of_sounding_dim, &bfer_idx);
-			if (beamformer_entry == NULL)
+			if (beamformer_entry == NULL) {
 				PHYDM_DBG(dm, DBG_TXBF, "[%s]Not enough BFer entry!!!!!\n", __func__);
+			}
 		}
 	}
 
@@ -1657,11 +1659,11 @@ beamforming_timer_callback(
 	else
 		ret = 0;
 #endif
-	if (ret)
+	if (ret) {
 		ret = beamforming_start_sw(dm, sound_info->sound_idx, sound_info->sound_mode, sound_info->sound_bw);
-	else
+	} else {
 		PHYDM_DBG(dm, DBG_TXBF, "%s, Error value return from BeamformingStart_V2\n", __func__);
-
+	}
 	if ((beam_info->beamformee_su_cnt != 0) || (beam_info->beamformee_mu_cnt > 1)) {
 		if (sound_info->sound_mode == SOUNDING_SW_VHT_TIMER || sound_info->sound_mode == SOUNDING_SW_HT_TIMER)
 			odm_set_timer(dm, &beam_info->beamforming_timer, sound_info->sound_period);
