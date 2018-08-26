@@ -761,6 +761,7 @@ PMAC_Get_Pkt_Param(
 	PRT_PMAC_TX_INFO	pPMacTxInfo,
 	PRT_PMAC_PKT_INFO	pPMacPktInfo
 );
+#if !(defined(__arm__) || defined(__aarch64__)) && (LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0))
 void
 CCK_generator(
 	PRT_PMAC_TX_INFO	pPMacTxInfo,
@@ -777,7 +778,7 @@ L_SIG_generator(
 	PRT_PMAC_TX_INFO	pPMacTxInfo,
 	PRT_PMAC_PKT_INFO	pPMacPktInfo
 );
-
+#endif
 void HT_SIG_generator(
 	PRT_PMAC_TX_INFO	pPMacTxInfo,
 	PRT_PMAC_PKT_INFO	pPMacPktInfo);
