@@ -5523,6 +5523,111 @@ static int	cfg80211_rtw_change_bss(struct wiphy *wiphy, struct net_device *ndev,
 
 }
 
+static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev, struct cfg80211_chan_def *chandef){
+  _adapter *padapter= wiphy_to_adapter(wiphy);
+  int channel;
+  int control_freq;
+  int center_freq;
+  int center_freq2 = 0;
+  int width;
+  int band;
+  int bandWidth;
+  int offset;
+  struct dvobj_priv *dvobj;
+  struct net_device *ndev = wdev->netdev;
+  HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+  if (!ndev)
+    return -ENODEV;
+  offset = rtw_get_oper_choffset(padapter);
+  center_freq = channel = adapter_to_dvobj(padapter)->oper_channel;
+  if (channel >= 1) {
+    switch (pHalData->current_band_type) {
+      case 0:
+	band = NL80211_BAND_2GHZ;
+	break;
+      case 1:
+	band = NL80211_BAND_5GHZ;
+	break;
+      default:
+	return -EINVAL;
+    }
+    control_freq =  ieee80211_channel_to_frequency(channel, band);
+    dvobj=adapter_to_dvobj(padapter);
+    if (dvobj!=NULL) {
+      bandWidth = adapter_to_dvobj(padapter)->oper_bwmode;
+      //DBG_871X("%s bw %d\n", __func__,adapter_to_dvobj(padapter)->oper_bwmode);
+    } else {
+      bandWidth = pHalData->current_channel_bw;
+      //DBG_871X("%s dvobj null\n", __func__);
+    }
+    switch(pHalData->current_channel_bw){
+      case CHANNEL_WIDTH_20:
+	//DBG_871X("%s width 20\n", __func__);
+	width = NL80211_CHAN_WIDTH_20;
+	center_freq = control_freq;
+	break;
+      case CHANNEL_WIDTH_40:
+	//DBG_871X("%s width 40\n", __func__);
+	width = NL80211_CHAN_WIDTH_40;
+	if (offset==HAL_PRIME_CHNL_OFFSET_LOWER) {
+	  center_freq = control_freq +10;
+	} else {
+	  center_freq = control_freq -10;
+	}
+	break;
+      case CHANNEL_WIDTH_80:
+	//DBG_871X("%s width 80\n", __func__);
+	width = NL80211_CHAN_WIDTH_80;
+	if (offset==HAL_PRIME_CHNL_OFFSET_LOWER) {
+	  center_freq = control_freq +30;
+	} else {
+	  center_freq = control_freq -30;
+	}
+	break;
+      case CHANNEL_WIDTH_160:
+	//DBG_871X("%s width 160\n", __func__);
+	width = NL80211_CHAN_WIDTH_160;
+	if (offset==HAL_PRIME_CHNL_OFFSET_LOWER) {
+	  center_freq = control_freq +50;
+	} else {
+	  center_freq = control_freq -50;
+	}
+	break;
+      case CHANNEL_WIDTH_80_80:
+	//DBG_871X("%s width 80x80\n", __func__);
+	width = NL80211_CHAN_WIDTH_80P80;
+	if (offset==HAL_PRIME_CHNL_OFFSET_LOWER) {
+	  center_freq = control_freq +30;
+	  center_freq2=center_freq+80;
+	} else {
+	  center_freq = control_freq -30;
+	  center_freq2=center_freq-80;
+	}
+	break;
+      case CHANNEL_WIDTH_MAX:
+	//DBG_871X("%s width max\n", __func__);
+	width = NL80211_CHAN_WIDTH_160;
+	break;
+    }
+    chandef->chan = ieee80211_get_channel(wiphy, control_freq);
+    if (chandef->chan == NULL) {
+      chandef->chan = ieee80211_get_channel(wiphy, ieee80211_channel_to_frequency(channel, band));
+      //DBG_871X("%s chan null\n", __func__);
+      if (chandef->chan == NULL) {
+	//DBG_871X("%s chan null\n", __func__);
+	return -EINVAL;
+      }
+    }
+    chandef->width = width;
+    chandef->center_freq1 = center_freq;
+    chandef->center_freq2 = center_freq2;
+    //DBG_871X("%s : channel %d width %d freq1 %d freq2 %d center_freq %d offset %d\n", __func__, channel, width, chandef->center_freq1, chandef->center_freq2, chandef->chan->center_freq,rtw_get_oper_choffset(padapter));
+  } else {
+      return -EINVAL;
+  }
+  return 0;
+}
+
 static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
 	, struct net_device *ndev
@@ -8798,7 +8903,13 @@ static void rtw_cfg80211_init_ht_capab(_adapter *padapter
 
 	ht_cap->ht_supported = _TRUE;
 
-	ht_cap->cap = IEEE80211_HT_CAP_SUP_WIDTH_20_40 |
+	/* According to the comment in rtw_ap.c:
+	 * "Note: currently we switch to the MIXED op mode if HT non-greenfield
+	 * station is associated. Probably it's a theoretical case, since
+	 * it looks like all known HT STAs support greenfield."
+	 * Therefore Greenfield is added to ht_cap
+	 */
+	ht_cap->cap = IEEE80211_HT_CAP_SUP_WIDTH_20_40 | IEEE80211_HT_CAP_GRN_FLD |
 				IEEE80211_HT_CAP_SGI_40 | IEEE80211_HT_CAP_SGI_20 |
 				IEEE80211_HT_CAP_DSSSCCK40 | IEEE80211_HT_CAP_MAX_AMSDU;
 	rtw_cfg80211_init_ht_capab_ex(padapter, ht_cap, band, rf_type);
@@ -8881,6 +8992,75 @@ void rtw_cfg80211_init_wdev_data(_adapter *padapter)
 
 	ATOMIC_SET(&pwdev_priv->switch_ch_to, 1);
 #endif
+}
+
+static void rtw_cfg80211_init_vht_capab_ex(_adapter *padapter, struct ieee80211_sta_vht_cap *vht_cap, u8 rf_type)
+{
+//todo: Support for other bandwidths
+/* NSS = Number of Spatial Streams */
+#define MAX_BIT_RATE_80MHZ_NSS3		1300	/* Mbps */
+#define MAX_BIT_RATE_80MHZ_NSS2		867		/* Mbps */
+#define MAX_BIT_RATE_80MHZ_NSS1		434		/* Mbps */
+	struct registry_priv *pregistrypriv = &padapter->registrypriv;
+	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
+	struct vht_priv	*pvhtpriv = &pmlmepriv->vhtpriv;
+	rtw_vht_use_default_setting(padapter);
+	/* RX LDPC */
+	if (TEST_FLAG(pvhtpriv->ldpc_cap, LDPC_VHT_ENABLE_RX))
+		vht_cap->cap |= IEEE80211_VHT_CAP_RXLDPC;
+	/* TX STBC */
+	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_TX))
+		vht_cap->cap |= IEEE80211_VHT_CAP_TXSTBC;
+	/* RX STBC */
+	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX)) {
+		switch (rf_type) {
+		case RF_1T1R:
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_1;/*RX STBC One spatial stream*/
+			break;
+		case RF_2T2R:
+		case RF_1T2R:
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_2;/*RX STBC Two spatial streams*/
+			break;
+		case RF_3T3R:
+		case RF_3T4R:
+		case RF_4T4R:
+			vht_cap->cap |= IEEE80211_VHT_CAP_RXSTBC_3;/*RX STBC Three spatial streams*/
+			break;
+		default:
+			/* DBG_871X("[warning] rf_type %d is not expected\n", rf_type); */
+			break;
+		}
+	}
+	/* switch (rf_type) {
+	case RF_1T1R:
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+		break;
+	case RF_2T2R:
+	case RF_1T2R:
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS2;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS2;
+		break;
+	case RF_3T3R:
+	case RF_3T4R:
+	case RF_4T4R:
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS3;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS3;
+		break;
+	default:
+		DBG_871X("[warning] rf_type %d is not expected\n", rf_type);
+		break;
+	} */
+	/* MCS map */
+	vht_cap->vht_mcs.tx_mcs_map = pvhtpriv->vht_mcs_map[0] | (pvhtpriv->vht_mcs_map[1] << 8);
+	vht_cap->vht_mcs.rx_mcs_map = vht_cap->vht_mcs.tx_mcs_map;
+	if (rf_type == RF_1T1R) {
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+	}
+	if (pvhtpriv->sgi_80m)
+		vht_cap->cap |= IEEE80211_VHT_CAP_SHORT_GI_80;
+	vht_cap->cap |= (pvhtpriv->ampdu_len << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT);
 }
 
 void rtw_cfg80211_init_wiphy(_adapter *padapter)
@@ -9381,6 +9561,7 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	.suspend = cfg80211_rtw_suspend,
 	.resume = cfg80211_rtw_resume,
 #endif /* CONFIG_PNO_SUPPORT */
+	.get_channel = cfg80211_rtw_get_channel,
 #ifdef CONFIG_RFKILL_POLL
 	.rfkill_poll = cfg80211_rtw_rfkill_poll,
 #endif
