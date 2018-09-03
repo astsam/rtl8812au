@@ -182,7 +182,7 @@ endif
 
 ifeq ($(CONFIG_MP_VHT_HW_TX_MODE), y)
 EXTRA_CFLAGS += -DCONFIG_MP_VHT_HW_TX_MODE
-#endif
+endif
 
 ifeq ($(CONFIG_GSPI_HCI), y)
 HCI_NAME = gspi
