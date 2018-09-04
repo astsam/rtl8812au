@@ -568,6 +568,8 @@ endif
 endif
 
 ########### HAL_RTL8814A #################################
+ifeq ($(CONFIG_RTL8814A), y)
+
 RTL871X = rtl8814a
 ifeq ($(CONFIG_USB_HCI), y)
 MODULE_NAME = 8814au
@@ -616,6 +618,8 @@ _HAL_INTFS_FILES +=hal/efuse/$(RTL871X)/HalEfuseMask8814A_USB.o
 endif
 ifeq ($(CONFIG_PCI_HCI), y)
 _HAL_INTFS_FILES +=hal/efuse/$(RTL871X)/HalEfuseMask8814A_PCIE.o
+endif
+
 endif
 
 ########### HAL_RTL8723C #################################
