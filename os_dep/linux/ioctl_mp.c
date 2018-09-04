@@ -14,7 +14,7 @@
  *****************************************************************************/
 #if defined(CONFIG_MP_INCLUDED)
 
-#ifdef CONFIG_MP_VHT_HW_TX_MODE
+#ifdef MARK_KERNEL_PFU
 	#include <linux/kernel.h>
 	#include <asm/fpu/api.h>
 #endif
@@ -1622,7 +1622,9 @@ int rtw_mp_tx(struct net_device *dev,
 
 			PMAC_Get_Pkt_Param(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 
-			kernel_fpu_begin();
+			#ifdef MARK_KERNEL_PFU
+				kernel_fpu_begin();
+			#endif
 			if (MPT_IS_CCK_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 				CCK_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);	// Floating-Point!
 			else {
@@ -1630,7 +1632,9 @@ int rtw_mp_tx(struct net_device *dev,
 				/* 24 BIT*/
 				L_SIG_generator(pMptCtx->PMacPktInfo.N_sym, &pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);	// Floating-Point!
 			}
-			kernel_fpu_end();
+			#ifdef MARK_KERNEL_PFU
+				kernel_fpu_end();
+			#endif
 
 			/*	48BIT*/
 			if (MPT_IS_HT_RATE(pMptCtx->PMacTxInfo.TX_RATE))
