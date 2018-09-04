@@ -618,8 +618,6 @@ ifeq ($(CONFIG_PCI_HCI), y)
 _HAL_INTFS_FILES +=hal/efuse/$(RTL871X)/HalEfuseMask8814A_PCIE.o
 endif
 
-endif
-
 ########### HAL_RTL8723C #################################
 ifeq ($(CONFIG_RTL8723C), y)
 
