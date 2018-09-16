@@ -104,7 +104,7 @@ CONFIG_AP_WOWLAN = n
 ######### Notify SDIO Host Keep Power During Syspend ##########
 CONFIG_RTW_SDIO_PM_KEEP_POWER = y
 ###################### MP HW TX MODE FOR VHT #######################
-CONFIG_MP_VHT_HW_TX_MODE = n
+CONFIG_MP_VHT_HW_TX_MODE = y
 ###################### Platform Related #######################
 CONFIG_PLATFORM_I386_PC = y
 CONFIG_PLATFORM_ANDROID_X86 = n
@@ -172,6 +172,10 @@ CONFIG_DRVEXT_MODULE = n
 export TopDIR ?= $(shell pwd)
 
 ########### COMMON  #################################
+ifeq ($(CONFIG_DISABLE_REGD_C), y)
+EXTRA_CFLAGS += -DCONFIG_DISABLE_REGD_C
+endif
+
 ifeq ($(CONFIG_GSPI_HCI), y)
 HCI_NAME = gspi
 endif
