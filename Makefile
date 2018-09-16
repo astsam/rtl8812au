@@ -172,6 +172,10 @@ CONFIG_DRVEXT_MODULE = n
 export TopDIR ?= $(shell pwd)
 
 ########### COMMON  #################################
+ifeq ($(CONFIG_DISABLE_REGD_C), y)
+EXTRA_CFLAGS += -DCONFIG_DISABLE_REGD_C
+endif
+
 ifeq ($(CONFIG_GSPI_HCI), y)
 HCI_NAME = gspi
 endif
