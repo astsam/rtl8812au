@@ -2,7 +2,7 @@
 ## with monitor mode and frame injection
 
 ### 
-newest driver 5.4.3 from realtek + patches to add 8814 support
+newest driver 5.3.4 from realtek + patches to add 8814 support
 
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
