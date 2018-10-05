@@ -9,7 +9,7 @@ fi
 
 DRV_DIR=rtl8812au
 DRV_NAME=rtl8812au
-DRV_VERSION=5.2.20.2
+DRV_VERSION=5.3.4
 
 dkms remove ${DRV_NAME}/${DRV_VERSION} --all
 rm -rf /usr/src/${DRV_NAME}-${DRV_VERSION}
