@@ -700,10 +700,10 @@ _InitBeaconMaxError_8814A(
 }
 
 
-#ifdef CONFIG_LED
+#ifdef CONFIG_RTW_LED
 static void _InitHWLed(PADAPTER Adapter)
 {
-	struct led_priv *pledpriv = &(Adapter->ledpriv);
+	struct led_priv *pledpriv = adapter_to_led(Adapter);
 	
 	if( pledpriv->LedStrategy != HW_LED)
 		return;
@@ -1474,7 +1474,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC02);
 #endif	// CONFIG_CONCURRENT_MODE || CONFIG_TX_MCAST2UNI
 	
 
-#ifdef CONFIG_LED
+#ifdef CONFIG_RTW_LED
 	_InitHWLed(Adapter);
 #endif //CONFIG_LED
 
@@ -2023,11 +2023,11 @@ ReadLEDSetting_8814AU(
 {
 	struct led_priv *pledpriv = adapter_to_led(Adapter);
 
-#ifdef CONFIG_SW_LED
+#ifdef CONFIG_RTW_LED
 	pledpriv->bRegUseLed = _TRUE;
 #else // HW LED
 	pledpriv->LedStrategy = HW_LED;
-#endif //CONFIG_SW_LED
+#endif //CONFIG_RTW_LED
 }
 
 VOID
@@ -2375,13 +2375,13 @@ void rtl8814au_set_hal_ops(_adapter * padapter)
 
 	pHalFunc->init_recv_priv = &rtl8814au_init_recv_priv;
 	pHalFunc->free_recv_priv = &rtl8814au_free_recv_priv;
-#ifdef CONFIG_SW_LED
+#ifdef CONFIG_RTW_LED
 	pHalFunc->InitSwLeds = &rtl8814au_InitSwLeds;
 	pHalFunc->DeInitSwLeds = &rtl8814au_DeInitSwLeds;
 #else //case of hw led or no led
 	pHalFunc->InitSwLeds = NULL;
 	pHalFunc->DeInitSwLeds = NULL;
-#endif//CONFIG_SW_LED
+#endif//CONFIG_RTW_LED
 	
 	pHalFunc->init_default_value = &rtl8814au_init_default_value;
 	pHalFunc->intf_chip_configure = &rtl8814au_interface_configure;
