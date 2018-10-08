@@ -2088,7 +2088,7 @@ void mpt_ProSetPMacTx(PADAPTER	Adapter)
 			else
 				mpt_StopOfdmContTx(Adapter);
 #if defined(CONFIG_RTL8814A)
-			if (IS_HARDWARE_TYPE_8814A(padapter))
+			if (IS_HARDWARE_TYPE_8814A(Adapter))
 				mpt_SetSingleTone_8814A(Adapter, FALSE, TRUE);
 #endif
 		}
@@ -2241,7 +2241,7 @@ void mpt_ProSetPMacTx(PADAPTER	Adapter)
 		phy_set_bb_reg(Adapter, 0xb04, 0xf, 4);		/*	TX Ofdm ON	*/
 #if defined(CONFIG_RTL8814A)
 	if (PMacTxInfo.Mode == OFDM_Single_Tone_TX) {
-		if (IS_HARDWARE_TYPE_8814A(padapter))
+		if (IS_HARDWARE_TYPE_8814A(Adapter))
 			mpt_SetSingleTone_8814A(Adapter, TRUE, TRUE);
 	}
 #endif
