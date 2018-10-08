@@ -18,7 +18,8 @@
 #include <rtl8812a_hal.h>
 #ifdef CONFIG_RTL8812A
 #include "hal8812a_fw.h"
-#else
+#endif
+#ifdef CONFIG_RTL8821A
 #include "hal8821a_fw.h"
 #endif
 /* -------------------------------------------------------------------------
@@ -548,11 +549,16 @@ FirmwareDownload8812(
 		#ifdef CONFIG_WOWLAN
 			if (pwrpriv->wowlan_mode) {
 #ifdef CONFIG_RTL8812A
+				if (IS_HARDWARE_TYPE_8812(Adapter)) {
 				pFirmware->szFwBuffer = array_mp_8812a_fw_wowlan;
 				pFirmware->ulFwLength = array_length_mp_8812a_fw_wowlan;
-#else
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (IS_HARDWARE_TYPE_8821(Adapter)) {
 				pFirmware->szFwBuffer = array_mp_8821a_fw_wowlan;
 				pFirmware->ulFwLength = array_length_mp_8821a_fw_wowlan;
+				}
 #endif
 				RTW_INFO("%s fw:%s, size: %d\n", __func__, "WoWLAN", pFirmware->ulFwLength);
 
@@ -562,11 +568,16 @@ FirmwareDownload8812(
 		#ifdef CONFIG_AP_WOWLAN
 			if (pwrpriv->wowlan_ap_mode) {
 #ifdef CONFIG_RTL8812A
+				if (IS_HARDWARE_TYPE_8812(Adapter)) {
 				pFirmware->szFwBuffer = array_mp_8812a_fw_ap;
 				pFirmware->ulFwLength = array_length_mp_8812a_fw_ap;
-#else
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (IS_HARDWARE_TYPE_8821(Adapter)) {
 				pFirmware->szFwBuffer = array_mp_8821a_fw_ap;
 				pFirmware->ulFwLength = array_length_mp_8821a_fw_ap;
+				}
 #endif
 
 				RTW_INFO("%s fw: %s, size: %d\n", __func__, "AP_WoWLAN", pFirmware->ulFwLength);
@@ -577,11 +588,16 @@ FirmwareDownload8812(
 			if (pHalData->EEPROMBluetoothCoexist == _TRUE) {
 
 #ifdef CONFIG_RTL8812A
+				if (IS_HARDWARE_TYPE_8812(pAdapter)) {
 				pFirmware->szFwBuffer = array_mp_8812a_fw_nic_bt;
 				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic_bt;
-#else
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (IS_HARDWARE_TYPE_8821(pAdapter)) {
 				pFirmware->szFwBuffer = array_mp_8821a_fw_nic_bt;
 				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic_bt;
+				}
 #endif
 
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC-BTCOEX", pFirmware->ulFwLength);
@@ -590,11 +606,16 @@ FirmwareDownload8812(
 			{
 
 #ifdef CONFIG_RTL8812A
+				if (IS_HARDWARE_TYPE_8812(Adapter)) {
 				pFirmware->szFwBuffer = array_mp_8812a_fw_nic;
 				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic;
-#else
+				}
+#endif
+#ifdef CONFIG_RTL8821A
+				if (IS_HARDWARE_TYPE_8821(Adapter)) {
 				pFirmware->szFwBuffer = array_mp_8821a_fw_nic;
 				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic;
+				}
 #endif
 
 				RTW_INFO("%s fw:%s, size: %d\n", __FUNCTION__, "NIC", pFirmware->ulFwLength);
