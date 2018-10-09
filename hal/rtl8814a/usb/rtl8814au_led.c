@@ -21,7 +21,7 @@
 
 //#include <drv_types.h>
 #include <rtl8814a_hal.h>
-
+#ifdef CONFIG_RTW_SW_LED
 //================================================================================
 // LED object.
 //================================================================================
@@ -144,4 +144,4 @@ rtl8814au_DeInitSwLeds(
 	DeInitLed( &(ledpriv->SwLed1) );
 	DeInitLed( &(ledpriv->SwLed2) );
 }
-
+#endif
