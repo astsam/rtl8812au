@@ -550,14 +550,14 @@ FirmwareDownload8812(
 			if (pwrpriv->wowlan_mode) {
 #ifdef CONFIG_RTL8812A
 				if (IS_HARDWARE_TYPE_8812(Adapter)) {
-				pFirmware->szFwBuffer = array_mp_8812a_fw_wowlan;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_wowlan;
+					pFirmware->szFwBuffer = array_mp_8812a_fw_wowlan;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_wowlan;
 				}
 #endif
 #ifdef CONFIG_RTL8821A
 				if (IS_HARDWARE_TYPE_8821(Adapter)) {
-				pFirmware->szFwBuffer = array_mp_8821a_fw_wowlan;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_wowlan;
+					pFirmware->szFwBuffer = array_mp_8821a_fw_wowlan;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_wowlan;
 				}
 #endif
 				RTW_INFO("%s fw:%s, size: %d\n", __func__, "WoWLAN", pFirmware->ulFwLength);
@@ -569,14 +569,14 @@ FirmwareDownload8812(
 			if (pwrpriv->wowlan_ap_mode) {
 #ifdef CONFIG_RTL8812A
 				if (IS_HARDWARE_TYPE_8812(Adapter)) {
-				pFirmware->szFwBuffer = array_mp_8812a_fw_ap;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_ap;
+					pFirmware->szFwBuffer = array_mp_8812a_fw_ap;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_ap;
 				}
 #endif
 #ifdef CONFIG_RTL8821A
 				if (IS_HARDWARE_TYPE_8821(Adapter)) {
-				pFirmware->szFwBuffer = array_mp_8821a_fw_ap;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_ap;
+					pFirmware->szFwBuffer = array_mp_8821a_fw_ap;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_ap;
 				}
 #endif
 
@@ -589,14 +589,14 @@ FirmwareDownload8812(
 
 #ifdef CONFIG_RTL8812A
 				if (IS_HARDWARE_TYPE_8812(pAdapter)) {
-				pFirmware->szFwBuffer = array_mp_8812a_fw_nic_bt;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic_bt;
+					pFirmware->szFwBuffer = array_mp_8812a_fw_nic_bt;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_nic_bt;
 				}
 #endif
 #ifdef CONFIG_RTL8821A
 				if (IS_HARDWARE_TYPE_8821(pAdapter)) {
-				pFirmware->szFwBuffer = array_mp_8821a_fw_nic_bt;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic_bt;
+					pFirmware->szFwBuffer = array_mp_8821a_fw_nic_bt;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_nic_bt;
 				}
 #endif
 
@@ -607,14 +607,14 @@ FirmwareDownload8812(
 
 #ifdef CONFIG_RTL8812A
 				if (IS_HARDWARE_TYPE_8812(Adapter)) {
-				pFirmware->szFwBuffer = array_mp_8812a_fw_nic;
-				pFirmware->ulFwLength = array_length_mp_8812a_fw_nic;
+					pFirmware->szFwBuffer = array_mp_8812a_fw_nic;
+					pFirmware->ulFwLength = array_length_mp_8812a_fw_nic;
 				}
 #endif
 #ifdef CONFIG_RTL8821A
 				if (IS_HARDWARE_TYPE_8821(Adapter)) {
-				pFirmware->szFwBuffer = array_mp_8821a_fw_nic;
-				pFirmware->ulFwLength = array_length_mp_8821a_fw_nic;
+					pFirmware->szFwBuffer = array_mp_8821a_fw_nic;
+					pFirmware->ulFwLength = array_length_mp_8821a_fw_nic;
 				}
 #endif
 
