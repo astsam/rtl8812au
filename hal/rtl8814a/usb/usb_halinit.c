@@ -1937,7 +1937,9 @@ hal_CustomizedBehavior_8814AU(
 	{
 		case RT_CID_DEFAULT:
 			pledpriv->LedStrategy = SW_LED_MODE9;
+#ifdef CONFIG_RTW_SW_LED
 			pledpriv->bRegUseLed = _TRUE;
+#endif
 			break;
 
 		default:
@@ -2023,7 +2025,7 @@ ReadLEDSetting_8814AU(
 {
 	struct led_priv *pledpriv = adapter_to_led(Adapter);
 
-#ifdef CONFIG_RTW_LED
+#ifdef CONFIG_RTW_SW_LED
 	pledpriv->bRegUseLed = _TRUE;
 #else // HW LED
 	pledpriv->LedStrategy = HW_LED;
@@ -2375,12 +2377,12 @@ void rtl8814au_set_hal_ops(_adapter * padapter)
 
 	pHalFunc->init_recv_priv = &rtl8814au_init_recv_priv;
 	pHalFunc->free_recv_priv = &rtl8814au_free_recv_priv;
-#ifdef CONFIG_RTW_LED
+#ifdef CONFIG_RTW_SW_LED
 	pHalFunc->InitSwLeds = &rtl8814au_InitSwLeds;
 	pHalFunc->DeInitSwLeds = &rtl8814au_DeInitSwLeds;
-#else //case of hw led or no led
-	pHalFunc->InitSwLeds = NULL;
-	pHalFunc->DeInitSwLeds = NULL;
+//#else //case of hw led or no led
+//	pHalFunc->InitSwLeds = NULL;
+//	pHalFunc->DeInitSwLeds = NULL;
 #endif//CONFIG_RTW_LED
 	
 	pHalFunc->init_default_value = &rtl8814au_init_default_value;
