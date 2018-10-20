@@ -233,6 +233,10 @@ s32 PHY_MACConfig8812(PADAPTER Adapter)
 	/*  */
 	/* Config MAC */
 	/*  */
+#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+	rtStatus = phy_ConfigMACWithParaFile(Adapter, PHY_FILE_MAC_REG);
+	if (rtStatus == _FAIL)
+#endif
 	{
 #ifdef CONFIG_EMBEDDED_FWIMG
 		odm_config_mac_with_header_file(&pHalData->odmpriv);
@@ -307,6 +311,10 @@ phy_BB8812_Config_ParaFile(
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
 	int			rtStatus = _SUCCESS;
 
+	/* Read PHY_REG.TXT BB INIT!! */
+#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+	if (phy_ConfigBBWithParaFile(Adapter, PHY_FILE_PHY_REG, CONFIG_BB_PHY_REG) == _FAIL)
+#endif
 	{
 #ifdef CONFIG_EMBEDDED_FWIMG
 		if (HAL_STATUS_SUCCESS != odm_config_bb_with_header_file(&pHalData->odmpriv, CONFIG_BB_PHY_REG))
@@ -322,6 +330,9 @@ phy_BB8812_Config_ParaFile(
 	/* Read PHY_REG_MP.TXT BB INIT!! */
 #if (MP_DRIVER == 1)
 	if (Adapter->registrypriv.mp_mode == 1) {
+#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+		if (phy_ConfigBBWithMpParaFile(Adapter, PHY_FILE_PHY_REG_MP) == _FAIL)
+#endif
 		{
 #ifdef CONFIG_EMBEDDED_FWIMG
 			if (HAL_STATUS_SUCCESS != odm_config_bb_with_header_file(&pHalData->odmpriv, CONFIG_BB_PHY_REG_MP))
@@ -336,6 +347,10 @@ phy_BB8812_Config_ParaFile(
 	}
 #endif	/*  #if (MP_DRIVER == 1) */
 
+	/* BB AGC table Initialization */
+#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+	if (phy_ConfigBBWithParaFile(Adapter, PHY_FILE_AGC_TAB, CONFIG_BB_AGC_TAB) == _FAIL)
+#endif
 	{
 #ifdef CONFIG_EMBEDDED_FWIMG
 		if (HAL_STATUS_SUCCESS != odm_config_bb_with_header_file(&pHalData->odmpriv, CONFIG_BB_AGC_TAB))
