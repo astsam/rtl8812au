@@ -469,22 +469,6 @@ module_param(rtw_fw_iol, int, 0644);
 MODULE_PARM_DESC(rtw_fw_iol, "FW IOL. 0:Disable, 1:enable, 2:by usb speed");
 #endif /* CONFIG_IOL */
 
-#ifdef CONFIG_FILE_FWIMG
-char *rtw_fw_file_path = "/system/etc/firmware/rtlwifi/FW_NIC.BIN";
-module_param(rtw_fw_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_fw_file_path, "The path of fw image");
-
-char *rtw_fw_wow_file_path = "/system/etc/firmware/rtlwifi/FW_WoWLAN.BIN";
-module_param(rtw_fw_wow_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_fw_wow_file_path, "The path of fw for Wake on Wireless image");
-
-#ifdef CONFIG_MP_INCLUDED
-char *rtw_fw_mp_bt_file_path = "";
-module_param(rtw_fw_mp_bt_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_fw_mp_bt_file_path, "The path of fw for MP-BT image");
-#endif /* CONFIG_MP_INCLUDED */
-#endif /* CONFIG_FILE_FWIMG */
-
 #ifdef CONFIG_TX_MCAST2UNI
 module_param(rtw_mc2u_disable, int, 0644);
 #endif /* CONFIG_TX_MCAST2UNI */
