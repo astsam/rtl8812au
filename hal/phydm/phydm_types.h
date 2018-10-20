@@ -124,7 +124,6 @@ enum rt_spinlock_type {
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	#define sta_info 	_RT_WLAN_STA
 	#define	__func__		__FUNCTION__
-	#define	PHYDM_TESTCHIP_SUPPORT	TESTCHIP_SUPPORT
 	#define MASKH3BYTES			0xffffff00
 	#define SUCCESS	0
 	#define FAIL	(-1)
@@ -142,19 +141,13 @@ enum rt_spinlock_type {
 	#define	s64		s8Byte
 
 	#define	phydm_timer_list	_RT_TIMER
-	
+
 
 #elif (DM_ODM_SUPPORT_TYPE == ODM_AP)
 	#include "../typedef.h"
 
 	#ifdef CONFIG_PCI_HCI
 		#define DEV_BUS_TYPE		RT_PCI_INTERFACE
-	#endif
-
-	#if (defined(TESTCHIP_SUPPORT))
-		#define	PHYDM_TESTCHIP_SUPPORT 1
-	#else
-		#define	PHYDM_TESTCHIP_SUPPORT 0
 	#endif
 
 	#define	sta_info stat_info
@@ -181,7 +174,6 @@ enum rt_spinlock_type {
 	#define	FOR_BRAZIL_PRETEST 0
 	#define	FPGA_TWO_MAC_VERIFICATION	0
 	#define	RTL8881A_SUPPORT	0
-	#define	PHYDM_TESTCHIP_SUPPORT 0
 
 
 	#define RATE_ADAPTIVE_SUPPORT			0
@@ -222,12 +214,6 @@ enum rt_spinlock_type {
 	#define	FOR_BRAZIL_PRETEST 0
 	#define	FPGA_TWO_MAC_VERIFICATION	0
 	#define	RTL8881A_SUPPORT	0
-
-	#if (defined(TESTCHIP_SUPPORT))
-		#define	PHYDM_TESTCHIP_SUPPORT 1
-	#else
-		#define	PHYDM_TESTCHIP_SUPPORT 0
-	#endif
 
 	#define	phydm_timer_list	rtw_timer_list
 #endif
