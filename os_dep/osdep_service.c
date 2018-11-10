@@ -20,6 +20,14 @@
 
 #define RT_TAG	'1178'
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 11, 0))
+static inline ssize_t call_read_iter(struct file *file, struct kiocb *kio,
+				     struct iov_iter *iter)
+{
+	return file->f_op->read_iter(kio, iter);
+}
+#endif
+
 #ifdef DBG_MEMORY_LEAK
 #ifdef PLATFORM_LINUX
 atomic_t _malloc_cnt = ATOMIC_INIT(0);
