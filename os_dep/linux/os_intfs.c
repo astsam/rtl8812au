@@ -1288,13 +1288,15 @@ unsigned int rtw_classify8021d(struct sk_buff *skb)
 
 
 static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
-	, struct net_device *sb_dev
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
-	, void *accel_priv
-#endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)
-	, select_queue_fallback_t fallback
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
+  #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 19, 0)
+	  , void *accel_priv
+  #else
+    , struct net_device *sb_dev
+  #endif
+  #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)
+	  , select_queue_fallback_t fallback
+  #endif
 #endif
 )
 {
@@ -2630,6 +2632,8 @@ static int netdev_vir_if_close(struct net_device *pnetdev)
 #endif
 
 #ifdef CONFIG_IOCTL_CFG80211
+	wdev->iftype = NL80211_IFTYPE_MONITOR;
+	wdev->current_bss = NULL;
 	rtw_scan_abort(padapter);
 	rtw_cfg80211_wait_scan_req_empty(padapter, 200);
 	adapter_wdev_data(padapter)->bandroid_scan = _FALSE;
@@ -3448,6 +3452,9 @@ int pm_netdev_open(struct net_device *pnetdev, u8 bnormal)
 static int netdev_close(struct net_device *pnetdev)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
+#ifdef CONFIG_IOCTL_CFG80211
+	struct wireless_dev *wdev = padapter->rtw_wdev;
+#endif
 	struct pwrctrl_priv *pwrctl = adapter_to_pwrctl(padapter);
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
