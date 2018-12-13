@@ -43,6 +43,13 @@ For Raspberry (RPI)
 ```
 sudo apt-get install raspberrypi-kernel-headers
 ```
+
+or, on Raspberry Pi 3 Model B+
+```
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM64_RPI = y
+```
+
 For setting monitor mode
   1. Fix problematic interference in monitor mode. 
   ```
