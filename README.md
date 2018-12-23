@@ -12,7 +12,7 @@
 ### What's NEW
 ```
 * december: working on a major update/bugfixes.
-  may be seen rolling out over <a href="https://github.com/aircrack-ng/rtl8812au/pull/246">here</a>
+  may be seen rolling out over here https://github.com/aircrack-ng/rtl8812au/pull/246
   
 * october: airmon-ng now got support for this driver (even without virtual interface support)
 ```
