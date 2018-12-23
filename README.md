@@ -122,7 +122,7 @@ CONFIG_LED_ENABLE = n
 ```
 value can be y or n
 
-#### statically by module parameter in /etc/modprobe.d/8812au.conf or wherever, for example:
+#### statically by module parameter in /etc/modprobe.d/8812au.conf or whatever, example:
 
 ```sh
 options 88XXau rtw_led_enable=0
