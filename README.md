@@ -59,7 +59,7 @@ For Raspberry (RPI 2/3)
 ```
 $ sudo wget "https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source" -O /usr/bin/rpi-source
 $ sudo chmod 755 /usr/bin/rpi-source
-$ rpi-source 
+$ sudo rpi-source 
 ```
 Then you need to
 ```
@@ -91,11 +91,13 @@ For setting monitor mode
   
   2. Set interface down
   ```
-  $ $ sudo ip link set wlan0 down
+  $ $ sudo ip link set wlan1 down
   ``` 
   3. Set monitor mode
   ```
-  $ sudo iw dev wlan0 set type monitor
+  $ sudo airmon-ng start wlan#
+  or
+  $ sudo iw dev wlan# set type monitor
   ```
   4. Set interface up
   ```
@@ -103,6 +105,8 @@ For setting monitor mode
   ```
 For setting TX power
 ```
+$ sudo iwconfig wlan0 txpower 30
+or
 $ sudo iw wlan0 set txpower fixed 3000
 ```
 ### LED control
