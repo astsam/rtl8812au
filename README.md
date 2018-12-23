@@ -1,7 +1,7 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
 ## with monitor mode and frame injection
 
-[![GitHub version](https://badge.fury.io/gh/derv82%2Fwifite2.svg)](https://badge.fury.io/gh/derv82%2Fwifite2)
+[![GitHub version](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au.svg)](https://badge.fury.io/gh/derv82%2Fwifite2)
 [![GitHub issues](https://img.shields.io/github/issues/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/issues)
 [![GitHub forks](https://img.shields.io/github/forks/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/network)
 [![GitHub stars](https://img.shields.io/github/stars/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/stargazers)
