@@ -258,6 +258,7 @@ static void _rtw_reg_apply_active_scan_flags(struct wiphy *wiphy,
  */
 static void _rtw_reg_apply_radar_flags(struct wiphy *wiphy)
 {
+#ifndef CONFIG_DISABLE_REGD_C
 	struct ieee80211_supported_band *sband;
 	struct ieee80211_channel *ch;
 	unsigned int i;
@@ -304,6 +305,7 @@ static void _rtw_reg_apply_radar_flags(struct wiphy *wiphy)
 				     IEEE80211_CHAN_PASSIVE_SCAN;
 #endif
 	}
+#endif // CONFIG_DISABLE_REGD_C
 }
 
 static void _rtw_reg_apply_flags(struct wiphy *wiphy)
