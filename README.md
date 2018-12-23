@@ -19,6 +19,9 @@
   may be seen rolling out over here https://github.com/aircrack-ng/rtl8812au/pull/246
   
 * october: airmon-ng now got support for this driver (even without virtual interface support)
+
+*** Kernel v4.19 and v4.20 supported. ***
+Also working to get both old/new kernels supported.
 ```
 
 ### DKMS
@@ -59,13 +62,13 @@ $ sudo apt-get install bc
 $ sudo apt-get install libelf-dev
 $ sudo apt-get install linux-headers-`uname -r`
 ```
-For Raspberry (RPI 2/3)
+For Raspberry (RPI 2/3) you will need kernel sources
 ```
 $ sudo wget "https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source" -O /usr/bin/rpi-source
 $ sudo chmod 755 /usr/bin/rpi-source
 $ sudo rpi-source 
 ```
-Then you need to
+Then you need to download and compile the driver on the RPI
 ```
 $ git clone https://github.com/aircrack-ng/rtl8812au -b v5.2.20
 $ cd rtl*
@@ -74,13 +77,13 @@ $ sudo cp 8812au.ko /lib/modules/`uname -r`/kernel/drivers/net/wireless
 $ sudo depmod -a
 $ sudo modprobe 88XXau
 ```
-then run this to change platform in Makefile
+then run this step to change platform in Makefile, For RPI 2/3:
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefil
 ```
 But for RPI 3 B+ you will need to run those below
-the ARM64 arch build
+which builds the ARM64 arch driver:
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
@@ -95,23 +98,23 @@ For setting monitor mode
   
   2. Set interface down
   ```
-  $ $ sudo ip link set wlan1 down
+  $ $ sudo ip link set <wlan1> down
   ``` 
   3. Set monitor mode
   ```
-  $ sudo airmon-ng start wlan#
+  $ sudo airmon-ng start <wlan1>
   or
-  $ sudo iw dev wlan# set type monitor
+  $ sudo iw dev <wlan1> set type monitor
   ```
   4. Set interface up
   ```
-  $ sudo ip link set wlan0 up
+  $ sudo ip link set <wlan1> up
   ```
 For setting TX power
 ```
-$ sudo iwconfig wlan0 txpower 30
+$ sudo iwconfig <wlan1> txpower 30
 or
-$ sudo iw wlan0 set txpower fixed 3000
+$ sudo iw <wla1> nset txpower fixed 3000
 ```
 ### LED control
 
