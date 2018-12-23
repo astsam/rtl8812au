@@ -1,6 +1,12 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
 ## with monitor mode and frame injection
 
+[![GitHub version](https://badge.fury.io/gh/derv82%2Fwifite2.svg)](https://badge.fury.io/gh/derv82%2Fwifite2)
+[![GitHub issues](https://img.shields.io/github/issues/derv82/wifite2.svg)](https://github.com/aircrack-ng/rtl8812au/issues)
+[![GitHub forks](https://img.shields.io/github/forks/derv82/wifite2.svg)](https://github.com/aircrack-ng/rtl8812au/network)
+[![GitHub stars](https://img.shields.io/github/stars/derv82/wifite2.svg)](https://github.com/aircrack-ng/rtl8812au/stargazers)
+[![GitHub license](https://img.shields.io/github/license/derv82/wifite2.svg)](https://github.com/aircrack-ng/rtl8812au/blob/master/LICENSE)
+
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
