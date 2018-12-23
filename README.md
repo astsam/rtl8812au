@@ -1,8 +1,8 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
 ## with monitor mode and frame injection
 
-[![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](https://inventory.rawsec.ml/tools.html#wifite2)
-[![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](https://inventory.rawsec.ml/tools.html#wifite2)
+[![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
+[![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](#)
 [![GitHub version](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au.svg)](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au)
 [![GitHub issues](https://img.shields.io/github/issues/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/issues)
 [![GitHub forks](https://img.shields.io/github/forks/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/network)
@@ -90,8 +90,8 @@ For setting monitor mode
   You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
   
   2. Set interface down
-  ``
-  $ sudo ip link set wlan0 down
+  ```
+  $ $ sudo ip link set wlan0 down
   ``` 
   3. Set monitor mode
   ```
@@ -105,7 +105,6 @@ For setting TX power
 ```
 $ sudo iw wlan0 set txpower fixed 3000
 ```
-
 ### LED control
 
 #### You can now control LED behaviour statically by Makefile, for example:
@@ -121,6 +120,7 @@ value can be y or n
 options 88XXau rtw_led_enable=0
 ```
 value can be 0 or 1
+
 
 #### or dynamically by writing to /proc/net/rtl8812au/$(your interface name)/led_enable, for example:
 
