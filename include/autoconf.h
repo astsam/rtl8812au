@@ -323,7 +323,7 @@
 /*
  * Debug Related Config
  */
-// #define DBG 1
+#define DBG 0
 
 #define CONFIG_PROC_DEBUG
 
