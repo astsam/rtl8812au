@@ -9,6 +9,16 @@
 [![GitHub stars](https://img.shields.io/github/stars/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/stargazers)
 [![GitHub license](https://img.shields.io/github/license/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/blob/master/LICENSE)
 
+### What's NEW
+```
+* december: working on a major update/bugfixes.
+  may be seen rolling out over <a href="https://github.com/aircrack-ng/rtl8812au/pull/246">here</a>
+  
+* october: airmon-ng now got support for this driver (even without virtual interface support)
+```
+
+
+
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
@@ -38,14 +48,14 @@ $ make install
 Download
 ```
 $ git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
-cd rtl*
+$ cd rtl*
 ```
 Package / Build dependencies (Kali)
 ```
 $ sudo apt-get install build-essential
 $ sudo apt-get install bc
 $ sudo apt-get install libelf-dev
-sudo apt-get install linux-headers-`uname -r`
+$ sudo apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI)
 ```
@@ -69,25 +79,25 @@ $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makef
 For setting monitor mode
   1. Fix problematic interference in monitor mode. 
   ```
-  airmon-ng check kill
+  $ airmon-ng check kill
   ```
   You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
   
   2. Set interface down
   ``
-  sudo ip link set wlan0 down
+  $ sudo ip link set wlan0 down
   ``` 
   3. Set monitor mode
   ```
-  sudo iw dev wlan0 set type monitor
+  $ sudo iw dev wlan0 set type monitor
   ```
   4. Set interface up
   ```
-  sudo ip link set wlan0 up
+  $ sudo ip link set wlan0 up
   ```
 For setting TX power
 ```
-sudo iw wlan0 set txpower fixed 3000
+$ sudo iw wlan0 set txpower fixed 3000
 ```
 
 ### LED control
