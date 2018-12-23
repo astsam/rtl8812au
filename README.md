@@ -12,57 +12,58 @@
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
-sudo apt-get install dkms
+$ sudo apt-get install dkms
 ```
 
 ### Installation of Driver
 In order to install the driver open a terminal in the directory with the source code and execute the following command:
 ```
-sudo ./dkms-install.sh
+$ sudo ./dkms-install.sh
 ```
 
 ### Removal of Driver
 In order to remove the driver from your system open a terminal in the directory with the source code and execute the following command:
 ```
-sudo ./dkms-remove.sh
+$ sudo ./dkms-remove.sh
 ```
 
 ### Make
 For building & installing the driver with 'make' use
 ```
-make
-make install
+$ make
+$ make install
 ```
 
 ### Notes
 Download
 ```
-git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
+$ git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
 Package / Build dependencies (Kali)
 ```
-sudo apt-get install build-essential
-sudo apt-get install bc
-sudo apt-get install libelf-dev
+$ sudo apt-get install build-essential
+$ sudo apt-get install bc
+$ sudo apt-get install libelf-dev
 sudo apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI)
 ```
-sudo apt-get install raspberrypi-kernel-headers
+$ sudo wget "https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source" -O /usr/bin/rpi-source
+$ sudo chmod 755 /usr/bin/rpi-source
+$ rpi-source 
 ```
 
-then edit Makefile and change I386_PC to "n"
-and ARM_RPI to "y"
+then run this to change platform in Makefile
 ```
-CONFIG_PLATFORM_I386_PC = n
-CONFIG_PLATFORM_ARM_RPI = y
+$ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
+$ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefil
 ```
-Remember, the RPi 3 B+ got it's own switch
-named "ARM64_RPI3"
+But for RPI 3 B+ you will need to run those below
+the ARM64 arch
 ```
-CONFIG_PLATFORM_I386_PC = n
-CONFIG_PLATFORM_ARM64_RPI = y
+$ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
+$ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
 ```
 
 For setting monitor mode
@@ -73,7 +74,7 @@ For setting monitor mode
   You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
   
   2. Set interface down
-  ```
+  ``
   sudo ip link set wlan0 down
   ``` 
   3. Set monitor mode
