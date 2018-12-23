@@ -1,8 +1,8 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
 ## with monitor mode and frame injection
 
-[![](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)
-[![](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)
+[![Monitor Mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)
+[![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)
 [![GitHub version](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au.svg)](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au)
 [![GitHub issues](https://img.shields.io/github/issues/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/issues)
 [![GitHub forks](https://img.shields.io/github/forks/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/network)
@@ -52,7 +52,14 @@ For Raspberry (RPI)
 sudo apt-get install raspberrypi-kernel-headers
 ```
 
-or, on Raspberry Pi 3 Model B+
+then edit Makefile and change I386_PC to "n"
+and ARM_RPI to "y"
+```
+CONFIG_PLATFORM_I386_PC = n
+CONFIG_PLATFORM_ARM_RPI = y
+```
+Remember, the RPi 3 B+ got it's own switch
+named "ARM64_RPI3"
 ```
 CONFIG_PLATFORM_I386_PC = n
 CONFIG_PLATFORM_ARM64_RPI = y
