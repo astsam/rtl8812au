@@ -21,7 +21,7 @@
  *	The Realtek 8188CE SoftAP will spend around 100ms to send the probe response after receiving the probe request.
  *	So, this driver tried to extend the dwell time for each scanning channel.
  *	This will increase the chance to receive the probe response from SoftAP. */
-#define SURVEY_TO		(100)
+#define SURVEY_TO		(0)
 
 #define REAUTH_TO		(300) /* (50) */
 #define REASSOC_TO		(300) /* (50) */
