@@ -1,8 +1,8 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
 ## with monitor mode and frame injection
 
-[!](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)
-[!](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)
+[![](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)
+[![](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)
 [![GitHub version](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au.svg)](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au)
 [![GitHub issues](https://img.shields.io/github/issues/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/issues)
 [![GitHub forks](https://img.shields.io/github/forks/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/network)
