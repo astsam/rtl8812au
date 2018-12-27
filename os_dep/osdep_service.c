@@ -1985,15 +1985,12 @@ inline int ATOMIC_DEC_RETURN(ATOMIC_T *v)
 #endif
 }
 
-			
-		
-		
-	
+
 /*
 * Open the file with @param path and wirte @param sz byte of data starting from @param buf into the file
 * @param path the path of the file to open and write
-;
-	
+*/
+
 
 /*
 * Test if the specifi @param path is a file and readable
