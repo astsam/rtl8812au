@@ -80,7 +80,7 @@ $ sudo modprobe 88XXau
 then run this step to change platform in Makefile, For RPI 2/3:
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
-$ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefil
+$ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefile
 ```
 But for RPI 3 B+ you will need to run those below
 which builds the ARM64 arch driver:
