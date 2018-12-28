@@ -98,7 +98,7 @@ For setting monitor mode
   
   2. Set interface down
   ```
-  $ $ sudo ip link set <wlan1> down
+  $ sudo ip link set <wlan1> down
   ``` 
   3. Set monitor mode
   ```
