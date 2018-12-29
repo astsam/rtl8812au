@@ -17,8 +17,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#include <platform_ops.h>
-
 #ifndef CONFIG_USB_HCI
 #error "CONFIG_USB_HCI shall be on!\n"
 #endif
@@ -1616,7 +1614,6 @@ static int __init rtw_drv_entry(void)
 	RTW_PRINT(DRV_NAME" BT-Coex version = %s\n", BTCOEXVERSION);
 #endif /* BTCOEXVERSION */
 
-	ret = platform_wifi_power_on();
 	if (ret != 0) {
 		RTW_INFO("%s: power on failed!!(%d)\n", __FUNCTION__, ret);
 		ret = -1;
@@ -1653,8 +1650,6 @@ static void __exit rtw_drv_halt(void)
 	usb_drv.drv_registered = _FALSE;
 
 	usb_deregister(&usb_drv.usbdrv);
-
-	platform_wifi_power_off();
 
 	rtw_suspend_lock_uninit();
 	rtw_ndev_notifier_unregister();

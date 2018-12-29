@@ -49,9 +49,6 @@ CONFIG_RTL8723D = n
 CONFIG_RTL8821C = n
 ######################### Interface ###########################
 CONFIG_USB_HCI = y
-CONFIG_PCI_HCI = n
-CONFIG_SDIO_HCI = n
-CONFIG_GSPI_HCI = n
 ########################## Features ###########################
 CONFIG_NET_NS = y
 CONFIG_MP_INCLUDED = y
@@ -277,10 +274,6 @@ _HAL_INTFS_FILES :=	hal/hal_intf.o \
 			hal/hal_mcc.o \
 			hal/hal_hci/hal_$(HCI_NAME).o \
 			hal/led/hal_$(HCI_NAME)_led.o
-
-
-EXTRA_CFLAGS += -I$(src)/platform
-_PLATFORM_FILES := platform/platform_ops.o
 
 EXTRA_CFLAGS += -I$(src)/hal/btc
 _BTC_FILES += hal/btc/halbtc8723bwifionly.o \
