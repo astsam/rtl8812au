@@ -732,7 +732,7 @@
 {173,175,177},
 }
 */
-#define	MAX_RF_PATH				1
+#define	MAX_RF_PATH				4
 #define RF_PATH_MAX				MAX_RF_PATH
 #define	MAX_CHNL_GROUP_24G		6
 #define	MAX_CHNL_GROUP_5G		14
