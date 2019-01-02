@@ -83,19 +83,19 @@ phy_RF6052_Config_ParaFile_8814A(
 	u8					eRFPath;
 	int					rtStatus = _SUCCESS;
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(Adapter);
-	static char			sz8814RadioAFile[] = PHY_FILE_RADIO_A;
-	static char			sz8814RadioBFile[] = PHY_FILE_RADIO_B;
-	static char			sz8814RadioCFile[] = PHY_FILE_RADIO_C;
-	static char			sz8814RadioDFile[] = PHY_FILE_RADIO_D;
-	static char 		sz8814TxPwrTrack[] = PHY_FILE_TXPWR_TRACK;
+//	static char			sz8814RadioAFile[] = PHY_FILE_RADIO_A;
+//	static char			sz8814RadioBFile[] = PHY_FILE_RADIO_B;
+//	static char			sz8814RadioCFile[] = PHY_FILE_RADIO_C;
+//	static char			sz8814RadioDFile[] = PHY_FILE_RADIO_D;
+//	static char 		sz8814TxPwrTrack[] = PHY_FILE_TXPWR_TRACK;
 	char				*pszRadioAFile = NULL, *pszRadioBFile = NULL, *pszRadioCFile = NULL, *pszRadioDFile = NULL, *pszTxPwrTrack = NULL;
 
 
-	pszRadioAFile = sz8814RadioAFile;
-	pszRadioBFile = sz8814RadioBFile;
-	pszRadioCFile = sz8814RadioCFile;
-	pszRadioDFile = sz8814RadioDFile;
-	pszTxPwrTrack = sz8814TxPwrTrack;
+//	pszRadioAFile = sz8814RadioAFile;
+//	pszRadioBFile = sz8814RadioBFile;
+//	pszRadioCFile = sz8814RadioCFile;
+//	pszRadioDFile = sz8814RadioDFile;
+//	pszTxPwrTrack = sz8814TxPwrTrack;
 
 	//3//-----------------------------------------------------------------
 	//3// <2> Initialize RF
@@ -107,9 +107,6 @@ phy_RF6052_Config_ParaFile_8814A(
 		switch(eRFPath)
 		{
 		case RF_PATH_A:
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-			if (PHY_ConfigRFWithParaFile(Adapter, pszRadioAFile, eRFPath) == _FAIL)
-#endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
 				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
@@ -118,9 +115,6 @@ phy_RF6052_Config_ParaFile_8814A(
 			}
 			break;
 		case RF_PATH_B:
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-			if (PHY_ConfigRFWithParaFile(Adapter, pszRadioBFile, eRFPath) == _FAIL)
-#endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
 				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
@@ -129,9 +123,6 @@ phy_RF6052_Config_ParaFile_8814A(
 			}
 			break;
 		case RF_PATH_C:
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-			if (PHY_ConfigRFWithParaFile(Adapter, pszRadioCFile, eRFPath) == _FAIL)
-#endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
 				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
@@ -140,9 +131,6 @@ phy_RF6052_Config_ParaFile_8814A(
 			}
 			break;
 		case RF_PATH_D:
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-			if (PHY_ConfigRFWithParaFile(Adapter, pszRadioDFile, eRFPath) == _FAIL)
-#endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 			{
 #ifdef CONFIG_EMBEDDED_FWIMG
 				if(HAL_STATUS_FAILURE ==odm_config_rf_with_header_file(&pHalData->odmpriv,CONFIG_RF_RADIO, (enum rf_path)eRFPath))
@@ -170,9 +158,6 @@ phy_RF6052_Config_ParaFile_8814A(
 	//3 Configuration of Tx Power Tracking 
 	//3 -----------------------------------------------------------------
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	if (PHY_ConfigRFWithTxPwrTrackParaFile(Adapter, pszTxPwrTrack) == _FAIL)
-#endif //CONFIG_LOAD_PHY_PARA_FROM_FILE
 	{
 #ifdef CONFIG_EMBEDDED_FWIMG
 		odm_config_rf_with_tx_pwr_track_header_file(&pHalData->odmpriv);

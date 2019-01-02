@@ -548,12 +548,6 @@ void rtw_hal_ch_sw_iqk_info_restore(_adapter *padapter, u8 ch_sw_use_case);
 	void rtw_hal_set_input_gpio(_adapter *padapter, u8 index);
 #endif
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	extern char *rtw_phy_file_path;
-	extern char rtw_phy_para_file_path[PATH_LENGTH_MAX];
-	#define GetLineFromBuffer(buffer)   strsep(&buffer, "\r\n")
-#endif
-
 void update_IOT_info(_adapter *padapter);
 
 void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap);
