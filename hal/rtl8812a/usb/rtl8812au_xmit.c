@@ -118,7 +118,34 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 	} else
 		SET_TX_DESC_SEQ_8812(ptxdesc, pattrib->seqnum);
 
-	if ((pxmitframe->frame_tag & 0x0f) == DATA_FRAMETAG) {
+	/* injected frame */
+	if(pattrib->inject == 0xa5) {
+		SET_TX_DESC_RETRY_LIMIT_ENABLE_8812(ptxdesc, 1);
+		if (pattrib->retry_ctrl == _TRUE) {
+			SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 6);
+		} else {
+			SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 0);
+		}
+		if(pattrib->sgi == _TRUE) {
+			SET_TX_DESC_DATA_SHORT_8812(ptxdesc, 1);
+		} else {
+			SET_TX_DESC_DATA_SHORT_8812(ptxdesc, 0);
+		}
+
+		SET_TX_DESC_DISABLE_FB_8812(ptxdesc, 1); // svpcom: ?
+		SET_TX_DESC_USE_RATE_8812(ptxdesc, 1);
+		SET_TX_DESC_TX_RATE_8812(ptxdesc, MRateToHwRate(pattrib->rate));
+
+		if (pattrib->ldpc)
+			SET_TX_DESC_DATA_LDPC_8812(ptxdesc, 1);
+		SET_TX_DESC_DATA_STBC_8812(ptxdesc, pattrib->stbc & 3);
+		//SET_TX_DESC_GF_8812(ptxdesc, 1); // no MCS rates if sets, GreenField?
+		//SET_TX_DESC_LSIG_TXOP_EN_8812(ptxdesc, 1);
+		//SET_TX_DESC_HTC_8812(ptxdesc, 1);
+		//SET_TX_DESC_NO_ACM_8812(ptxdesc, 1);
+		SET_TX_DESC_DATA_BW_8812(ptxdesc, pattrib->bwmode); // 0 - 20 MHz, 1 - 40 MHz, 2 - 80 MHz
+
+	} else if ((pxmitframe->frame_tag & 0x0f) == DATA_FRAMETAG) {
 		/* RTW_INFO("pxmitframe->frame_tag == DATA_FRAMETAG\n");		 */
 
 		rtl8812a_fill_txdesc_sectype(pattrib, ptxdesc);
@@ -326,31 +353,6 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 	SET_TX_DESC_GID_8812(ptxdesc, pattrib->txbf_g_id);
 	SET_TX_DESC_PAID_8812(ptxdesc, pattrib->txbf_p_aid);
 #endif
-/* injected frame */
-	if(pattrib->inject == 0xa5) {
-		SET_TX_DESC_RETRY_LIMIT_ENABLE_8812(ptxdesc, 1);
-		if (pattrib->retry_ctrl == _TRUE) {
-			SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 6);
-		} else {
-			SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 0);
-		}
-		if(pattrib->sgi == _TRUE) {
-			SET_TX_DESC_DATA_SHORT_8812(ptxdesc, 1);
-		} else {
-			SET_TX_DESC_DATA_SHORT_8812(ptxdesc, 0);
-		}
-		SET_TX_DESC_USE_RATE_8812(ptxdesc, 1);
-		SET_TX_DESC_TX_RATE_8812(ptxdesc, MRateToHwRate(pattrib->rate));
-		if (pattrib->ldpc)
-			SET_TX_DESC_DATA_LDPC_8812(ptxdesc, 1);
-		SET_TX_DESC_DATA_STBC_8812(ptxdesc, pattrib->stbc & 3);
-		//SET_TX_DESC_GF_8812(ptxdesc, 1); // no MCS rates if sets, GreenField?
-		//SET_TX_DESC_LSIG_TXOP_EN_8812(ptxdesc, 1);
-		//SET_TX_DESC_HTC_8812(ptxdesc, 1);
-		//SET_TX_DESC_NO_ACM_8812(ptxdesc, 1);
-		SET_TX_DESC_DATA_BW_8812(ptxdesc, pattrib->bwmode); // 0 - 20 MHz, 1 - 40 MHz, 2 - 80 MHz
-	}
-
 	rtl8812a_cal_txdesc_chksum(ptxdesc);
 	_dbg_dump_tx_info(padapter, pxmitframe->frame_tag, ptxdesc);
 	return pull;

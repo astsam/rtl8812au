@@ -35,16 +35,6 @@ _PHYDM_FILES :=\
 	phydm/halrf/halrf_kfree.o
 
 ifeq ($(CONFIG_RTL_88E_SUPPORT),y)
-	ifeq ($(CONFIG_RTL_ODM_WLAN_DRIVER),y)
-		_PHYDM_FILES += \
-		phydm/rtl8188e/halhwimg8188e_bb.o\
-		phydm/rtl8188e/halhwimg8188e_mac.o\
-		phydm/rtl8188e/halhwimg8188e_rf.o\
-		phydm/rtl8188e/phydm_regconfig8188e.o\
-		phydm/rtl8188e/hal8188erateadaptive.o\
-		phydm/rtl8188e/phydm_rtl8188e.o\
-		phydm/halrf/rtl8188e/halrf_8188e_ap.o
-	endif
 endif
 	
 ifeq ($(CONFIG_RTL_8812_SUPPORT),y)
@@ -79,41 +69,15 @@ endif
 ifeq ($(CONFIG_WLAN_HAL_8822BE),y)
 	_PHYDM_FILES += phydm/halrf/rtl8822b/halrf_8822b.o
 	_PHYDM_FILES += phydm/halrf/rtl8822b/halrf_iqk_8822b.o
-	ifeq ($(CONFIG_RTL_ODM_WLAN_DRIVER),y)
-		_PHYDM_FILES += \
-		phydm/rtl8822b/halhwimg8822b_bb.o\
-		phydm/rtl8822b/halhwimg8822b_mac.o\
-		phydm/rtl8822b/halhwimg8822b_rf.o\
-		phydm/rtl8822b/phydm_regconfig8822b.o\
-		phydm/rtl8822b/phydm_hal_api8822b.o\
-		phydm/rtl8822b/phydm_rtl8822b.o
-	endif
 endif
 
 ifeq ($(CONFIG_WLAN_HAL_8821CE),y)
 	_PHYDM_FILES += phydm/halrf/rtl8821c/halrf_8821c.o
 	_PHYDM_FILES += phydm/halrf/rtl8821c/halrf_iqk_8821c.o
-	ifeq ($(CONFIG_RTL_ODM_WLAN_DRIVER),y)
-		_PHYDM_FILES += \
-		phydm/rtl8821c/halhwimg8821c_bb.o\
-		phydm/rtl8821c/halhwimg8821c_mac.o\
-		phydm/rtl8821c/halhwimg8821c_rf.o\
-		phydm/rtl8821c/phydm_regconfig8821c.o\
-		phydm/rtl8821c/phydm_hal_api8821c.o
-	endif
 endif
 	
 ifeq ($(CONFIG_WLAN_HAL_8197F),y)
 		_PHYDM_FILES += phydm/halrf/rtl8197f/halrf_8197f.o
 		_PHYDM_FILES += phydm/halrf/rtl8197f/halrf_iqk_8197f.o
 		_PHYDM_FILES += efuse_97f/efuse.o
-	ifeq ($(CONFIG_RTL_ODM_WLAN_DRIVER),y)
-		_PHYDM_FILES += \
-		phydm/rtl8197f/halhwimg8197f_bb.o\
-		phydm/rtl8197f/halhwimg8197f_mac.o\
-		phydm/rtl8197f/halhwimg8197f_rf.o\
-		phydm/rtl8197f/phydm_hal_api8197f.o\
-		phydm/rtl8197f/phydm_regconfig8197f.o\
-		phydm/rtl8197f/phydm_rtl8197f.o
-	endif
 endif

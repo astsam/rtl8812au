@@ -353,10 +353,6 @@ struct registry_priv {
 	u8  check_fw_ps;
 	u8	RegPwrTrimEnable;
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	u8	load_phy_file;
-	u8	RegDecryptCustomFile;
-#endif
 #ifdef CONFIG_CONCURRENT_MODE
 	u8 virtual_iface_num;
 #endif

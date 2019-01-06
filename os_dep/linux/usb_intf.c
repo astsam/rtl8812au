@@ -17,8 +17,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#include <platform_ops.h>
-
 #ifndef CONFIG_USB_HCI
 #error "CONFIG_USB_HCI shall be on!\n"
 #endif
@@ -183,6 +181,7 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x2357, 0x0101), .driver_info = RTL8812}, /* TP-Link - Archer T4U AC1200 */
 	{USB_DEVICE(0x2357, 0x0103), .driver_info = RTL8812}, /* TP-Link - T4UH */
 	{USB_DEVICE(0x2357, 0x010D), .driver_info = RTL8812}, /* TP-Link - Archer T4U AC1300 */
+	{USB_DEVICE(0x2357, 0x0115), .driver_info = RTL8812}, /* TP-Link - Archer T4U AC1300 */
 	{USB_DEVICE(0x2357, 0x010E), .driver_info = RTL8812}, /* TP-Link - Archer T4UH AC1300 */
 	{USB_DEVICE(0x2357, 0x010F), .driver_info = RTL8812}, /* TP-Link - T4UHP */
 	{USB_DEVICE(0x2357, 0x0122), .driver_info = RTL8812}, /* TP-Link - T4UHP (other) */
@@ -1615,7 +1614,6 @@ static int __init rtw_drv_entry(void)
 	RTW_PRINT(DRV_NAME" BT-Coex version = %s\n", BTCOEXVERSION);
 #endif /* BTCOEXVERSION */
 
-	ret = platform_wifi_power_on();
 	if (ret != 0) {
 		RTW_INFO("%s: power on failed!!(%d)\n", __FUNCTION__, ret);
 		ret = -1;
@@ -1627,7 +1625,6 @@ static int __init rtw_drv_entry(void)
 
 	usb_drv.drv_registered = _TRUE;
 	rtw_suspend_lock_init();
-	rtw_drv_proc_init();
 	rtw_ndev_notifier_register();
 	rtw_inetaddr_notifier_register();
 
@@ -1636,7 +1633,6 @@ static int __init rtw_drv_entry(void)
 	if (ret != 0) {
 		usb_drv.drv_registered = _FALSE;
 		rtw_suspend_lock_uninit();
-		rtw_drv_proc_deinit();
 		rtw_ndev_notifier_unregister();
 		rtw_inetaddr_notifier_unregister();
 		goto exit;
@@ -1655,10 +1651,7 @@ static void __exit rtw_drv_halt(void)
 
 	usb_deregister(&usb_drv.usbdrv);
 
-	platform_wifi_power_off();
-
 	rtw_suspend_lock_uninit();
-	rtw_drv_proc_deinit();
 	rtw_ndev_notifier_unregister();
 	rtw_inetaddr_notifier_unregister();
 

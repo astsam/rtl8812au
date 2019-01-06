@@ -51,7 +51,6 @@
 #if (CONFIG_EMBEDDED_FWIMG==1)
 	#define	LOAD_FW_HEADER_FROM_DRIVER
 #endif
-/* #define CONFIG_FILE_FWIMG */
 
 #define CONFIG_XMIT_ACK
 #ifdef CONFIG_XMIT_ACK
@@ -323,7 +322,7 @@
 /*
  * Debug Related Config
  */
-// #define DBG 1
+#define DBG 0
 
 #define CONFIG_PROC_DEBUG
 

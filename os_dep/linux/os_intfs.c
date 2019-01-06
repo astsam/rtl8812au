@@ -469,22 +469,6 @@ module_param(rtw_fw_iol, int, 0644);
 MODULE_PARM_DESC(rtw_fw_iol, "FW IOL. 0:Disable, 1:enable, 2:by usb speed");
 #endif /* CONFIG_IOL */
 
-#ifdef CONFIG_FILE_FWIMG
-char *rtw_fw_file_path = "/system/etc/firmware/rtlwifi/FW_NIC.BIN";
-module_param(rtw_fw_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_fw_file_path, "The path of fw image");
-
-char *rtw_fw_wow_file_path = "/system/etc/firmware/rtlwifi/FW_WoWLAN.BIN";
-module_param(rtw_fw_wow_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_fw_wow_file_path, "The path of fw for Wake on Wireless image");
-
-#ifdef CONFIG_MP_INCLUDED
-char *rtw_fw_mp_bt_file_path = "";
-module_param(rtw_fw_mp_bt_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_fw_mp_bt_file_path, "The path of fw for MP-BT image");
-#endif /* CONFIG_MP_INCLUDED */
-#endif /* CONFIG_FILE_FWIMG */
-
 #ifdef CONFIG_TX_MCAST2UNI
 module_param(rtw_mc2u_disable, int, 0644);
 #endif /* CONFIG_TX_MCAST2UNI */
@@ -651,26 +635,6 @@ static int rtw_target_tx_pwr_5g_d_num = 0;
 module_param_array(rtw_target_tx_pwr_5g_d, int, &rtw_target_tx_pwr_5g_d_num, 0644);
 MODULE_PARM_DESC(rtw_target_tx_pwr_5g_d, "5G target tx power (unit:dBm) of RF path D for each rate section, should match the real calibrate power, -1: undefined");
 #endif /* CONFIG_IEEE80211_BAND_5GHZ */
-
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-char *rtw_phy_file_path = REALTEK_CONFIG_PATH;
-module_param(rtw_phy_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_phy_file_path, "The path of phy parameter");
-/* PHY FILE Bit Map
-* BIT0 - MAC,				0: non-support, 1: support
-* BIT1 - BB,					0: non-support, 1: support
-* BIT2 - BB_PG,				0: non-support, 1: support
-* BIT3 - BB_MP,				0: non-support, 1: support
-* BIT4 - RF,					0: non-support, 1: support
-* BIT5 - RF_TXPWR_TRACK,	0: non-support, 1: support
-* BIT6 - RF_TXPWR_LMT,		0: non-support, 1: support */
-int rtw_load_phy_file = (BIT2 | BIT6);
-module_param(rtw_load_phy_file, int, 0644);
-MODULE_PARM_DESC(rtw_load_phy_file, "PHY File Bit Map");
-int rtw_decrypt_phy_file = 0;
-module_param(rtw_decrypt_phy_file, int, 0644);
-MODULE_PARM_DESC(rtw_decrypt_phy_file, "Enable Decrypt PHY File");
-#endif
 
 #ifdef CONFIG_SUPPORT_TRX_SHARED
 #ifdef DFT_TRX_SHARE_MODE
@@ -1050,10 +1014,7 @@ uint loadparam(_adapter *padapter)
 	registry_par->AmplifierType_2G = (u8)rtw_amplifier_type_2g;
 	registry_par->AmplifierType_5G = (u8)rtw_amplifier_type_5g;
 	registry_par->GLNA_Type = (u8)rtw_GLNA_type;
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	registry_par->load_phy_file = (u8)rtw_load_phy_file;
-	registry_par->RegDecryptCustomFile = (u8)rtw_decrypt_phy_file;
-#endif
+
 	registry_par->qos_opt_enable = (u8)rtw_qos_opt_enable;
 
 	registry_par->hiq_filter = (u8)rtw_hiq_filter;
@@ -1379,7 +1340,6 @@ static int rtw_ndev_notifier_call(struct notifier_block *nb, unsigned long state
 
 	switch (state) {
 	case NETDEV_CHANGENAME:
-		rtw_adapter_proc_replace(ndev);
 		strncpy(adapter->old_ifname, ndev->name, IFNAMSIZ);
 		adapter->old_ifname[IFNAMSIZ-1] = 0;
 		break;
@@ -1410,7 +1370,6 @@ int rtw_ndev_init(struct net_device *dev)
 		, FUNC_ADPT_ARG(adapter), (adapter->iface_id + 1), MAC_ARG(dev->dev_addr));
 	strncpy(adapter->old_ifname, dev->name, IFNAMSIZ);
 	adapter->old_ifname[IFNAMSIZ - 1] = '\0';
-	rtw_adapter_proc_init(dev);
 
 	return 0;
 }
@@ -1421,7 +1380,6 @@ void rtw_ndev_uninit(struct net_device *dev)
 
 	RTW_PRINT(FUNC_ADPT_FMT" if%d\n"
 		  , FUNC_ADPT_ARG(adapter), (adapter->iface_id + 1));
-	rtw_adapter_proc_deinit(dev);
 }
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 29))

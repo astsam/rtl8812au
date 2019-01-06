@@ -252,46 +252,4 @@ void dump_tx_power_by_rate(void *sel, _adapter *adapter);
 
 int rtw_get_phy_file_path(_adapter *adapter, const char *file_name);
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-#define MAC_FILE_FW_NIC			"FW_NIC.bin"
-#define MAC_FILE_FW_WW_IMG		"FW_WoWLAN.bin"
-#define PHY_FILE_MAC_REG		"MAC_REG.txt"
-
-#define PHY_FILE_AGC_TAB		"AGC_TAB.txt"
-#define PHY_FILE_PHY_REG		"PHY_REG.txt"
-#define PHY_FILE_PHY_REG_MP		"PHY_REG_MP.txt"
-#define PHY_FILE_PHY_REG_PG		"PHY_REG_PG.txt"
-
-#define PHY_FILE_RADIO_A		"RadioA.txt"
-#define PHY_FILE_RADIO_B		"RadioB.txt"
-#define PHY_FILE_RADIO_C		"RadioC.txt"
-#define PHY_FILE_RADIO_D		"RadioD.txt"
-#define PHY_FILE_TXPWR_TRACK	"TxPowerTrack.txt"
-#define PHY_FILE_TXPWR_LMT		"TXPWR_LMT.txt"
-
-#define PHY_FILE_WIFI_ANT_ISOLATION	"wifi_ant_isolation.txt"
-
-#define MAX_PARA_FILE_BUF_LEN	25600
-
-#define LOAD_MAC_PARA_FILE				BIT0
-#define LOAD_BB_PARA_FILE					BIT1
-#define LOAD_BB_PG_PARA_FILE				BIT2
-#define LOAD_BB_MP_PARA_FILE				BIT3
-#define LOAD_RF_PARA_FILE					BIT4
-#define LOAD_RF_TXPWR_TRACK_PARA_FILE	BIT5
-#define LOAD_RF_TXPWR_LMT_PARA_FILE		BIT6
-
-int phy_ConfigMACWithParaFile(IN PADAPTER	Adapter, IN char	*pFileName);
-int phy_ConfigBBWithParaFile(IN PADAPTER	Adapter, IN char	*pFileName, IN u32	ConfigType);
-int phy_ConfigBBWithPgParaFile(IN PADAPTER	Adapter, IN const char *pFileName);
-int phy_ConfigBBWithMpParaFile(IN PADAPTER	Adapter, IN char	*pFileName);
-int PHY_ConfigRFWithParaFile(IN	PADAPTER	Adapter, IN char	*pFileName, IN enum rf_path	eRFPath);
-int PHY_ConfigRFWithTxPwrTrackParaFile(IN PADAPTER	Adapter, IN char	*pFileName);
-#ifdef CONFIG_TXPWR_LIMIT
-int PHY_ConfigRFWithPowerLimitTableParaFile(IN PADAPTER	Adapter, IN const char *pFileName);
-#endif
-void phy_free_filebuf_mask(_adapter *padapter, u8 mask);
-void phy_free_filebuf(_adapter *padapter);
-#endif /* CONFIG_LOAD_PHY_PARA_FROM_FILE */
-
 #endif /* __HAL_COMMON_H__ */
