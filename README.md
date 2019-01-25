@@ -15,13 +15,8 @@
 
 ### What's NEW
 ```
-* december: working on a major update/bugfixes.
-  may be seen rolling out over here https://github.com/aircrack-ng/rtl8812au/pull/246
-  
-* october: airmon-ng now got support for this driver (even without virtual interface support)
-
-## Kernel v4.19 and v4.20 supported.
-## Also working to get more old/new kernels supported.
+* airmon-ng now got support for this driver (even without virtual interface support)
+* kernel v4.19, v4.20 and v5.0 is now supported.
 ```
 
 ### DKMS
