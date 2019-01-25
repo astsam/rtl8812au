@@ -314,7 +314,7 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 {
 #if 1				/* by channel plan */
 	_adapter *padapter = wiphy_to_adapter(wiphy);
-	//struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
+	struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
 	//u8 channel_plan = rfctl->ChannelPlan;
 	//RT_CHANNEL_INFO *channel_set = rfctl->channel_set;
 	//u8 max_chan_nums = rfctl->max_chan_nums;
@@ -336,7 +336,7 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 				if (ch)
 					ch->flags &= ~(IEEE80211_CHAN_DISABLED|IEEE80211_CHAN_NO_HT40PLUS|
 						IEEE80211_CHAN_NO_HT40MINUS|IEEE80211_CHAN_NO_80MHZ|
-						IEEE80211_CHAN_NO_160MHZ|
+						IEEE80211_CHAN_NO_160MHZ|IEEE80211_CHAN_NO_IR);
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
 						IEEE80211_CHAN_NO_IBSS|IEEE80211_CHAN_PASSIVE_SCAN);
 #else
