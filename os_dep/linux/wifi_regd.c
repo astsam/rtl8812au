@@ -314,7 +314,7 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 {
 #if 1				/* by channel plan */
 	_adapter *padapter = wiphy_to_adapter(wiphy);
-	//struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
+	struct rf_ctl_t *rfctl = adapter_to_rfctl(padapter);
 	//u8 channel_plan = rfctl->ChannelPlan;
 	//RT_CHANNEL_INFO *channel_set = rfctl->channel_set;
 	//u8 max_chan_nums = rfctl->max_chan_nums;
