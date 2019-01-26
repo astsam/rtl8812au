@@ -19,12 +19,6 @@
 
 #include <rtw_wifi_regd.h>
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 4, 0))
-	#define IEEE80211_BAND_2GHZ NL80211_BAND_2GHZ
-	#define IEEE80211_BAND_5GHZ NL80211_BAND_5GHZ
-	#define IEEE80211_NUM_BANDS NL80211_NUM_BANDS
-#endif
-
 static struct country_code_to_enum_rd allCountries[] = {
 	{COUNTRY_CODE_USER, "RD"},
 };
@@ -342,11 +336,11 @@ static void _rtw_reg_apply_flags(struct wiphy *wiphy)
 				if (ch)
 					ch->flags &= ~(IEEE80211_CHAN_DISABLED|IEEE80211_CHAN_NO_HT40PLUS|
 						IEEE80211_CHAN_NO_HT40MINUS|IEEE80211_CHAN_NO_80MHZ|
-						IEEE80211_CHAN_NO_160MHZ|IEEE80211_CHAN_NO_IR);
+						IEEE80211_CHAN_NO_160MHZ);
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0))
 						IEEE80211_CHAN_NO_IBSS|IEEE80211_CHAN_PASSIVE_SCAN);
 #else
-						IEEE80211_CHAN_NO_IR);
+						IEEE80211_CHAN_NO_IR;
 #endif
 						//ch->flags = IEEE80211_CHAN_DISABLED;
 			}
