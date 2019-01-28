@@ -37,7 +37,7 @@ In order to remove the driver from your system open a terminal in the directory 
 $ sudo ./dkms-remove.sh
 ```
 
-### Make
+### Build / Install with Make
 For building & installing the driver with 'make' use
 ```
 $ make
@@ -91,7 +91,7 @@ $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
 ```
 
-For setting monitor mode
+### For setting monitor mode
   1. Fix problematic interference in monitor mode. 
   ```
   $ airmon-ng check kill
