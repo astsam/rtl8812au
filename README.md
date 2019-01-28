@@ -153,7 +153,7 @@ $ cat /proc/net/rtl8812au/$(your interface name)/led_enable
 Check "documents" and "tools" folders for information
 We also got a Android APK tool for debugging several chipsets
 ```
-[https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg](https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg)
+![https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg](https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg)
 
 ### NetworkManager
 
@@ -172,4 +172,13 @@ wifi.powersave=2
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
 $ sudo service NetworkManager restart
+```
+
+### Credits
+```
+gordboy - for all his work and patches
+mk-fg   - for patches and lots of documents
+astsam  - for his work on these chips for the early on
+evilphish - for all his wonderful work over here
+fariouche - also, did lots in great work over here
 ```
