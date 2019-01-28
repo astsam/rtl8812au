@@ -44,7 +44,14 @@ $ make
 $ make install
 ```
 
-### Notes
+### Using hostapd?
+```
+# For a bit more info on AP/STA mode configuration, see following links:
+  - http://blog.fraggod.net/2017/04/27/wifi-hostapd-configuration-for-80211ac-networks.html
+  - https://github.com/mk-fg/archlinux-pkgbuilds/issues/2#issuecomment-325991813
+```
+
+### Download / Build / Install
 Download
 ```
 $ git clone -b v5.2.20 https://github.com/aircrack-ng/rtl8812au.git
@@ -143,11 +150,17 @@ $ cat /proc/net/rtl8812au/$(your interface name)/led_enable
 
 ### NetworkManager
 
-Newer versions of NetworkManager switches to random MAC address. Some users would prefer to use a fixed address. 
-Simply add these lines below
+Newer versions of NetworkManager got some options you might want to disable.
+Simply add these lines into the NetworkManager.conf
 ```
 [device]
 wifi.scan-rand-mac-address=no
+
+[ifupdown]
+managed=false
+
+[connection]
+wifi.powersave=2
 ```
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
