@@ -38,7 +38,7 @@ In order to remove the driver from your system open a terminal in the directory 
 $ sudo ./dkms-remove.sh
 ```
 
-### Make
+### Build / Install with Make
 For building & installing the driver with 'make' use
 ```
 $ make
@@ -92,7 +92,7 @@ $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
 ```
 
-For setting monitor mode
+### For setting monitor mode
   1. Fix problematic interference in monitor mode. 
   ```
   $ airmon-ng check kill
@@ -149,6 +149,13 @@ value can be 0 or 1
 $ cat /proc/net/rtl8812au/$(your interface name)/led_enable
 ```
 
+### Testing / Debug
+```
+Check "documents" and "tools" folders for information
+We also got a Android APK tool for debugging several chipsets
+```
+![https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg](https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg)
+
 ### NetworkManager
 
 Newer versions of NetworkManager got some options you might want to disable.
@@ -166,4 +173,13 @@ wifi.powersave=2
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
 $ sudo service NetworkManager restart
+```
+
+### Credits
+```
+gordboy - for all his work and patches
+mk-fg   - for patches and lots of documents
+astsam  - for his work on these chips for the early on
+evilphish - for all his wonderful work over here
+fariouche - also, did lots in great work over here
 ```
