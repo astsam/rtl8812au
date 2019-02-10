@@ -152,7 +152,7 @@ $ cat /proc/net/rtl8812au/$(your interface name)/led_enable
 Check "documents" and "tools" folders for information
 We also got a Android APK tool for debugging several chipsets
 ```
-![https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg](https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg)
+![https://github.com/aircrack-ng/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-025608-01.jpeg](https://github.com/aircrack-ng/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-025608-01.jpeg)
 
 ### NetworkManager
 
