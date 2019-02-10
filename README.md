@@ -43,7 +43,7 @@ $ make install
 ### Using hostapd?
 Check the documents folder for more information on how to setup wpa_cli and hostapd
 support on these drivers. <br>For 802.11ac (high speed), the driver also needs to be loaded
-with: "modprobe -r 88XXau" && "modprobe 88XXau rtw_vht_enable=2"
+with: <br>"modprobe -r 88XXau" && "modprobe 88XXau rtw_vht_enable=2"
 ```
 # For a bit more info on AP/STA mode configuration, see following links:
   - http://blog.fraggod.net/2017/04/27/wifi-hostapd-configuration-for-80211ac-networks.html
@@ -58,10 +58,10 @@ $ cd rtl*
 ```
 Package / Build dependencies (Kali)
 ```
-$ sudo apt-get install build-essential
-$ sudo apt-get install bc
-$ sudo apt-get install libelf-dev
-$ sudo apt-get install linux-headers-`uname -r`
+$ apt-get install build-essential
+$ apt-get install bc
+$ apt-get install libelf-dev
+$ apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI 2/3) you will need kernel sources
 ```
