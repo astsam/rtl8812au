@@ -11,6 +11,7 @@
 <br>
 [![Kali](https://img.shields.io/badge/Kali-supported-blue.svg)](https://www.kali.org)
 [![Arch](https://img.shields.io/badge/Arch-supported-blue.svg)](https://www.archlinux.org)
+[![Armbian](https://img.shields.io/badge/Armbian-supported-blue.svg)](https://www.armbian.com)
 [![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
 
