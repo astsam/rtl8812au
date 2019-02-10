@@ -65,18 +65,18 @@ $ apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI 2/3) you will need kernel sources
 ```
-$ sudo wget "https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source" -O /usr/bin/rpi-source
-$ sudo chmod 755 /usr/bin/rpi-source
-$ sudo rpi-source 
+$ wget "https://raw.githubusercontent.com/notro/rpi-source/master/rpi-source" -O /usr/bin/rpi-source
+$ chmod 755 /usr/bin/rpi-source
+$ rpi-source 
 ```
 Then you need to download and compile the driver on the RPI
 ```
 $ git clone https://github.com/aircrack-ng/rtl8812au -b v5.2.20
 $ cd rtl*
 $ make
-$ sudo cp 8812au.ko /lib/modules/`uname -r`/kernel/drivers/net/wireless
-$ sudo depmod -a
-$ sudo modprobe 88XXau
+$ cp 8812au.ko /lib/modules/`uname -r`/kernel/drivers/net/wireless
+$ depmod -a
+$ modprobe 88XXau
 ```
 then run this step to change platform in Makefile, For RPI 2/3:
 ```
@@ -99,23 +99,23 @@ $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makef
   
   2. Set interface down
   ```
-  $ sudo ip link set <wlan1> down
+  $ ip link set <wlan1> down
   ``` 
   3. Set monitor mode
   ```
-  $ sudo airmon-ng start <wlan1>
+  $  airmon-ng start <wlan1>
   or
-  $ sudo iw dev <wlan1> set type monitor
+  $ iw dev <wlan1> set type monitor
   ```
   4. Set interface up
   ```
-  $ sudo ip link set <wlan1> up
+  $ ip link set <wlan1> up
   ```
 For setting TX power
 ```
-$ sudo iwconfig <wlan1> txpower 30
+$ iwconfig <wlan1> txpower 30
 or
-$ sudo iw <wla1> nset txpower fixed 3000
+$ iw <wlan1> set txpower fixed 3000
 ```
 ### LED control
 
@@ -132,7 +132,6 @@ value can be y or n
 options 88XXau rtw_led_enable=0
 ```
 value can be 0 or 1
-
 
 #### or dynamically by writing to /proc/net/rtl8812au/$(your interface name)/led_enable, for example:
 
