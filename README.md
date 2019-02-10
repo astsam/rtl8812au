@@ -15,12 +15,6 @@
 [![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
 
-### What's NEW
-```
-* airmon-ng now got support for this driver (even without virtual interface support)
-* kernel v4.19, v4.20 and v5.0 is now supported.
-```
-
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
@@ -47,6 +41,9 @@ $ make install
 ```
 
 ### Using hostapd?
+Check the documents folder for more information on how to setup wpa_cli and hostapd
+support on these drivers. <br>For 802.11ac (high speed), the driver also needs to be loaded
+with: <br>"modprobe -r 88XXau" && "modprobe 88XXau rtw_vht_enable=2"
 ```
 # For a bit more info on AP/STA mode configuration, see following links:
   - http://blog.fraggod.net/2017/04/27/wifi-hostapd-configuration-for-80211ac-networks.html
@@ -61,10 +58,10 @@ $ cd rtl*
 ```
 Package / Build dependencies (Kali)
 ```
-$ sudo apt-get install build-essential
-$ sudo apt-get install bc
-$ sudo apt-get install libelf-dev
-$ sudo apt-get install linux-headers-`uname -r`
+$ apt-get install build-essential
+$ apt-get install bc
+$ apt-get install libelf-dev
+$ apt-get install linux-headers-`uname -r`
 ```
 For Raspberry (RPI 2/3) you will need kernel sources
 ```
@@ -155,7 +152,7 @@ $ cat /proc/net/rtl8812au/$(your interface name)/led_enable
 Check "documents" and "tools" folders for information
 We also got a Android APK tool for debugging several chipsets
 ```
-![https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg](https://github.com/kimocoder/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-002101.jpg)
+![https://github.com/aircrack-ng/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-025608-01.jpeg](https://github.com/aircrack-ng/rtl8812au/blob/v5.2.20/documents/Screenshot_20190129-025608-01.jpeg)
 
 ### NetworkManager
 
@@ -174,13 +171,4 @@ wifi.powersave=2
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
 $ sudo service NetworkManager restart
-```
-
-### Credits
-```
-gordboy - for all his work and patches
-mk-fg   - for patches and lots of documents
-astsam  - for his work on these chips for the early on
-evilphish - for all his wonderful work over here
-fariouche - also, did lots in great work over here
 ```
