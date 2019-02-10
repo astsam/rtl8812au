@@ -42,7 +42,7 @@ $ make install
 
 ### Using hostapd?
 Check the documents folder for more information on how to setup wpa_cli and hostapd
-support on these drivers. For 802.11ac (high speed), the driver also needs to be loaded
+support on these drivers. <br>For 802.11ac (high speed), the driver also needs to be loaded
 with: "modprobe -r 88XXau" && "modprobe 88XXau rtw_vht_enable=2"
 ```
 # For a bit more info on AP/STA mode configuration, see following links:
