@@ -75,7 +75,7 @@ $ git clone https://github.com/aircrack-ng/rtl8812au -b v5.2.20
 $ cd rtl*
 $ make
 $ cp 8812au.ko /lib/modules/`uname -r`/kernel/drivers/net/wireless
-$ epmod -a
+$ depmod -a
 $ modprobe 88XXau
 ```
 then run this step to change platform in Makefile, For RPI 2/3:
