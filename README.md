@@ -115,7 +115,7 @@ For setting TX power
 ```
 $ iwconfig <wlan1> txpower 30
 or
-$ iw <wla1> nset txpower fixed 3000
+$ iw <wlan1> set txpower fixed 3000
 ```
 ### LED control
 
