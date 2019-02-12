@@ -42,10 +42,24 @@ sudo apt-get install bc
 sudo apt-get install libelf-dev
 sudo apt-get install linux-headers-`uname -r`
 ```
-For Raspberry (RPI)
+#### For Raspberry (RPI)
+
 ```
-sudo apt-get install raspberrypi-kernel-headers
+sudo apt-get install bc raspberrypi-kernel-headers
 ```
+
+Then run this step to change platform in Makefile, For RPI 2/3:
+```
+$ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
+$ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefile
+```
+
+But for RPI 3 B+ you will need to run those below which builds the ARM64 arch driver:
+```
+$ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
+$ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
+```
+
 For setting monitor mode
   1. Fix problematic interference in monitor mode. 
   ```
