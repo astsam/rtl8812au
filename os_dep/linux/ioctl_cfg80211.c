@@ -5569,6 +5569,16 @@ static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wd
       //DBG_871X("%s dvobj null\n", __func__);
     }
     switch(pHalData->current_channel_bw){
+      case CHANNEL_WIDTH_5:
+	//DBG_871X("%s width 5\n", __func__);
+	width = NL80211_CHAN_WIDTH_5;
+	center_freq = control_freq;
+	break;
+      case CHANNEL_WIDTH_10:
+	//DBG_871X("%s width 5\n", __func__);
+	width = NL80211_CHAN_WIDTH_10;
+	center_freq = control_freq;
+	break;
       case CHANNEL_WIDTH_20:
 	//DBG_871X("%s width 20\n", __func__);
 	width = NL80211_CHAN_WIDTH_20;
