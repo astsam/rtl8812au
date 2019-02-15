@@ -12554,7 +12554,7 @@ static void rtw_mlmeext_disconnect(_adapter *padapter)
 		self_action = MLME_ACTION_NONE;
 	else {
 		RTW_INFO("state:0x%x\n", MLME_STATE(padapter));
-		rtw_warn_on(1);
+		//rtw_warn_on(1);
 	}
 
 	/* set_opmode_cmd(padapter, infra_client_with_mlme); */
