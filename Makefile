@@ -40,8 +40,9 @@ CONFIG_RTL8814A = y
 ######################### Interface ###########################
 CONFIG_USB_HCI = y
 ########################## Features ###########################
-CONFIG_NET_NS = y
+CONFIG_NET_NS = n
 CONFIG_MP_INCLUDED = y
+CONFIG_CONCURRENT_MODE = n
 CONFIG_POWER_SAVING = n
 CONFIG_USB_AUTOSUSPEND = n
 CONFIG_HW_PWRP_DETECTION = n

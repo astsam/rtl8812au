@@ -17,7 +17,7 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
+#if defined(PLATFORM_LINUX) && defined(PLATFORM_WINDOWS)
 
 	#error "Shall be Linux or Windows, but not both!\n"
 
