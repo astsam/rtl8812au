@@ -40,7 +40,9 @@ CONFIG_RTL8814A = y
 ######################### Interface ###########################
 CONFIG_USB_HCI = y
 ########################## Features ###########################
+CONFIG_NET_NS = n
 CONFIG_MP_INCLUDED = y
+CONFIG_CONCURRENT_MODE = n
 CONFIG_POWER_SAVING = n
 CONFIG_USB_AUTOSUSPEND = n
 CONFIG_HW_PWRP_DETECTION = n
@@ -98,6 +100,7 @@ CONFIG_MP_VHT_HW_TX_MODE = n
 CONFIG_PLATFORM_I386_PC = y
 CONFIG_PLATFORM_ANDROID_X86 = n
 CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
+CONFIG_PLATFORM_OPENWRT_NEO2 = n
 CONFIG_PLATFORM_JB_X86 = n
 CONFIG_PLATFORM_ARM_S3C2K4 = n
 CONFIG_PLATFORM_ARM_PXA2XX = n
@@ -899,6 +902,15 @@ EXTRA_CFLAGS += -DCONFIG_BIG_ENDIAN
 ARCH := mips
 CROSS_COMPILE := mips-openwrt-linux-
 KSRC := /home/alex/test_openwrt/tmp/linux-2.6.30.9
+endif
+
+ifeq ($(CONFIG_PLATFORM_OPENWRT_NEO2), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+ARCH := arm64
+CROSS_COMPILE := aarch64-openwrt-linux-
+#export PATH=$PATH:/home/greearb/git/openwrt-neo2-dev/staging_dir/toolchain-aarch64_cortex-a53_gcc-7.3.0_musl/bin/
+#export STAGING_DIR=/home/greearb/git/openwrt-neo2-dev/staging_dir
+KSRC := /home/greearb/git/openwrt-neo2-dev/build_dir/target-aarch64_cortex-a53_musl/linux-sunxi_cortexa53/linux-4.14.78
 endif
 
 ifeq ($(CONFIG_PLATFORM_DMP_PHILIPS), y)

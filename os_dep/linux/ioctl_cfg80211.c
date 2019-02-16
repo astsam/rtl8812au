@@ -765,7 +765,7 @@ struct cfg80211_bss *rtw_cfg80211_inform_bss(_adapter *padapter, struct wlan_net
 
 	pbuf = rtw_zmalloc(buf_size);
 	if (pbuf == NULL) {
-		RTW_INFO("%s pbuf allocate failed  !!\n", __FUNCTION__);
+		RTW_INFO("%s pbuf allocate failed  !!\n", __func__);
 		return bss;
 	}
 
@@ -773,7 +773,7 @@ struct cfg80211_bss *rtw_cfg80211_inform_bss(_adapter *padapter, struct wlan_net
 
 	bssinf_len = pnetwork->network.IELength + sizeof(struct rtw_ieee80211_hdr_3addr);
 	if (bssinf_len > buf_size) {
-		RTW_INFO("%s IE Length too long > %zu byte\n", __FUNCTION__, buf_size);
+		RTW_INFO("%s IE Length too long > %zu byte\n", __func__, buf_size);
 		goto exit;
 	}
 
@@ -783,7 +783,7 @@ struct cfg80211_bss *rtw_cfg80211_inform_bss(_adapter *padapter, struct wlan_net
 
 		if (rtw_get_wapi_ie(pnetwork->network.IEs, pnetwork->network.IELength, NULL, &wapi_len) > 0) {
 			if (wapi_len > 0) {
-				RTW_INFO("%s, no support wapi!\n", __FUNCTION__);
+				RTW_INFO("%s, no support wapi!\n", __func__);
 				goto exit;
 			}
 		}
@@ -1213,12 +1213,15 @@ void rtw_cfg80211_indicate_disconnect(_adapter *padapter, u16 reason, u8 locally
 			rtw_cfg80211_connect_result(pwdev, NULL, NULL, 0, NULL, 0,
 				WLAN_STATUS_UNSPECIFIED_FAILURE, GFP_ATOMIC);
 		} else {
-			RTW_INFO(FUNC_ADPT_FMT" call cfg80211_disconnected\n", FUNC_ADPT_ARG(padapter));
-			rtw_cfg80211_disconnected(pwdev, reason, NULL, 0, locally_generated, GFP_ATOMIC);
+				RTW_INFO(FUNC_ADPT_FMT" call cfg80211_disconnected\n", FUNC_ADPT_ARG(padapter));
+				rtw_cfg80211_disconnected(pwdev, reason, NULL, 0, locally_generated, GFP_ATOMIC);
+
+				cfg80211_connect_result(padapter->pnetdev, NULL, NULL, 0, NULL, 0,
+						WLAN_STATUS_UNSPECIFIED_FAILURE, GFP_ATOMIC);
 		}
 		#endif
-	}
 
+	}
 	rtw_wdev_free_connect_req(pwdev_priv);
 
 	_exit_critical_bh(&pwdev_priv->connect_req_lock, &irqL);
@@ -2290,6 +2293,11 @@ enum nl80211_iftype {
 	NL80211_IFTYPE_MAX = NUM_NL80211_IFTYPES - 1
 };
 #endif
+
+#ifdef CONFIG_CONCURRENT_MODE
+extern int netdev_if2_open(struct net_device *pnetdev);
+#endif
+
 static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 				     struct net_device *ndev,
 				     enum nl80211_iftype type,
@@ -4118,6 +4126,8 @@ void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint f
 	{
 		struct station_info sinfo;
 		u8 ie_offset;
+		_rtw_memset(&sinfo, 0, sizeof(struct station_info));
+
 		if (get_frame_sub_type(pmgmt_frame) == WIFI_ASSOCREQ)
 			ie_offset = _ASOCREQ_IE_OFFSET_;
 		else /* WIFI_REASSOCREQ */
@@ -4657,7 +4667,7 @@ static int rtw_add_beacon(_adapter *adapter, const u8 *head, size_t head_len, co
 	/* struct sta_priv *pstapriv = &padapter->stapriv; */
 
 
-	RTW_INFO("%s beacon_head_len=%zu, beacon_tail_len=%zu\n", __FUNCTION__, head_len, tail_len);
+	RTW_INFO("%s beacon_head_len=%zu, beacon_tail_len=%zu\n", __func__, head_len, tail_len);
 
 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != _TRUE)
@@ -5209,7 +5219,7 @@ release_plink_ctl:
 	if (psta == NULL) {
 		psta = rtw_alloc_stainfo(pstapriv, (u8 *)mac);
 		if (psta == NULL) {
-			RTW_INFO("[%s] Alloc station for "MAC_FMT" fail\n", __FUNCTION__, MAC_ARG(mac));
+			RTW_INFO("[%s] Alloc station for "MAC_FMT" fail\n", __func__, MAC_ARG(mac));
 			ret = -EOPNOTSUPP;
 			goto exit;
 		}
@@ -6070,7 +6080,7 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	size_t frame_body_len = len - sizeof(struct rtw_ieee80211_hdr_3addr);
 
 
-	RTW_INFO("[%s] In\n", __FUNCTION__);
+	RTW_INFO("[%s] In\n", __func__);
 
 	/* prepare for building provision_request frame	 */
 	_rtw_memcpy(pwdinfo->tx_prov_disc_info.peerIFAddr, GetAddr1Ptr(buf), ETH_ALEN);
@@ -7274,7 +7284,7 @@ static int cfg80211_rtw_tdls_mgmt(struct wiphy *wiphy,
 
 	/* Debug purpose */
 #if 1
-	RTW_INFO("%s %d\n", __FUNCTION__, __LINE__);
+	RTW_INFO("%s %d\n", __func__, __LINE__);
 	RTW_INFO("peer:"MAC_FMT", action code:%d, dialog:%d, status code:%d\n",
 		MAC_ARG(txmgmt.peer), txmgmt.action_code,
 		txmgmt.dialog_token, txmgmt.status_code);
@@ -7365,7 +7375,7 @@ static int cfg80211_rtw_tdls_oper(struct wiphy *wiphy,
 			if (padapter->wdinfo.wfd_tdls_weaksec == _TRUE)
 				issue_tdls_setup_req(padapter, &txmgmt, _TRUE);
 			else
-				RTW_INFO("[%s] Current link is not AES, SKIP sending the tdls setup request!!\n", __FUNCTION__);
+				RTW_INFO("[%s] Current link is not AES, SKIP sending the tdls setup request!!\n", __func__);
 		} else
 #endif /* CONFIG_WFD */
 		{
@@ -8488,13 +8498,13 @@ int	cfg80211_rtw_resume(struct wiphy *wiphy) {
 		//rtw_sitesurvey_cmd(padapter, NULL);
 		rtw_sitesurvey_cmd(padapter, &parm);
 		_exit_critical_bh(&pmlmepriv->lock, &irqL);
-		
+
 		for (PNOWakeupScanWaitCnt = 0; PNOWakeupScanWaitCnt < 10; PNOWakeupScanWaitCnt++) {
 			if(check_fwstate(pmlmepriv, _FW_UNDER_SURVEY) == _FALSE)
 				break;
 			rtw_msleep_os(1000);
 		}
-		
+
 		_enter_critical_bh(&pmlmepriv->lock, &irqL);
 		cfg80211_sched_scan_results(padapter->rtw_wdev->wiphy);
 		_exit_critical_bh(&pmlmepriv->lock, &irqL);
@@ -8502,7 +8512,7 @@ int	cfg80211_rtw_resume(struct wiphy *wiphy) {
 	}
 	RTW_DBG("<== %s\n",__func__);
 	return 0;
-	
+
 }
 #endif /* CONFIG_PNO_SUPPORT */
 
@@ -8538,7 +8548,7 @@ static int rtw_cfg80211_set_beacon_wpsp2pie(struct net_device *ndev, char *buf, 
 
 			pmlmepriv->wps_beacon_ie = rtw_malloc(wps_ielen);
 			if (pmlmepriv->wps_beacon_ie == NULL) {
-				RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __FUNCTION__, __LINE__);
+				RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 				return -EINVAL;
 
 			}
@@ -8569,7 +8579,7 @@ static int rtw_cfg80211_set_beacon_wpsp2pie(struct net_device *ndev, char *buf, 
 
 			pmlmepriv->p2p_beacon_ie = rtw_malloc(p2p_ielen);
 			if (pmlmepriv->p2p_beacon_ie == NULL) {
-				RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __FUNCTION__, __LINE__);
+				RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 				return -EINVAL;
 
 			}
@@ -8648,7 +8658,7 @@ static int rtw_cfg80211_set_probe_resp_wpsp2pie(struct net_device *net, char *bu
 
 			pmlmepriv->wps_probe_resp_ie = rtw_malloc(wps_ielen);
 			if (pmlmepriv->wps_probe_resp_ie == NULL) {
-				RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __FUNCTION__, __LINE__);
+				RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 				return -EINVAL;
 
 			}
@@ -8696,7 +8706,7 @@ static int rtw_cfg80211_set_probe_resp_wpsp2pie(struct net_device *net, char *bu
 			/* Check P2P Capability ATTR */
 			if (rtw_get_p2p_attr_content(p2p_ie, p2p_ielen, P2P_ATTR_CAPABILITY, (u8 *)&cap_attr, (uint *) &attr_contentlen)) {
 				u8 grp_cap = 0;
-				/* RTW_INFO( "[%s] Got P2P Capability Attr!!\n", __FUNCTION__ ); */
+				/* RTW_INFO( "[%s] Got P2P Capability Attr!!\n", __func__ ); */
 				cap_attr = le16_to_cpu(cap_attr);
 				grp_cap = (u8)((cap_attr >> 8) & 0xff);
 
@@ -8717,7 +8727,7 @@ static int rtw_cfg80211_set_probe_resp_wpsp2pie(struct net_device *net, char *bu
 
 				pmlmepriv->p2p_probe_resp_ie = rtw_malloc(p2p_ielen);
 				if (pmlmepriv->p2p_probe_resp_ie == NULL) {
-					RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __FUNCTION__, __LINE__);
+					RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 					return -EINVAL;
 
 				}
@@ -8733,7 +8743,7 @@ static int rtw_cfg80211_set_probe_resp_wpsp2pie(struct net_device *net, char *bu
 
 				pmlmepriv->p2p_go_probe_resp_ie = rtw_malloc(p2p_ielen);
 				if (pmlmepriv->p2p_go_probe_resp_ie == NULL) {
-					RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __FUNCTION__, __LINE__);
+					RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 					return -EINVAL;
 
 				}
@@ -8788,7 +8798,7 @@ static int rtw_cfg80211_set_assoc_resp_wpsp2pie(struct net_device *net, char *bu
 
 		pmlmepriv->wps_assoc_resp_ie = rtw_malloc(ie_len);
 		if (pmlmepriv->wps_assoc_resp_ie == NULL) {
-			RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __FUNCTION__, __LINE__);
+			RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 			return -EINVAL;
 		}
 		_rtw_memcpy(pmlmepriv->wps_assoc_resp_ie, ie, ie_len);
@@ -8807,7 +8817,7 @@ static int rtw_cfg80211_set_assoc_resp_wpsp2pie(struct net_device *net, char *bu
 
 		pmlmepriv->p2p_assoc_resp_ie = rtw_malloc(ie_len);
 		if (pmlmepriv->p2p_assoc_resp_ie == NULL) {
-			RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __FUNCTION__, __LINE__);
+			RTW_INFO("%s()-%d: rtw_malloc() ERROR!\n", __func__, __LINE__);
 			return -EINVAL;
 		}
 		_rtw_memcpy(pmlmepriv->p2p_assoc_resp_ie, ie, ie_len);
