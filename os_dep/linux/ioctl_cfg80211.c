@@ -2525,9 +2525,13 @@ void rtw_cfg80211_unlink_bss(_adapter *padapter, struct wlan_network *pnetwork)
 	struct wireless_dev *pwdev = padapter->rtw_wdev;
 	struct wiphy *wiphy = pwdev->wiphy;
 	struct cfg80211_bss *bss = NULL;
-	WLAN_BSSID_EX select_network = pnetwork->network;
+	WLAN_BSSID_EX select_network;
 
-	bss = cfg80211_get_bss(wiphy, NULL/*notify_channel*/,
+	if (!pnetwork)
+		return;
+	select_network = pnetwork->network;
+
+	bss = cfg80211_get_bss(wiphy, NULL /*notify_channel*/,
 		select_network.MacAddress, select_network.Ssid.Ssid,
 		select_network.Ssid.SsidLength,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0)
