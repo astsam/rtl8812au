@@ -1651,18 +1651,19 @@ void rtw_os_ndev_unregister(_adapter *adapter)
 	netdev = adapter->pnetdev;
 
 #if defined(CONFIG_IOCTL_CFG80211)
-	rtw_cfg80211_ndev_res_unregister(adapter);
+       		 rtw_cfg80211_ndev_res_unregister(adapter);
 #endif
 
-	if ((adapter->DriverState != DRIVER_DISAPPEAR) && netdev) {
-		struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
-		u8 rtnl_lock_needed = rtw_rtnl_lock_needed(dvobj);
+        if ((adapter->DriverState != DRIVER_DISAPPEAR) && netdev) {
+                struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
+                u8 rtnl_lock_needed = rtw_rtnl_lock_needed(dvobj);
 
-		if (rtnl_lock_needed)
-			unregister_netdev(netdev);
-		else
-			unregister_netdevice(netdev);
-	}
+                if (rtnl_lock_needed)
+                        unregister_netdev(netdev);
+                else
+                        unregister_netdevice(netdev);
+        }
+
 
 #if defined(CONFIG_IOCTL_CFG80211) && !defined(RTW_SINGLE_WIPHY)
 #ifdef CONFIG_RFKILL_POLL
