@@ -836,7 +836,7 @@ void rtl8814_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)
 			DLBcnCount++;
 			do
 			{
-				rtw_yield_os();
+				yield();
 				//rtw_mdelay_os(10);
 				// check rsvd page download OK.
 				rtw_hal_get_hwreg(padapter, HW_VAR_BCN_VALID, (u8*)(&bcn_valid));
@@ -879,7 +879,7 @@ void rtl8814_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)
 					
 					do
 					{
-						rtw_yield_os();
+						yield();
 						//rtw_mdelay_os(10);
 						// check rsvd page download OK.
 						rtw_hal_get_hwreg(padapter, HW_VAR_BCN_VALID, (u8*)(&bcn_valid));
@@ -1168,7 +1168,7 @@ void rtl8814_iqk_done(_adapter* padapter)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	struct submit_ctx	*iqk_sctx = &pHalData->iqk_sctx;
-	
+
 	rtw_sctx_done(&iqk_sctx);
 }
 
@@ -1354,7 +1354,7 @@ static void SetFwRsvdPagePkt_BTCoex(PADAPTER padapter)
 	if (BufIndex < (MaxRsvdPageBufSize - PageSize)) {
 		BufIndex = TxDescOffset + (MaxRsvdPageBufSize - PageSize);
 		TotalPageNum = BCNQ_PAGE_NUM_8814-1;
-		
+
 	}
 
 	/* 3 (6) BT Qos null data */
@@ -1401,8 +1401,8 @@ static void SetFwRsvdPagePkt_BTCoex(PADAPTER padapter)
                 #ifdef CONFIG_WOWLAN
 		    rtl8814_set_FwAoacRsvdPage_cmd(padapter, &RsvdPageLoc);
                 #endif
-	} 
-	
+	}
+
 	return;
 
 error:
@@ -1464,13 +1464,13 @@ void rtl8812a_download_BTCoex_AP_mode_rsvd_page(PADAPTER padapter)
 			DLBcnCount++;
 			do
 			{
-				rtw_yield_os();
+				yield();
 				//rtw_mdelay_os(10);
 				// check rsvd page download OK.
 				rtw_hal_get_hwreg(padapter, HW_VAR_BCN_VALID, (u8*)(&bcn_valid));
 				poll++;
 			} while (!bcn_valid && (poll%10) != 0 && !RTW_CANNOT_RUN(padapter));
-			
+
 		} while (!bcn_valid && DLBcnCount <= 100 && !RTW_CANNOT_RUN(padapter));
 
 		if (RTW_CANNOT_RUN(padapter))

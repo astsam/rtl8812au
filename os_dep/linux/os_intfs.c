@@ -88,8 +88,8 @@ MODULE_PARM_DESC(rtw_lps_level, "The default LPS level");
 */
 int rtw_smart_ps = 2;
 
-#ifdef CONFIG_WMMPS_STA	
-/* WMMPS: 
+#ifdef CONFIG_WMMPS_STA
+/* WMMPS:
  * rtw_smart_ps = 0 => Only for fw test
  * rtw_smart_ps = 1 => Refer to Beacon's TIM Bitmap
  * rtw_smart_ps = 2 => Don't refer to Beacon's TIM Bitmap

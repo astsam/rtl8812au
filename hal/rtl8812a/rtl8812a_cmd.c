@@ -1083,7 +1083,7 @@ void rtl8812_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)
 				rtw_hal_set_fw_rsvd_page(padapter, _FALSE);
 				DLBcnCount++;
 				do {
-					rtw_yield_os();
+					yield();
 					/*rtw_mdelay_os(10);*/
 					/* check rsvd page download OK.*/
 					rtw_hal_get_hwreg(padapter, HW_VAR_BCN_VALID, (u8 *)(&bcn_valid));
@@ -1127,7 +1127,7 @@ void rtl8812_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)
 					DLBcnCount++;
 
 					do {
-						rtw_yield_os();
+						yield();
 						/*rtw_mdelay_os(10);*/
 						/* check rsvd page download OK.*/
 						rtw_hal_get_hwreg(padapter , HW_VAR_BCN_VALID , (u8 *)(&bcn_valid));
@@ -1506,7 +1506,7 @@ void rtl8812a_download_BTCoex_AP_mode_rsvd_page(PADAPTER padapter)
 			SetFwRsvdPagePkt_BTCoex(padapter);
 			DLBcnCount++;
 			do {
-				rtw_yield_os();
+				yield();
 				/* rtw_mdelay_os(10); */
 				/* check rsvd page download OK. */
 				rtw_hal_get_hwreg(padapter, HW_VAR_BCN_VALID, (u8 *)(&bcn_valid));

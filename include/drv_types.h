@@ -1067,7 +1067,7 @@ struct dvobj_priv {
 	WCHAR			active_path[MAX_ACTIVE_REG_PATH];	/* adapter regpath */
 	USB_EXTENSION	usb_extension;
 
-	_nic_hdl		pipehdls_r8192c[0x10];
+	struct net_device *pipehdls_r8192c[0x10];
 #endif
 
 	u32	config_descriptor_len;/* ULONG UsbConfigurationDescriptorLength; */
@@ -1402,12 +1402,12 @@ struct _ADAPTER {
 
 
 #ifdef PLATFORM_LINUX
-	_nic_hdl pnetdev;
+	struct net_device *pnetdev;
 	char old_ifname[IFNAMSIZ];
 
 	/* used by rtw_rereg_nd_name related function */
 	struct rereg_nd_name_data {
-		_nic_hdl old_pnetdev;
+		struct net_device *old_pnetdev;
 		char old_ifname[IFNAMSIZ];
 		u8 old_ips_mode;
 		u8 old_bRegUseLed;
@@ -1437,7 +1437,7 @@ struct _ADAPTER {
 #endif /* PLATFORM_LINUX */
 
 #ifdef PLATFORM_FREEBSD
-	_nic_hdl pifp;
+	struct net_device *pifp;
 	int bup;
 	_lock glock;
 #endif /* PLATFORM_FREEBSD */

@@ -53,7 +53,7 @@ extern NDIS_STATUS rtw_xmit_entry(
 
 #ifdef PLATFORM_FREEBSD
 #define NR_XMITFRAME	256
-extern int rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev);
+extern int rtw_xmit_entry(_pkt *pkt, struct net_device *pnetdev);
 extern void rtw_xmit_entry_wrap(struct ifnet *pifp);
 #endif /* PLATFORM_FREEBSD */
 
@@ -67,8 +67,8 @@ struct sta_xmit_priv;
 struct xmit_frame;
 struct xmit_buf;
 
-extern int _rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev);
-extern int rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev);
+extern int _rtw_xmit_entry(_pkt *pkt, struct net_device *pnetdev);
+extern int rtw_xmit_entry(_pkt *pkt, struct net_device *pnetdev);
 
 #endif /* PLATFORM_LINUX */
 

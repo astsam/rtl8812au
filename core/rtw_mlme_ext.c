@@ -10498,7 +10498,7 @@ unsigned int send_beacon(_adapter *padapter)
 			issue_beacon(padapter, 100);
 			issue++;
 			do {
-				rtw_yield_os();
+				yield();
 				rtw_hal_get_hwreg(padapter, HW_VAR_BCN_VALID, (u8 *)(&bxmitok));
 				poll++;
 			} while ((poll % 10) != 0 && _FALSE == bxmitok && !RTW_CANNOT_RUN(padapter));
