@@ -866,7 +866,7 @@ u32 usb_read_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem)
 
 void usb_recv_tasklet(void *priv)
 {
-	_pkt			*pskb;
+	struct sk_buff		*pskb;
 	_adapter		*padapter = (_adapter *)priv;
 	struct recv_priv	*precvpriv = &padapter->recvpriv;
 	struct recv_buf	*precvbuf = NULL;
@@ -1151,14 +1151,14 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 	struct PHY_DM_STRUCT *p_dm = adapter_to_phydm(padapter);
 	struct recv_priv	*precvpriv = &padapter->recvpriv;
 	_queue			*pfree_recv_queue = &precvpriv->free_recv_queue;
-	_pkt *pskb;
+	struct sk_buff *pskb;
 
 #ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
 	pskb = NULL;
 	transfer_len = (s32)((struct recv_buf *)ptr)->transfer_len;
 	pbuf = ((struct recv_buf *)ptr)->pbuf;
 #else
-	pskb = (_pkt *)ptr;
+	pskb = (struct sk_buff *)ptr;
 	transfer_len = (s32)pskb->len;
 	pbuf = pskb->data;
 #endif/* CONFIG_USE_USB_BUFFER_ALLOC_RX */
