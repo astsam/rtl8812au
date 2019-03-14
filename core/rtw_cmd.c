@@ -530,7 +530,7 @@ void rtw_stop_cmd_thread(_adapter *adapter)
 	}
 }
 
-thread_return rtw_cmd_thread(thread_context context)
+int rtw_cmd_thread(void *context)
 {
 	u8 ret;
 	struct cmd_obj *pcmd;

@@ -974,7 +974,7 @@ void enqueue_pending_xmitbuf_to_head(struct xmit_priv *pxmitpriv, struct xmit_bu
 struct xmit_buf	*dequeue_pending_xmitbuf(struct xmit_priv *pxmitpriv);
 struct xmit_buf	*select_and_dequeue_pending_xmitbuf(_adapter *padapter);
 sint	check_pending_xmitbuf(struct xmit_priv *pxmitpriv);
-thread_return	rtw_xmit_thread(thread_context context);
+int	rtw_xmit_thread(void *context);
 #endif
 
 #ifdef CONFIG_TX_AMSDU
