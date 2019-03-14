@@ -778,9 +778,9 @@ __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 
 
 
-__inline static _buffer *get_rxbuf_desc(union recv_frame *precvframe)
+__inline static unsigned char *get_rxbuf_desc(union recv_frame *precvframe)
 {
-	_buffer *buf_desc;
+	unsigned char *buf_desc;
 
 	if (precvframe == NULL)
 		return NULL;
@@ -808,7 +808,7 @@ __inline static union recv_frame *pkt_to_recvframe(struct sk_buff *pkt)
 	u8 *buf_star;
 	union recv_frame *precv_frame;
 #ifdef PLATFORM_WINDOWS
-	_buffer *buf_desc;
+	unsigned char *buf_desc;
 	uint len;
 
 	NdisQueryPacket(pkt, NULL, NULL, &buf_desc, &len);
