@@ -1992,6 +1992,10 @@ inline int ATOMIC_DEC_RETURN(ATOMIC_T *v)
 */
 
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0))
+  #define get_ds() (KERNEL_DS)
+#endif
+
 /*
 * Test if the specifi @param path is a file and readable
 * @param path the path of the file to test
