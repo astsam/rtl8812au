@@ -23,7 +23,7 @@ uint rtw_remainder_len(struct pkt_file *pfile)
 	return pfile->buf_len - ((SIZE_PTR)(pfile->cur_addr) - (SIZE_PTR)(pfile->buf_start));
 }
 
-void _rtw_open_pktfile(_pkt *pktptr, struct pkt_file *pfile)
+void _rtw_open_pktfile(struct sk_buff *pktptr, struct pkt_file *pfile)
 {
 
 	pfile->pkt = pktptr;
@@ -63,7 +63,7 @@ sint rtw_endofpktfile(struct pkt_file *pfile)
 	return _FALSE;
 }
 
-void rtw_set_tx_chksum_offload(_pkt *pkt, struct pkt_attrib *pattrib)
+void rtw_set_tx_chksum_offload(struct sk_buff *pkt, struct pkt_attrib *pattrib)
 {
 
 #ifdef CONFIG_TCP_CSUM_OFFLOAD_TX
@@ -243,7 +243,7 @@ static inline bool rtw_os_need_stop_queue(_adapter *padapter, u16 qidx)
 	return _FALSE;
 }
 
-void rtw_os_pkt_complete(_adapter *padapter, _pkt *pkt)
+void rtw_os_pkt_complete(_adapter *padapter, struct sk_buff *pkt)
 {
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
 	u16	qidx;
@@ -300,17 +300,17 @@ void rtw_os_xmit_schedule(_adapter *padapter)
 		tasklet_hi_schedule(&pxmitpriv->xmit_tasklet);
 
 	_exit_critical_bh(&pxmitpriv->lock, &irqL);
-	
+
 #if defined(CONFIG_PCI_HCI) && defined(CONFIG_XMIT_THREAD_MODE)
 	if (_rtw_queue_empty(&padapter->xmitpriv.pending_xmitbuf_queue) == _FALSE)
 		_rtw_up_sema(&padapter->xmitpriv.xmit_sema);
 #endif
-	
+
 
 #endif
 }
 
-static bool rtw_check_xmit_resource(_adapter *padapter, _pkt *pkt)
+static bool rtw_check_xmit_resource(_adapter *padapter, struct sk_buff *pkt)
 {
 	bool busy = _FALSE;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
@@ -440,7 +440,7 @@ int rtw_mlcst2unicst(_adapter *padapter, struct sk_buff *skb)
 #endif /* CONFIG_TX_MCAST2UNI */
 
 
-int _rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
+int _rtw_xmit_entry(struct sk_buff *pkt, struct net_device *pnetdev)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
@@ -513,7 +513,7 @@ exit:
 	return 0;
 }
 
-int rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
+int rtw_xmit_entry(struct sk_buff *pkt, struct net_device *pnetdev)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
 	struct	mlme_priv	*pmlmepriv = &(padapter->mlmepriv);

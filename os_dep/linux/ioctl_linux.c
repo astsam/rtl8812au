@@ -11844,7 +11844,7 @@ static u8 pktcmp(PADAPTER padapter, u8 *txbuf, u32 txsz, u8 *rxbuf, u32 rxsz)
 	return ret;
 }
 
-thread_return lbk_thread(thread_context context)
+int lbk_thread(void *context)
 {
 	s32 err;
 	PADAPTER padapter;

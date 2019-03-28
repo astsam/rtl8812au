@@ -1285,7 +1285,7 @@ inline u8 rtw_get_hwseq_no(_adapter *padapter)
 #endif /* CONFIG_CONCURRENT_MODE */
 	return hwseq_num;
 }
-static s32 update_attrib(_adapter *padapter, _pkt *pkt, struct pkt_attrib *pattrib)
+static s32 update_attrib(_adapter *padapter, struct sk_buff *pkt, struct pkt_attrib *pattrib)
 {
 	uint i;
 	struct pkt_file pktfile;
@@ -2305,11 +2305,11 @@ s32 rtw_xmitframe_coalesce_amsdu(_adapter *padapter, struct xmit_frame *pxmitfra
 
 	struct pkt_file pktfile;
 	struct pkt_attrib *pattrib;
-	_pkt *pkt;
+	struct sk_buff *pkt;
 
 	struct pkt_file pktfile_queue;
 	struct pkt_attrib *pattrib_queue;
-	_pkt *pkt_queue;
+	struct sk_buff *pkt_queue;
 
 	s32 llc_sz, mem_sz;
 
@@ -2480,7 +2480,7 @@ This sub-routine will perform all the following:
 6. apply sw-encrypt, if necessary.
 
 */
-s32 rtw_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe)
+s32 rtw_xmitframe_coalesce(_adapter *padapter, struct sk_buff *pkt, struct xmit_frame *pxmitframe)
 {
 	struct pkt_file pktfile;
 
@@ -2677,7 +2677,7 @@ exit:
 
 #ifdef CONFIG_IEEE80211W
 /* broadcast or multicast management pkt use BIP, unicast management pkt use CCMP encryption */
-s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, _pkt *pkt, struct xmit_frame *pxmitframe)
+s32 rtw_mgmt_xmitframe_coalesce(_adapter *padapter, struct sk_buff *pkt, struct xmit_frame *pxmitframe)
 {
 	struct pkt_file pktfile;
 	s32 frg_inx, frg_len, mpdu_len, llc_sz, mem_sz;
@@ -3427,7 +3427,7 @@ s32 rtw_free_xmitframe(struct xmit_priv *pxmitpriv, struct xmit_frame *pxmitfram
 	_irqL irqL;
 	_queue *queue = NULL;
 	_adapter *padapter = pxmitpriv->adapter;
-	_pkt *pndis_pkt = NULL;
+	struct sk_buff *pndis_pkt = NULL;
 
 
 	if (pxmitframe == NULL) {
@@ -4411,7 +4411,7 @@ fail:
  *	0	success, hardware will handle this xmit frame(packet)
  *	<0	fail
  */
-s32 rtw_xmit(_adapter *padapter, _pkt **ppkt)
+s32 rtw_xmit(_adapter *padapter, struct sk_buff **ppkt)
 {
 	static systime start = 0;
 	static u32 drop_cnt = 0;
@@ -5354,7 +5354,7 @@ sint check_pending_xmitbuf(
 	return ret;
 }
 
-thread_return rtw_xmit_thread(thread_context context)
+int rtw_xmit_thread(void *context)
 {
 	s32 err;
 	PADAPTER padapter;

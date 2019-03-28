@@ -992,7 +992,7 @@ struct dvobj_priv {
 	struct rtw_traffic_statistics	traffic_stat;
 
 #ifdef PLATFORM_LINUX
-	_thread_hdl_ rtnl_lock_holder;
+	void * rtnl_lock_holder;
 
 	#if defined(CONFIG_IOCTL_CFG80211) && defined(RTW_SINGLE_WIPHY)
 	struct wiphy *wiphy;
@@ -1003,7 +1003,7 @@ struct dvobj_priv {
 	_timer txbcn_timer;
 #endif
 	_timer dynamic_chk_timer; /* dynamic/periodic check timer */
-	
+
 #ifdef CONFIG_RTW_NAPI_DYNAMIC
 	u8 en_napi_dynamic;
 #endif /* CONFIG_RTW_NAPI_DYNAMIC */
@@ -1067,7 +1067,7 @@ struct dvobj_priv {
 	WCHAR			active_path[MAX_ACTIVE_REG_PATH];	/* adapter regpath */
 	USB_EXTENSION	usb_extension;
 
-	_nic_hdl		pipehdls_r8192c[0x10];
+	struct net_device *pipehdls_r8192c[0x10];
 #endif
 
 	u32	config_descriptor_len;/* ULONG UsbConfigurationDescriptorLength; */
@@ -1258,7 +1258,7 @@ struct proxim {
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
 typedef struct loopbackdata {
 	_sema	sema;
-	_thread_hdl_ lbkthread;
+	void * lbkthread;
 	u8 bstop;
 	u32 cnt;
 	u16 size;
@@ -1371,15 +1371,15 @@ struct _ADAPTER {
 		void (*callback[8])(u8 level);
 	} gpiointpriv;
 #endif
-	_thread_hdl_ cmdThread;
+	void *cmdThread;
 #ifdef CONFIG_EVENT_THREAD_MODE
-	_thread_hdl_ evtThread;
+	void *evtThread;
 #endif
 #ifdef CONFIG_XMIT_THREAD_MODE
-	_thread_hdl_ xmitThread;
+	void *xmitThread;
 #endif
 #ifdef CONFIG_RECV_THREAD_MODE
-	_thread_hdl_ recvThread;
+	void *recvThread;
 #endif
 	u8 registered;
 #ifndef PLATFORM_LINUX
@@ -1402,12 +1402,12 @@ struct _ADAPTER {
 
 
 #ifdef PLATFORM_LINUX
-	_nic_hdl pnetdev;
+	struct net_device *pnetdev;
 	char old_ifname[IFNAMSIZ];
 
 	/* used by rtw_rereg_nd_name related function */
 	struct rereg_nd_name_data {
-		_nic_hdl old_pnetdev;
+		struct net_device *old_pnetdev;
 		char old_ifname[IFNAMSIZ];
 		u8 old_ips_mode;
 		u8 old_bRegUseLed;
@@ -1437,7 +1437,7 @@ struct _ADAPTER {
 #endif /* PLATFORM_LINUX */
 
 #ifdef PLATFORM_FREEBSD
-	_nic_hdl pifp;
+	struct net_device *pifp;
 	int bup;
 	_lock glock;
 #endif /* PLATFORM_FREEBSD */

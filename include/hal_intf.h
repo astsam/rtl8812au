@@ -351,7 +351,7 @@ struct hal_ops {
 	void	(*write_rfreg)(_adapter *padapter, enum rf_path eRFPath, u32 RegAddr, u32 BitMask, u32 Data);
 
 #ifdef CONFIG_HOSTAPD_MLME
-	s32(*hostap_mgnt_xmit_entry)(_adapter *padapter, _pkt *pkt);
+	s32(*hostap_mgnt_xmit_entry)(_adapter *padapter, struct sk_buff *pkt);
 #endif
 
 	void (*EfusePowerSwitch)(_adapter *padapter, u8 bWrite, u8 PwrState);
@@ -693,7 +693,7 @@ void	rtw_hal_set_tx_power_level(_adapter *padapter, u8 channel);
 void	rtw_hal_get_tx_power_level(_adapter *padapter, s32 *powerlevel);
 
 #ifdef CONFIG_HOSTAPD_MLME
-	s32	rtw_hal_hostap_mgnt_xmit_entry(_adapter *padapter, _pkt *pkt);
+	s32	rtw_hal_hostap_mgnt_xmit_entry(_adapter *padapter, struct sk_buff *pkt);
 #endif
 
 #ifdef DBG_CONFIG_ERROR_DETECT

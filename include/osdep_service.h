@@ -148,9 +148,9 @@ struct sk_buff *dbg_rtw_skb_alloc(unsigned int size, const enum mstat_f flags, c
 void dbg_rtw_skb_free(struct sk_buff *skb, const enum mstat_f flags, const char *func, const int line);
 struct sk_buff *dbg_rtw_skb_copy(const struct sk_buff *skb, const enum mstat_f flags, const char *func, const int line);
 struct sk_buff *dbg_rtw_skb_clone(struct sk_buff *skb, const enum mstat_f flags, const char *func, const int line);
-int dbg_rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb, const enum mstat_f flags, const char *func, int line);
+int dbg_rtw_netif_rx(struct net_device *ndev, struct sk_buff *skb, const enum mstat_f flags, const char *func, int line);
 #ifdef CONFIG_RTW_NAPI
-int dbg_rtw_netif_receive_skb(_nic_hdl ndev, struct sk_buff *skb, const enum mstat_f flags, const char *func, int line);
+int dbg_rtw_netif_receive_skb(struct net_device *ndev, struct sk_buff *skb, const enum mstat_f flags, const char *func, int line);
 #ifdef CONFIG_RTW_GRO
 gro_result_t dbg_rtw_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb, const enum mstat_f flags, const char *func, int line);
 #endif
@@ -220,9 +220,9 @@ struct sk_buff *_rtw_skb_alloc(u32 sz);
 void _rtw_skb_free(struct sk_buff *skb);
 struct sk_buff *_rtw_skb_copy(const struct sk_buff *skb);
 struct sk_buff *_rtw_skb_clone(struct sk_buff *skb);
-int _rtw_netif_rx(_nic_hdl ndev, struct sk_buff *skb);
+int _rtw_netif_rx(struct net_device *ndev, struct sk_buff *skb);
 #ifdef CONFIG_RTW_NAPI
-int _rtw_netif_receive_skb(_nic_hdl ndev, struct sk_buff *skb);
+int _rtw_netif_receive_skb(struct net_device *ndev, struct sk_buff *skb);
 #ifdef CONFIG_RTW_GRO
 gro_result_t _rtw_napi_gro_receive(struct napi_struct *napi, struct sk_buff *skb);
 #endif
@@ -283,9 +283,9 @@ void _rtw_usb_buffer_free(struct usb_device *dev, size_t size, void *addr, dma_a
 extern void	*rtw_malloc2d(int h, int w, size_t size);
 extern void	rtw_mfree2d(void *pbuf, int h, int w, int size);
 
-void rtw_os_pkt_free(_pkt *pkt);
-void *rtw_os_pkt_data(_pkt *pkt);
-u32 rtw_os_pkt_len(_pkt *pkt);
+void rtw_os_pkt_free(struct sk_buff *pkt);
+void *rtw_os_pkt_data(struct sk_buff *pkt);
+u32 rtw_os_pkt_len(struct sk_buff *pkt);
 
 extern void	_rtw_memcpy(void *dec, const void *sour, u32 sz);
 extern void _rtw_memmove(void *dst, const void *src, u32 sz);
@@ -356,8 +356,6 @@ extern void _rtw_udelay_os(int us, const char *func, const int line);
 extern void	rtw_mdelay_os(int ms);
 extern void	rtw_udelay_os(int us);
 #endif
-
-extern void rtw_yield_os(void);
 
 
 extern void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc, void *ctx);
