@@ -4662,15 +4662,7 @@ exit:
 	return ret;
 }
 
-static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
-#if (CFG80211_API_LEVEL < KERNEL_VERSION(3, 16, 0))
-	u8 *mac
-#elif (CFG80211_API_LEVEL < KERNEL_VERSION(3, 19, 0))
-	const u8 *mac
-#else
-	struct station_del_parameters *params
-#endif
-)
+static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev, struct station_del_parameters *params)
 {
 	int ret = 0;
 	_irqL irqL;
@@ -4684,12 +4676,7 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 
 	RTW_INFO("+"FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
-
-#if (CFG80211_API_LEVEL < KERNEL_VERSION(3, 19, 0))
-	target_mac = mac;
-#else
 	target_mac = params->mac;
-#endif
 
 	if (check_fwstate(pmlmepriv, (_FW_LINKED | WIFI_AP_STATE | WIFI_MESH_STATE)) != _TRUE) {
 		RTW_INFO("%s, fw_state != FW_LINKED|WIFI_AP_STATE|WIFI_MESH_STATE\n", __func__);

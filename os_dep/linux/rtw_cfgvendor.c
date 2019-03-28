@@ -46,11 +46,7 @@ struct sk_buff *dbg_rtw_cfg80211_vendor_event_alloc(struct wiphy *wiphy, struct 
 	struct sk_buff *skb;
 	unsigned int truesize = 0;
 
-#if (CFG80211_API_LEVEL < KERNEL_VERSION(4, 1, 0))
-	skb = cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp);
-#else
 	skb = cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp);
-#endif
 
 	if (skb)
 		truesize = skb->truesize;
@@ -145,11 +141,8 @@ struct sk_buff *rtw_cfg80211_vendor_event_alloc(
 {
 	struct sk_buff *skb;
 
-#if (CFG80211_API_LEVEL < KERNEL_VERSION(4, 1, 0))
-	skb = cfg80211_vendor_event_alloc(wiphy, len, event_id, gfp);
-#else
 	skb = cfg80211_vendor_event_alloc(wiphy, wdev, len, event_id, gfp);
-#endif
+
 	return skb;
 }
 
