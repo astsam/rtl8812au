@@ -10933,13 +10933,12 @@ exit:
 
 void rtw_dump_cur_efuse(PADAPTER padapter)
 {
-	int i =0;
-	int mapsize =0;
+	u16 mapsize =0;
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN , (void *)&mapsize, _FALSE);
 
-	if (mapsize <= 0 || mapsize > EEPROM_MAX_SIZE) {
+	if (mapsize > EEPROM_MAX_SIZE) {
 		RTW_ERR("wrong map size %d\n", mapsize);
 		return;
 	}
@@ -10969,7 +10968,7 @@ u32 Hal_readPGDataFromConfigFile(PADAPTER padapter)
 {
 	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(padapter);
 	u32 ret = _FALSE;
-	u32 maplen = 0;
+	u16 maplen = 0;
 
 	EFUSE_GetEfuseDefinition(padapter, EFUSE_WIFI, TYPE_EFUSE_MAP_LEN , (void *)&maplen, _FALSE);
 
