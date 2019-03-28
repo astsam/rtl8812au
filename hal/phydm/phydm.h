@@ -98,11 +98,11 @@ extern const u16 phy_rate_table[28];
 #define		dm_type_by_driver		1
 
 struct phydm_phystatus_statistic {
-	
+
 	/*[CCK]*/
 	u32		rssi_cck_sum;
 	u32		rssi_cck_cnt;
-	/*[OFDM]*/	
+	/*[OFDM]*/
 	u32		rssi_ofdm_sum;
 	u32		rssi_ofdm_cnt;
 	u32		evm_ofdm_sum;
@@ -138,7 +138,7 @@ struct phydm_phystatus_statistic {
 	#if (defined(PHYDM_COMPILE_ABOVE_4SS))
 	u32		rssi_4ss_cnt;
 	u32		rssi_4ss_sum[4];
-	u32		evm_4ss_sum[4];	
+	u32		evm_4ss_sum[4];
 	u32		snr_4ss_sum[4];
 	u16		evm_4ss_hist[4][PHY_HIST_SIZE];
 	u16		snr_4ss_hist[4][PHY_HIST_SIZE];
@@ -146,7 +146,7 @@ struct phydm_phystatus_statistic {
 };
 
 struct phydm_phystatus_avg {
-	
+
 	/*[CCK]*/
 	u8		rssi_cck_avg;
 	/*[OFDM]*/
@@ -172,7 +172,7 @@ struct phydm_phystatus_avg {
 	/*[4SS]*/
 	#if (defined(PHYDM_COMPILE_ABOVE_4SS))
 	u8		rssi_4ss_avg[4];
-	u8		evm_4ss_avg[4];	
+	u8		evm_4ss_avg[4];
 	u8		snr_4ss_avg[4];
 	#endif
 };
@@ -449,7 +449,7 @@ enum phydm_dbg_comp {
 	DBG_DFS			= BIT(F11_DFS),
 	DBG_DYN_ARFR		= BIT(F12_DYN_ARFR),
 	DBG_ADPTVTY		= BIT(F13_ADPTVTY),
-	DBG_CFO_TRK		= BIT(F14_CFO_TRK), 
+	DBG_CFO_TRK		= BIT(F14_CFO_TRK),
 	DBG_ENV_MNTR		= BIT(F15_ENV_MNTR),
 	DBG_PRI_CCA		= BIT(F16_PRI_CCA),
 	DBG_ADPTV_SOML	= BIT(F17_ADPTV_SOML),
@@ -562,7 +562,7 @@ struct	phydm_iot_center {
 	/*-----------HOOK BEFORE REG INIT-----------*/
 
 	u8			support_platform;/*PHYDM Platform info WIN/AP/CE = 1/2/3 */
-	u8			normal_rx_path;	
+	u8			normal_rx_path;
 	boolean			brxagcswitch; /* for rx AGC table switch in Microsoft case */
 	u8			support_interface;/*PHYDM PCIE/USB/SDIO = 1/2/3*/
 	u32			support_ic_type;	/*PHYDM supported IC*/
@@ -609,9 +609,9 @@ struct	phydm_iot_center {
 	u8			is_receiver_blocking_en;
 	u16			fw_offload_ability;
 /*-----------HOOK BEFORE REG INIT-----------*/
-/*===========================================================*/	
+/*===========================================================*/
 /*====[ CALL BY Reference ]=========================================*/
-/*===========================================================*/	
+/*===========================================================*/
 
 	u64			*p_num_tx_bytes_unicast;	/*TX Unicast byte count*/
 	u64			*p_num_rx_bytes_unicast;	/*RX Unicast byte count*/
@@ -644,9 +644,9 @@ struct	phydm_iot_center {
 	u8			*p_mp_mode;
 	u32			*p_interrupt_mask;
 	u8			*p_bb_op_mode;
-/*===========================================================*/	
+/*===========================================================*/
 /*====[ CALL BY VALUE ]===========================================*/
-/*===========================================================*/	
+/*===========================================================*/
 
 	u8			disable_phydm_watchdog;
 	boolean		is_link_in_process;
