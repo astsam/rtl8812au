@@ -76,7 +76,7 @@ void interrupt_handler_8814au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 			if (pHalData->IntArray[0] & IMR_TBDER_88E)
 				RTW_INFO("%s: HISR_TXBCNERR\n", __func__);
 #endif /* 0 */
-		
+
 
 			if(check_fwstate(pmlmepriv, WIFI_AP_STATE))
 			{
@@ -249,7 +249,7 @@ _exit_recvbuf2recvframe:
 #endif
 
 void rtl8814au_xmit_tasklet(void *priv)
-{	
+{
 	int ret = _FALSE;
 	_adapter *padapter = (_adapter*)priv;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
@@ -269,40 +269,36 @@ void rtl8814au_xmit_tasklet(void *priv)
 
 		if(ret==_FALSE)
 			break;
-		
+
 	}
-	
+
 }
 
 void rtl8814au_set_intf_ops(struct _io_ops	*pops)
-{		
-	_rtw_memset((u8 *)pops, 0, sizeof(struct _io_ops));	
+{
+	_rtw_memset((u8 *)pops, 0, sizeof(struct _io_ops));
 
 	pops->_read8 = &usb_read8;
 	pops->_read16 = &usb_read16;
 	pops->_read32 = &usb_read32;
 	pops->_read_mem = &usb_read_mem;
-	pops->_read_port = &usb_read_port;	
-	
+	pops->_read_port = &usb_read_port;
+
 	pops->_write8 = &usb_write8;
 	pops->_write16 = &usb_write16;
 	pops->_write32 = &usb_write32;
 	pops->_writeN = &usb_writeN;
-	
-#ifdef CONFIG_USB_SUPPORT_ASYNC_VDN_REQ	
+
+#ifdef CONFIG_USB_SUPPORT_ASYNC_VDN_REQ
 	pops->_write8_async= &usb_async_write8;
 	pops->_write16_async = &usb_async_write16;
 	pops->_write32_async = &usb_async_write32;
-#endif	
+#endif
 	pops->_write_mem = &usb_write_mem;
 	pops->_write_port = &usb_write_port;
 
 	pops->_read_port_cancel = &usb_read_port_cancel;
 	pops->_write_port_cancel = &usb_write_port_cancel;
-
-#ifdef CONFIG_USB_INTERRUPT_IN_PIPE
-	pops->_read_interrupt = &usb_read_interrupt;
-#endif
 
 }
 
