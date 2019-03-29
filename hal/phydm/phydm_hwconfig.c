@@ -21,28 +21,13 @@
 #include "phydm_precomp.h"
 
 #define READ_AND_CONFIG_MP(ic, txt) (odm_read_and_config_mp_##ic##txt(p_dm))
-#define READ_AND_CONFIG_TC(ic, txt) (odm_read_and_config_tc_##ic##txt(p_dm))
 
-
-#if (PHYDM_TESTCHIP_SUPPORT == 1)
-#define READ_AND_CONFIG(ic, txt) do {\
-		if (p_dm->is_mp_chip)\
-			READ_AND_CONFIG_MP(ic, txt);\
-		else\
-			READ_AND_CONFIG_TC(ic, txt);\
-	} while (0)
-#else
 #define READ_AND_CONFIG     READ_AND_CONFIG_MP
-#endif
 
 #define GET_VERSION_MP(ic, txt)		(odm_get_version_mp_##ic##txt())
 #define GET_VERSION_TC(ic, txt)		(odm_get_version_tc_##ic##txt())
 
-#if (PHYDM_TESTCHIP_SUPPORT == 1)
-	#define GET_VERSION(ic, txt) (p_dm->is_mp_chip ? GET_VERSION_MP(ic, txt) : GET_VERSION_TC(ic, txt))
-#else
-	#define GET_VERSION(ic, txt) GET_VERSION_MP(ic, txt)
-#endif
+#define GET_VERSION(ic, txt) GET_VERSION_MP(ic, txt)
 
 enum hal_status
 odm_config_rf_with_header_file(

@@ -205,7 +205,6 @@ phydm_bb_debug_info_n_series(
 	s32	scfo_a = 0, scfo_b = 0, avg_cfo_a = 0, avg_cfo_b = 0;
 	s32	cfo_end_a = 0, cfo_end_b = 0, acq_cfo_a = 0, acq_cfo_b = 0;
 
-	PHYDM_SNPRINTF((output + used, out_len - used, "\r\n %-35s\n", "BB Report Info"));
 
 	/*AGC result*/
 	value32 = odm_get_bb_reg(p_dm, 0xdd0, MASKDWORD);

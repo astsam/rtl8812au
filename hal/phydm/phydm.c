@@ -1877,10 +1877,6 @@ odm_cmn_info_init(
 		p_dm->support_interface = (u8)value;
 		break;
 
-	case	ODM_CMNINFO_MP_TEST_CHIP:
-		p_dm->is_mp_chip = (u8)value;
-		break;
-
 	case	ODM_CMNINFO_IC_TYPE:
 		p_dm->support_ic_type = (u32)value;
 		break;

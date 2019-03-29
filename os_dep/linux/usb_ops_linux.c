@@ -399,9 +399,6 @@ void usb_read_port_cancel(struct intf_hdl *pintfhdl)
 		precvbuf++;
 	}
 
-#ifdef CONFIG_USB_INTERRUPT_IN_PIPE
-	usb_kill_urb(padapter->recvpriv.int_in_urb);
-#endif
 }
 
 static void usb_write_port_complete(struct urb *purb, struct pt_regs *regs)
@@ -1055,87 +1052,6 @@ exit:
 	return ret;
 }
 #endif /* CONFIG_USE_USB_BUFFER_ALLOC_RX */
-
-#ifdef CONFIG_USB_INTERRUPT_IN_PIPE
-void usb_read_interrupt_complete(struct urb *purb, struct pt_regs *regs)
-{
-	int	err;
-	_adapter	*padapter = (_adapter *)purb->context;
-
-	if (RTW_CANNOT_RX(padapter)) {
-		RTW_INFO("%s() RX Warning! bDriverStopped(%s) OR bSurpriseRemoved(%s)\n"
-			, __func__
-			, rtw_is_drv_stopped(padapter) ? "True" : "False"
-			, rtw_is_surprise_removed(padapter) ? "True" : "False");
-
-		return;
-	}
-
-	if (purb->status == 0) {/*SUCCESS*/
-		if (purb->actual_length > INTERRUPT_MSG_FORMAT_LEN)
-			RTW_INFO("usb_read_interrupt_complete: purb->actual_length > INTERRUPT_MSG_FORMAT_LEN(%d)\n", INTERRUPT_MSG_FORMAT_LEN);
-
-		rtw_hal_interrupt_handler(padapter, purb->actual_length, purb->transfer_buffer);
-
-		err = usb_submit_urb(purb, GFP_ATOMIC);
-		if ((err) && (err != (-EPERM)))
-			RTW_INFO("cannot submit interrupt in-token(err = 0x%08x),urb_status = %d\n", err, purb->status);
-	} else {
-		RTW_INFO("###=> usb_read_interrupt_complete => urb status(%d)\n", purb->status);
-
-		switch (purb->status) {
-		case -EINVAL:
-		case -EPIPE:
-		case -ENODEV:
-		case -ESHUTDOWN:
-		case -ENOENT:
-			rtw_set_drv_stopped(padapter);
-			break;
-		case -EPROTO:
-			break;
-		case -EINPROGRESS:
-			RTW_INFO("ERROR: URB IS IN PROGRESS!/n");
-			break;
-		default:
-			break;
-		}
-	}
-}
-
-u32 usb_read_interrupt(struct intf_hdl *pintfhdl, u32 addr)
-{
-	int	err;
-	unsigned int pipe;
-	u32	ret = _SUCCESS;
-	_adapter			*adapter = pintfhdl->padapter;
-	struct dvobj_priv	*pdvobj = adapter_to_dvobj(adapter);
-	struct recv_priv	*precvpriv = &adapter->recvpriv;
-	struct usb_device	*pusbd = pdvobj->pusbdev;
-
-
-	if (RTW_CANNOT_RX(adapter)) {
-		return _FAIL;
-	}
-
-	/*translate DMA FIFO addr to pipehandle*/
-	pipe = ffaddr2pipehdl(pdvobj, addr);
-
-	usb_fill_int_urb(precvpriv->int_in_urb, pusbd, pipe,
-			precvpriv->int_in_buf,
-			INTERRUPT_MSG_FORMAT_LEN,
-			usb_read_interrupt_complete,
-			adapter,
-			1);
-
-	err = usb_submit_urb(precvpriv->int_in_urb, GFP_ATOMIC);
-	if ((err) && (err != (-EPERM))) {
-		RTW_INFO("cannot submit interrupt in-token(err = 0x%08x), urb_status = %d\n", err, precvpriv->int_in_urb->status);
-		ret = _FAIL;
-	}
-
-	return ret;
-}
-#endif /* CONFIG_USB_INTERRUPT_IN_PIPE */
 
 
 int recvbuf2recvframe(PADAPTER padapter, void *ptr)

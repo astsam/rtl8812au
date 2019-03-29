@@ -697,7 +697,6 @@ union recv_frame *decryptor(_adapter *padapter, union recv_frame *precv_frame)
 
 }
 /* ###set the security information in the recv_frame */
-union recv_frame *portctrl(_adapter *adapter, union recv_frame *precv_frame);
 union recv_frame *portctrl(_adapter *adapter, union recv_frame *precv_frame)
 {
 	u8 *psta_addr = NULL;
@@ -2531,7 +2530,6 @@ static void recvframe_expand_pkt(
 #endif
 
 /* perform defrag */
-union recv_frame *recvframe_defrag(_adapter *adapter, _queue *defrag_q);
 union recv_frame *recvframe_defrag(_adapter *adapter, _queue *defrag_q)
 {
 	_list	*plist, *phead;
@@ -2540,7 +2538,6 @@ union recv_frame *recvframe_defrag(_adapter *adapter, _queue *defrag_q)
 	struct recv_frame_hdr *pfhdr, *pnfhdr;
 	union recv_frame *prframe, *pnextrframe;
 	_queue	*pfree_recv_queue;
-
 
 	curfragnum = 0;
 	pfree_recv_queue = &adapter->recvpriv.free_recv_queue;
