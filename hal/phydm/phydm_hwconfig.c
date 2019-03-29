@@ -21,7 +21,6 @@
 #include "phydm_precomp.h"
 
 #define READ_AND_CONFIG_MP(ic, txt) (odm_read_and_config_mp_##ic##txt(p_dm))
-#define READ_AND_CONFIG_TC(ic, txt) (odm_read_and_config_tc_##ic##txt(p_dm))
 
 #define READ_AND_CONFIG     READ_AND_CONFIG_MP
 
