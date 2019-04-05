@@ -5270,15 +5270,7 @@ exit:
 	return ret;
 }
 
-static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0))
-	u8 *mac
-#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0))
-	const u8 *mac
-#else
-	struct station_del_parameters *params
-#endif
-)
+static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev, struct station_del_parameters *params)
 {
 	int ret = 0;
 	_irqL irqL;
@@ -5290,11 +5282,7 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0))
-	target_mac = mac;
-#else
 	target_mac = params->mac;
-#endif
 
 	RTW_INFO("+"FUNC_NDEV_FMT" mac=%pM\n", FUNC_NDEV_ARG(ndev), target_mac);
 
