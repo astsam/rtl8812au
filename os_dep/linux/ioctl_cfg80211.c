@@ -4638,7 +4638,11 @@ static int cfg80211_rtw_del_virtual_intf(struct wiphy *wiphy,
 		pwdev_priv = adapter_wdev_data(adapter);
 
 		if (ndev == pwdev_priv->pmon_ndev) {
-			unregister_netdevice(ndev);
+	/* unregister only monitor device
+	 * because only monitor can be added
+	 */
+	if(wdev->iftype == NL80211_IFTYPE_MONITOR)
+		unregister_netdevice(ndev);
 			pwdev_priv->pmon_ndev = NULL;
 			pwdev_priv->ifname_mon[0] = '\0';
 			RTW_INFO(FUNC_NDEV_FMT" remove monitor ndev\n", FUNC_NDEV_ARG(ndev));
@@ -4823,6 +4827,18 @@ static int cfg80211_rtw_start_ap(struct wiphy *wiphy, struct net_device *ndev,
 	ret = rtw_add_beacon(adapter, settings->beacon.head, settings->beacon.head_len,
 		settings->beacon.tail, settings->beacon.tail_len);
 
+        // In cases like WPS, the proberesp and assocresp IEs vary from the beacon, and need to be explicitly set
+        if(ret == 0) {
+                if(settings->beacon.proberesp_ies && settings->beacon.proberesp_ies_len > 0) {
+                        rtw_cfg80211_set_mgnt_wpsp2pie(ndev, (char *)settings->beacon.proberesp_ies,
+                                settings->beacon.proberesp_ies_len, 0x2/*PROBE_RESP*/);
+                }
+                if(settings->beacon.assocresp_ies && settings->beacon.assocresp_ies_len < 0) {
+                        rtw_cfg80211_set_mgnt_wpsp2pie(ndev, (char *)settings->beacon.assocresp_ies,
+                                settings->beacon.assocresp_ies_len, 0x4/*ASSOC_RESP*/);
+                }
+        }
+
 	adapter->mlmeextpriv.mlmext_info.hidden_ssid_mode = settings->hidden_ssid;
 
 	if (settings->ssid && settings->ssid_len) {
@@ -4858,6 +4874,18 @@ static int cfg80211_rtw_change_beacon(struct wiphy *wiphy, struct net_device *nd
 	RTW_INFO(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
 	ret = rtw_add_beacon(adapter, info->head, info->head_len, info->tail, info->tail_len);
+
+        // In cases like WPS, the proberesp and assocresp IEs vary from the beacon, and need to be explicitly set
+        if(ret == 0) {
+                if(info->proberesp_ies && info->proberesp_ies_len > 0) {
+                        rtw_cfg80211_set_mgnt_wpsp2pie(ndev, (char *)info->proberesp_ies,
+                                info->proberesp_ies_len, 0x2/*PROBE_RESP*/);
+                }
+                if(info->assocresp_ies && info->assocresp_ies_len > 0) {
+                        rtw_cfg80211_set_mgnt_wpsp2pie(ndev, (char *)info->assocresp_ies,
+                                info->assocresp_ies_len, 0x4/*ASSOC_RESP*/);
+                }
+        }
 
 	return ret;
 }
@@ -5242,15 +5270,7 @@ exit:
 	return ret;
 }
 
-static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0))
-	u8 *mac
-#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0))
-	const u8 *mac
-#else
-	struct station_del_parameters *params
-#endif
-)
+static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev, struct station_del_parameters *params)
 {
 	int ret = 0;
 	_irqL irqL;
@@ -5262,11 +5282,7 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 	struct sta_priv *pstapriv = &padapter->stapriv;
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0))
-	target_mac = mac;
-#else
 	target_mac = params->mac;
-#endif
 
 	RTW_INFO("+"FUNC_NDEV_FMT" mac=%pM\n", FUNC_NDEV_ARG(ndev), target_mac);
 

@@ -512,9 +512,7 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 
 	/* _enter_critical_bh(&(pfree_sta_queue->lock), &irqL); */
 	_enter_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
-	if (_rtw_queue_empty(pfree_sta_queue) == _TRUE) {
-		/* _exit_critical_bh(&(pfree_sta_queue->lock), &irqL); */
-		_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
+	if (!pstapriv->padapter->pnetdev || _rtw_queue_empty(pfree_sta_queue) == _TRUE) {
 		psta = NULL;
 	} else {
 		psta = LIST_CONTAINOR(get_next(&pfree_sta_queue->queue), struct sta_info, list);
@@ -799,6 +797,11 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 	psta->has_legacy_ac = 0;
 
 #ifdef CONFIG_NATIVEAP_MLME
+
+	if (psta->cmn.aid > 31) {
+		pr_err("***** psta->aid (%d) out of bounds\n", psta->cmn.aid);
+		return _FAIL;
+	}
 
 	if (pmlmeinfo->state == _HW_STATE_AP_) {
 		rtw_tim_map_clear(padapter, pstapriv->sta_dz_bitmap, psta->cmn.aid);
