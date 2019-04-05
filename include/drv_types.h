@@ -104,7 +104,7 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 #include <rtw_ioctl_rtl.h>
 #include <osdep_intf.h>
 #include <rtw_eeprom.h>
-#include <sta_info.h>
+#include "sta_info.h"
 #include <rtw_event.h>
 #include <rtw_mlme_ext.h>
 #include <rtw_mi.h>
