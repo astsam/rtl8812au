@@ -1,8 +1,20 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
-## with monitor mode and frame injection
+### Supports Realtek 8811, 8812, 8814 and 8821 chipsets
 
-### 
-newest driver 5.3.4 from realtek + patches to add 8814 support
+[![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
+[![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](#)
+[![GitHub version](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au.svg)](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au)
+[![GitHub issues](https://img.shields.io/github/issues/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/issues)
+[![GitHub forks](https://img.shields.io/github/forks/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/network)
+[![GitHub stars](https://img.shields.io/github/stars/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/stargazers)
+[![GitHub license](https://img.shields.io/github/license/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/blob/master/LICENSE)
+<br>
+[![Kali](https://img.shields.io/badge/Kali-supported-blue.svg)](https://www.kali.org)
+[![Arch](https://img.shields.io/badge/Arch-supported-blue.svg)](https://www.archlinux.org)
+[![Armbian](https://img.shields.io/badge/Armbian-supported-blue.svg)](https://www.armbian.com)
+[![ArchLinux](https://img.shields.io/badge/ArchLinux-supported-blue.svg)](https://img.shields.io/badge/ArchLinux-supported-blue.svg)
+[![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
+[![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
 
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
