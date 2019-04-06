@@ -2128,6 +2128,9 @@ void rtw_mesh_expire_peer_notify(_adapter *adapter, const u8 *peer_addr)
 		, peer_addr
 		, null_ssid
 		, 2
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
+		, 0
+		#endif
 		, GFP_ATOMIC
 	);
 #endif
