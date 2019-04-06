@@ -168,7 +168,11 @@ CONFIG_PLATFORM_ZTE_ZX296716 = n
 
 CONFIG_DRVEXT_MODULE = n
 
+ifeq ($(CONFIG_RTL8812AU), )
 export TopDIR ?= $(shell pwd)
+else
+export TopDIR ?= $(shell pwd)/drivers/net/wireless/rtl8812au
+endif
 
 ########### COMMON  #################################
 ifeq ($(CONFIG_DISABLE_REGD_C), y)

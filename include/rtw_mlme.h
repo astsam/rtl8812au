@@ -16,7 +16,7 @@
 #define __RTW_MLME_H_
 
 
-#define	MAX_BSS_CNT	128
+#define	MAX_BSS_CNT	1024
 /* #define   MAX_JOIN_TIMEOUT	2000 */
 /* #define   MAX_JOIN_TIMEOUT	2500 */
 #define   MAX_JOIN_TIMEOUT	6500
