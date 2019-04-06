@@ -700,6 +700,11 @@ EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
 EXTRA_CFLAGS += -DCONFIG_P2P_IPS -DCONFIG_PLATFORM_ANDROID
 # Enable this for Android 5.0
 EXTRA_CFLAGS += -DCONFIG_RADIO_WORK
+# default setting for Android 7.0
+RTK_ANDROID_VERSION := nougat
+ifeq ($(RTK_ANDROID_VERSION), nougat)
+EXTRA_CFLAGS += -DRTW_P2P_GROUP_INTERFACE=1
+endif
 EXTRA_CFLAGS += -DRTW_VENDOR_EXT_SUPPORT
 EXTRA_CFLAGS += -DRTW_ENABLE_WIFI_CONTROL_FUNC
 ARCH ?= arm
@@ -779,9 +784,14 @@ _PLATFORM_FILES += platform/platform_ARM_SUN50IW1P1_sdio.o
 endif
 
 ARCH := arm64
+ifeq ($(RTK_ANDROID_VERSION), nougat)
+CROSS_COMPILE := /media/SOFT/sdb1/dev/pine64/android-7.1/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9/bin/aarch64-linux-android-
+KSRC :=/media/SOFT/sdb1/dev/pine64/android-7.1/linux/kernel-tulip
+else
 # ===Cross compile setting for Android 5.1(64) SDK ===
 CROSS_COMPILE := /home/android_sdk/Allwinner/a64/android-51/lichee/out/sun50iw1p1/android/common/buildroot/external-toolchain/bin/aarch64-linux-gnu-
 KSRC :=/home/android_sdk/Allwinner/a64/android-51/lichee/linux-3.10/
+endif
 endif
 
 ifeq ($(CONFIG_PLATFORM_TI_AM3517), y)
