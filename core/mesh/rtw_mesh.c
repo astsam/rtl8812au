@@ -438,6 +438,9 @@ void rtw_chk_candidate_peer_notify(_adapter *adapter, struct wlan_network *scann
 		, scanned->network.MacAddress
 		, BSS_EX_TLV_IES(&scanned->network)
 		, BSS_EX_TLV_IES_LEN(&scanned->network)
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
+		, scanned->network.Rssi
+		#endif
 		, GFP_ATOMIC
 	);
 #endif
