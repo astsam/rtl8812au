@@ -3944,38 +3944,16 @@ if(value < 0)
 if(value > 40)
 	value = 40;
 
-if(type == NL80211_TX_POWER_FIXED) {
-	pHalData->CurrentTxPwrIdx = value;
-	rtw_hal_set_tx_power_level(padapter, pHalData->current_channel);
-} else
+	if(type == NL80211_TX_POWER_FIXED) {
+		pHalData->CurrentTxPwrIdx = value;
+		rtw_hal_set_tx_power_level(padapter, pHalData->current_channel);
+	} else
+
 	return -EOPNOTSUPP;
 
-#if 0
-	struct iwm_priv *iwm = wiphy_to_iwm(wiphy);
-	int ret;
 
-	switch (type) {
-	case NL80211_TX_POWER_AUTOMATIC:
-		return 0;
-	case NL80211_TX_POWER_FIXED:
-		if (mbm < 0 || (mbm % 100))
-			return -EOPNOTSUPP;
-
-		if (!test_bit(IWM_STATUS_READY, &iwm->status))
-			return 0;
-
-		ret = iwm_umac_set_config_fix(iwm, UMAC_PARAM_TBL_CFG_FIX,
-					      CFG_TX_PWR_LIMIT_USR,
-					      MBM_TO_DBM(mbm) * 2);
-		if (ret < 0)
-			return ret;
-
-		return iwm_tx_power_trigger(iwm);
-	default:
-		IWM_ERR(iwm, "Unsupported power type: %d\n", type);
 		return -EOPNOTSUPP;
-	}
-#endif
+
 	RTW_INFO("%s\n", __func__);
 	return 0;
 }
