@@ -20,7 +20,7 @@ RESULT=$?
 
 echo "Finished running dkms install steps."
 
-
+if defined(CONFIG_DISABLE_IPV6)
 	if echo "net.ipv6.conf.all.disable_ipv6 = 1
   net.ipv6.conf.default.disable_ipv6 = 1
   net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.conf; then
@@ -29,6 +29,6 @@ echo "Finished running dkms install steps."
 	else
 		echo "Could not disable IPv6"
 	fi
-
+endif
 
 exit $RESULT

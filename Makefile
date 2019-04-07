@@ -45,6 +45,7 @@ CONFIG_RTL8814A = y
 CONFIG_USB_HCI = y
 ########################## Features ###########################
 CONFIG_NET_NS = n
+CONFIG_IPV6_DISABLE = n
 CONFIG_MP_INCLUDED = y
 CONFIG_CONCURRENT_MODE = n
 CONFIG_POWER_SAVING = n
