@@ -3939,19 +3939,20 @@ int value;
 	value = dbm;
 #endif
 
-if(value < 0)
+if (value < 0)
 	value = 0;
-if(value > 40)
+
+if (value > 40)
 	value = 40;
 
-	if(type == NL80211_TX_POWER_FIXED) {
+	if (type == NL80211_TX_POWER_FIXED) {
 		pHalData->CurrentTxPwrIdx = value;
 		rtw_hal_set_tx_power_level(padapter, pHalData->current_channel);
-	} else
+	} else {
 
 	return -EOPNOTSUPP;
 
-
+	}
 		return -EOPNOTSUPP;
 
 	RTW_INFO("%s\n", __func__);
