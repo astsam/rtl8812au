@@ -7,7 +7,7 @@ else
   echo "About to run dkms install steps..."
 fi
 
-DRV_DIR='pwd'
+DRV_DIR=`pwd`
 DRV_NAME=rtl8812au
 DRV_VERSION=5.3.4
 
