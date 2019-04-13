@@ -30,7 +30,7 @@ matrix:
             - gcc-5
             - libelf-dev
             - libssl1.1
-      env: COMPILER=gcc-5 KVER=4.20-rc1
+      env: COMPILER=gcc-5 KVER=5.1-rc4
     - compiler: gcc
       addons:
         apt:
@@ -41,7 +41,7 @@ matrix:
             - gcc-6
             - libelf-dev
             - libssl1.1
-      env: COMPILER=gcc-6 KVER=4.19.1
+      env: COMPILER=gcc-6 KVER=5.1-rc4
     - compiler: gcc
       addons:
         apt:
@@ -52,7 +52,51 @@ matrix:
             - gcc-7
             - libelf-dev
             - libssl1.1
-      env: COMPILER=gcc-7 KVER=4.19.1
+      env: COMPILER=gcc-7 KVER=5.1-rc4
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ondrej/nginx-mainline'
+          packages:
+            - gcc-5
+            - libelf-dev
+            - libssl1.1
+      env: COMPILER=gcc-5 KVER=4.20.17
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ondrej/nginx-mainline'
+          packages:
+            - gcc-6
+            - libelf-dev
+            - libssl1.1
+      env: COMPILER=gcc-6 KVER=4.20.17
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ondrej/nginx-mainline'
+          packages:
+            - gcc-7
+            - libelf-dev
+            - libssl1.1
+      env: COMPILER=gcc-7 KVER=4.20.17
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ondrej/nginx-mainline'
+          packages:
+            - gcc-7
+            - libelf-dev
+            - libssl1.1
+      env: COMPILER=gcc-7 KVER=4.19.24
     - compiler: gcc
       addons:
         apt:
@@ -60,15 +104,15 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - gcc-5
-      env: COMPILER=gcc-5 KVER=4.4.97
+      env: COMPILER=gcc-5 KVER=4.4.178
     - compiler: gcc
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-4.9
-      env: COMPILER=gcc-4.9 KVER=3.16.50
+            - gcc-5
+      env: COMPILER=gcc-5 KVER=4.1.52
     - compiler: gcc
       addons:
         apt:
