@@ -1996,7 +1996,8 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
         sinfo->tx_failed = psta->sta_stats.tx_fail_cnt;
 
 	sinfo->filled |= STATION_INFO_BSS_PARAM;
-
+	
+#if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 20, 0))
 	if (!psta->no_short_preamble_set)
 	sinfo->bss_param.flags |= STATION_INFO_BSS_PARAM_SHORT_PREAMBLE;
 
@@ -2012,7 +2013,7 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 	sinfo->bss_param.dtim_period = pwrctl->dtim;
 
 	sinfo->bss_param.beacon_interval = get_beacon_interval(&cur_network->network);
-
+#endif
 	}
 
 	/* for Ad-Hoc/AP mode */
