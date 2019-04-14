@@ -1996,7 +1996,8 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
         sinfo->tx_failed = psta->sta_stats.tx_fail_cnt;
 
 	sinfo->filled |= STATION_INFO_BSS_PARAM;
-
+	
+#if defined (LINUX_VERSION_CODE) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 20, 0))
 	if (!psta->no_short_preamble_set)
 	sinfo->bss_param.flags |= STATION_INFO_BSS_PARAM_SHORT_PREAMBLE;
 
@@ -2012,7 +2013,7 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 	sinfo->bss_param.dtim_period = pwrctl->dtim;
 
 	sinfo->bss_param.beacon_interval = get_beacon_interval(&cur_network->network);
-
+#endif
 	}
 
 	/* for Ad-Hoc/AP mode */
@@ -4662,7 +4663,15 @@ exit:
 	return ret;
 }
 
-static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev, struct station_del_parameters *params)
+static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev,
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 16, 0))
+	u8 *mac
+#elif (LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0))
+	const u8 *mac
+#else
+	struct station_del_parameters *params
+#endif
+)
 {
 	int ret = 0;
 	_irqL irqL;
@@ -4676,7 +4685,11 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 
 	RTW_INFO("+"FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 19, 0))
+	target_mac = mac;
+#else
 	target_mac = params->mac;
+#endif
 
 	if (check_fwstate(pmlmepriv, (_FW_LINKED | WIFI_AP_STATE | WIFI_MESH_STATE)) != _TRUE) {
 		RTW_INFO("%s, fw_state != FW_LINKED|WIFI_AP_STATE|WIFI_MESH_STATE\n", __func__);
