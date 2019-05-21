@@ -4082,9 +4082,16 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 		hdr_buf[rt_len] |= BIT1; /* MCS index known */
 
 		/* bandwidth */
+#ifdef CONFIG_RTL8814A
+		if(pattrib->physt) {
+			hdr_buf[rt_len] |= BIT0;
+			hdr_buf[rt_len+1] |= (pattrib->phy_info.band_width & 0x03);
+		}
+#else
 		hdr_buf[rt_len] |= BIT0;
 		hdr_buf[rt_len + 1] |= (pattrib->bw & 0x03);
 
+#endif
 		/* guard interval */
 		hdr_buf[rt_len] |= BIT2;
 		hdr_buf[rt_len + 1] |= (pattrib->sgi & 0x01) << 2;
@@ -4397,10 +4404,10 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 #endif
 		ret = _SUCCESS;
 		goto exit;
-	} else
-
+	} else {
 		/* check if need to handle uc_swdec_pending_queue*/
-		if (check_fwstate(mlmepriv, WIFI_STATION_STATE) && psecuritypriv->busetkipkey) {
+		if (check_fwstate(mlmepriv, WIFI_STATION_STATE) && psecuritypriv->busetkipkey)
+		{
 			union recv_frame *pending_frame;
 			int cnt = 0;
 
@@ -4412,8 +4419,10 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 
 			if (cnt)
 				RTW_INFO(FUNC_ADPT_FMT" dequeue %d from uc_swdec_pending_queue\n",
-					 FUNC_ADPT_ARG(padapter), cnt);
+					FUNC_ADPT_ARG(padapter), cnt);
+			}
 		}
+
 
 	DBG_COUNTER(padapter->rx_logs.core_rx);
 	ret = recv_func_prehandle(padapter, rframe);
