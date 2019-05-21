@@ -1094,7 +1094,7 @@ PHY_SetRFPowerState8814A(
 #elif (DEV_BUS_TYPE == RT_SDIO_INTERFACE)
 	bResult = phy_SetRFPowerState_8814Sdio(Adapter, eRFPowerState);
 #endif
-		
+
 	RT_TRACE(COMP_RF, DBG_LOUD, ("<--------- PHY_SetRFPowerState8814(): bResult(%d)\n", bResult));
 
 	return bResult;
@@ -1230,17 +1230,18 @@ PHY_GetTxPowerIndex8814A(
 		tic->ebias = 0;
 	}
 
+	phy_TxPwrAdjInPercentage(pAdapter, (u8 *)&txPower);
 	if(txPower > MAX_POWER_INDEX)
 		txPower = MAX_POWER_INDEX;
 
-	//if (Adapter->registrypriv.mp_mode==0 && 
+	//if (Adapter->registrypriv.mp_mode==0 &&
 		//(pHalData->bautoload_fail_flag || pHalData->EfuseMap[EFUSE_INIT_MAP][EEPROM_TX_PWR_INX_JAGUAR] == 0xFF))
 		//txPower = 0x12;
 
 	/*RTW_INFO("Final Tx Power(RF-%c, Channel: %d) = %d(0x%X)\n", ((RFPath==0)?'A':(RFPath==1)?'B':(RFPath==2)?'C':'D'), Channel,
 		txPower, txPower);*/
 
-	return (u8) txPower;	
+	return (u8) txPower;
 }
 
 
@@ -1248,7 +1249,7 @@ VOID
 PHY_SetTxPowerIndex_8814A(
 	IN	PADAPTER			Adapter,
 	IN	u32				PowerIndex,
-	IN	enum rf_path				RFPath,	
+	IN	enum rf_path				RFPath,
 	IN	u8				Rate
 	)
 {

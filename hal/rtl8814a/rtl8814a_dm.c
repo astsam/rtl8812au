@@ -334,7 +334,7 @@ void rtl8814_init_dm_priv(IN PADAPTER Adapter)
 #endif
 
 	Init_ODM_ComInfo_8814(Adapter);
-	odm_init_all_timers(podmpriv );	
+	odm_init_all_timers(podmpriv );
 	//PHYDM_InitDebugSetting(podmpriv);
 
 	pHalData->CurrentTxPwrIdx = 18;
