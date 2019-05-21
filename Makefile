@@ -44,6 +44,9 @@ CONFIG_RTL8821A = y
 CONFIG_RTL8814A = y
 ######################### Interface ###########################
 CONFIG_USB_HCI = y
+#########################    LED    ###########################
+CONFIG_LED_CONTROL = y
+CONFIG_LED_ENABLE = y
 ########################## Features ###########################
 CONFIG_NET_NS = n
 CONFIG_IPV6_DISABLE = n
