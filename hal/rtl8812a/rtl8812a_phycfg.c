@@ -473,6 +473,8 @@ PHY_GetTxPowerLevel8812(
 	OUT s32		*powerlevel
 )
 {
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
+	*powerlevel = pHalData->CurrentTxPwrIdx;
 #if 0
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);
