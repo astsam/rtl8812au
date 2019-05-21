@@ -4424,7 +4424,7 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 
 			if (cnt)
 				RTW_INFO(FUNC_ADPT_FMT" dequeue %d from uc_swdec_pending_queue\n",
-					FUNC_ADPT_ARG(padapter), cnt);
+				FUNC_ADPT_ARG(padapter), cnt);
 			}
 		}
 
