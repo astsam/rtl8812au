@@ -4094,8 +4094,8 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 		/* guard interval */
 #ifndef CONFIG_RTL8814A
 		hdr_buf[rt_len] |= BIT2;
-#endif
 		hdr_buf[rt_len + 1] |= (pattrib->sgi & 0x01) << 2;
+#endif
 
 		/* STBC */
 #ifndef CONFIG_RTL8814A
@@ -4424,7 +4424,7 @@ int recv_func(_adapter *padapter, union recv_frame *rframe)
 
 			if (cnt)
 				RTW_INFO(FUNC_ADPT_FMT" dequeue %d from uc_swdec_pending_queue\n",
-					FUNC_ADPT_ARG(padapter), cnt);
+				FUNC_ADPT_ARG(padapter), cnt);
 			}
 		}
 

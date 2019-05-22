@@ -863,7 +863,7 @@ static int wpa_set_auth_algs(struct net_device *dev, u32 value)
 static int wpa_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
 {
 	int ret = 0;
-	u32 wep_key_idx, wep_key_len, wep_total_len;
+	u32 wep_key_idx, wep_key_len, wep_total_len = 0;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct security_priv *psecuritypriv = &padapter->securitypriv;
@@ -6942,7 +6942,7 @@ out:
 static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param, u32 param_len)
 {
 	int ret = 0;
-	u32 wep_key_idx, wep_key_len, wep_total_len = 0;
+	u32 wep_key_idx, wep_key_len, wep_total_len;
 	NDIS_802_11_WEP	*pwep = NULL;
 	struct sta_info *psta = NULL, *pbcmc_sta = NULL;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
@@ -12355,9 +12355,8 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 }
 #endif
 
-#if defined(CONFIG_WIRELESS_EXT) && !defined(CONFIG_CFG80211_WEXT)
-struct iw_handler_def rtw_handlers_def =
-{
+#ifdef CONFIG_WIRELESS_EXT
+struct iw_handler_def rtw_handlers_def = {
 	.standard = rtw_handlers,
 	.num_standard = sizeof(rtw_handlers) / sizeof(iw_handler),
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)) || defined(CONFIG_WEXT_PRIV)

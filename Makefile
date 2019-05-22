@@ -10,7 +10,7 @@ EXTRA_CFLAGS += -Wextra
 #EXTRA_CFLAGS += -Wno-tautological-compare
 #EXTRA_CFLAGS += -Wno-incompatible-pointer-types
 #EXTRA_CFLAGS += -Wno-switch
-EXTRA_CFLAGS += -Wmissing-field-initializers
+#EXTRA_CFLAGS += -Wmissing-field-initializers
 EXTRA_CFLAGS += -Wno-cast-function-type
 EXTRA_CFLAGS += -Wno-unused-variable
 EXTRA_CFLAGS += -Wno-unused-value
@@ -156,6 +156,7 @@ CONFIG_PLATFORM_ARM_SPREADTRUM_6820 = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_8810 = n
 CONFIG_PLATFORM_ARM_WMT = n
 CONFIG_PLATFORM_ARM_RPI = n
+CONFIG_PLATFORM_ARM64_RPI = n
 CONFIG_PLATFORM_ARM_ODROIDC2 = n
 CONFIG_PLATFORM_TI_DM365 = n
 CONFIG_PLATFORM_MOZART = n
@@ -1456,6 +1457,17 @@ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
 INSTALL_PREFIX :=
 endif
 
+ifeq ($(CONFIG_PLATFORM_ARM64_RPI), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DRTW_USE_CFG80211_STA_EVENT
+ARCH ?= arm64
+CROSS_COMPILE ?=
+KVER ?= $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
+endif
+
 ifeq ($(CONFIG_PLATFORM_ARM_ODROIDC2), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
@@ -1718,7 +1730,7 @@ install:
 	/sbin/depmod -a ${KVER}
 
 uninstall:
-	rm -f $(MODDESTDIR)/$(MODULE_NAME).ko
+	rm -f $(MODDESTDIR)$(MODULE_NAME).ko
 	/sbin/depmod -a ${KVER}
 
 backup_rtlwifi:
