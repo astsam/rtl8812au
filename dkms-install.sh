@@ -7,11 +7,11 @@ else
   echo "About to run dkms install steps..."
 fi
 
-DRV_DIR=rtl8812au
+DRV_DIR="$(pwd)"
 DRV_NAME=rtl8812au
 DRV_VERSION=5.3.4
 
-cp -r $(pwd) /usr/src/${DRV_NAME}-${DRV_VERSION}
+cp -r ${DRV_DIR} /usr/src/${DRV_NAME}-${DRV_VERSION}
 
 dkms add -m ${DRV_NAME} -v ${DRV_VERSION}
 dkms build -m ${DRV_NAME} -v ${DRV_VERSION}
@@ -20,7 +20,7 @@ RESULT=$?
 
 echo "Finished running dkms install steps."
 
-
+if grep -q -e "^CONFIG_DISABLE_IPV6 = y$" "$DRV_DIR/Makefile" ; then
 	if echo "net.ipv6.conf.all.disable_ipv6 = 1
   net.ipv6.conf.default.disable_ipv6 = 1
   net.ipv6.conf.lo.disable_ipv6 = 1" >> /etc/sysctl.conf; then
@@ -29,6 +29,6 @@ echo "Finished running dkms install steps."
 	else
 		echo "Could not disable IPv6"
 	fi
-
+fi
 
 exit $RESULT
