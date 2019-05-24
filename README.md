@@ -16,10 +16,10 @@
 [![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
 
-## TODO
+### TODO
 
-# This driver is brand new, it will take some time to add all patches from v5.3.4 even though many got merged into it.
-# This driver only supports 8812au chipset at the moment. We're working on it, so please be patient. Thanks
+## This driver is brand new, it will take some time to add all patches from v5.3.4 even though many got merged into it.
+## This driver only supports 8812au chipset at the moment. We're working on it, so please be patient. Thanks
 
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
