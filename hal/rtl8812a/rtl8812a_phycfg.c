@@ -473,8 +473,6 @@ PHY_GetTxPowerLevel8812(
 	OUT s32		*powerlevel
 )
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-	*powerlevel = pHalData->CurrentTxPwrIdx;
 #if 0
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	PMGNT_INFO		pMgntInfo = &(Adapter->MgntInfo);
@@ -510,22 +508,6 @@ PHY_SetTxPowerLevel8812(
 	/* RTW_INFO("<==PHY_SetTxPowerLevel8812()\n"); */
 }
 
-u8
-phy_GetCurrentTxNum_8812A(
-	IN	PADAPTER		pAdapter,
-	IN	u8				Rate
-)
-{
-	u8	tx_num = 0;
-
-	if ((Rate >= MGN_MCS8 && Rate <= MGN_MCS15) ||
-	    (Rate >= MGN_VHT2SS_MCS0 && Rate <= MGN_VHT2SS_MCS9))
-		tx_num = RF_2TX;
-	else
-		tx_num = RF_1TX;
-
-	return tx_num;
-}
 
 /**************************************************************************************************************
  *   Description:
@@ -544,10 +526,11 @@ PHY_GetTxPowerIndex_8812A(
 )
 {
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(pAdapter);
+	struct hal_spec_t *hal_spec = GET_HAL_SPEC(pAdapter);
 	s16 power_idx;
 	u8 base_idx = 0;
 	s8 by_rate_diff = 0, limit = 0, tpt_offset = 0, extra_bias = 0;
-	u8 ntx_idx = phy_GetCurrentTxNum_8812A(pAdapter, Rate);
+	u8 ntx_idx = phy_get_current_tx_num(pAdapter, Rate);
 	BOOLEAN bIn24G = _FALSE;
 
 	base_idx = PHY_GetTxPowerIndexBase(pAdapter, RFPath, Rate, ntx_idx, BandWidth, Channel, &bIn24G);
@@ -592,8 +575,8 @@ PHY_GetTxPowerIndex_8812A(
 
 	if (power_idx < 0)
 		power_idx = 0;
-	else if (power_idx > MAX_POWER_INDEX)
-		power_idx = MAX_POWER_INDEX;
+	else if (power_idx > hal_spec->txgi_max)
+		power_idx = hal_spec->txgi_max;
 
 	if (power_idx % 2 == 1 && !IS_NORMAL_CHIP(pHalData->version_id))
 		--power_idx;

@@ -13,32 +13,15 @@
  *
  *****************************************************************************/
 
-#ifndef	__ODM_RTL8812A_H__
+#ifndef __ODM_RTL8812A_H__
 #define __ODM_RTL8812A_H__
 
+s8 phydm_cck_rssi_8812a(struct dm_struct *dm, u16 lna_idx, u8 vga_idx);
+
 #ifdef DYN_ANT_WEIGHTING_SUPPORT
-void phydm_dynamic_ant_weighting_8812a(void	*dm_void);
+void phydm_dynamic_ant_weighting_8812a(void *dm_void);
 #endif
 
-#if (defined(CONFIG_PATH_DIVERSITY))
-
-void
-odm_path_diversity_init_8812a(struct dm_struct	*dm);
-
-void
-odm_path_diversity_8812a(struct dm_struct	*dm);
-
-void
-odm_set_tx_path_by_tx_info_8812a(
-	struct dm_struct		*dm,
-	u8			*desc,
-	u8			mac_id
-);
-#endif
-
-void
-phydm_hwsetting_8812a(
-	struct dm_struct		*dm
-);
+void phydm_hwsetting_8812a(struct dm_struct *dm);
 
 #endif

@@ -24,10 +24,9 @@
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_agc_tab(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
-u32	odm_get_version_mp_8812a_agc_tab(void);
+odm_read_and_config_mp_8812a_agc_tab( /* tc: Test Chip, mp: mp Chip*/
+				     struct dm_struct *dm);
+u32 odm_get_version_mp_8812a_agc_tab(void);
 
 /******************************************************************************
 *                           agc_tab_diff.TXT
@@ -36,41 +35,35 @@ u32	odm_get_version_mp_8812a_agc_tab(void);
 extern u32	array_mp_8812a_agc_tab_diff_lb[60];
 extern u32	array_mp_8812a_agc_tab_diff_hb[60];
 void
-odm_read_and_config_mp_8812a_agc_tab_diff(
-	struct dm_struct *dm,
-	u32	array[],
-	u32	array_len
-);
-u32	odm_get_version_mp_8812a_agc_tab_diff(void);
+odm_read_and_config_mp_8812a_agc_tab_diff(struct dm_struct *dm, u32 array[],
+					  u32 array_len);
+u32 odm_get_version_mp_8812a_agc_tab_diff(void);
 
 /******************************************************************************
 *                           phy_reg.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_phy_reg(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
-u32	odm_get_version_mp_8812a_phy_reg(void);
+odm_read_and_config_mp_8812a_phy_reg( /* tc: Test Chip, mp: mp Chip*/
+				     struct dm_struct *dm);
+u32 odm_get_version_mp_8812a_phy_reg(void);
 
 /******************************************************************************
 *                           phy_reg_mp.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_phy_reg_mp(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
-u32	odm_get_version_mp_8812a_phy_reg_mp(void);
+odm_read_and_config_mp_8812a_phy_reg_mp( /* tc: Test Chip, mp: mp Chip*/
+					struct dm_struct *dm);
+u32 odm_get_version_mp_8812a_phy_reg_mp(void);
 
 /******************************************************************************
 *                           phy_reg_pg.TXT
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_phy_reg_pg(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
+odm_read_and_config_mp_8812a_phy_reg_pg( /* tc: Test Chip, mp: mp Chip*/
+					struct dm_struct *dm);
 u32	odm_get_version_mp_8812a_phy_reg_pg(void);
 
 /******************************************************************************
@@ -78,9 +71,8 @@ u32	odm_get_version_mp_8812a_phy_reg_pg(void);
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_phy_reg_pg_asus(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
+odm_read_and_config_mp_8812a_phy_reg_pg_asus( /* tc: Test Chip, mp: mp Chip*/
+					     struct dm_struct *dm);
 u32	odm_get_version_mp_8812a_phy_reg_pg_asus(void);
 
 /******************************************************************************
@@ -88,9 +80,8 @@ u32	odm_get_version_mp_8812a_phy_reg_pg_asus(void);
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_phy_reg_pg_dni(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
+odm_read_and_config_mp_8812a_phy_reg_pg_dni( /* tc: Test Chip, mp: mp Chip*/
+					    struct dm_struct *dm);
 u32	odm_get_version_mp_8812a_phy_reg_pg_dni(void);
 
 /******************************************************************************
@@ -98,9 +89,8 @@ u32	odm_get_version_mp_8812a_phy_reg_pg_dni(void);
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_phy_reg_pg_nec(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
+odm_read_and_config_mp_8812a_phy_reg_pg_nec( /* tc: Test Chip, mp: mp Chip*/
+					    struct dm_struct *dm);
 u32	odm_get_version_mp_8812a_phy_reg_pg_nec(void);
 
 /******************************************************************************
@@ -108,9 +98,8 @@ u32	odm_get_version_mp_8812a_phy_reg_pg_nec(void);
 ******************************************************************************/
 
 void
-odm_read_and_config_mp_8812a_phy_reg_pg_tplink(/* tc: Test Chip, mp: mp Chip*/
-	struct	dm_struct *dm
-);
+odm_read_and_config_mp_8812a_phy_reg_pg_tplink( /* tc: Test Chip, mp: mp Chip*/
+					       struct dm_struct *dm);
 u32	odm_get_version_mp_8812a_phy_reg_pg_tplink(void);
 
 #endif
