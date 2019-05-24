@@ -16,6 +16,11 @@
 [![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
 
+## TODO
+
+# This driver is brand new, it will take some time to add all patches from v5.3.4 even though many got merged into it.
+# This driver only supports 8812au chipset at the moment. We're working on it, so please be patient. Thanks
+
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
@@ -137,3 +142,10 @@ at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkMa
 ```
 sudo service NetworkManager restart
 ```
+
+### Other sources worth checking out
+```
+new rtw88 mac80211 driver: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/log/rtw88
+wireless git: https://git.kernel.org/pub/scm/linux/kernel/git/jh/wireless.git/log/
+wireless testing git: https://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-testing.git/log/
+wpa_supplicant git: https://w1.fi/cgit/hostap/log/
