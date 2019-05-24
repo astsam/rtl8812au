@@ -51,7 +51,7 @@ u8 rtw_set_802_11_bssid(_adapter *padapter, u8 *bssid);
 u8 rtw_set_802_11_add_wep(_adapter *padapter, NDIS_802_11_WEP *wep);
 u8 rtw_set_802_11_disassociate(_adapter *padapter);
 u8 rtw_set_802_11_bssid_list_scan(_adapter *padapter, struct sitesurvey_parm *pparm);
-u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter, NDIS_802_11_NETWORK_INFRASTRUCTURE networktype);
+u8 rtw_set_802_11_infrastructure_mode(_adapter *padapter, NDIS_802_11_NETWORK_INFRASTRUCTURE networktype, u8 flags);
 u8 rtw_set_802_11_ssid(_adapter *padapter, NDIS_802_11_SSID *ssid);
 u8 rtw_set_802_11_connect(_adapter *padapter, u8 *bssid, NDIS_802_11_SSID *ssid);
 

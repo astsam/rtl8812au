@@ -498,7 +498,7 @@ static void rtw_init_recv_timer(struct recv_reorder_ctrl *preorder_ctrl)
 /* struct	sta_info *rtw_alloc_stainfo(_queue *pfree_sta_queue, unsigned char *hwaddr) */
 struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 {
-	_irqL irqL, irqL2;
+	_irqL irqL2;
 	s32	index;
 	_list	*phash_list;
 	struct sta_info	*psta;
@@ -512,13 +512,13 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 
 	/* _enter_critical_bh(&(pfree_sta_queue->lock), &irqL); */
 	_enter_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
-	if (!pstapriv->padapter->pnetdev || _rtw_queue_empty(pfree_sta_queue) == _TRUE) {
+	if (_rtw_queue_empty(pfree_sta_queue) == _TRUE) {
+		/* _exit_critical_bh(&(pfree_sta_queue->lock), &irqL); */
+		_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
 		psta = NULL;
 	} else {
 		psta = LIST_CONTAINOR(get_next(&pfree_sta_queue->queue), struct sta_info, list);
 
-		if (!psta)
-			goto exit;
 		rtw_list_delete(&(psta->list));
 
 		/* _exit_critical_bh(&(pfree_sta_queue->lock), &irqL); */
@@ -595,6 +595,7 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 #endif
 		/* init for the sequence number of received management frame */
 		psta->RxMgmtFrameSeqNum = 0xffff;
+		_rtw_memset(&psta->sta_stats, 0, sizeof(struct stainfo_stats));
 
 		rtw_alloc_macid(pstapriv->padapter, psta);
 
@@ -797,11 +798,6 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 	psta->has_legacy_ac = 0;
 
 #ifdef CONFIG_NATIVEAP_MLME
-
-	if (psta->cmn.aid > 31) {
-		pr_err("***** psta->aid (%d) out of bounds\n", psta->cmn.aid);
-		return _FAIL;
-	}
 
 	if (pmlmeinfo->state == _HW_STATE_AP_) {
 		rtw_tim_map_clear(padapter, pstapriv->sta_dz_bitmap, psta->cmn.aid);

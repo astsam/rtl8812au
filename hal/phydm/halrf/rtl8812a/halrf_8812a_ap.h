@@ -13,8 +13,8 @@
  *
  *****************************************************************************/
 
-#ifndef __HAL_PHY_RF_8812A_H__
-#define __HAL_PHY_RF_8812A_H__
+#ifndef __HALRF_8812A_H__
+#define __HALRF_8812A_H__
 
 /*--------------------------Define Parameters-------------------------------*/
 #define	IQK_DELAY_TIME_8812A		10		/* ms */
@@ -75,8 +75,8 @@ phy_lc_calibrate_8812a(
 void
 halrf_rf_lna_setting_8812a(
 	struct dm_struct	*dm,
-	enum phydm_lna_set type
+	enum halrf_lna_set type
 );
 
 
-#endif	/*  #ifndef __HAL_PHY_RF_8812A_H__ */
+#endif	/*#ifndef __HALRF_8812A_H__*/
