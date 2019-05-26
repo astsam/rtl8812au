@@ -15,6 +15,10 @@
 #ifndef __OSDEP_SERVICE_H_
 #define __OSDEP_SERVICE_H_
 
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#include <linux/sched/signal.h>
+#endif
 
 #define _FAIL					0
 #define _SUCCESS				1
@@ -578,7 +582,6 @@ static inline int largest_bit(u32 bitmask)
 	return i;
 }
 
-#define rtw_abs(a) (a < 0 ? -a : a)
 #define rtw_min(a, b) ((a > b) ? b : a)
 #define rtw_is_range_a_in_b(hi_a, lo_a, hi_b, lo_b) (((hi_a) <= (hi_b)) && ((lo_a) >= (lo_b)))
 #define rtw_is_range_overlap(hi_a, lo_a, hi_b, lo_b) (((hi_a) > (lo_b)) && ((lo_a) < (hi_b)))
@@ -590,7 +593,6 @@ static inline int largest_bit(u32 bitmask)
 #define MAC_ARG(x) ((u8 *)(x))[0], ((u8 *)(x))[1], ((u8 *)(x))[2], ((u8 *)(x))[3], ((u8 *)(x))[4], ((u8 *)(x))[5]
 #endif
 
-bool rtw_macaddr_is_larger(const u8 *a, const u8 *b);
 
 extern void rtw_suspend_lock_init(void);
 extern void rtw_suspend_lock_uninit(void);

@@ -352,7 +352,6 @@ struct mp_priv {
 	u32 rx_pktloss;
 	BOOLEAN  rx_bindicatePkt;
 	struct recv_stat rxstat;
-	BOOLEAN brx_filter_beacon;
 
 	/* RF/BB relative */
 	u8 channel;
@@ -423,7 +422,6 @@ struct mp_priv {
 
 
 	u8		*TXradomBuffer;
-	u8		CureFuseBTCoex;
 };
 
 typedef struct _IOCMD_STRUCT_ {

@@ -20,7 +20,8 @@
  */
 
 #include <drv_types.h>
-#include <mach/sys_config.h>
+//#include <mach/sys_config.h>
+#include <linux/sys_config.h>
 
 #ifdef CONFIG_PLATFORM_ARM_SUNxI
 extern int sw_usb_disable_hcd(__u32 usbc_no);

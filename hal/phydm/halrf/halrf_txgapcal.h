@@ -22,10 +22,8 @@
  * Larry Finger <Larry.Finger@lwfinger.net>
  *
  *****************************************************************************/
+void
+odm_tx_gain_gap_calibration(
+	void	*dm_void
+);
 
-#ifndef __HALRF_TXGAPCAL_H__
-#define __HALRF_TXGAPCAL_H__
-
-void odm_tx_gain_gap_calibration(void *dm_void);
-
-#endif /*__HALRF_TXGAPCAL_H__*/

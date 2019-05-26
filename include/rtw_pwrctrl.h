@@ -305,9 +305,7 @@ struct aoac_report {
 	u8 security_type;
 	u8 wow_pattern_idx;
 	u8 version_info;
-	u8 rekey_ok:1;
-	u8 dummy:7;
-	u8 reserved[3];
+	u8 reserved[4];
 	u8 rxptk_iv[8];
 	u8 rxgtk_iv[4][8];
 };
@@ -319,23 +317,11 @@ struct pwrctrl_priv {
 	volatile u8 cpwm; /* fw current power state. updated when 1. read from HCPWM 2. driver lowers power level */
 	volatile u8 tog; /* toggling */
 	volatile u8 cpwm_tog; /* toggling */
-	u8 rpwm_retry;
 
 	u8	pwr_mode;
 	u8	smart_ps;
 	u8	bcn_ant_mode;
 	u8	dtim;
-#ifdef CONFIG_LPS_CHK_BY_TP
-	u8	lps_chk_by_tp;
-	u16	lps_tx_tp_th;/*Mbps*/
-	u16	lps_rx_tp_th;/*Mbps*/
-	u16	lps_bi_tp_th;/*Mbps*//*TRX TP*/
-	int	lps_chk_cnt_th;
-	int	lps_chk_cnt;
-	u32	lps_tx_pkts;
-	u32	lps_rx_pkts;
-
-#endif
 
 #ifdef CONFIG_WMMPS_STA
 	u8 wmm_smart_ps;
@@ -411,7 +397,6 @@ struct pwrctrl_priv {
 #ifdef CONFIG_GPIO_WAKEUP
 	u8		is_high_active;
 #endif /* CONFIG_GPIO_WAKEUP */
-	u8		hst2dev_high_active;
 #ifdef CONFIG_WOWLAN
 	bool		default_patterns_en;
 #ifdef CONFIG_IPV6
@@ -544,22 +529,16 @@ rt_rf_power_state RfOnOffDetect(IN	PADAPTER pAdapter);
 #endif
 
 
-#ifdef DBG_CHECK_FW_PS_STATE
 int rtw_fw_ps_state(PADAPTER padapter);
-#endif
 
 #ifdef CONFIG_LPS
+s32 LPS_RF_ON_check(PADAPTER padapter, u32 delay_ms);
 void LPS_Enter(PADAPTER padapter, const char *msg);
 void LPS_Leave(PADAPTER padapter, const char *msg);
-#ifdef CONFIG_CHECK_LEAVE_LPS
-#ifdef CONFIG_LPS_CHK_BY_TP
-void traffic_check_for_leave_lps_by_tp(PADAPTER padapter, u8 tx, struct sta_info *sta);
-#endif
 void traffic_check_for_leave_lps(PADAPTER padapter, u8 tx, u32 tx_packets);
-#endif /*CONFIG_CHECK_LEAVE_LPS*/
 void rtw_set_ps_mode(PADAPTER padapter, u8 ps_mode, u8 smart_ps, u8 bcn_ant_mode, const char *msg);
 void rtw_set_fw_in_ips_mode(PADAPTER padapter, u8 enable);
-u8 rtw_set_rpwm(_adapter *padapter, u8 val8);
+void rtw_set_rpwm(_adapter *padapter, u8 val8);
 void rtw_wow_lps_level_decide(_adapter *adapter, u8 wow_en);
 #endif
 
@@ -604,6 +583,4 @@ void rtw_wow_pattern_sw_reset(_adapter *adapter);
 u8 rtw_set_default_pattern(_adapter *adapter);
 void rtw_wow_pattern_sw_dump(_adapter *adapter);
 #endif /* CONFIG_WOWLAN */
-void rtw_ssmps_enter(_adapter *adapter, struct sta_info *sta);
-void rtw_ssmps_leave(_adapter *adapter, struct sta_info *sta);
 #endif /* __RTL871X_PWRCTRL_H_ */

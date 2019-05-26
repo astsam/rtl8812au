@@ -1,0 +1,123 @@
+Product: RTL8812A USB Software Package - Linux Driver
+Version: v5.2.20.2_28373.20180619
+
+Release History:
+
+v5.2.20.2_28373.20180619
+
+  Update phydm to improve TP stability
+
+v5.2.20.1_27761.20180508
+
+  Support WiFi-HAL for Android 8
+
+v5.2.20_25672.20171213
+
+  Update PHYDM setting
+  Update FW to v52.10
+  Correct DFS master function
+  Fixed WPA2 vulnerability - key reinstallation attacks(KRACKs)(update)
+
+v5.2.9.3_24903.20171101
+
+  Fixed WPA2 vulnerability - key reinstallation attacks(KRACKs)
+
+v5.2.9.2_24491.20171027
+
+  Remove test code
+  Fix crash for BF function
+  Fix wrong memory accesse
+  Fix encrypt broadcast packet fail
+  Fix crash for TDLS
+
+v5.2.9.1_24461.20171018
+
+  (Do not use)
+
+v5.2.9_22809.20170621
+
+  Update FW to v52.2
+  Update PHYDM setting
+  Support PNO
+  Fix WOW issue
+  Fix efuse issue
+  Sync channel plan document
+  Fix DFS issue
+  Support NAPI & GRO
+  Enable Power by rate
+  Fix MP power tracking issue
+  Fix potential memory out of range
+  Support CE-RED. 2G: ETSI v2.1.1 / 5G: ETSI v2.1.0
+
+v5.1.5_19247.20160830
+
+  Update FW to v49
+  Update PHY parameters v57
+  Support TDLS
+  Enable GTK offload under WOW
+  Fix no scan results after resume
+  Fix NDPA issue under scan
+  Fix dynamic watchdog don't work
+
+v4.3.20_16317.20160108
+
+  Disable CONFIG_WIFI_TEST & CONFIG_WOWLAN in Makefile default
+
+v4.3.20_16317.20151231
+
+  Fix STBC issue
+  Fix NDPA sounding issue
+  Fix r/w rf register racing issue
+  Fix kernel panic for BT & timer
+  Fix memory leak for cmd thread
+  Fix ADDBA flow
+  Support Power limit
+  Support USB mode switch
+  Support Linux Kernel 4.2
+  Update FW to v41
+  Update PHY parameters to v55
+
+v4.3.13_14061.20150505
+
+  Update FW
+  Update Phy parameters
+  Support WOWLAN GTK offload
+  Support Adaptivity
+  Support 1T2R
+  Support 8812AU-VN
+  Fix scan timeout issue
+  Fix RFE type error
+  Fix Spur Calibration flow
+  Fix some 802.11 logo issue
+  Fix some crash issues
+
+v4.3.8_12175.20140912
+
+  Update PHY parameters to improve throughput
+  Update FW
+  Support PMF
+  Support WoWLAN
+  Modify channel plan
+  Fix MP issue
+
+v4.3.2_11100.20140411
+
+  Fix p2p issues
+  Improve throughput
+  Update FW
+
+v4.2.3_8123.20130705
+
+  Update PHY parameters to improve throughput
+
+v4.2.2_7502.20130517
+
+  Support 11AC for STA
+
+v4.2.0_7054.20130328
+
+  Fix LED behavior
+
+v4.2.0_6952.20130315
+
+  First release

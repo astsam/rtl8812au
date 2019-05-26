@@ -44,7 +44,7 @@ make install
 ### Notes
 Download
 ```
-git clone -b v5.6.4 https://github.com/aircrack-ng/rtl8812au.git
+git clone -b v5.3.4 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
 Package / Build dependencies (Kali)

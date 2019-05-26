@@ -16,12 +16,13 @@
 #define __DRV_CONF_H__
 #include "autoconf.h"
 #include "hal_ic_cfg.h"
+
 #if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
 
 	#error "Shall be Linux or Windows, but not both!\n"
 
 #endif
-#define CONFIG_RSSI_PRIORITY
+
 #ifdef CONFIG_RTW_REPEATER_SON
 	#ifndef CONFIG_AP
 		#define CONFIG_AP
@@ -114,44 +115,12 @@
 	#define CONFIG_USB_VENDOR_REQ_MUTEX
 #endif
 
-#if defined(CONFIG_DFS_SLAVE_WITH_RADAR_DETECT) && !defined(CONFIG_DFS_MASTER)
-	#define CONFIG_DFS_MASTER
-#endif
-
 #if !defined(CONFIG_AP_MODE) && defined(CONFIG_DFS_MASTER)
-	#error "enable CONFIG_DFS_MASTER without CONFIG_AP_MODE"
-#endif
-
-#ifdef CONFIG_WIFI_MONITOR
-	/*	#define CONFIG_MONITOR_MODE_XMIT	*/
-#endif
-
-#ifdef CONFIG_CUSTOMER_ALIBABA_GENERAL
-	#ifndef CONFIG_WIFI_MONITOR
-		#define CONFIG_WIFI_MONITOR
-	#endif
-	#ifndef CONFIG_MONITOR_MODE_XMIT
-		#define CONFIG_MONITOR_MODE_XMIT
-	#endif
-	#ifdef CONFIG_POWER_SAVING
-		#undef CONFIG_POWER_SAVING
-	#endif
-#endif
-
-#ifdef CONFIG_CUSTOMER01_SMART_ANTENNA
-	#ifdef CONFIG_POWER_SAVING
-		#undef CONFIG_POWER_SAVING
-	#endif
-	#ifdef CONFIG_BEAMFORMING
-		#undef CONFIG_BEAMFORMING
-	#endif
+	#warning "undef CONFIG_DFS_MASTER because CONFIG_AP_MODE is not defined"
+	#undef CONFIG_DFS_MASTER
 #endif
 
 #ifdef CONFIG_RTW_MESH
-	#ifndef CONFIG_RTW_MESH_ACNODE_PREVENT
-	#define CONFIG_RTW_MESH_ACNODE_PREVENT 1
-	#endif
-
 	#ifndef CONFIG_RTW_MESH_OFFCH_CAND
 	#define CONFIG_RTW_MESH_OFFCH_CAND 1
 	#endif
@@ -162,9 +131,6 @@
 
 	#ifndef CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST
 	#define CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST 1
-	#endif
-	#ifndef CONFIG_RTW_MESH_CTO_MGATE_CARRIER
-	#define CONFIG_RTW_MESH_CTO_MGATE_CARRIER CONFIG_RTW_MESH_CTO_MGATE_BLACKLIST
 	#endif
 
 	#ifndef CONFIG_RTW_MPM_TX_IES_SYNC_BSS
@@ -199,6 +165,14 @@
 
 #ifndef CONFIG_RTW_ADAPTIVITY_MODE
 	#define CONFIG_RTW_ADAPTIVITY_MODE 0
+#endif
+
+#ifndef CONFIG_RTW_ADAPTIVITY_DML
+	#define CONFIG_RTW_ADAPTIVITY_DML 0
+#endif
+
+#ifndef CONFIG_RTW_ADAPTIVITY_DC_BACKOFF
+	#define CONFIG_RTW_ADAPTIVITY_DC_BACKOFF 2
 #endif
 
 #ifndef CONFIG_RTW_ADAPTIVITY_TH_L2H_INI
@@ -253,9 +227,8 @@
 	#define CONFIG_TXPWR_LIMIT_EN 1
 #endif
 
-#if !CONFIG_TXPWR_LIMIT && CONFIG_TXPWR_LIMIT_EN
-	#undef CONFIG_TXPWR_LIMIT
-	#define CONFIG_TXPWR_LIMIT 1
+#if !defined(CONFIG_TXPWR_LIMIT) && CONFIG_TXPWR_LIMIT_EN
+	#define CONFIG_TXPWR_LIMIT
 #endif
 
 #ifdef CONFIG_RTW_IPCAM_APPLICATION
@@ -264,11 +237,8 @@
 	#define CONFIG_RTW_CUSTOMIZE_BEEDCA		0x0000431C
 	#define CONFIG_RTW_CUSTOMIZE_BWMODE		0x00
 	#define CONFIG_RTW_CUSTOMIZE_RLSTA		0x7
-#if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8192F) || defined(CONFIG_RTL8822B)
-	#define CONFIG_RTW_TX_2PATH_EN		/*	mutually incompatible with STBC_TX & Beamformer	*/
 #endif
-#endif
-/*#define CONFIG_EXTEND_LOWRATE_TXOP			*/
+
 
 #ifndef CONFIG_RTW_RX_AMPDU_SZ_LIMIT_1SS
 	#define CONFIG_RTW_RX_AMPDU_SZ_LIMIT_1SS {0xFF, 0xFF, 0xFF, 0xFF}
@@ -350,33 +320,11 @@
 #endif
 
 #if (CONFIG_IFACE_NUMBER == 0)
-	#error "CONFIG_IFACE_NUMBER cound not be 0 !!"
+	#error "CONFIG_IFACE_NUMBER cound not equel to 0 !!"
 #endif
 
-#if defined(CONFIG_RTL8188E) || defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8188F) || \
-defined(CONFIG_RTL8188GTV) || defined(CONFIG_RTL8192F) || \
-defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8710B) || \
-defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
-#define CONFIG_HWMPCAP_GEN1
-#elif defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8822C) /*|| defined(CONFIG_RTL8814A)*/
-#define CONFIG_HWMPCAP_GEN2
-#elif defined(CONFIG_RTL8814B) /*Address CAM - 128*/
-#define CONFIG_HWMPCAP_GEN3
-#endif
-
-#if defined(CONFIG_HWMPCAP_GEN1) && (CONFIG_IFACE_NUMBER > 2) 
-	#ifdef CONFIG_POWER_SAVING
-	/*#warning "Disable PS when CONFIG_IFACE_NUMBER > 2"*/
-	#undef CONFIG_POWER_SAVING
-	#endif
-
-	#ifdef CONFIG_WOWLAN
-	#error "This IC can't support MI and WoWLan at the same time"
-	#endif
-#endif
-
-#if (CONFIG_IFACE_NUMBER > 4)
-	#error "Not support over 4 interfaces yet !!"
+#if (CONFIG_IFACE_NUMBER > 3)
+	#error "Not support over 3 interfaces yet !!"
 #endif
 
 #if (CONFIG_IFACE_NUMBER > 8)	/*IFACE_ID_MAX*/
@@ -394,28 +342,10 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 	#endif
 
 	#ifdef CONFIG_AP_MODE
-		#define CONFIG_SUPPORT_MULTI_BCN
-
 		#define CONFIG_SWTIMER_BASED_TXBCN
-
-		#ifdef CONFIG_HWMPCAP_GEN2 /*CONFIG_RTL8822B/CONFIG_RTL8821C/CONFIG_RTL8822C*/
-		#define CONFIG_FW_HANDLE_TXBCN
-
-		#ifdef CONFIG_FW_HANDLE_TXBCN
-			#ifdef CONFIG_SWTIMER_BASED_TXBCN
-				#undef CONFIG_SWTIMER_BASED_TXBCN
-			#endif
-
-			#define CONFIG_LIMITED_AP_NUM	4
-		#endif
-	#endif /*CONFIG_HWMPCAP_GEN2*/
-	#endif /*CONFIG_AP_MODE*/
-
-	#ifdef CONFIG_HWMPCAP_GEN2 /*CONFIG_RTL8822B/CONFIG_RTL8821C/CONFIG_RTL8822C*/
-	#define CONFIG_CLIENT_PORT_CFG
-	#define CONFIG_NEW_NETDEV_HDL
-	#endif/*CONFIG_HWMPCAP_GEN2*/
-#endif/*(CONFIG_IFACE_NUMBER > 2)*/
+		/*#define CONFIG_FW_BASED_BCN*/
+	#endif
+#endif
 
 #define MACID_NUM_SW_LIMIT 32
 #define SEC_CAM_ENT_NUM_SW_LIMIT 32
@@ -424,16 +354,8 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 	#define CONFIG_IEEE80211_BAND_5GHZ
 #endif
 
-#if defined(CONFIG_WOWLAN) && (defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8814A))
+#if defined(CONFIG_WOWLAN) && (defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C))
 	#define CONFIG_WOW_PATTERN_HW_CAM
-#endif
-
-#ifndef CONFIG_TSF_UPDATE_PAUSE_FACTOR
-#define CONFIG_TSF_UPDATE_PAUSE_FACTOR 200
-#endif
-
-#ifndef CONFIG_TSF_UPDATE_RESTORE_FACTOR
-#define CONFIG_TSF_UPDATE_RESTORE_FACTOR 5
 #endif
 
 /*
@@ -448,7 +370,6 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 
 
 /*#define CONFIG_DOSCAN_IN_BUSYTRAFFIC	*/
-/*#define CONFIG_PHDYM_FW_FIXRATE		*/	/*	Another way to fix tx rate	*/
 
 /*Don't release SDIO irq in suspend/resume procedure*/
 #define CONFIG_RTW_SDIO_KEEP_IRQ	0
@@ -490,24 +411,4 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 #define CONFIG_IPS
 #endif
 #endif
-
-#ifdef RTW_REDUCE_SCAN_SWITCH_CH_TIME
-#ifndef CONFIG_RTL8822B
-	#error "Only 8822B support RTW_REDUCE_SCAN_SWITCH_CH_TIME"
-#endif
-	#ifndef RTW_CHANNEL_SWITCH_OFFLOAD
-		#define RTW_CHANNEL_SWITCH_OFFLOAD
-	#endif
-#endif
-
-#define CONFIG_RTW_TPT_MODE 
-
-#ifdef CONFIG_PCI_BCN_POLLING
-#define CONFIG_BCN_ICF
-#endif 
-
-#ifndef CONFIG_PCI_MSI
-#define CONFIG_RTW_PCI_MSI_DISABLE
-#endif
-
 #endif /* __DRV_CONF_H__ */

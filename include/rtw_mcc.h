@@ -100,7 +100,7 @@ enum mcc_status_rpt {
 	MCC_RPT_MAX,
 };
 
-enum mcc_role {
+enum MCC_ROLE {
 	MCC_ROLE_STA = 0,
 	MCC_ROLE_AP = 1,
 	MCC_ROLE_GC = 2,
@@ -129,7 +129,7 @@ enum MCC_SCHED_MODE {
 /*  mcc data for adapter */
 struct mcc_adapter_priv {
 	u8 order;		/* FW document, softap/AP must be 0 */
-	enum mcc_role role;			/* MCC role(AP,STA,GO,GC) */
+	u8 role;			/* MCC role(AP,STA,GO,GC) */
 	u8 mcc_duration; /* channel stay period, UNIT:1TU */
 
 	/* flow control */
@@ -182,14 +182,12 @@ struct mcc_obj_priv {
 	u8 mcc_stop_threshold;
 	u8 current_order;
 	u8 last_tsfdiff;
-	systime mcc_launch_time; /* mcc launch time, used for starting detect mcc switch channel success */
+	u32 mcc_launch_time; /* mcc launch time, used for starting detect mcc switch channel success */
 	_mutex mcc_mutex;
 	_lock mcc_lock;
 	PADAPTER iface[MAX_MCC_NUM]; /* by order, use for mcc parameter cmd */
 	struct submit_ctx mcc_sctx;
 	struct submit_ctx mcc_tsf_req_sctx;
-	_mutex mcc_tsf_req_mutex;
-	u8 mcc_tsf_req_sctx_order; /* record current order for mcc_tsf_req_sctx */
 #ifdef CONFIG_MCC_MODE_V2
 	u8 mcc_iqk_value_rsvd_page[3];
 #endif /* CONFIG_MCC_MODE_V2 */

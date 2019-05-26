@@ -33,6 +33,8 @@
 	#endif
 #else /* PLATFORM_LINUX /PLATFORM_BSD */
 
+#include <linux/interrupt.h>
+
 	#ifdef CONFIG_SINGLE_RECV_BUF
 		#define NR_RECVBUFF (1)
 	#else
@@ -84,10 +86,20 @@
 #define RX_CMD_QUEUE				1
 #define RX_MAX_QUEUE				2
 
+static u8 SNAP_ETH_TYPE_IPX[2] = {0x81, 0x37};
+
+static u8 SNAP_ETH_TYPE_APPLETALK_AARP[2] = {0x80, 0xf3};
+static u8 SNAP_ETH_TYPE_APPLETALK_DDP[2] = {0x80, 0x9b};
+static u8 SNAP_ETH_TYPE_TDLS[2] = {0x89, 0x0d};
+static u8 SNAP_HDR_APPLETALK_DDP[3] = {0x08, 0x00, 0x07}; /* Datagram Delivery Protocol */
+
+static u8 oui_8021h[] = {0x00, 0x00, 0xf8};
+static u8 oui_rfc1042[] = {0x00, 0x00, 0x00};
+
 #define MAX_SUBFRAME_COUNT	64
+static u8 rtw_rfc1042_header[] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0x00 };
 /* Bridge-Tunnel header (for EtherTypes ETH_P_AARP and ETH_P_IPX) */
-extern u8 rtw_bridge_tunnel_header[];
-extern u8 rtw_rfc1042_header[];
+static u8 rtw_bridge_tunnel_header[] = { 0xaa, 0xaa, 0x03, 0x00, 0x00, 0xf8 };
 
 /* for Rx reordering buffer control */
 struct recv_reorder_ctrl {
@@ -211,12 +223,6 @@ struct rx_pkt_attrib	{
 	u8	ppdu_cnt;
 	u32 	free_cnt;		/* free run counter */
 	struct phydm_phyinfo_struct phy_info;
-
-#ifdef CONFIG_TCP_CSUM_OFFLOAD_RX
-	/* checksum offload realted varaiables */
-	u8 csum_valid;		/* Checksum valid, 0: not check, 1: checked */
-	u8 csum_err;		/* Checksum Error occurs */
-#endif /* CONFIG_TCP_CSUM_OFFLOAD_RX */
 };
 
 #ifdef CONFIG_RTW_MESH
@@ -501,8 +507,6 @@ struct sta_recv_priv {
 
 	struct	stainfo_rxcache rxcache;
 	u16	bmc_tid_rxseq[16];
-	u16	nonqos_rxseq;
-	u16	nonqos_bmc_rxseq;
 
 	/* uint	sta_rx_bytes; */
 	/* uint	sta_rx_pkts; */
@@ -866,8 +870,15 @@ __inline static s32 translate_percentage_to_dbm(u32 SignalStrengthIndex)
 {
 	s32	SignalPower; /* in dBm. */
 
+#ifdef CONFIG_SIGNAL_SCALE_MAPPING
+	/* Translate to dBm (x=0.5y-95). */
+	SignalPower = (s32)((SignalStrengthIndex + 1) >> 1);
+	SignalPower -= 95;
+#else
 	/* Translate to dBm (x=y-100) */
 	SignalPower = SignalStrengthIndex - 100;
+#endif
+
 	return SignalPower;
 }
 

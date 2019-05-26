@@ -52,12 +52,10 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	sint	bmcst = IS_MCAST(pattrib->ra);
-#if defined(CONFIG_80211N_HT)
 	struct sta_info *psta = NULL;
 	u8 max_agg_num = 0;
 	u8 _max_ampdu_size = 0;
 	u8 ht_max_ampdu_size = 0;
-#endif/*CONFIG_80211N_HT*/
 	u8 vht_max_ampdu_size = 0;
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
 
@@ -106,7 +104,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 	/* RTW_INFO("%s, pkt_offset=0x%02x\n",__FUNCTION__,pxmitframe->pkt_offset); */
 	/* pkt_offset, unit:8 bytes padding */
 	if (pxmitframe->pkt_offset > 0)
-		SET_TX_DESC_PKT_OFFSET_8812(ptxdesc, pxmitframe->pkt_offset);
+	SET_TX_DESC_PKT_OFFSET_8812(ptxdesc, pxmitframe->pkt_offset);
 
 	SET_TX_DESC_MACID_8812(ptxdesc, pattrib->mac_id);
 	SET_TX_DESC_RATE_ID_8812(ptxdesc, pattrib->raid);
@@ -117,13 +115,41 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 
 	if (!pattrib->qos_en) {
 		SET_TX_DESC_HWSEQ_EN_8812(ptxdesc, 1); /* Hw set sequence number */
-	} else
+	} else {
 		SET_TX_DESC_SEQ_8812(ptxdesc, pattrib->seqnum);
+	}
+	/* injected frame */
+	if (pattrib->inject == 0xa5) {
+		SET_TX_DESC_RETRY_LIMIT_ENABLE_8812(ptxdesc, 1);
+		if (pattrib->retry_ctrl == _TRUE) {
+			SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 6);
+		} else {
+			SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 0);
+		}
+		if (pattrib->sgi == _TRUE) {
+			SET_TX_DESC_DATA_SHORT_8812(ptxdesc, 1);
+		} else {
+			SET_TX_DESC_DATA_SHORT_8812(ptxdesc, 0);
+		}
 
-	if ((pxmitframe->frame_tag & 0x0f) == DATA_FRAMETAG) {
-		/* RTW_INFO("pxmitframe->frame_tag == DATA_FRAMETAG\n");		 */
+			SET_TX_DESC_DISABLE_FB_8812(ptxdesc, 1); // svpcom: ?
+			SET_TX_DESC_USE_RATE_8812(ptxdesc, 1);
+			SET_TX_DESC_TX_RATE_8812(ptxdesc, MRateToHwRate(pattrib->rate));
 
-		rtl8812a_fill_txdesc_sectype(pattrib, ptxdesc);
+		if (pattrib->ldpc)
+			SET_TX_DESC_DATA_LDPC_8812(ptxdesc, 1);
+			SET_TX_DESC_DATA_STBC_8812(ptxdesc, pattrib->stbc & 3);
+			//SET_TX_DESC_GF_8812(ptxdesc, 1); // no MCS rates if sets, GreenField?
+			//SET_TX_DESC_LSIG_TXOP_EN_8812(ptxdesc, 1);
+			//SET_TX_DESC_HTC_8812(ptxdesc, 1);
+			//SET_TX_DESC_NO_ACM_8812(ptxdesc, 1);
+			SET_TX_DESC_DATA_BW_8812(ptxdesc, pattrib->bwmode); // 0 - 20 MHz, 1 - 40 MHz, 2 - 80 MHz
+		}
+
+		if ((pxmitframe->frame_tag & 0x0f) == DATA_FRAMETAG) {
+			/* RTW_INFO("pxmitframe->frame_tag == DATA_FRAMETAG\n"); */
+
+			rtl8812a_fill_txdesc_sectype(pattrib, ptxdesc);
 #if defined(CONFIG_CONCURRENT_MODE)
 		if (bmcst)
 			fill_txdesc_force_bmc_camid(pattrib, ptxdesc);
@@ -148,7 +174,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 #endif
 		   ) {
 			/* Non EAP & ARP & DHCP type data packet */
-#if defined(CONFIG_80211N_HT)
+
 			if (pattrib->ampdu_en == _TRUE) {
 				SET_TX_DESC_AGG_ENABLE_8812(ptxdesc, 1);
 				if (padapter->driver_tx_max_agg_num != 0xFF) {
@@ -197,7 +223,6 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 				/* Set A-MPDU aggregation. */
 				SET_TX_DESC_AMPDU_DENSITY_8812(ptxdesc, pattrib->ampdu_spacing);
 			} else
-#endif/*CONFIG_80211N_HT*/
 				SET_TX_DESC_AGG_BREAK_8812(ptxdesc, 1);
 
 			rtl8812a_fill_txdesc_phy(padapter, pattrib, ptxdesc);
@@ -242,17 +267,8 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 			/* HW will ignore this setting if the transmission rate is legacy OFDM. */
 			if (pmlmeinfo->preamble_mode == PREAMBLE_SHORT)
 				SET_TX_DESC_DATA_SHORT_8812(ptxdesc, 1);
-#ifdef CONFIG_IP_R_MONITOR
-			if((pattrib->ether_type == ETH_P_ARP) &&
-				(IsSupportedTxOFDM(padapter->registrypriv.wireless_mode))) {
-				SET_TX_DESC_TX_RATE_8812(ptxdesc, MRateToHwRate(IEEE80211_OFDM_RATE_6MB));
-				#ifdef DBG_IP_R_MONITOR
-				RTW_INFO(FUNC_ADPT_FMT ": SP Packet(0x%04X) rate=0x%x SeqNum = %d\n",
-					FUNC_ADPT_ARG(padapter), pattrib->ether_type, MRateToHwRate(pmlmeext->tx_rate), pattrib->seqnum);
-				#endif/*DBG_IP_R_MONITOR*/
-			 } else
-#endif/*CONFIG_IP_R_MONITOR*/
-				SET_TX_DESC_TX_RATE_8812(ptxdesc, MRateToHwRate(pmlmeext->tx_rate));
+
+			SET_TX_DESC_TX_RATE_8812(ptxdesc, MRateToHwRate(pmlmeext->tx_rate));
 		}
 
 #ifdef CONFIG_TDLS
@@ -359,7 +375,6 @@ s32 rtl8812au_xmit_buf_handler(PADAPTER padapter)
 	PHAL_DATA_TYPE phal;
 	struct xmit_priv *pxmitpriv;
 	struct xmit_buf *pxmitbuf;
-	struct xmit_frame *pxmitframe;
 	s32 ret;
 
 
@@ -392,10 +407,9 @@ s32 rtl8812au_xmit_buf_handler(PADAPTER padapter)
 		pxmitbuf = dequeue_pending_xmitbuf(pxmitpriv);
 		if (pxmitbuf == NULL)
 			break;
-		pxmitframe = (struct xmit_frame *) pxmitbuf->priv_data;
+
 		/* only XMITBUF_DATA & XMITBUF_MGNT */
 		rtw_write_port_and_wait(padapter, pxmitbuf->ff_hwaddr, pxmitbuf->len, (unsigned char *)pxmitbuf, 500);
-		rtw_free_xmitframe(pxmitpriv, pxmitframe);
 	} while (1);
 
 #ifdef CONFIG_LPS_LCLK
@@ -430,7 +444,7 @@ u32 upload_txpktbuf_8812au(_adapter *adapter, u8 *buf, u32 buflen)
 		}
 		rtw_write32(adapter, REG_PKTBUF_DBG_CTRL, 0xff800000+(beacon_head<<6) + qw_addr);
 		loop_cnt = 0;
-		while ((rtw_read32(adapter, REG_PKTBUF_DBG_CTRL) & BIT23) == 1) {
+		while ((rtw_read32(adapter, REG_PKTBUF_DBG_CTRL) & BIT23) != 0) {
 			rtw_udelay_os(10);
 			if (loop_cnt++ == 100)
 				return _FALSE;
@@ -505,7 +519,7 @@ static s32 rtw_dump_xframe(_adapter *padapter, struct xmit_frame *pxmitframe)
 		pxmitbuf->len = w_sz;
 		pxmitbuf->ff_hwaddr = ff_hwaddr;
 
-		if (pxmitframe->attrib.qsel == QSLT_BEACON)
+		if (pxmitbuf->buf_tag == XMITBUF_CMD)
 			/* download rsvd page */
 			inner_ret = rtw_write_port(padapter, ff_hwaddr, w_sz, (unsigned char *)pxmitbuf);
 		else
@@ -524,9 +538,6 @@ static s32 rtw_dump_xframe(_adapter *padapter, struct xmit_frame *pxmitframe)
 
 	}
 
-#ifdef CONFIG_XMIT_THREAD_MODE
-	if (pxmitframe->attrib.qsel == QSLT_BEACON)
-#endif
 	rtw_free_xmitframe(pxmitpriv, pxmitframe);
 
 	if (ret != _SUCCESS)
@@ -709,7 +720,9 @@ s32 rtl8812au_xmitframe_complete(_adapter *padapter, struct xmit_priv *pxmitpriv
 
 		len = rtw_wlan_pkt_size(pxmitframe) + TXDESC_SIZE + (pxmitframe->pkt_offset * PACKET_OFFSET_SZ);
 
-		if (_RND8(pbuf + len) > MAX_XMITBUF_SZ) {
+		if (_RND8(pbuf + len) > MAX_XMITBUF_SZ)
+			/* if (_RND8(pbuf + len) > (MAX_XMITBUF_SZ/2))//to do : for TX TP finial tune , Georgia 2012-0323 */
+		{
 			/* RTW_INFO("%s....len> MAX_XMITBUF_SZ\n",__FUNCTION__); */
 			pxmitframe->agg_num = 1;
 			pxmitframe->pkt_offset = 1;
@@ -833,7 +846,7 @@ agg_end:
 	pxmitbuf->len = pbuf_tail;
 	pxmitbuf->ff_hwaddr = ff_hwaddr;
 
-	if (pfirstframe->attrib.qsel == QSLT_BEACON)
+	if (pxmitbuf->buf_tag == XMITBUF_CMD)
 		/* download rsvd page*/
 		rtw_write_port(padapter, ff_hwaddr, pbuf_tail, (u8 *)pxmitbuf);
 	else
@@ -850,9 +863,6 @@ agg_end:
 
 	rtw_count_tx_stats(padapter, pfirstframe, pbuf_tail);
 
-#ifdef CONFIG_XMIT_THREAD_MODE
-	if (pfirstframe->attrib.qsel == QSLT_BEACON)
-#endif
 	rtw_free_xmitframe(pxmitpriv, pfirstframe);
 
 	return _TRUE;
@@ -1120,7 +1130,7 @@ s32 rtl8812au_hostap_mgnt_xmit_entry(_adapter *padapter, _pkt *pkt)
 	ptxdesc->txdw3 |= cpu_to_le32((8 << 28)); /* set bit3 to 1. Suugested by TimChen. 2009.12.29. */
 
 
-	rtl8188eu_cal_txdesc_chksum(ptxdesc);
+	rtl8812eu_cal_txdesc_chksum(ptxdesc);
 	/* ----- end of fill tx desc ----- */
 
 	/*  */
@@ -1138,7 +1148,7 @@ s32 rtl8812au_hostap_mgnt_xmit_entry(_adapter *padapter, _pkt *pkt)
 	pipe = usb_sndbulkpipe(pdvobj->pusbdev, pHalData->Queue2EPNum[(u8)MGT_QUEUE_INX] & 0x0f);
 
 	usb_fill_bulk_urb(urb, pdvobj->pusbdev, pipe,
-		pxmit_skb->data, pxmit_skb->len, rtl8192cu_hostap_mgnt_xmit_cb, pxmit_skb);
+	pxmit_skb->data, pxmit_skb->len, rtl8192cu_hostap_mgnt_xmit_cb, pxmit_skb);
 
 	urb->transfer_flags |= URB_ZERO_PACKET;
 	usb_anchor_urb(urb, &phostapdpriv->anchored);
