@@ -74,6 +74,11 @@ CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
 CONFIG_TDLS = n
 CONFIG_WIFI_MONITOR = y
+# If you are setting up AP (e.g. by hostapd) in 802.11ac mode, you may have to choose 'y' below.
+# Otherwise some channels may be  flagged 'NO-IR' (i.e. Passive scanning) by the driver.
+# Please check your country's regulatory domain first,
+# to see whether active scanning is permitted by law/regulations on the desired channels.
+CONFIG_DISABLE_REGD_C=y
 CONFIG_MCC_MODE = n
 CONFIG_APPEND_VENDOR_IE_ENABLE = n
 CONFIG_RTW_NAPI = y
@@ -181,6 +186,10 @@ CONFIG_DRVEXT_MODULE = n
 export TopDIR ?= $(shell pwd)
 
 ########### COMMON  #################################
+ifeq ($(CONFIG_DISABLE_REGD_C), y)
+EXTRA_CFLAGS += -DCONFIG_DISABLE_REGD_C
+endif
+
 ifeq ($(CONFIG_GSPI_HCI), y)
 HCI_NAME = gspi
 endif
