@@ -163,6 +163,7 @@ CONFIG_PLATFORM_ARM_LGE = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_6820 = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_8810 = n
 CONFIG_PLATFORM_ARM_WMT = n
+CONFIG_PLATFORM_ARM_RPI = n
 CONFIG_PLATFORM_ARM64_RPI = n
 CONFIG_PLATFORM_TI_DM365 = n
 CONFIG_PLATFORM_MOZART = n
@@ -1253,6 +1254,9 @@ EXTRA_CFLAGS += -DCONFIG_MP_VHT_HW_TX_MODE
 ifeq ($(CONFIG_PLATFORM_I386_PC), y)
 ## For I386 X86 ToolChain use Hardware FLOATING
 EXTRA_CFLAGS += -mhard-float
+else ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+## For Rpi3: use hardware floating, but not on the api
+EXTRA_CFLAGS += -mfloat-abi=softfp
 else
 ## For ARM ToolChain use Hardware FLOATING
 EXTRA_CFLAGS += -mfloat-abi=hard
@@ -1986,6 +1990,17 @@ ARCH := arm
 CROSS_COMPILE := /home/android_sdk/WonderMedia/wm8880-android4.4/toolchain/arm_201103_gcc4.5.2/mybin/arm_1103_le-
 KSRC := /home/android_sdk/WonderMedia/wm8880-android4.4/kernel4.4/
 MODULE_NAME :=8189es_kk
+endif
+
+ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+ARCH ?= arm
+CROSS_COMPILE ?=
+KVER ?= $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
 endif
 
 ifeq ($(CONFIG_PLATFORM_ARM64_RPI), y)
