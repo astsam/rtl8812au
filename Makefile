@@ -74,6 +74,11 @@ CONFIG_REDUCE_TX_CPU_LOADING = n
 CONFIG_BR_EXT = y
 CONFIG_TDLS = n
 CONFIG_WIFI_MONITOR = y
+# If you are setting up AP (e.g. by hostapd) in 802.11ac mode, you may have to choose 'y' below.
+# Otherwise some channels may be  flagged 'NO-IR' (i.e. Passive scanning) by the driver.
+# Please check your country's regulatory domain first,
+# to see whether active scanning is permitted by law/regulations on the desired channels.
+CONFIG_DISABLE_REGD_C=y
 CONFIG_MCC_MODE = n
 CONFIG_APPEND_VENDOR_IE_ENABLE = n
 CONFIG_RTW_NAPI = y
@@ -158,6 +163,7 @@ CONFIG_PLATFORM_ARM_LGE = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_6820 = n
 CONFIG_PLATFORM_ARM_SPREADTRUM_8810 = n
 CONFIG_PLATFORM_ARM_WMT = n
+CONFIG_PLATFORM_ARM_RPI = n
 CONFIG_PLATFORM_ARM64_RPI = n
 CONFIG_PLATFORM_TI_DM365 = n
 CONFIG_PLATFORM_MOZART = n
@@ -181,6 +187,10 @@ CONFIG_DRVEXT_MODULE = n
 export TopDIR ?= $(shell pwd)
 
 ########### COMMON  #################################
+ifeq ($(CONFIG_DISABLE_REGD_C), y)
+EXTRA_CFLAGS += -DCONFIG_DISABLE_REGD_C
+endif
+
 ifeq ($(CONFIG_GSPI_HCI), y)
 HCI_NAME = gspi
 endif
@@ -488,7 +498,7 @@ endif
 EXTRA_CFLAGS += -DCONFIG_RTL8821A
 
 _HAL_INTFS_FILES +=	hal/rtl8812a/hal8821a_fw.o
-		
+
 endif
 
 ifeq ($(CONFIG_BT_COEXIST), y)
@@ -564,10 +574,6 @@ endif
 
 ########### HAL_RTL8814A #################################
 ifeq ($(CONFIG_RTL8814A), y)
-## ADD NEW VHT MP HW TX MODE ##
-#EXTRA_CFLAGS += -DCONFIG_MP_VHT_HW_TX_MODE
-#CONFIG_MP_VHT_HW_TX_MODE = y
-##########################################
 RTL871X = rtl8814a
 ifeq ($(CONFIG_USB_HCI), y)
 MODULE_NAME = 8814au
@@ -942,7 +948,7 @@ _HAL_INTFS_FILES +=	\
 			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_SUB_NAME)_led.o \
 			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_SUB_NAME)_xmit.o \
 			hal/$(RTL871X)/$(HCI_NAME)/rtl$(MODULE_SUB_NAME)_recv.o
-			
+
 ifeq ($(CONFIG_PCI_HCI), y)
 _HAL_INTFS_FILES += hal/$(RTL871X)/$(HCI_NAME)/$(HCI_NAME)_ops_linux.o
 else
@@ -1248,6 +1254,10 @@ EXTRA_CFLAGS += -DCONFIG_MP_VHT_HW_TX_MODE
 ifeq ($(CONFIG_PLATFORM_I386_PC), y)
 ## For I386 X86 ToolChain use Hardware FLOATING
 EXTRA_CFLAGS += -mhard-float
+EXTRA_CFLAGS += -DMARK_KERNEL_PFU
+else ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+## For Rpi3: use hardware floating, but not on the api
+EXTRA_CFLAGS += -mfloat-abi=softfp
 else
 ## For ARM ToolChain use Hardware FLOATING
 EXTRA_CFLAGS += -mfloat-abi=hard
@@ -1983,6 +1993,17 @@ KSRC := /home/android_sdk/WonderMedia/wm8880-android4.4/kernel4.4/
 MODULE_NAME :=8189es_kk
 endif
 
+ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
+ARCH ?= arm
+CROSS_COMPILE ?=
+KVER ?= $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
+endif
+
 ifeq ($(CONFIG_PLATFORM_ARM64_RPI), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
 EXTRA_CFLAGS += -DRTW_USE_CFG80211_STA_EVENT
@@ -2120,7 +2141,7 @@ ARCH := arm
 CROSS_COMPILE := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_build/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin/arm-eabi-
 KSRC := /home/android_sdk/Telechips/v13.05_r1-tcc-android-4.2.2_tcc893x-evm_build/kernel
 MODULE_NAME := wlan
-endif 
+endif
 
 ifeq ($(CONFIG_PLATFORM_RTL8197D), y)
 EXTRA_CFLAGS += -DCONFIG_BIG_ENDIAN -DCONFIG_PLATFORM_RTL8197D
@@ -2272,7 +2293,7 @@ rtk_core :=	core/rtw_cmd.o \
 		core/rtw_odm.o \
 		core/rtw_rm.o \
 		core/rtw_rm_fsm.o \
-		core/efuse/rtw_efuse.o 
+		core/efuse/rtw_efuse.o
 
 ifeq ($(CONFIG_SDIO_HCI), y)
 rtk_core += core/rtw_sdio.o
