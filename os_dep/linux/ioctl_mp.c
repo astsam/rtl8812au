@@ -19,7 +19,7 @@
 #include <rtw_mp_ioctl.h>
 #include "../../hal/phydm/phydm_precomp.h"
 
-ifdef MARK_KERNEL_PFU
+#ifdef MARK_KERNEL_PFU
 	#include <linux/kernel.h>
 	#include <asm/fpu/api.h>
 #endif
