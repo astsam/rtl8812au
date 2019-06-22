@@ -1,5 +1,4 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
-### Supports only 8812AU at the moment, please be patient.
 
 [![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
 [![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](#)
@@ -49,7 +48,7 @@ make install
 ### Notes
 Download
 ```
-git clone -b v5.6.4 https://github.com/aircrack-ng/rtl8812au.git
+git clone -b v5.6.4.1 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
 Package / Build dependencies (Kali)
