@@ -22,14 +22,14 @@
  */
 #define AUTOCONF_INCLUDED
 #define RTL871X_MODULE_NAME "8812AU"
-#define DRV_NAME "rtl8812au"
+#ifndef DRV_NAME
+#define DRV_NAME "rtl8821au"
+#endif
 
 
 #define CONFIG_USB_HCI
 
-
 #define PLATFORM_LINUX
-
 
 /* #define CONFIG_IOCTL_CFG80211 1 */
 
