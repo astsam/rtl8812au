@@ -143,9 +143,3 @@ at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkMa
 sudo service NetworkManager restart
 ```
 
-### Other sources worth checking out
-```
-new rtw88 mac80211 driver: https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/log/rtw88
-wireless git: https://git.kernel.org/pub/scm/linux/kernel/git/jh/wireless.git/log/
-wireless testing git: https://git.kernel.org/pub/scm/linux/kernel/git/linville/wireless-testing.git/log/
-wpa_supplicant git: https://w1.fi/cgit/hostap/log/
