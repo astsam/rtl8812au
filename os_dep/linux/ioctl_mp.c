@@ -19,6 +19,10 @@
 #include <rtw_mp_ioctl.h>
 #include "../../hal/phydm/phydm_precomp.h"
 
+#ifdef MARK_KERNEL_PFU
+	#include <linux/kernel.h>
+	#include <asm/fpu/api.h>
+#endif
 
 #if defined(CONFIG_RTL8723B)
 	#include <rtw_bt_mp.h>
@@ -1718,6 +1722,10 @@ int rtw_mp_tx(struct net_device *dev,
 
 			PMAC_Get_Pkt_Param(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 
+			#ifdef MARK_KERNEL_PFU
+				kernel_fpu_begin();
+			#endif
+
 			if (MPT_IS_CCK_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 
 				CCK_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
@@ -1726,6 +1734,11 @@ int rtw_mp_tx(struct net_device *dev,
 				/* 24 BIT*/
 				L_SIG_generator(pMptCtx->PMacPktInfo.N_sym, &pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 			}
+
+			#ifdef MARK_KERNEL_PFU
+				kernel_fpu_end();
+			#endif
+
 			/*	48BIT*/
 			if (MPT_IS_HT_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 				HT_SIG_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);

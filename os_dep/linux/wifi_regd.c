@@ -274,11 +274,15 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 				ch = &sband->channels[j];
 
 				if (ch)
+#ifndef CONFIG_DISABLE_REGD_C
 					ch->flags = IEEE80211_CHAN_DISABLED;
+#else
+					ch->flags = 0;
+#endif
 			}
 		}
 	}
-
+#ifndef CONFIG_DISABLE_REGD_C
 	/* channels apply by channel plans. */
 	for (i = 0; i < max_chan_nums; i++) {
 		channel = channel_set[i].ChannelNum;
@@ -316,6 +320,7 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 		}
 		#endif /* CONFIG_DFS */
 	}
+#endif
 }
 
 static const struct ieee80211_regdomain *_rtw_regdomain_select(struct
