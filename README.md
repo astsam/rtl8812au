@@ -1,5 +1,4 @@
 ## RTL8812AU/21AU and RTL8814AU drivers
-### Supports Realtek 8811, 8812, 8814 and 8821 chipsets
 
 [![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
 [![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](#)
@@ -15,6 +14,8 @@
 [![ArchLinux](https://img.shields.io/badge/ArchLinux-supported-blue.svg)](https://img.shields.io/badge/ArchLinux-supported-blue.svg)
 [![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
+
+### Supports Realtek 8811, 8812, 8814 and 8821 chipsets
 
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
