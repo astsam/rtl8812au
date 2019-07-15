@@ -32,11 +32,11 @@
 #ifdef DBG_CONFIG_ERROR_DETECT
 	#include "rtl8814a_sreset.h"
 #endif /* DBG_CONFIG_ERROR_DETECT */
-
+/*
 enum {
 	VOLTAGE_V25						= 0x03,
 	LDOE25_SHIFT					= 28 ,
-};
+};*/
 /* max. iram is 64k , max dmen is 32k. Total = 96k = 0x18000*/
 #define FW_SIZE							0x18000
 #define FW_START_ADDRESS   0x1000
