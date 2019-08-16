@@ -55,7 +55,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 	u16				SWDefineContent = 0x0;	
 	u8				DriverFixedRate = 0x0;
 
-#ifndef CONFIG_USE_USB_BUFFER_ALLOC_TX 
+#ifndef CONFIG_USE_USB_BUFFER_ALLOC_TX
 	if (padapter->registrypriv.mp_mode == 0)
 	{
 		if((PACKET_OFFSET_SZ != 0) && (!bagg_pkt) &&(rtw_usb_bulk_size_boundary(padapter,TXDESC_SIZE+sz)==_FALSE))
@@ -92,10 +92,9 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 	}
 
 #ifndef CONFIG_USE_USB_BUFFER_ALLOC_TX
-	if (padapter->registrypriv.mp_mode == 0)
-	{
+	if (padapter->registrypriv.mp_mode == 0) {
 		if ((PACKET_OFFSET_SZ != 0) && (!bagg_pkt)) {
-			if ((pull) && (pxmitframe->pkt_offset>0)) {	
+			if ((pull) && (pxmitframe->pkt_offset>0)) {
 				pxmitframe->pkt_offset = pxmitframe->pkt_offset -1;		
 			}
 		}
