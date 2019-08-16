@@ -1683,7 +1683,6 @@ static int __init rtw_drv_entry(void)
 
 	usb_drv.drv_registered = _TRUE;
 	rtw_suspend_lock_init();
-	rtw_drv_proc_init();
 	rtw_ndev_notifier_register();
 	rtw_inetaddr_notifier_register();
 
@@ -1692,7 +1691,6 @@ static int __init rtw_drv_entry(void)
 	if (ret != 0) {
 		usb_drv.drv_registered = _FALSE;
 		rtw_suspend_lock_uninit();
-		rtw_drv_proc_deinit();
 		rtw_ndev_notifier_unregister();
 		rtw_inetaddr_notifier_unregister();
 		goto exit;
@@ -1714,7 +1712,6 @@ static void __exit rtw_drv_halt(void)
 	platform_wifi_power_off();
 
 	rtw_suspend_lock_uninit();
-	rtw_drv_proc_deinit();
 	rtw_ndev_notifier_unregister();
 	rtw_inetaddr_notifier_unregister();
 
