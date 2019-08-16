@@ -1035,7 +1035,7 @@ u8 rtw_efuse_bt_access(PADAPTER adapter, u8 write, u16 addr, u16 cnts, u8 *data)
 
 		if (efuse) {
 			err = rtw_halmac_read_bt_physical_efuse_map(d, efuse, size);
-			
+
 			if (err == -1) {
 				RTW_ERR("%s: rtw_halmac_read_bt_physical_efuse_map fail!\n", __FUNCTION__);
 				rtw_mfree(efuse, size);
