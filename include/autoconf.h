@@ -325,11 +325,11 @@
 /*
  * Debug Related Config
  */
-#define DBG	1
+#define DBG 0
 
 #define CONFIG_PROC_DEBUG
 
-#define DBG_CONFIG_ERROR_DETECT
+/* #define DBG_CONFIG_ERROR_DETECT */
 /* #define DBG_CONFIG_ERROR_DETECT_INT */
 /* #define DBG_CONFIG_ERROR_RESET */
 
