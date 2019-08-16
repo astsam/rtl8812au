@@ -57,7 +57,6 @@
 #ifdef CONFIG_RTL8812A
 	#undef RTL8812A_SUPPORT
 	#define RTL8812A_SUPPORT				1
-	#define CONFIG_DFS			/* Enable 5G band 2&3 channel */
 	#ifndef CONFIG_FW_C2H_PKT
 		#define CONFIG_FW_C2H_PKT
 	#endif
