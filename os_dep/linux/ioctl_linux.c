@@ -11660,10 +11660,10 @@ static void printdata(u8 *pbuf, u32 len)
 	}
 
 	if (i < len) {
-#ifdef CONFIG_BIG_ENDIAN
+#ifdef __BIG_ENDIAN
 		for (; i < len, i++)
 			printk("%02X", pbuf + i);
-#else /* CONFIG_LITTLE_ENDIAN */
+#else /* __LITTLE_ENDIAN */
 #if 0
 		val = 0;
 		_rtw_memcpy(&val, pbuf + i, len - i);
@@ -11678,7 +11678,7 @@ static void printdata(u8 *pbuf, u32 len)
 		n = (4 - n) * 2;
 		printk("%8s", str + n);
 #endif
-#endif /* CONFIG_LITTLE_ENDIAN */
+#endif /* __LITTLE_ENDIAN */
 	}
 	printk("\n");
 }
