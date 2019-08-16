@@ -3976,21 +3976,21 @@ static void read_chip_version_8814a(PADAPTER Adapter)
 
 	if(Adapter->registrypriv.special_rf_path == 1)
 		pHalData->version_id.RFType = RF_TYPE_1T1R;	//RF_1T1R;
-	
+
 	vdr = (value32 & EXT_VENDOR_ID) >> EXT_VENDOR_ID_SHIFT;
 	if(vdr == 0x00)
 		pHalData->version_id.VendorType = CHIP_VENDOR_TSMC;
 	else if(vdr == 0x01)
 		pHalData->version_id.VendorType = CHIP_VENDOR_SMIC;
 	else if(vdr == 0x02)
-		pHalData->version_id.VendorType = CHIP_VENDOR_UMC;	
+		pHalData->version_id.VendorType = CHIP_VENDOR_UMC;
 
 	pHalData->version_id.CUTVersion = (value32 & CHIP_VER_RTL_MASK)>>CHIP_VER_RTL_SHIFT; // IC version (CUT)
 
-	pHalData->MultiFunc = RT_MULTI_FUNC_NONE;
+	//pHalData->MultiFunc = RT_MULTI_FUNC_NONE;
 
 	rtw_hal_config_rftype(Adapter);
-	
+
 #if 1
 	dump_chip_info(pHalData->version_id);
 #endif
