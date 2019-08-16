@@ -1245,7 +1245,7 @@ uint loadparam(_adapter *padapter)
  *
  * Return:
  * ret = 0: Permit to change net_device's MAC address.
- * ret = -1 (Default): Operation not permitted.
+* ret = -1 (Default): Operation not permitted.
  *
  * Auther: Arvin Liu
  * Date: 2015/05/29
@@ -4854,11 +4854,6 @@ int rtw_resume_process_wow(_adapter *padapter)
 
 		RTW_PRINT("%s: ### ERROR ### wowlan_mode=%d\n", __FUNCTION__, pwrpriv->wowlan_mode);
 
-	if (padapter->pid[1] != 0) {
-		RTW_INFO("pid[1]:%d\n", padapter->pid[1]);
-		rtw_signal_process(padapter->pid[1], SIGUSR2);
-	}
-
 	if (rtw_chk_roam_flags(padapter, RTW_ROAM_ON_RESUME)) {
 		if (pwrpriv->wowlan_wake_reason == FW_DECISION_DISCONNECT ||
 		    pwrpriv->wowlan_wake_reason == RX_DISASSOC||
@@ -5006,11 +5001,6 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 	/* start netif queue */
 	rtw_mi_netif_wake_queue(padapter);
 
-	if (padapter->pid[1] != 0) {
-		RTW_INFO("pid[1]:%d\n", padapter->pid[1]);
-		rtw_signal_process(padapter->pid[1], SIGUSR2);
-	}
-
 #ifdef CONFIG_RESUME_IN_WORKQUEUE
 	/* rtw_unlock_suspend(); */
 #endif /* CONFIG_RESUME_IN_WORKQUEUE */
@@ -5120,11 +5110,6 @@ int rtw_resume_process_normal(_adapter *padapter)
 	}
 
 	rtw_mi_netif_caron_qstart(padapter);
-
-	if (padapter->pid[1] != 0) {
-		RTW_INFO("pid[1]:%d\n", padapter->pid[1]);
-		rtw_signal_process(padapter->pid[1], SIGUSR2);
-	}
 
 #ifdef CONFIG_BT_COEXIST
 	rtw_btcoex_SuspendNotify(padapter, BTCOEX_SUSPEND_STATE_RESUME);

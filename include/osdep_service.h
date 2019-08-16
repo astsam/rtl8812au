@@ -407,9 +407,6 @@ __inline static unsigned char _cancel_timer_ex(_timer *ptimer)
 
 static __inline void thread_enter(char *name)
 {
-#ifdef PLATFORM_LINUX
-	allow_signal(SIGTERM);
-#endif
 #ifdef PLATFORM_FREEBSD
 	printf("%s", "RTKTHREAD_enter");
 #endif
@@ -445,8 +442,6 @@ static inline void rtw_thread_wait_stop(void)
 __inline static void flush_signals_thread(void)
 {
 #ifdef PLATFORM_LINUX
-	if (signal_pending(current))
-		flush_signals(current);
 #endif
 }
 
@@ -455,15 +450,6 @@ __inline static _OS_STATUS res_to_status(sint res)
 
 #if defined(PLATFORM_LINUX) || defined (PLATFORM_MPIXEL) || defined (PLATFORM_FREEBSD)
 	return res;
-#endif
-
-#ifdef PLATFORM_WINDOWS
-
-	if (res == _SUCCESS)
-		return NDIS_STATUS_SUCCESS;
-	else
-		return NDIS_STATUS_FAILURE;
-
 #endif
 
 }
@@ -484,17 +470,6 @@ __inline static void rtw_dump_stack(void)
 __inline static int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *parg4)
 {
 	int ret = _TRUE;
-
-#ifdef PLATFORM_WINDOWS
-	if (((uint)parg1) <= 0x7fffffff ||
-	    ((uint)parg2) <= 0x7fffffff ||
-	    ((uint)parg3) <= 0x7fffffff ||
-	    ((uint)parg4) <= 0x7fffffff) {
-		ret = _FALSE;
-		KeBugCheckEx(0x87110000, (ULONG_PTR)parg1, (ULONG_PTR)parg2, (ULONG_PTR)parg3, (ULONG_PTR)parg4);
-	}
-#endif
-
 	return ret;
 
 }

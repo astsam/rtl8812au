@@ -174,8 +174,6 @@ void rtw_request_wps_pbc_event(_adapter *padapter)
 		return;
 	}
 
-	rtw_signal_process(padapter->pid[0], SIGUSR1);
-
 #endif
 
 	rtw_led_control(padapter, LED_CTL_START_WPS_BOTTON);

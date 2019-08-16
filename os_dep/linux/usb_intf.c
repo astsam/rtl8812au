@@ -1537,13 +1537,6 @@ static int rtw_drv_init(struct usb_interface *pusb_intf, const struct usb_device
 	rtw_sw_export = padapter;
 #endif
 
-#ifdef CONFIG_GLOBAL_UI_PID
-	if (ui_pid[1] != 0) {
-		RTW_INFO("ui_pid[1]:%d\n", ui_pid[1]);
-		rtw_signal_process(ui_pid[1], SIGUSR2);
-	}
-#endif
-
 	/* dev_alloc_name && register_netdev */
 	if (rtw_os_ndevs_init(dvobj) != _SUCCESS)
 		goto free_if_vir;
