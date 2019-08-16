@@ -19,12 +19,16 @@ EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
 EXTRA_CFLAGS += -Wno-cast-function-type
 EXTRA_CFLAGS += -Wno-date-time
+#EXTRA_CFLAGS += -Wsign-conversion
 #EXTRA_CFLAGS += -Wno-misleading-indentation
 EXTRA_CFLAGS += -Wno-uninitialized
 # Relax some warnings from '-Wextra' so we won't get flooded with warnings
-EXTRA_CFLAGS += -Wno-sign-compare
+#EXTRA_CFLAGS += -Wno-sign-compare -Wno-sign-conversion
 #EXTRA_CFLAGS += -Wno-missing-field-initializers
-EXTRA_CFLAGS += -Wno-type-limits
+#EXTRA_CFLAGS += -Wno-type-limits
+#EXTRA_CFLAGS += -Wconversion -Wformat-overflow -Wswitch -Wswitch-bool
+#EXTRA_CFLAGS += -Wno-tautological-compare -Wno-ignored-qualifiers
+#EXTRA_CFLAGS += -Wstringop-truncation -fstrict-overflow -Wstrict-overflow -Wformat-truncation
 
 GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )
 ifeq ($(GCC_VER_49),1)
