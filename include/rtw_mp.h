@@ -728,17 +728,12 @@ void	SetPacketRx(PADAPTER pAdapter, u8 bStartRx, u8 bAB);
 void	ResetPhyRxPktCount(PADAPTER pAdapter);
 u32	GetPhyRxPktReceived(PADAPTER pAdapter);
 u32	GetPhyRxPktCRC32Error(PADAPTER pAdapter);
-s32	SetPowerTracking(PADAPTER padapter, u8 enable);
-void	GetPowerTracking(PADAPTER padapter, u8 *enable);
 u32	mp_query_psd(PADAPTER pAdapter, u8 *data);
 void	rtw_mp_trigger_iqk(PADAPTER padapter);
 void	rtw_mp_trigger_lck(PADAPTER padapter);
 u8 rtw_mp_mode_check(PADAPTER padapter);
 
-
 void hal_mpt_SwitchRfSetting(PADAPTER pAdapter);
-s32 hal_mpt_SetPowerTracking(PADAPTER padapter, u8 enable);
-void hal_mpt_GetPowerTracking(PADAPTER padapter, u8 *enable);
 void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14);
 void hal_mpt_SetChannel(PADAPTER pAdapter);
 void hal_mpt_SetBandwidth(PADAPTER pAdapter);

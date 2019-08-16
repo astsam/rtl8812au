@@ -111,36 +111,6 @@ void hal_mpt_SwitchRfSetting(PADAPTER	pAdapter)
 	}
 }
 
-s32 hal_mpt_SetPowerTracking(PADAPTER padapter, u8 enable)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
-
-
-	if (!netif_running(padapter->pnetdev)) {
-		return _FAIL;
-	}
-
-	if (check_fwstate(&padapter->mlmepriv, WIFI_MP_STATE) == _FALSE) {
-		return _FAIL;
-	}
-	if (enable)
-		pDM_Odm->rf_calibrate_info.txpowertrack_control = _TRUE;
-	else
-		pDM_Odm->rf_calibrate_info.txpowertrack_control = _FALSE;
-
-	return _SUCCESS;
-}
-
-void hal_mpt_GetPowerTracking(PADAPTER padapter, u8 *enable)
-{
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
-	struct dm_struct		*pDM_Odm = &(pHalData->odmpriv);
-
-
-	*enable = pDM_Odm->rf_calibrate_info.txpowertrack_control;
-}
-
 
 void hal_mpt_CCKTxPowerAdjust(PADAPTER Adapter, BOOLEAN bInCH14)
 {
