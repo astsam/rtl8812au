@@ -1,0 +1,11 @@
+--- a/core/rtw_mlme_ext.c
++++ b/core/rtw_mlme_ext.c
+@@ -11636,7 +11636,7 @@ static void rtw_mlmeext_disconnect(_adap
+ 
+ 	//set_opmode_cmd(padapter, infra_client_with_mlme);
+ 
+-#if 1
++#if 0 // this check always causes a failure with an invalid macid error message in the logs
+ 	/*
+ 	 * For safety, prevent from keeping macid sleep.
+ 	 * If we can sure all power mode enter/leave are paired,

@@ -50,13 +50,11 @@ static struct country_code_to_enum_rd allCountries[] = {
 
 /* 2G chan 12 - chan 13, PASSIV SCAN */
 #define RTW_2GHZ_CH12_13	\
-	REG_RULE(2467-10, 2472+10, 40, 0, 20,	\
-		 NL80211_RRF_PASSIVE_SCAN)
+	REG_RULE(2467-10, 2472+10, 40, 0, 20, 0)
 
 /* 2G chan 14, PASSIVS SCAN, NO OFDM (B only) */
 #define RTW_2GHZ_CH14	\
-	REG_RULE(2484-10, 2484+10, 40, 0, 20,	\
-		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_OFDM)
+REG_RULE(2484-10, 2484+10, 40, 0, 20, 0)
 
 /* 5G chan 36 - chan 64 */
 #define RTW_5GHZ_5150_5350	\
@@ -75,15 +73,15 @@ static struct country_code_to_enum_rd allCountries[] = {
 
 /* 5G chan 36 - chan 165 */
 #define RTW_5GHZ_5150_5850	\
-	REG_RULE(5150-10, 5850+10, 40, 0, 30,	\
-		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
+	REG_RULE(5150-10, 5850+10, 40, 0, 30, 0)
 
 static const struct ieee80211_regdomain rtw_regdom_rd = {
-	.n_reg_rules = 3,
+	.n_reg_rules = 4,
 	.alpha2 = "99",
 	.reg_rules = {
 		RTW_2GHZ_CH01_11,
 		RTW_2GHZ_CH12_13,
+		RTW_2GHZ_CH14,
 		RTW_5GHZ_5150_5850,
 	}
 };
