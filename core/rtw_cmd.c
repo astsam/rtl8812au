@@ -3259,7 +3259,7 @@ static void dynamic_update_bcn_check(_adapter *padapter)
 
 		if (_FALSE != ATOMIC_READ(&pmlmepriv->olbc)
 			&& _FALSE != ATOMIC_READ(&pmlmepriv->olbc_ht)) {
-					
+
 			if (rtw_ht_operation_update(padapter) > 0) {
 				update_beacon(padapter, _HT_CAPABILITY_IE_, NULL, _FALSE);
 				update_beacon(padapter, _HT_ADD_INFO_IE_, NULL, _TRUE);

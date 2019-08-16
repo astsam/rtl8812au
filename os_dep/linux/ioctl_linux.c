@@ -31,7 +31,6 @@
 extern int rtw_ht_enable;
 #endif
 
-
 #define RTL_IOCTL_WPA_SUPPLICANT	(SIOCIWFIRSTPRIV+30)
 
 #define SCAN_ITEM_SIZE 768
