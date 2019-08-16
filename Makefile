@@ -44,7 +44,6 @@ EXTRA_CFLAGS += -I$(src)/include
 CONFIG_AUTOCFG_CP = n
 
 ########################## WIFI IC ############################
-CONFIG_MULTIDRV = n
 CONFIG_RTL8188E = n
 CONFIG_RTL8812A = y
 CONFIG_RTL8821A = y
@@ -992,9 +991,6 @@ endif
 
 ifeq ($(CONFIG_AUTOCFG_CP), y)
 
-ifeq ($(CONFIG_MULTIDRV), y)
-$(shell cp $(TopDIR)/autoconf_multidrv_$(HCI_NAME)_linux.h $(TopDIR)/include/autoconf.h)
-else
 ifeq ($(CONFIG_RTL8188E)$(CONFIG_SDIO_HCI),yy)
 $(shell cp $(TopDIR)/autoconf_rtl8189e_$(HCI_NAME)_linux.h $(TopDIR)/include/autoconf.h)
 else ifeq ($(CONFIG_RTL8188F)$(CONFIG_SDIO_HCI),yy)
@@ -1004,8 +1000,6 @@ $(shell cp $(TopDIR)/autoconf_rtl8723c_$(HCI_NAME)_linux.h $(TopDIR)/include/aut
 else
 $(shell cp $(TopDIR)/autoconf_$(RTL871X)_$(HCI_NAME)_linux.h $(TopDIR)/include/autoconf.h)
 endif
-endif
-
 endif
 
 ########### END OF PATH  #################################
@@ -2237,23 +2231,6 @@ endif
 
 ifeq ($(CONFIG_CUSTOMER_HUAWEI), y)
 EXTRA_CFLAGS += -DCONFIG_HUAWEI_PROC
-endif
-
-ifeq ($(CONFIG_MULTIDRV), y)
-
-ifeq ($(CONFIG_SDIO_HCI), y)
-MODULE_NAME := rtw_sdio
-endif
-
-ifeq ($(CONFIG_USB_HCI), y)
-MODULE_NAME := rtw_usb
-endif
-
-ifeq ($(CONFIG_PCI_HCI), y)
-MODULE_NAME := rtw_pci
-endif
-
-
 endif
 
 USER_MODULE_NAME ?=
