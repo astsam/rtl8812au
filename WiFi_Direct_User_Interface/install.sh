@@ -4,7 +4,7 @@ echo $wpa_supplicant_hostapd
 
 
 if [ -e $wpa_supplicant_hostapd ]; then
-        echo "Checking wpa_supplicant_hostatpd" 
+        echo "Checking wpa_supplicant_hostatpd"
 else
         echo "wpa_supplicant_hostapd doesn'tt exist in corresponding folder"
         exit
@@ -98,4 +98,3 @@ fi
 echo "##################################################"
 echo "WiFi_Direct_User_Interface install complete!!!!!!!"
 echo "##################################################"
-
