@@ -596,6 +596,389 @@ exit:
 }
 #endif /* CONFIG_RTW_MESH_AEK */
 
+int rtw_android_priv_cmd(struct net_device *net, struct ifreq *ifr, int cmd)
+{
+	#define PRIVATE_COMMAND_MAX_LEN        8192
+	int ret = 0;
+	char *command = NULL;
+	int cmd_num;
+	int bytes_written = 0;
+#ifdef CONFIG_PNO_SUPPORT
+	uint cmdlen = 0;
+	uint pno_enable = 0;
+#endif
+	android_wifi_priv_cmd priv_cmd;
+	_adapter	*padapter = (_adapter *) rtw_netdev_priv(net);
+#ifdef CONFIG_WFD
+	struct wifi_display_info		*pwfd_info;
+#endif
+
+	rtw_lock_suspend();
+
+	if (!ifr->ifr_data) {
+		ret = -EINVAL;
+		goto exit;
+	}
+	if (padapter->registrypriv.mp_mode == 1) {
+		ret = -EINVAL;
+		goto exit;
+	}
+#ifdef CONFIG_COMPAT
+#if (KERNEL_VERSION(4, 6, 0) > LINUX_VERSION_CODE)
+	if (is_compat_task()) {
+#else
+	if (in_compat_syscall()) {
+#endif
+		/* User space is 32-bit, use compat ioctl */
+		compat_android_wifi_priv_cmd compat_priv_cmd;
+
+		if (copy_from_user(&compat_priv_cmd, ifr->ifr_data, sizeof(compat_android_wifi_priv_cmd))) {
+			ret = -EFAULT;
+			goto exit;
+		}
+		priv_cmd.buf = compat_ptr(compat_priv_cmd.buf);
+		priv_cmd.used_len = compat_priv_cmd.used_len;
+		priv_cmd.total_len = compat_priv_cmd.total_len;
+	} else
+#endif /* CONFIG_COMPAT */
+		if (copy_from_user(&priv_cmd, ifr->ifr_data, sizeof(android_wifi_priv_cmd))) {
+			ret = -EFAULT;
+			goto exit;
+		}
+	if (padapter->registrypriv.mp_mode == 1) {
+		ret = -EFAULT;
+		goto exit;
+	}
+	/*RTW_INFO("%s priv_cmd.buf=%p priv_cmd.total_len=%d  priv_cmd.used_len=%d\n",__func__,priv_cmd.buf,priv_cmd.total_len,priv_cmd.used_len);*/
+	if (priv_cmd.total_len > PRIVATE_COMMAND_MAX_LEN || priv_cmd.total_len < 0) {
+		RTW_WARN("%s: invalid private command (%d)\n", __FUNCTION__,
+			priv_cmd.total_len);
+		ret = -EFAULT;
+		goto exit;
+	}
+	
+	command = rtw_zmalloc(priv_cmd.total_len+1);
+	if (!command) {
+		RTW_INFO("%s: failed to allocate memory\n", __FUNCTION__);
+		ret = -ENOMEM;
+		goto exit;
+	}
+	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
+	if (!access_ok(priv_cmd.buf, priv_cmd.total_len)) {
+	#else
+	if (!access_ok(VERIFY_READ, priv_cmd.buf, priv_cmd.total_len)) {
+	#endif
+		RTW_INFO("%s: failed to access memory\n", __FUNCTION__);
+		ret = -EFAULT;
+		goto exit;
+	}
+	if (copy_from_user(command, (void *)priv_cmd.buf, priv_cmd.total_len)) {
+		ret = -EFAULT;
+		goto exit;
+	}
+	command[priv_cmd.total_len] = '\0';
+	RTW_INFO("%s: Android private cmd \"%s\" on %s\n"
+		 , __FUNCTION__, command, ifr->ifr_name);
+
+	cmd_num = rtw_android_cmdstr_to_num(command);
+
+	switch (cmd_num) {
+	case ANDROID_WIFI_CMD_START:
+		/* bytes_written = wl_android_wifi_on(net); */
+		goto response;
+	case ANDROID_WIFI_CMD_SETFWPATH:
+		goto response;
+	}
+
+	if (!g_wifi_on) {
+		RTW_INFO("%s: Ignore private cmd \"%s\" - iface %s is down\n"
+			 , __FUNCTION__, command, ifr->ifr_name);
+		ret = 0;
+		goto exit;
+	}
+
+	if (!hal_chk_wl_func(padapter, WL_FUNC_MIRACAST)) {
+		switch (cmd_num) {
+		case ANDROID_WIFI_CMD_WFD_ENABLE:
+		case ANDROID_WIFI_CMD_WFD_DISABLE:
+		case ANDROID_WIFI_CMD_WFD_SET_TCPPORT:
+		case ANDROID_WIFI_CMD_WFD_SET_MAX_TPUT:
+		case ANDROID_WIFI_CMD_WFD_SET_DEVTYPE:
+			goto response;
+		}
+	}
+
+	switch (cmd_num) {
+
+	case ANDROID_WIFI_CMD_STOP:
+		/* bytes_written = wl_android_wifi_off(net); */
+		break;
+
+	case ANDROID_WIFI_CMD_SCAN_ACTIVE:
+		/* rtw_set_scan_mode((_adapter *)rtw_netdev_priv(net), SCAN_ACTIVE); */
+#ifdef CONFIG_PLATFORM_MSTAR
+#ifdef CONFIG_IOCTL_CFG80211
+		adapter_wdev_data((_adapter *)rtw_netdev_priv(net))->bandroid_scan = _TRUE;
+#endif /* CONFIG_IOCTL_CFG80211 */
+#endif /* CONFIG_PLATFORM_MSTAR */
+		break;
+	case ANDROID_WIFI_CMD_SCAN_PASSIVE:
+		/* rtw_set_scan_mode((_adapter *)rtw_netdev_priv(net), SCAN_PASSIVE); */
+		break;
+
+	case ANDROID_WIFI_CMD_RSSI:
+		bytes_written = rtw_android_get_rssi(net, command, priv_cmd.total_len);
+		break;
+	case ANDROID_WIFI_CMD_LINKSPEED:
+		bytes_written = rtw_android_get_link_speed(net, command, priv_cmd.total_len);
+		break;
+
+	case ANDROID_WIFI_CMD_MACADDR:
+		bytes_written = rtw_android_get_macaddr(net, command, priv_cmd.total_len);
+		break;
+
+	case ANDROID_WIFI_CMD_BLOCK_SCAN:
+		bytes_written = rtw_android_set_block_scan(net, command, priv_cmd.total_len);
+		break;
+
+	case ANDROID_WIFI_CMD_BLOCK:
+		bytes_written = rtw_android_set_block(net, command, priv_cmd.total_len);
+		break;
+
+	case ANDROID_WIFI_CMD_RXFILTER_START:
+		/* bytes_written = net_os_set_packet_filter(net, 1); */
+		break;
+	case ANDROID_WIFI_CMD_RXFILTER_STOP:
+		/* bytes_written = net_os_set_packet_filter(net, 0); */
+		break;
+	case ANDROID_WIFI_CMD_RXFILTER_ADD:
+		/* int filter_num = *(command + strlen(CMD_RXFILTER_ADD) + 1) - '0'; */
+		/* bytes_written = net_os_rxfilter_add_remove(net, TRUE, filter_num); */
+		break;
+	case ANDROID_WIFI_CMD_RXFILTER_REMOVE:
+		/* int filter_num = *(command + strlen(CMD_RXFILTER_REMOVE) + 1) - '0'; */
+		/* bytes_written = net_os_rxfilter_add_remove(net, FALSE, filter_num); */
+		break;
+
+	case ANDROID_WIFI_CMD_BTCOEXSCAN_START:
+		/* TBD: BTCOEXSCAN-START */
+		break;
+	case ANDROID_WIFI_CMD_BTCOEXSCAN_STOP:
+		/* TBD: BTCOEXSCAN-STOP */
+		break;
+	case ANDROID_WIFI_CMD_BTCOEXMODE:
+#if 0
+		uint mode = *(command + strlen(CMD_BTCOEXMODE) + 1) - '0';
+		if (mode == 1)
+			net_os_set_packet_filter(net, 0); /* DHCP starts */
+		else
+			net_os_set_packet_filter(net, 1); /* DHCP ends */
+#ifdef WL_CFG80211
+		bytes_written = wl_cfg80211_set_btcoex_dhcp(net, command);
+#endif
+#endif
+		break;
+
+	case ANDROID_WIFI_CMD_SETSUSPENDMODE:
+		break;
+
+	case ANDROID_WIFI_CMD_SETSUSPENDOPT:
+		/* bytes_written = wl_android_set_suspendopt(net, command, priv_cmd.total_len); */
+		break;
+
+	case ANDROID_WIFI_CMD_SETBAND:
+		bytes_written = rtw_android_setband(net, command, priv_cmd.total_len);
+		break;
+
+	case ANDROID_WIFI_CMD_GETBAND:
+		bytes_written = rtw_android_getband(net, command, priv_cmd.total_len);
+		break;
+
+	case ANDROID_WIFI_CMD_COUNTRY:
+		bytes_written = rtw_android_set_country(net, command, priv_cmd.total_len);
+		break;
+
+#ifdef CONFIG_PNO_SUPPORT
+	case ANDROID_WIFI_CMD_PNOSSIDCLR_SET:
+		/* bytes_written = dhd_dev_pno_reset(net); */
+		break;
+	case ANDROID_WIFI_CMD_PNOSETUP_SET:
+		bytes_written = rtw_android_pno_setup(net, command, priv_cmd.total_len);
+		break;
+	case ANDROID_WIFI_CMD_PNOENABLE_SET:
+		cmdlen = strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_PNOENABLE_SET]);
+		pno_enable = *(command + cmdlen + 1) - '0';
+		bytes_written = rtw_android_pno_enable(net, pno_enable);
+		break;
+#endif
+
+	case ANDROID_WIFI_CMD_P2P_DEV_ADDR:
+		bytes_written = rtw_android_get_p2p_dev_addr(net, command, priv_cmd.total_len);
+		break;
+	case ANDROID_WIFI_CMD_P2P_SET_NOA:
+		/* int skip = strlen(CMD_P2P_SET_NOA) + 1; */
+		/* bytes_written = wl_cfg80211_set_p2p_noa(net, command + skip, priv_cmd.total_len - skip); */
+		break;
+	case ANDROID_WIFI_CMD_P2P_GET_NOA:
+		/* bytes_written = wl_cfg80211_get_p2p_noa(net, command, priv_cmd.total_len); */
+		break;
+	case ANDROID_WIFI_CMD_P2P_SET_PS:
+		/* int skip = strlen(CMD_P2P_SET_PS) + 1; */
+		/* bytes_written = wl_cfg80211_set_p2p_ps(net, command + skip, priv_cmd.total_len - skip); */
+		break;
+
+#ifdef CONFIG_IOCTL_CFG80211
+	case ANDROID_WIFI_CMD_SET_AP_WPS_P2P_IE: {
+		int skip = strlen(android_wifi_cmd_str[ANDROID_WIFI_CMD_SET_AP_WPS_P2P_IE]) + 3;
+		bytes_written = rtw_cfg80211_set_mgnt_wpsp2pie(net, command + skip, priv_cmd.total_len - skip, *(command + skip - 2) - '0');
+		break;
+	}
+#endif /* CONFIG_IOCTL_CFG80211 */
+
+#ifdef CONFIG_WFD
+
+	case ANDROID_WIFI_CMD_MIRACAST:
+		bytes_written = rtw_android_set_miracast_mode(net, command, priv_cmd.total_len);
+		break;
+
+	case ANDROID_WIFI_CMD_WFD_ENABLE: {
+		/*	Commented by Albert 2012/07/24 */
+		/*	We can enable the WFD function by using the following command: */
+		/*	wpa_cli driver wfd-enable */
+
+		if (padapter->wdinfo.driver_interface == DRIVER_CFG80211)
+			rtw_wfd_enable(padapter, 1);
+		break;
+	}
+
+	case ANDROID_WIFI_CMD_WFD_DISABLE: {
+		/*	Commented by Albert 2012/07/24 */
+		/*	We can disable the WFD function by using the following command: */
+		/*	wpa_cli driver wfd-disable */
+
+		if (padapter->wdinfo.driver_interface == DRIVER_CFG80211)
+			rtw_wfd_enable(padapter, 0);
+		break;
+	}
+	case ANDROID_WIFI_CMD_WFD_SET_TCPPORT: {
+		/*	Commented by Albert 2012/07/24 */
+		/*	We can set the tcp port number by using the following command: */
+		/*	wpa_cli driver wfd-set-tcpport = 554 */
+
+		if (padapter->wdinfo.driver_interface == DRIVER_CFG80211)
+			rtw_wfd_set_ctrl_port(padapter, (u16)get_int_from_command(command));
+		break;
+	}
+	case ANDROID_WIFI_CMD_WFD_SET_MAX_TPUT: {
+		break;
+	}
+	case ANDROID_WIFI_CMD_WFD_SET_DEVTYPE: {
+		/*	Commented by Albert 2012/08/28 */
+		/*	Specify the WFD device type ( WFD source/primary sink ) */
+
+		pwfd_info = &padapter->wfd_info;
+		if (padapter->wdinfo.driver_interface == DRIVER_CFG80211) {
+			pwfd_info->wfd_device_type = (u8) get_int_from_command(command);
+			pwfd_info->wfd_device_type &= WFD_DEVINFO_DUAL;
+		}
+		break;
+	}
+#endif
+	case ANDROID_WIFI_CMD_CHANGE_DTIM: {
+#ifdef CONFIG_LPS
+		u8 dtim;
+		u8 *ptr = (u8 *) command;
+
+		ptr += 9;/* string command length of  "SET_DTIM"; */
+
+		dtim = rtw_atoi(ptr);
+
+		RTW_INFO("DTIM=%d\n", dtim);
+
+		rtw_lps_change_dtim_cmd(padapter, dtim);
+#endif
+	}
+	break;
+
+#if CONFIG_RTW_MACADDR_ACL
+	case ANDROID_WIFI_CMD_HOSTAPD_SET_MACADDR_ACL: {
+		rtw_set_macaddr_acl(padapter, RTW_ACL_PERIOD_BSS, get_int_from_command(command));
+		break;
+	}
+	case ANDROID_WIFI_CMD_HOSTAPD_ACL_ADD_STA: {
+		u8 addr[ETH_ALEN] = {0x00};
+		macstr2num(addr, command + strlen("HOSTAPD_ACL_ADD_STA") + 3);	/* 3 is space bar + "=" + space bar these 3 chars */
+		rtw_acl_add_sta(padapter, RTW_ACL_PERIOD_BSS, addr);
+		break;
+	}
+	case ANDROID_WIFI_CMD_HOSTAPD_ACL_REMOVE_STA: {
+		u8 addr[ETH_ALEN] = {0x00};
+		macstr2num(addr, command + strlen("HOSTAPD_ACL_REMOVE_STA") + 3);	/* 3 is space bar + "=" + space bar these 3 chars */
+		rtw_acl_remove_sta(padapter, RTW_ACL_PERIOD_BSS, addr);
+		break;
+	}
+#endif /* CONFIG_RTW_MACADDR_ACL */
+#if defined(CONFIG_GTK_OL) && (LINUX_VERSION_CODE < KERNEL_VERSION(3, 1, 0))
+	case ANDROID_WIFI_CMD_GTK_REKEY_OFFLOAD:
+		rtw_gtk_offload(net, (u8 *)command);
+		break;
+#endif /* CONFIG_GTK_OL		 */
+	case ANDROID_WIFI_CMD_P2P_DISABLE: {
+#ifdef CONFIG_P2P
+		rtw_p2p_enable(padapter, P2P_ROLE_DISABLE);
+#endif /* CONFIG_P2P */
+		break;
+	}
+
+#ifdef CONFIG_RTW_MESH_AEK
+	case ANDROID_WIFI_CMD_SET_AEK:
+		bytes_written = rtw_android_set_aek(net, command, priv_cmd.total_len);
+		break;
+#endif
+	
+	case ANDROID_WIFI_CMD_EXT_AUTH_STATUS: {
+		rtw_set_external_auth_status(padapter,
+			command + strlen("EXT_AUTH_STATUS "),
+			priv_cmd.total_len - strlen("EXT_AUTH_STATUS "));
+		break;
+	}
+	case ANDROID_WIFI_CMD_DRIVERVERSION: {
+		bytes_written = strlen(DRIVERVERSION);
+		snprintf(command, bytes_written + 1, DRIVERVERSION);
+		break;
+	}
+	default:
+		RTW_INFO("Unknown PRIVATE command %s - ignored\n", command);
+		snprintf(command, 3, "OK");
+		bytes_written = strlen("OK");
+	}
+
+response:
+	if (bytes_written >= 0) {
+		if ((bytes_written == 0) && (priv_cmd.total_len > 0))
+			command[0] = '\0';
+		if (bytes_written >= priv_cmd.total_len) {
+			RTW_INFO("%s: bytes_written = %d\n", __FUNCTION__, bytes_written);
+			bytes_written = priv_cmd.total_len;
+		} else
+			bytes_written++;
+		priv_cmd.used_len = bytes_written;
+		if (copy_to_user((void *)priv_cmd.buf, command, bytes_written)) {
+			RTW_INFO("%s: failed to copy data to user buffer\n", __FUNCTION__);
+			ret = -EFAULT;
+		}
+	} else
+		ret = bytes_written;
+
+exit:
+	rtw_unlock_suspend();
+	if (command)
+		rtw_mfree(command, priv_cmd.total_len);
+
+	return ret;
+}
+
+
 /**
  * Functions for Android WiFi card detection
  */
