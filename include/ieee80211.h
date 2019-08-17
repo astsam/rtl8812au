@@ -15,14 +15,8 @@
 #ifndef __IEEE80211_H
 #define __IEEE80211_H
 
-
-#ifndef CONFIG_RTL8711FW
-
-	#if defined PLATFORM_OS_XP
-		#include <ntstrsafe.h>
-	#endif
-#else
-
+#if defined(PLATFORM_LINUX) && LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 22)
+#include <linux/ieee80211.h>
 #endif
 
 #define MGMT_QUEUE_NUM 5
@@ -711,6 +705,7 @@ struct ieee80211_snap_hdr {
 #define WLAN_CAPABILITY_SHORT_SLOT (1<<10)
 
 /* Status codes */
+#if !defined(PLATFORM_LINUX) || LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 22)
 #define WLAN_STATUS_SUCCESS 0
 #define WLAN_STATUS_UNSPECIFIED_FAILURE 1
 #define WLAN_STATUS_CAPS_UNSUPPORTED 10
@@ -752,6 +747,7 @@ struct ieee80211_snap_hdr {
 #define WLAN_REASON_MAC_EXISTS_IN_MBSS 64
 #define WLAN_REASON_MESH_CHAN_REGULATORY 65
 #define WLAN_REASON_MESH_CHAN 66
+#endif
 #define WLAN_REASON_SA_QUERY_TIMEOUT 65532
 #define WLAN_REASON_ACTIVE_ROAM 65533
 #define WLAN_REASON_JOIN_WRONG_CHANNEL       65534
@@ -765,6 +761,7 @@ struct ieee80211_snap_hdr {
 	)
 
 /* Information Element IDs */
+#if !defined(PLATFORM_LINUX) || LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 22)
 #define WLAN_EID_SSID 0
 #define WLAN_EID_SUPP_RATES 1
 #define WLAN_EID_FH_PARAMS 2
@@ -786,7 +783,7 @@ struct ieee80211_snap_hdr {
 #define WLAN_EID_IBSS_DFS 41
 /* EIDs defined by IEEE 802.11h - END */
 #define WLAN_EID_ERP_INFO 42
-#define WLAN_EID_HT_CAP 45
+#define WLAN_EID_HT_CAPABILITY 45
 #define WLAN_EID_RSN 48
 #define WLAN_EID_EXT_SUPP_RATES 50
 #define WLAN_EID_MOBILITY_DOMAIN 54
@@ -809,22 +806,21 @@ struct ieee80211_snap_hdr {
 #define WLAN_EID_AMPE 139
 #define WLAN_EID_MIC 140
 #define WLAN_EID_VENDOR_SPECIFIC 221
-#define WLAN_EID_GENERIC (WLAN_EID_VENDOR_SPECIFIC)
 #define WLAN_EID_VHT_CAPABILITY 191
 #define WLAN_EID_VHT_OPERATION 192
-#define WLAN_EID_VHT_OP_MODE_NOTIFY 199
+#define WLAN_EID_OPMODE_NOTIF 199
+#endif
+#define WLAN_EID_GENERIC (WLAN_EID_VENDOR_SPECIFIC)
 
 #define IEEE80211_MGMT_HDR_LEN 24
 #define IEEE80211_DATA_HDR3_LEN 24
 #define IEEE80211_DATA_HDR4_LEN 30
-
 
 #define IEEE80211_STATMASK_SIGNAL (1<<0)
 #define IEEE80211_STATMASK_RSSI (1<<1)
 #define IEEE80211_STATMASK_NOISE (1<<2)
 #define IEEE80211_STATMASK_RATE (1<<3)
 #define IEEE80211_STATMASK_WEMASK 0x7
-
 
 #define IEEE80211_CCK_MODULATION    (1<<0)
 #define IEEE80211_OFDM_MODULATION   (1<<1)
@@ -834,7 +830,6 @@ struct ieee80211_snap_hdr {
 
 #define IEEE80211_CCK_RATE_LEN		4
 #define IEEE80211_NUM_OFDM_RATESLEN	8
-
 
 #define IEEE80211_CCK_RATE_1MB		        0x02
 #define IEEE80211_CCK_RATE_2MB		        0x04
@@ -887,7 +882,6 @@ struct ieee80211_snap_hdr {
 #define IEEE80211_NUM_OFDM_RATES	    8
 #define IEEE80211_NUM_CCK_RATES	            4
 #define IEEE80211_OFDM_SHIFT_MASK_A         4
-
 
 enum MGN_RATE {
 	MGN_1M		= 0x02,
