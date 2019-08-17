@@ -716,17 +716,34 @@ static void usb_dvobj_deinit(struct usb_interface *usb_intf)
 static int usb_reprobe_switch_usb_mode(PADAPTER Adapter)
 {
 	struct registry_priv *registry_par = &Adapter->registrypriv;
+#ifdef CONFIG_USB_DEBUG
+	struct dvobj_priv *d = adapter_to_dvobj(Adapter);
+#endif
 	HAL_DATA_TYPE *pHalData = GET_HAL_DATA(Adapter);
 	u8 ret = _FALSE;
 
+#ifdef CONFIG_USB_DEBUG
+	dev_info(&d->pusbdev->dev, DRV_NAME " %s \n",  __func__);
+#endif
 	/* efuse not allow driver to switch usb mode */
-	if (pHalData->EEPROMUsbSwitch == _FALSE)
+	if (pHalData->EEPROMUsbSwitch == _FALSE) {
 		goto exit;
+#ifdef CONFIG_USB_DEBUG
+		dev_info(&d->pusbdev->dev, DRV_NAME " no eeprom switch\n");
+#endif
+	}
 
 	/* registry not allow driver to switch usb mode */
-	if (registry_par->switch_usb_mode == 0)
+	if (registry_par->switch_usb_mode == 0) {
 		goto exit;
+#ifdef CONFIG_USB_DEBUG
+		dev_info(&d->pusbdev->dev, DRV_NAME " no module param\n");
+#endif
+	}
 
+#ifdef CONFIG_USB_DEBUG
+	dev_info(&d->pusbdev->dev, DRV_NAME " try hw reg HW_VAR_USB_MODE\n");
+#endif
 	rtw_hal_set_hwreg(Adapter, HW_VAR_USB_MODE, &ret);
 
 exit:

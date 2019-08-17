@@ -44,25 +44,11 @@ EXTRA_CFLAGS += -I$(src)/include
 CONFIG_AUTOCFG_CP = n
 
 ########################## WIFI IC ############################
-CONFIG_RTL8188E = n
 CONFIG_RTL8812A = y
 CONFIG_RTL8821A = y
-CONFIG_RTL8192E = n
-CONFIG_RTL8723B = n
 CONFIG_RTL8814A = y
-CONFIG_RTL8723C = n
-CONFIG_RTL8188F = n
-CONFIG_RTL8188GTV = n
-CONFIG_RTL8822B = n
-CONFIG_RTL8723D = n
-CONFIG_RTL8821C = n
-CONFIG_RTL8710B = n
-CONFIG_RTL8192F = n
 ######################### Interface ###########################
 CONFIG_USB_HCI = y
-CONFIG_PCI_HCI = n
-CONFIG_SDIO_HCI = n
-CONFIG_GSPI_HCI = n
 ########################## Features ###########################
 CONFIG_MP_INCLUDED = y
 CONFIG_POWER_SAVING = n
@@ -109,6 +95,7 @@ CONFIG_RTW_DEBUG = y
 # default log level is _DRV_INFO_ = 4,
 # please refer to "How_to_set_driver_debug_log_level.doc" to set the available level.
 CONFIG_RTW_LOG_LEVEL = 4
+CONFIG_USB_DEBUG = n
 #DEBUG=1
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n

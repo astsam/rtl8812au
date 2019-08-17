@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -2179,6 +2179,10 @@ u8 SetHwReg8814AU(PADAPTER Adapter, u8 variable, u8* val)
 		break;
 
 	case HW_VAR_USB_MODE:
+#ifdef CONFIG_USB_DEBUG
+		dev_info(&pdvobjpriv->pusbdev->dev,
+			 DRV_NAME " switch sethwreg HW_VAR_USB_MODE\n");
+#endif
 		/* U2 to U3 */
 		if (registry_par->switch_usb_mode == 1) {
 			if (IS_HIGH_SPEED_USB(Adapter)) {
