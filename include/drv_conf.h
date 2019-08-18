@@ -14,7 +14,9 @@
  *****************************************************************************/
 #ifndef __DRV_CONF_H__
 #define __DRV_CONF_H__
-#include "autoconf.h"
+
+#include <generated/autoconf.h>
+#include "rtl_autoconf.h"
 #include "hal_ic_cfg.h"
 #if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
 
