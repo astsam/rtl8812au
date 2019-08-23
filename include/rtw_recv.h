@@ -55,13 +55,6 @@
 	#endif
 #endif
 
-#if defined(CONFIG_RTL8821C) && defined(CONFIG_SDIO_HCI) && defined(CONFIG_RECV_THREAD_MODE)
-	#ifdef NR_RECVBUFF
-	#undef NR_RECVBUFF
-	#define NR_RECVBUFF (32)
-	#endif
-#endif
-
 #define NR_RECVFRAME 256
 
 #define RXFRAME_ALIGN	8
@@ -76,7 +69,6 @@
 
 #define PHY_RSSI_SLID_WIN_MAX				100
 #define PHY_LINKQUALITY_SLID_WIN_MAX		20
-
 
 #define SNAP_SIZE sizeof(struct ieee80211_snap_hdr)
 
@@ -127,7 +119,6 @@ struct	stainfo_rxcache	{
 #endif
 };
 
-
 struct smooth_rssi_data {
 	u32	elements[100];	/* array to store values */
 	u32	index;			/* index to current array to store */
@@ -153,7 +144,6 @@ struct rx_raw_rssi {
 	s8 ofdm_pwr[4];
 	u8 ofdm_snr[4];
 };
-
 
 #include "cmn_info/rtw_sta_info.h"
 
@@ -307,8 +297,6 @@ struct rtw_rx_ring {
 };
 #endif
 
-
-
 /*
 accesser of recv_priv: rtw_recv_entry(dispatch / passive level); recv_thread(passive) ; returnpkt(dispatch)
 ; halt(passive) ;
@@ -333,7 +321,6 @@ struct recv_priv {
 	_queue	recv_pending_queue;
 	_queue	uc_swdec_pending_queue;
 
-
 	u8 *pallocated_frame_buf;
 	u8 *precv_frame_buf;
 
@@ -351,18 +338,6 @@ struct recv_priv {
 	#endif
 
 	_adapter	*adapter;
-
-#ifdef PLATFORM_WINDOWS
-	_nic_hdl  RxPktPoolHdl;
-	_nic_hdl  RxBufPoolHdl;
-
-#ifdef PLATFORM_OS_XP
-	PMDL	pbytecnt_mdl;
-#endif
-	uint	counter; /* record the number that up-layer will return to drv; only when counter==0 can we  release recv_priv */
-	NDIS_EVENT	recv_resource_evt ;
-#endif
-
 
 	u32 is_any_non_be_pkts;
 
@@ -447,7 +422,6 @@ struct recv_priv {
 	/* s8 RxRssi[2]; */
 	/* int FalseAlmCnt_all; */
 
-
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	_timer signal_stat_timer;
 	u32 signal_stat_sampling_interval;
@@ -510,7 +484,6 @@ struct sta_recv_priv {
 
 };
 
-
 struct recv_buf {
 	_list list;
 
@@ -537,14 +510,6 @@ struct recv_buf {
 	u32 alloc_sz;
 #endif
 
-#ifdef PLATFORM_OS_XP
-	PIRP		pirp;
-#endif
-
-#ifdef PLATFORM_OS_CE
-	USB_TRANSFER	usb_transfer_read_port;
-#endif
-
 	u8  irp_pending;
 	int  transfer_len;
 
@@ -560,14 +525,9 @@ struct recv_buf {
 
 /*
 	head  ----->
-
 		data  ----->
-
 			payload
-
 		tail  ----->
-
-
 	end   ----->
 
 	len = (unsigned int )(tail - data);
@@ -593,7 +553,6 @@ struct recv_frame_hdr {
 
 	void *precvbuf;
 
-
 	/*  */
 	struct sta_info *psta;
 
@@ -609,7 +568,6 @@ struct recv_frame_hdr {
 #endif
 
 };
-
 
 union recv_frame {
 
@@ -701,7 +659,6 @@ __inline static u8 *recvframe_push(union recv_frame *precvframe, sint sz)
 	if (precvframe == NULL)
 		return NULL;
 
-
 	precvframe->u.hdr.rx_data -= sz ;
 	if (precvframe->u.hdr.rx_data < precvframe->u.hdr.rx_head) {
 		precvframe->u.hdr.rx_data += sz ;
@@ -714,17 +671,14 @@ __inline static u8 *recvframe_push(union recv_frame *precvframe, sint sz)
 
 }
 
-
 __inline static u8 *recvframe_pull(union recv_frame *precvframe, sint sz)
 {
 	/* rx_data += sz; move rx_data sz bytes  hereafter */
 
 	/* used for extract sz bytes from rx_data, update rx_data and return the updated rx_data to the caller */
 
-
 	if (precvframe == NULL)
 		return NULL;
-
 
 	precvframe->u.hdr.rx_data += sz;
 
@@ -767,8 +721,6 @@ __inline static u8 *recvframe_put(union recv_frame *precvframe, sint sz)
 
 }
 
-
-
 __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 {
 	/* rmv data from rx_tail (by yitsen) */
@@ -792,8 +744,6 @@ __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 
 }
 
-
-
 __inline static _buffer *get_rxbuf_desc(union recv_frame *precvframe)
 {
 	_buffer *buf_desc;
@@ -806,7 +756,6 @@ __inline static _buffer *get_rxbuf_desc(union recv_frame *precvframe)
 
 	return buf_desc;
 }
-
 
 __inline static union recv_frame *rxmem_to_recvframe(u8 *rxmem)
 {
@@ -855,12 +804,10 @@ __inline static u8 *pkt_to_recvdata(_pkt *pkt)
 
 }
 
-
 __inline static sint get_recvframe_len(union recv_frame *precvframe)
 {
 	return precvframe->u.hdr.len;
 }
-
 
 __inline static s32 translate_percentage_to_dbm(u32 SignalStrengthIndex)
 {
