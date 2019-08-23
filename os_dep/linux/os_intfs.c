@@ -1431,7 +1431,7 @@ static u8 is_rtw_ndev(struct net_device *ndev)
 static int rtw_ndev_notifier_call(struct notifier_block *nb, unsigned long state, void *ptr)
 {
 	struct net_device *ndev;
-	_adapter *adapter
+	_adapter *adapter = rtw_netdev_priv(ndev);
 
 	if (ptr == NULL)
 		return NOTIFY_DONE;
@@ -1444,8 +1444,6 @@ static int rtw_ndev_notifier_call(struct notifier_block *nb, unsigned long state
 
 	if (ndev == NULL)
 		return NOTIFY_DONE;
-
-	adapter = rtw_netdev_priv(ndev);
 
 	if (!is_rtw_ndev(ndev))
 		return NOTIFY_DONE;
