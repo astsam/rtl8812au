@@ -1,4 +1,4 @@
-## RTL8812AU/21AU and RTL8814AU drivers
+## RTL8812AU/21AU and RTL8814AU drivers [for LINUX & Android only]
 
 [![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
 [![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](#)
