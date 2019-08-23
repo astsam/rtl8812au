@@ -797,11 +797,6 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 
 #ifdef CONFIG_NATIVEAP_MLME
 
-	if (psta->cmn.aid > 31) {
-		pr_err("***** psta->aid (%d) out of bounds\n", psta->cmn.aid);
-		return _FAIL;
-	}
-
 	if (pmlmeinfo->state == _HW_STATE_AP_) {
 		rtw_tim_map_clear(padapter, pstapriv->sta_dz_bitmap, psta->cmn.aid);
 		rtw_tim_map_clear(padapter, pstapriv->tim_bitmap, psta->cmn.aid);
