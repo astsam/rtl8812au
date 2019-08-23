@@ -23,9 +23,8 @@
 #define AUTOCONF_INCLUDED
 #define RTL871X_MODULE_NAME "8812AU"
 #ifndef DRV_NAME
-#define DRV_NAME "rtl8821au"
+#define DRV_NAME "rtl8812au"
 #endif
-
 
 #define CONFIG_USB_HCI
 
@@ -120,8 +119,6 @@
 #endif /*CONFIG_POWER_SAVING*/
 	/*#define CONFIG_ANTENNA_DIVERSITY*/
 
-
-
 	/* #define CONFIG_CONCURRENT_MODE 1 */
 	#ifdef CONFIG_CONCURRENT_MODE
 		#define CONFIG_RUNTIME_PORT_SWITCH
@@ -169,7 +166,6 @@
 	/*#define CONFIG_P2P_INVITE_IOT*/
 #endif
 
-/* Added by Kurt 20110511 */
 #ifdef CONFIG_TDLS
 	#define CONFIG_TDLS_DRIVER_SETUP
 /*	#ifndef CONFIG_WFD */
@@ -180,8 +176,7 @@
 	#define CONFIG_TDLS_CH_SW	/* Enable this flag only when we confirm that TDLS CH SW is supported in FW */
 #endif
 
-
-#define CONFIG_SKB_COPY	1/* for amsdu */
+#define CONFIG_SKB_COPY	1 /* for amsdu */
 
 #define CONFIG_RTW_LED
 #ifdef CONFIG_RTW_LED
@@ -287,11 +282,9 @@
 	#define MP_DRIVER 0
 #endif
 
-
 /*
  * Platform  Related Config
- */
-
+*/
 
 #if defined(CONFIG_PLATFORM_ACTIONS_ATM702X)
 	#ifdef CONFIG_USB_TX_AGGREGATION
@@ -313,14 +306,9 @@
 	#endif
 #endif /* !CONFIG_BT_COEXIST */
 
-
-
 #ifdef CONFIG_USB_TX_AGGREGATION
 /* #define	CONFIG_TX_EARLY_MODE */
 #endif
-
-#define	RTL8188E_EARLY_MODE_PKT_NUM_10	0
-
 
 /*
  * Debug Related Config
@@ -347,8 +335,6 @@
 /* #define DBG_RX_SEQ */
 /* #define DBG_RX_SIGNAL_DISPLAY_PROCESSING */
 /* #define DBG_RX_SIGNAL_DISPLAY_SSID_MONITORED "jeff-ap" */
-
-
 
 /* #define DBG_SHOW_MCUFWDL_BEFORE_51_ENABLE */
 /* #define DBG_ROAMING_TEST */
