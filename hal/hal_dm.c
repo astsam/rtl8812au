@@ -79,7 +79,7 @@ void rtw_hal_update_iqk_fw_offload_cap(_adapter *adapter)
 	RTW_INFO("IQK FW offload:%s\n", hal->RegIQKFWOffload ? "enable" : "disable");
 }
 
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
+#if ((RTL8814B_SUPPORT == 1))
 void rtw_phydm_iqk_trigger(_adapter *adapter)
 {
 	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
@@ -98,7 +98,7 @@ void rtw_phydm_iqk_trigger_dbg(_adapter *adapter, bool recovery, bool clear, boo
 {
 	struct dm_struct *p_dm_odm = adapter_to_phydm(adapter);
 
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
+#if ((RTL8814B_SUPPORT == 1))
 		halrf_segment_iqk_trigger(p_dm_odm, clear, segment);
 #else
 		halrf_iqk_trigger(p_dm_odm, recovery);
@@ -187,20 +187,6 @@ void rtw_phydm_fill_desc_dpt(void *dm, u8 *desc, u8 dpt_lv)
 
 	switch (rtw_get_chip_type(adapter)) {
 /*
-	#ifdef CONFIG_RTL8188F
-	case RTL8188F:
-		break;
-	#endif
-
-	#ifdef CONFIG_RTL8723B
-	case RTL8723B :
-		break;
-	#endif
-
-	#ifdef CONFIG_RTL8703B
-	case RTL8703B :
-		break;
-	#endif
 
 	#ifdef CONFIG_RTL8812A
 	case RTL8812 :
@@ -217,24 +203,7 @@ void rtw_phydm_fill_desc_dpt(void *dm, u8 *desc, u8 dpt_lv)
 		break;
 	#endif
 
-	#ifdef CONFIG_RTL8192F
-	case RTL8192F :
-		break;
-	#endif
 */
-/*
-	#ifdef CONFIG_RTL8192E
-	case RTL8192E :
-		SET_TX_DESC_TX_POWER_0_PSET_92E(desc, dpt_lv);
-		break;
-	#endif
-*/
-
-	#ifdef CONFIG_RTL8821C
-	case RTL8821C :
-		SET_TX_DESC_TXPWR_OFSET_8821C(desc, dpt_lv);
-	break;
-	#endif
 
 	default :
 		RTW_ERR("%s IC not support dynamic tx power\n", __func__);
@@ -591,11 +560,6 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 		return;
 	}
 
-	if (ic_type == RTL8188E) {
-		if ((iot_peer == HT_IOT_PEER_RALINK) || (iot_peer == HT_IOT_PEER_ATHEROS))
-			is_bias_on_rx = _TRUE;
-	}
-
 	/* Check if the status needs to be changed. */
 	if ((bbtchange) || (!precvpriv->is_any_non_be_pkts)) {
 		cur_tx_bytes = dvobj->traffic_stat.cur_tx_bytes;
@@ -648,7 +612,7 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 				EDCA_BE_DL = edca_setting_DL[iot_peer];
 			}
 
-			if ((ic_type == RTL8812) || (ic_type == RTL8821) || (ic_type == RTL8192E) || (ic_type == RTL8192F)) { /* add 8812AU/8812AE */
+			if ((ic_type == RTL8812) || (ic_type == RTL8821)) { /* add 8812AU/8812AE */
 				EDCA_BE_UL = 0x5ea42b;
 				EDCA_BE_DL = 0x5ea42b;
 
@@ -656,15 +620,10 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 			}
 
 			if (interface_type == RTW_PCIE &&
-				((ic_type == RTL8822B)
-				|| (ic_type == RTL8814A))) {
+				(ic_type == RTL8814A)) {
 				EDCA_BE_UL = 0x6ea42b;
 				EDCA_BE_DL = 0x6ea42b;
 			}
-
-			if ((ic_type == RTL8822B)
-			    && (interface_type == RTW_SDIO))
-				EDCA_BE_DL = 0x00431c;
 
 #ifdef CONFIG_RTW_TPT_MODE
 			if ( dvobj->tpt_mode > 0 ) {				
@@ -1414,7 +1373,7 @@ static u8 _rtw_phydm_rfk_condition_check(_adapter *adapter, u8 is_scaning, u8 if
 	return rfk_allowed;
 }
 
-#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
+#if (RTL8814B_SUPPORT == 1)
 static u8 _rtw_phydm_iqk_segment_chk(_adapter *adapter, u8 ifs_linked)
 {
 	u8 iqk_sgt = _FALSE;
@@ -1543,7 +1502,7 @@ void rtw_phydm_watchdog(_adapter *adapter, bool in_lps)
 	u8	bsta_state = _FALSE;
 	u8	bBtDisabled = _TRUE;
 	u8	rfk_forbidden = _FALSE;
-	#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
+	#if (RTL8814B_SUPPORT == 1)
 	u8	segment_iqk = _FALSE;
 	#endif
 	u8	tx_unlinked_low_rate = 0xFF;
@@ -1576,7 +1535,7 @@ void rtw_phydm_watchdog(_adapter *adapter, bool in_lps)
 	rfk_forbidden = (_rtw_phydm_rfk_condition_check(adapter, pHalData->bScanInProcess, bLinked) == _TRUE) ? _FALSE : _TRUE;
 	halrf_cmn_info_set(&pHalData->odmpriv, HALRF_CMNINFO_RFK_FORBIDDEN, rfk_forbidden);
 
-	#if ((RTL8822B_SUPPORT == 1) || (RTL8821C_SUPPORT == 1) || (RTL8814B_SUPPORT == 1))
+	#if ((RTL8814B_SUPPORT == 1))
 	segment_iqk = _rtw_phydm_iqk_segment_chk(adapter, bLinked);
 	halrf_cmn_info_set(&pHalData->odmpriv, HALRF_CMNINFO_IQK_SEGMENT, segment_iqk);
 	#endif

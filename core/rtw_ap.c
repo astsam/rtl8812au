@@ -4588,6 +4588,7 @@ static bool rtw_ap_choose_chbw(_adapter *adapter, u8 sel_ch, u8 max_bw, u8 cur_c
 					, RTW_CHF_DFS
 					, cur_ch
 					, rfctl->ch_sel_same_band_prefer, mesh_only);
+		goto exit;
 	}
 
 exit:
