@@ -36,7 +36,8 @@
 
 /*
  * Interface type.
- *   */
+ *
+*/
 typedef	enum _INTERFACE_SELECT_PCIE {
 	INTF_SEL0_SOLO_MINICARD			= 0,		/* WiFi solo-mCard */
 	INTF_SEL1_BT_COMBO_MINICARD		= 1,		/* WiFi+BT combo-mCard */
@@ -207,7 +208,6 @@ struct hal_iqk_reg_backup {
 	u32 reg_backup[MAX_RF_PATH][MAX_IQK_INFO_BACKUP_REG_NUM];
 };
 
-
 typedef struct hal_p2p_ps_para {
 	/*DW0*/
 	u8  offload_en:1;
@@ -377,13 +377,6 @@ typedef struct hal_com_data {
 	struct kfree_data_t kfree_data;
 #endif /*CONFIG_RF_POWER_TRIM*/
 
-#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || \
-	defined(CONFIG_RTL8723D) || \
-	defined(CONFIG_RTL8192F)
-
-	u8	adjuseVoltageVal;
-	u8	need_restore;
-#endif
 	u8	EfuseUsedPercentage;
 	u16	EfuseUsedBytes;
 	/*u8		EfuseMap[2][HWSET_MAX_SIZE_JAGUAR];*/
@@ -482,8 +475,6 @@ typedef struct hal_com_data {
 	u8			bScanInProcess;
 	/******** PHY DM & DM Section **********/
 
-
-
 	/* 2010/08/09 MH Add CU power down mode. */
 	BOOLEAN		pwrdown;
 
@@ -537,11 +528,9 @@ typedef struct hal_com_data {
 	/* SDIO Tx FIFO related. */
 	/*  */
 	/* HIQ, MID, LOW, PUB free pages; padapter->xmitpriv.free_txpg */
-#ifdef CONFIG_RTL8192F
-	u16			SdioTxFIFOFreePage[SDIO_TX_FREE_PG_QUEUE];
-#else
+
 	u8			SdioTxFIFOFreePage[SDIO_TX_FREE_PG_QUEUE];
-#endif/*CONFIG_RTL8192F*/
+
 	_lock		SdioTxFIFOFreePageLock;
 	u8			SdioTxOQTMaxFreeSpace;
 	u8			SdioTxOQTFreeSpace;
@@ -597,37 +586,6 @@ typedef struct hal_com_data {
 	BT_COEXIST		bt_coexist;
 #endif /* CONFIG_BT_COEXIST */
 
-#if defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) \
-	|| defined(CONFIG_RTL8188F) || defined(CONFIG_RTL8188GTV) || defined(CONFIG_RTL8723D)|| defined(CONFIG_RTL8192F)
-#ifndef CONFIG_PCI_HCI	/* mutual exclusive with PCI -- so they're SDIO and GSPI */
-	/* Interrupt relatd register information. */
-	u32			SysIntrStatus;
-	u32			SysIntrMask;
-#endif
-#endif /*endif CONFIG_RTL8723B	*/
-
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	char	para_file_buf[MAX_PARA_FILE_BUF_LEN];
-	char *mac_reg;
-	u32	mac_reg_len;
-	char *bb_phy_reg;
-	u32	bb_phy_reg_len;
-	char *bb_agc_tab;
-	u32	bb_agc_tab_len;
-	char *bb_phy_reg_pg;
-	u32	bb_phy_reg_pg_len;
-	char *bb_phy_reg_mp;
-	u32	bb_phy_reg_mp_len;
-	char *rf_radio_a;
-	u32	rf_radio_a_len;
-	char *rf_radio_b;
-	u32	rf_radio_b_len;
-	char *rf_tx_pwr_track;
-	u32	rf_tx_pwr_track_len;
-	char *rf_tx_pwr_lmt;
-	u32	rf_tx_pwr_lmt_len;
-#endif
-
 #ifdef CONFIG_BACKGROUND_NOISE_MONITOR
 	struct noise_monitor nm;
 #endif
@@ -641,9 +599,6 @@ typedef struct hal_com_data {
 	BOOLEAN				bCCKinCH14;
 	BB_INIT_REGISTER	RegForRecover[5];
 
-#if defined(CONFIG_PCI_HCI) && defined(RTL8814AE_SW_BCN)
-	BOOLEAN bCorrectBCN;
-#endif
 	u32 RxGainOffset[4]; /*{2G, 5G_Low, 5G_Middle, G_High}*/
 	u8 BackUp_IG_REG_4_Chnl_Section[4]; /*{A,B,C,D}*/
 
@@ -937,17 +892,10 @@ int rtw_halmac_deinit_adapter(struct dvobj_priv *);
 #define REG_APK	rAPK
 #define REG_ANTSEL_SW_JAGUAR	r_ANTSEL_SW_Jaguar
 
-
-
 #define rf_welut_jaguar	RF_WeLut_Jaguar
 #define rf_mode_table_addr	RF_ModeTableAddr
 #define rf_mode_table_data0	RF_ModeTableData0
 #define rf_mode_table_data1	RF_ModeTableData1
-
-
-
-
-
 
 #define RX_SMOOTH_FACTOR	Rx_Smooth_Factor
 

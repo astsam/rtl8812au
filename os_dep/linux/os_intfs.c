@@ -670,26 +670,6 @@ int rtw_tsf_update_restore_factor = CONFIG_TSF_UPDATE_RESTORE_FACTOR;
 module_param(rtw_tsf_update_restore_factor, int, 0644);
 MODULE_PARM_DESC(rtw_tsf_update_restore_factor, "num of bcn intervals to stay TSF update restore status");
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-char *rtw_phy_file_path = REALTEK_CONFIG_PATH;
-module_param(rtw_phy_file_path, charp, 0644);
-MODULE_PARM_DESC(rtw_phy_file_path, "The path of phy parameter");
-/* PHY FILE Bit Map
-* BIT0 - MAC,				0: non-support, 1: support
-* BIT1 - BB,					0: non-support, 1: support
-* BIT2 - BB_PG,				0: non-support, 1: support
-* BIT3 - BB_MP,				0: non-support, 1: support
-* BIT4 - RF,					0: non-support, 1: support
-* BIT5 - RF_TXPWR_TRACK,	0: non-support, 1: support
-* BIT6 - RF_TXPWR_LMT,		0: non-support, 1: support */
-int rtw_load_phy_file = (BIT2 | BIT6);
-module_param(rtw_load_phy_file, int, 0644);
-MODULE_PARM_DESC(rtw_load_phy_file, "PHY File Bit Map");
-int rtw_decrypt_phy_file = 0;
-module_param(rtw_decrypt_phy_file, int, 0644);
-MODULE_PARM_DESC(rtw_decrypt_phy_file, "Enable Decrypt PHY File");
-#endif
-
 #ifdef CONFIG_SUPPORT_TRX_SHARED
 #ifdef DFT_TRX_SHARE_MODE
 int rtw_trx_share_mode = DFT_TRX_SHARE_MODE;
@@ -1121,10 +1101,7 @@ uint loadparam(_adapter *padapter)
 	registry_par->AmplifierType_2G = (u8)rtw_amplifier_type_2g;
 	registry_par->AmplifierType_5G = (u8)rtw_amplifier_type_5g;
 	registry_par->GLNA_Type = (u8)rtw_GLNA_type;
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	registry_par->load_phy_file = (u8)rtw_load_phy_file;
-	registry_par->RegDecryptCustomFile = (u8)rtw_decrypt_phy_file;
-#endif
+
 	registry_par->qos_opt_enable = (u8)rtw_qos_opt_enable;
 
 	registry_par->hiq_filter = (u8)rtw_hiq_filter;
@@ -1360,7 +1337,6 @@ unsigned int rtw_classify8021d(struct sk_buff *skb)
 
 	return dscp >> 5;
 }
-
 
 static u16 rtw_select_queue(struct net_device *dev, struct sk_buff *skb
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
@@ -1971,7 +1947,6 @@ u32 rtw_start_drv_threads(_adapter *padapter)
 		}
 	}
 
-
 #ifdef CONFIG_EVENT_THREAD_MODE
 	if (padapter->evtThread == NULL) {
 		RTW_INFO(FUNC_ADPT_FMT " start RTW_EVENT_THREAD\n", FUNC_ADPT_ARG(padapter));
@@ -2066,14 +2041,11 @@ u8 rtw_init_default_value(_adapter *padapter)
 	psecuritypriv->dot118021x_bmc_cam_id = INVALID_SEC_MAC_CAM_ID;
 #endif
 
-
 	/* pwrctrl_priv */
-
 
 	/* registry_priv */
 	rtw_init_registrypriv_dev_network(padapter);
 	rtw_update_registrypriv_dev_network(padapter);
-
 
 	/* hal_priv */
 	rtw_hal_def_value_init(padapter);
@@ -2208,7 +2180,6 @@ struct dvobj_priv *devobj_init(void)
 #ifdef CONFIG_RTW_NAPI_DYNAMIC
 	pdvobj->en_napi_dynamic = 0;
 #endif /* CONFIG_RTW_NAPI_DYNAMIC */
-
 
 #ifdef CONFIG_RTW_TPT_MODE
 	pdvobj->tpt_mode = 0;
@@ -2354,7 +2325,6 @@ u8 rtw_reset_drv_sw(_adapter *padapter)
 
 	return ret8;
 }
-
 
 u8 rtw_init_drv_sw(_adapter *padapter)
 {
@@ -2523,8 +2493,6 @@ u8 rtw_init_drv_sw(_adapter *padapter)
 #endif
 
 exit:
-
-
 
 	return ret8;
 
@@ -2883,7 +2851,6 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	padapter->hw_port = HW_PORT1;
 #endif
 
-
 	/****** hook vir if into dvobj ******/
 	pdvobjpriv = adapter_to_dvobj(padapter);
 	padapter->iface_id = pdvobjpriv->iface_nums;
@@ -2900,7 +2867,6 @@ _adapter *rtw_drv_add_vir_if(_adapter *primary_padapter,
 	/*init drv data*/
 	if (rtw_init_drv_sw(padapter) != _SUCCESS)
 		goto free_drv_sw;
-
 
 	/*get mac address from primary_padapter*/
 	_rtw_memcpy(mac, adapter_mac_addr(primary_padapter), ETH_ALEN);
@@ -2996,7 +2962,6 @@ void rtw_drv_free_vir_if(_adapter *padapter)
 	rtw_vmfree((u8 *)padapter, sizeof(_adapter));
 }
 
-
 void rtw_drv_stop_vir_ifaces(struct dvobj_priv *dvobj)
 {
 	int i;
@@ -3012,7 +2977,6 @@ void rtw_drv_free_vir_ifaces(struct dvobj_priv *dvobj)
 	for (i = VIF_START_ID; i < dvobj->iface_nums; i++)
 		rtw_drv_free_vir_if(dvobj->padapters[i]);
 }
-
 
 #endif /*end of CONFIG_CONCURRENT_MODE*/
 
@@ -3398,7 +3362,6 @@ int _netdev_open(struct net_device *pnetdev)
 		pwrctrlpriv->bips_processing = _FALSE;
 	}
 
-
 netdev_open_normal_process:
 	RTW_INFO(FUNC_NDEV_FMT" Success (bup=%d)\n", FUNC_NDEV_ARG(pnetdev), padapter->bup);
 	return 0;
@@ -3431,7 +3394,6 @@ int _netdev_open(struct net_device *pnetdev)
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(padapter);
 #endif /* CONFIG_BT_COEXIST_SOCKET_TRX */
-
 
 	RTW_INFO(FUNC_NDEV_FMT" , bup=%d\n", FUNC_NDEV_ARG(pnetdev), padapter->bup);
 
@@ -3530,7 +3492,6 @@ int _netdev_open(struct net_device *pnetdev)
 		RTW_INFO("CONFIG_BT_COEXIST: VIRTUAL_ADAPTER\n");
 #endif /* CONFIG_BT_COEXIST_SOCKET_TRX */
 
-
 netdev_open_normal_process:
 
 #ifdef CONFIG_CONCURRENT_MODE
@@ -3601,7 +3562,6 @@ int netdev_open(struct net_device *pnetdev)
 #endif
 	_exit_critical_mutex(&(adapter_to_dvobj(padapter)->hw_init_mutex), NULL);
 
-
 #ifdef CONFIG_AUTO_AP_MODE
 	if (padapter->iface_id == IFACE_ID2)
 		rtw_start_auto_ap(padapter);
@@ -3619,7 +3579,6 @@ int  ips_netdrv_open(_adapter *padapter)
 	padapter->net_closed = _FALSE;
 
 	RTW_INFO("===> %s.........\n", __FUNCTION__);
-
 
 	rtw_clr_drv_stopped(padapter);
 	/* padapter->bup = _TRUE; */
@@ -3774,7 +3733,6 @@ int _pm_netdev_open(_adapter *padapter)
 		padapter->netif_up = _TRUE;
 		pwrctrlpriv->bips_processing = _FALSE;
 	}
-
 
 netdev_open_normal_process:
 	RTW_INFO(FUNC_NDEV_FMT" Success (bup=%d)\n", FUNC_NDEV_ARG(pnetdev), padapter->bup);
@@ -4628,7 +4586,6 @@ int rtw_suspend_ap_wow(_adapter *padapter)
 }
 #endif /* #ifdef CONFIG_AP_WOWLAN */
 
-
 int rtw_suspend_normal(_adapter *padapter)
 {
 	int ret = _SUCCESS;
@@ -4647,7 +4604,6 @@ int rtw_suspend_normal(_adapter *padapter)
 	if ((rtw_hal_check_ips_status(padapter) == _TRUE)
 	    || (adapter_to_pwrctl(padapter)->rf_pwrstate == rf_off))
 		RTW_PRINT("%s: ### ERROR #### driver in IPS ####ERROR###!!!\n", __FUNCTION__);
-
 
 #ifdef CONFIG_CONCURRENT_MODE
 	rtw_set_drv_stopped(padapter);	/*for stop thread*/
@@ -4740,7 +4696,6 @@ int rtw_suspend_common(_adapter *padapter)
 		rtw_suspend_normal(padapter);
 #endif /*CONFIG_AP_WOWLAN*/
 	}
-
 
 	RTW_PRINT("rtw suspend success in %d ms\n",
 		  rtw_get_passing_time_ms(start_time));
@@ -4933,7 +4888,6 @@ int rtw_resume_process_ap_wow(_adapter *padapter)
 		ret = -1;
 		goto exit;
 	}
-
 
 #ifdef CONFIG_LPS
 	if (!(pwrpriv->wowlan_dis_lps)) {
