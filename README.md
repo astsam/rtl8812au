@@ -23,6 +23,7 @@
 * Clean out unsupported chipsets
 ```
 ### IPERF3 benchmark
+#### [Device] Alfa Networks AWUS036ACH [Chipset] 8812au [Branch] v5.6.4.1 [Distance] 10m free sight
 ```
 [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
 [  5]   0.00-1.00   sec  11.6 MBytes  97.4 Mbits/sec    0   96.2 KBytes       
