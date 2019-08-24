@@ -689,7 +689,7 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 					
 						EDCA_BE_UL = hal_data->edca_param_mode;
 						EDCA_BE_DL = hal_data->edca_param_mode;
-					}				
+					}
 			}
 
 			if (traffic_index == DOWN_LINK)
@@ -707,7 +707,7 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 			struct sta_info *psta;
 			struct macid_ctl_t *macid_ctl = dvobj_to_macidctl(dvobj);
 			u8 mac_id, role, current_rate_id;
-			
+
 			/*	search all used & connect2AP macid	*/
 			for (mac_id = 0; mac_id < macid_ctl->num; mac_id++) {
 				if (rtw_macid_is_used(macid_ctl, mac_id))  {
@@ -752,7 +752,7 @@ void rtw_hal_turbo_edca(_adapter *adapter)
 #endif
 
 			if ( edca_param != hal_data->ac_param_be) {
-				
+
 				rtw_hal_set_hwreg(adapter, HW_VAR_AC_PARAM_BE, (u8 *)(&edca_param));
 
 				RTW_INFO("Turbo EDCA =0x%x\n", edca_param);

@@ -3791,8 +3791,6 @@ SetBeamformRfMode_8812(
 		phy_set_bb_reg(Adapter, rTxPath_Jaguar, bMaskByte1, 0x11);
 }
 
-
-
 VOID
 SetBeamformEnter_8812(
 	IN PADAPTER				Adapter,
@@ -5570,7 +5568,7 @@ u8 GetHalDefVar8812A(PADAPTER padapter, HAL_DEF_VARIABLE variable, void *pval)
 		break;
 
 	case HAL_DEF_RX_STBC:
-		*(u8 *)pval = 1;
+		*(u8 *)pval = 2;
 		break;
 
 	case HAL_DEF_EXPLICIT_BEAMFORMER:

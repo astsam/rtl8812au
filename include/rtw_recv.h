@@ -19,20 +19,9 @@
 #define RTW_RX_MSDU_ACT_INDICATE	BIT0
 #define RTW_RX_MSDU_ACT_FORWARD		BIT1
 
-#ifdef PLATFORM_OS_XP
-	#ifdef CONFIG_SDIO_HCI
-		#define NR_RECVBUFF 1024/* 512 */ /* 128 */
-	#else
-		#define NR_RECVBUFF (16)
-	#endif
-#elif defined(PLATFORM_OS_CE)
-	#ifdef CONFIG_SDIO_HCI
-		#define NR_RECVBUFF (128)
-	#else
-		#define NR_RECVBUFF (4)
-	#endif
-#else /* PLATFORM_LINUX /PLATFORM_BSD */
+#include <linux/interrupt.h>
 
+#ifdef PLATFORM_LINUX
 	#ifdef CONFIG_SINGLE_RECV_BUF
 		#define NR_RECVBUFF (1)
 	#else
@@ -373,25 +362,21 @@ struct recv_priv {
 #endif /* CONFIG_USB_INTERRUPT_IN_PIPE */
 
 #endif
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_FREEBSD)
-#ifdef PLATFORM_FREEBSD
-	struct task irq_prepare_beacon_tasklet;
-	struct task recv_tasklet;
-#else /* PLATFORM_FREEBSD */
+#if defined(PLATFORM_LINUX)
 	struct tasklet_struct irq_prepare_beacon_tasklet;
 	struct tasklet_struct recv_tasklet;
-#endif /* PLATFORM_FREEBSD */
+
 	struct sk_buff_head free_recv_skb_queue;
 	struct sk_buff_head rx_skb_queue;
 #ifdef CONFIG_RTW_NAPI
 		struct sk_buff_head rx_napi_skb_queue;
-#endif 
+#endif
 #ifdef CONFIG_RX_INDICATE_QUEUE
 	struct task rx_indicate_tasklet;
 	struct ifqueue rx_indicate_queue;
 #endif /* CONFIG_RX_INDICATE_QUEUE */
 
-#endif /* defined(PLATFORM_LINUX) || defined(PLATFORM_FREEBSD) */
+#endif /* defined(PLATFORM_LINUX) */
 
 	u8 *pallocated_recv_buf;
 	u8 *precv_buf;    /* 4 alignment */
@@ -504,7 +489,7 @@ struct recv_buf {
 
 #ifdef CONFIG_USB_HCI
 
-#if defined(PLATFORM_OS_XP) || defined(PLATFORM_LINUX) || defined(PLATFORM_FREEBSD)
+#if defined(PLATFORM_LINUX)
 	PURB	purb;
 	dma_addr_t dma_transfer_addr;	/* (in) dma addr for transfer_buffer */
 	u32 alloc_sz;
@@ -517,11 +502,8 @@ struct recv_buf {
 
 #if defined(PLATFORM_LINUX)
 	_pkt *pskb;
-#elif defined(PLATFORM_FREEBSD) /* skb solution */
-	struct sk_buff *pskb;
 #endif
 };
-
 
 /*
 	head  ----->
@@ -750,9 +732,6 @@ __inline static _buffer *get_rxbuf_desc(union recv_frame *precvframe)
 
 	if (precvframe == NULL)
 		return NULL;
-#ifdef PLATFORM_WINDOWS
-	NdisQueryPacket(precvframe->u.hdr.pkt, NULL, NULL, &buf_desc, NULL);
-#endif
 
 	return buf_desc;
 }
@@ -772,13 +751,7 @@ __inline static union recv_frame *pkt_to_recvframe(_pkt *pkt)
 
 	u8 *buf_star;
 	union recv_frame *precv_frame;
-#ifdef PLATFORM_WINDOWS
-	_buffer *buf_desc;
-	uint len;
 
-	NdisQueryPacket(pkt, NULL, NULL, &buf_desc, &len);
-	NdisQueryBufferSafe(buf_desc, &buf_star, &len, HighPagePriority);
-#endif
 	precv_frame = rxmem_to_recvframe((unsigned char *)buf_star);
 
 	return precv_frame;
