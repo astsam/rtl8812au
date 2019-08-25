@@ -23,9 +23,9 @@
 * Clean out unsupported chipsets
 ```
 ### IPERF3 benchmark
-<b>[Device]</b> Alfa Networks AWUS036ACH
-<b>[Chipset]</b> 8812au (rtl8812au)
-<b>[Branch] v5.6.4.1 
+<b>[Device]</b> Alfa Networks AWUS036ACH<br>
+<b>[Chipset]</b> 8812au (rtl8812au)<br>
+<b>[Branch] v5.6.4.1<br>
 <b>[Distance]</b> 10m free sight
 ```
 [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
