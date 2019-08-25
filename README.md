@@ -2,7 +2,7 @@
 
 [![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
 [![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](#)
-[![GitHub version](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au.svg)](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au)
+[![GitHub version](https://raster.shields.io/badge/version-v5.6.4.1-lightgrey.svg)](https://badge.fury.io/gh/aircrack-ng%2Frtl8812au)
 [![GitHub issues](https://img.shields.io/github/issues/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/issues)
 [![GitHub forks](https://img.shields.io/github/forks/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/network)
 [![GitHub stars](https://img.shields.io/github/stars/aircrack-ng/rtl8812au.svg)](https://github.com/aircrack-ng/rtl8812au/stargazers)
@@ -23,7 +23,10 @@
 * Clean out unsupported chipsets
 ```
 ### IPERF3 benchmark
-#### [Device] Alfa Networks AWUS036ACH [Chipset] 8812au [Branch] v5.6.4.1 [Distance] 10m free sight
+#### [Device] Alfa Networks AWUS036ACH
+#### [Chipset] 8812au (rtl8812au)
+#### [Branch] v5.6.4.1 
+#### [Distance] 10m free sight
 ```
 [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
 [  5]   0.00-1.00   sec  11.6 MBytes  97.4 Mbits/sec    0   96.2 KBytes       
