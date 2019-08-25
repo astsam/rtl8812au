@@ -23,10 +23,10 @@
 * Clean out unsupported chipsets
 ```
 ### IPERF3 benchmark
-#### [Device] Alfa Networks AWUS036ACH
-#### [Chipset] 8812au (rtl8812au)
-#### [Branch] v5.6.4.1 
-#### [Distance] 10m free sight
+<b>[Device]</b> Alfa Networks AWUS036ACH
+<b>[Chipset]</b> 8812au (rtl8812au)
+<b>[Branch] v5.6.4.1 
+<b>[Distance]</b> 10m free sight
 ```
 [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
 [  5]   0.00-1.00   sec  11.6 MBytes  97.4 Mbits/sec    0   96.2 KBytes       
@@ -180,3 +180,11 @@ at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkMa
 sudo service NetworkManager restart
 ```
 
+### Credits
+
+astsam      - https://github.com/astsam
+aircrack-ng - https://github.com/aircrack-ng
+evilphish   - https://github.com/evilphish
+fariouche   - https://github.com/fariouche
+CGarces     - https://github.com/CGarces
+ZerBea      - https://github.com/ZerBea
