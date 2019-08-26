@@ -1,4 +1,5 @@
-## RTL8812AU/21AU and RTL8814AU drivers [for LINUX & Android only]
+## RTL8812AU/21AU and RTL8814AU drivers
+Only for use with Linux & Android
 
 [![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
 [![Frame Injection](https://img.shields.io/badge/frame%20injection-working-brightgreen.svg)](#)
@@ -14,6 +15,16 @@
 [![ArchLinux](https://img.shields.io/badge/ArchLinux-supported-blue.svg)](https://img.shields.io/badge/ArchLinux-supported-blue.svg)
 [![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
+
+### Supports
+```
+* Monitor mode
+* Frame injection
+* WPA3 SAE
+* Wi-Fi Direct
+* Hostapd
+* Kernel up to v5.2+
+```
 
 ### TODO
 
