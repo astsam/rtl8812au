@@ -171,7 +171,7 @@ void rtw_add_bcn_ie(_adapter *padapter, WLAN_BSSID_EX *pnetwork, u8 index, u8 *d
 	u8	bmatch = _FALSE;
 	u8	*pie = pnetwork->IEs;
 	u8	*p = NULL, *dst_ie = NULL, *premainder_ie = NULL, *pbackup_remainder_ie = NULL;
-	u32	i, offset, ielen, ie_offset, remainder_ielen = 0;
+	u32	i, offset, ielen = 0, ie_offset, remainder_ielen = 0;
 
 	for (i = sizeof(NDIS_802_11_FIXED_IEs); i < pnetwork->IELength;) {
 		pIE = (PNDIS_802_11_VARIABLE_IEs)(pnetwork->IEs + i);
@@ -1931,8 +1931,7 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 	if (!MLME_IS_AP(padapter) && !MLME_IS_MESH(padapter))
 		return _FAIL;
 
-
-	if (len > MAX_IE_SZ)
+	if (len < 0 || len > MAX_IE_SZ)
 		return _FAIL;
 
 	pbss_network->IELength = len;
@@ -4589,6 +4588,7 @@ static bool rtw_ap_choose_chbw(_adapter *adapter, u8 sel_ch, u8 max_bw, u8 cur_c
 					, RTW_CHF_DFS
 					, cur_ch
 					, rfctl->ch_sel_same_band_prefer, mesh_only);
+		goto exit;
 	}
 
 exit:
@@ -5217,10 +5217,10 @@ u16 rtw_ap_parse_sta_security_ie(_adapter *adapter, struct sta_info *sta, struct
 				status = WLAN_STATUS_ROBUST_MGMT_FRAME_POLICY_VIOLATION;
 
 			if (!sta->wpa2_group_cipher)
-				status = WLAN_STATUS_GROUP_CIPHER_NOT_VALID;
+				status = WLAN_STATUS_INVALID_GROUP_CIPHER;
 
 			if (!sta->wpa2_pairwise_cipher)
-				status = WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID;
+				status = WLAN_STATUS_INVALID_PAIRWISE_CIPHER;
 		} else
 			status = WLAN_STATUS_INVALID_IE;
 
@@ -5237,10 +5237,10 @@ u16 rtw_ap_parse_sta_security_ie(_adapter *adapter, struct sta_info *sta, struct
 			sta->wpa_pairwise_cipher = pairwise_cipher & sec->wpa_pairwise_cipher;
 
 			if (!sta->wpa_group_cipher)
-				status = WLAN_STATUS_GROUP_CIPHER_NOT_VALID;
+				status = WLAN_STATUS_INVALID_GROUP_CIPHER;
 
 			if (!sta->wpa_pairwise_cipher)
-				status = WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID;
+				status = WLAN_STATUS_INVALID_PAIRWISE_CIPHER;
 		} else
 			status = WLAN_STATUS_INVALID_IE;
 
@@ -5469,4 +5469,3 @@ exit:
 	return;
 }
 #endif /* CONFIG_AP_MODE */
-
