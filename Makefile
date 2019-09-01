@@ -1,4 +1,4 @@
-EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS)
+EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS) -fno-pie
 EXTRA_CFLAGS += -O1
 #EXTRA_CFLAGS += -O3
 EXTRA_CFLAGS += -Wall -Wno-switch -Wno-date-time -Wno-unused-value -Wno-unused-label
