@@ -15,11 +15,9 @@
 #ifndef _WIFI_H_
 #define _WIFI_H_
 
-
 #ifndef BIT
 #define BIT(x)	(1 << (x))
 #endif
-
 
 #define WLAN_ETHHDR_LEN		14
 #define WLAN_ETHADDR_LEN	6
@@ -215,6 +213,7 @@ enum WIFI_STATUS_CODE {
 #define WLAN_STATUS_ASSOC_DENIED_RATES 18
 #endif
 /* entended */
+#if !defined(PLATFORM_LINUX) || LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 22)
 /* IEEE 802.11b */
 #define WLAN_STATUS_ASSOC_DENIED_NOSHORT 19
 #define WLAN_STATUS_ASSOC_DENIED_NOPBCC 20
@@ -232,23 +231,23 @@ enum WIFI_STATUS_CODE {
 #define WLAN_STATUS_ROBUST_MGMT_FRAME_POLICY_VIOLATION 31
 /* IEEE 802.11i */
 #define WLAN_STATUS_INVALID_IE 40
-#define WLAN_STATUS_GROUP_CIPHER_NOT_VALID 41
-#define WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID 42
-#define WLAN_STATUS_AKMP_NOT_VALID 43
-#define WLAN_STATUS_UNSUPPORTED_RSN_IE_VERSION 44
-#define WLAN_STATUS_INVALID_RSN_IE_CAPAB 45
-#define WLAN_STATUS_CIPHER_REJECTED_PER_POLICY 46
-#define WLAN_STATUS_TS_NOT_CREATED 47
-#define WLAN_STATUS_DIRECT_LINK_NOT_ALLOWED 48
-#define WLAN_STATUS_DEST_STA_NOT_PRESENT 49
-#define WLAN_STATUS_DEST_STA_NOT_QOS_STA 50
+#define WLAN_STATUS_INVALID_GROUP_CIPHER 41
+#define WLAN_STATUS_INVALID_PAIRWISE_CIPHER 42
+#define WLAN_STATUS_INVALID_AKMP 43
+#define WLAN_STATUS_UNSUPP_RSN_VERSION 44
+#define WLAN_STATUS_INVALID_RSN_IE_CAP 45
+#define WLAN_STATUS_CIPHER_SUITE_REJECTED 46
+#define WLAN_STATUS_WAIT_TS_DELAY 47
+#define WLAN_STATUS_NO_DIRECT_LINK 48
+#define WLAN_STATUS_STA_NOT_PRESENT 49
+#define WLAN_STATUS_STA_NOT_QSTA 50
+#endif
 #define WLAN_STATUS_ASSOC_DENIED_LISTEN_INT_TOO_LARGE 51
 /* IEEE 802.11r */
 #define WLAN_STATUS_INVALID_FT_ACTION_FRAME_COUNT 52
 #define WLAN_STATUS_INVALID_PMKID 53
 #define WLAN_STATUS_INVALID_MDIE 54
 #define WLAN_STATUS_INVALID_FTIE 55
-
 
 enum WIFI_REG_DOMAIN {
 	DOMAIN_FCC		= 1,
@@ -406,7 +405,6 @@ enum WIFI_REG_DOMAIN {
 		*(unsigned short *)((SIZE_PTR)(pbuf) + 2) = cpu_to_le16(0xffff & (dur)); \
 	} while (0)
 
-
 /* QoS control field */
 #define SetPriority(qc, tid)	SET_BITS_TO_LE_2BYTE(((u8 *)(qc)), 0, 4, tid)
 #define SetEOSP(qc, eosp)		SET_BITS_TO_LE_2BYTE(((u8 *)(qc)), 4, 1, eosp)
@@ -427,7 +425,6 @@ enum WIFI_REG_DOMAIN {
 #define get_mps_lv(qc)			LE_BITS_TO_2BYTE(((u8 *)(qc)), 9, 1)
 #define get_rspi(qc)			LE_BITS_TO_2BYTE(((u8 *)(qc)), 10, 1)
 
-
 #define GetAid(pbuf)	(cpu_to_le16(*(unsigned short *)((SIZE_PTR)(pbuf) + 2)) & 0x3fff)
 
 #define GetTid(pbuf)	(cpu_to_le16(*(unsigned short *)((SIZE_PTR)(pbuf) + (((GetToDs(pbuf)<<1) | GetFrDs(pbuf)) == 3 ? 30 : 24))) & 0x000f)
@@ -439,7 +436,6 @@ enum WIFI_REG_DOMAIN {
 #define GetAddr3Ptr(pbuf)	((unsigned char *)((SIZE_PTR)(pbuf) + 16))
 
 #define GetAddr4Ptr(pbuf)	((unsigned char *)((SIZE_PTR)(pbuf) + 24))
-
 
 #define MacAddr_isBcst(addr) \
 	(\
@@ -541,7 +537,6 @@ __inline static unsigned char *get_hdr_bssid(unsigned char *pframe)
 	return sa;
 }
 
-
 __inline static int IsFrameTypeCtrl(unsigned char *pframe)
 {
 	if (WIFI_CTRL_TYPE == GetFrameType(pframe))
@@ -563,7 +558,6 @@ static inline int IsFrameTypeData(unsigned char *pframe)
 	else
 		return _FALSE;
 }
-
 
 /*-----------------------------------------------------------------------------
 			Below is for the security related definition
@@ -618,7 +612,6 @@ static inline int IsFrameTypeData(unsigned char *pframe)
 #define _HT_ADD_INFO_IE_			61 /* _HT_EXTRA_INFO_IE_ */
 #define _WAPI_IE_				68
 #define _EID_RRM_EN_CAP_IE_			70
-
 
 /* #define EID_BSSCoexistence			72 */ /* 20/40 BSS Coexistence
  * #define EID_BSSIntolerantChlReport	73 */
@@ -768,7 +761,6 @@ typedef	enum _ELEMENT_ID {
 #define _WMM_IE_Length_				7  /* for WMM STA */
 #define _WMM_Para_Element_Length_		24
 
-
 /*-----------------------------------------------------------------------------
 				Below is the definition for 802.11n
 ------------------------------------------------------------------------------*/
@@ -779,8 +771,6 @@ typedef	enum _ELEMENT_ID {
 		do	{	\
 			*(unsigned short *)(pbuf) |= cpu_to_le16(_ORDER_); \
 		} while (0)
-
-
 
 #define GetOrderBit(pbuf)	(((*(unsigned short *)(pbuf)) & le16_to_cpu(_ORDER_)) != 0)
 
@@ -807,10 +797,7 @@ struct rtw_ieee80211_bar {
 #define IEEE80211_BAR_CTRL_ACK_POLICY_NORMAL     0x0000
 #define IEEE80211_BAR_CTRL_CBMTID_COMPRESSED_BA  0x0004
 
-
-#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8712FW) || defined(PLATFORM_FREEBSD)
-
-
+#if defined(PLATFORM_LINUX) || defined(CONFIG_RTL8712FW)
 
 /**
 * struct rtw_ieee80211_ht_cap - HT capabilities
@@ -882,76 +869,6 @@ struct ADDBA_request {
 	unsigned short	BA_timeout_value;
 	unsigned short	BA_starting_seqctrl;
 }  __attribute__((packed));
-
-
-
-#endif
-
-
-#ifdef PLATFORM_WINDOWS
-
-#pragma pack(1)
-
-struct rtw_ieee80211_ht_cap {
-	unsigned short	cap_info;
-	unsigned char	ampdu_params_info;
-	unsigned char	supp_mcs_set[16];
-	unsigned short	extended_ht_cap_info;
-	unsigned int		tx_BF_cap_info;
-	unsigned char	       antenna_selection_info;
-};
-
-
-struct ieee80211_ht_addt_info {
-	unsigned char	control_chan;
-	unsigned char		ht_param;
-	unsigned short	operation_mode;
-	unsigned short	stbc_param;
-	unsigned char		basic_set[16];
-};
-
-struct HT_caps_element {
-	union {
-		struct {
-			unsigned short	HT_caps_info;
-			unsigned char	AMPDU_para;
-			unsigned char	MCS_rate[16];
-			unsigned short	HT_ext_caps;
-			unsigned int	Beamforming_caps;
-			unsigned char	ASEL_caps;
-		} HT_cap_element;
-		unsigned char HT_cap[26];
-	};
-};
-
-struct HT_info_element {
-	unsigned char	primary_channel;
-	unsigned char	infos[5];
-	unsigned char	MCS_rate[16];
-};
-
-struct AC_param {
-	unsigned char		ACI_AIFSN;
-	unsigned char		CW;
-	unsigned short	TXOP_limit;
-};
-
-struct WMM_para_element {
-	unsigned char		QoS_info;
-	unsigned char		reserved;
-	struct AC_param	ac_param[4];
-};
-
-struct ADDBA_request {
-	unsigned char		dialog_token;
-	unsigned short	BA_para_set;
-	unsigned short	BA_timeout_value;
-	unsigned short	BA_starting_seqctrl;
-};
-
-
-#pragma pack()
-
 #endif
 
 typedef enum _HT_CAP_AMPDU_FACTOR {
@@ -967,7 +884,6 @@ typedef enum _VHT_CAP_AMPDU_FACTOR {
 	MAX_AMPDU_FACTOR_512K = 6,
 	MAX_AMPDU_FACTOR_1M = 7,
 } VHT_CAP_AMPDU_FACTOR;
-
 
 typedef enum _HT_CAP_AMPDU_DENSITY {
 	AMPDU_DENSITY_VALUE_0 = 0 , /* For no restriction */
@@ -1036,13 +952,11 @@ typedef enum _HT_CAP_AMPDU_DENSITY {
 #define IEEE80211_MIN_AMPDU_BUF 0x8
 #define IEEE80211_MAX_AMPDU_BUF_HT 0x40
 
-
 /* Spatial Multiplexing Power Save Modes */
 #define WLAN_HT_CAP_SM_PS_STATIC		0
 #define WLAN_HT_CAP_SM_PS_DYNAMIC	1
 #define WLAN_HT_CAP_SM_PS_INVALID	2
 #define WLAN_HT_CAP_SM_PS_DISABLED	3
-
 
 #define OP_MODE_PURE                    0
 #define OP_MODE_MAY_BE_LEGACY_STAS      1
@@ -1070,8 +984,6 @@ typedef enum _HT_CAP_AMPDU_DENSITY {
 #define HT_INFO_STBC_PARAM_LSIG_TXOP_PROTECT_ALLOWED	((u16) BIT(9))
 #define HT_INFO_STBC_PARAM_PCO_ACTIVE			((u16) BIT(10))
 #define HT_INFO_STBC_PARAM_PCO_PHASE			((u16) BIT(11))
-
-
 
 /* #endif */
 
@@ -1249,7 +1161,6 @@ typedef enum _HT_CAP_AMPDU_DENSITY {
 #define	P2P_PRESENCE_REQUEST		1
 #define	P2P_PRESENCE_RESPONSE	2
 #define	P2P_GO_DISC_REQUEST		3
-
 
 #define	P2P_MAX_PERSISTENT_GROUP_NUM		10
 

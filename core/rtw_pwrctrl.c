@@ -229,6 +229,7 @@ bool rtw_pwr_unassociated_idle(_adapter *adapter)
 				|| MLME_IS_AP(iface)
 				|| MLME_IS_MESH(iface)
 				|| check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE | WIFI_ADHOC_STATE)
+				|| check_fwstate(pmlmepriv, WIFI_MONITOR_STATE)
 				#if defined(CONFIG_P2P) && defined(CONFIG_IOCTL_CFG80211)
 				|| rtw_cfg80211_get_is_roch(iface) == _TRUE
 				|| (rtw_cfg80211_is_ro_ch_once(adapter)
@@ -716,6 +717,7 @@ u8 PS_RDY_CHECK(_adapter *padapter)
 		|| MLME_IS_AP(padapter)
 		|| MLME_IS_MESH(padapter)
 		|| check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE | WIFI_ADHOC_STATE)
+		|| check_fwstate(pmlmepriv, WIFI_MONITOR_STATE)
 		#if defined(CONFIG_P2P) && defined(CONFIG_IOCTL_CFG80211)
 		|| rtw_cfg80211_get_is_roch(padapter) == _TRUE
 		#endif

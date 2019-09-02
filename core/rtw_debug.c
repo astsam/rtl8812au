@@ -42,7 +42,7 @@ const char *rtw_log_level_str[] = {
 void dump_drv_version(void *sel)
 {
 	RTW_PRINT_SEL(sel, "%s %s\n", DRV_NAME, DRIVERVERSION);
-	RTW_PRINT_SEL(sel, "build time: %s %s\n", __DATE__, __TIME__);
+	/* RTW_PRINT_SEL(sel, "build time: %s %s\n", __DATE__, __TIME__); */
 }
 
 void dump_drv_cfg(void *sel)
@@ -80,19 +80,12 @@ void dump_drv_cfg(void *sel)
 	RTW_PRINT_SEL(sel, "CONFIG_POWER_SAVING\n");
 #endif
 
-#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
-	RTW_PRINT_SEL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH=%s\n", REALTEK_CONFIG_PATH);
-	#if defined(CONFIG_MULTIDRV) || defined(REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER)
-	RTW_PRINT_SEL(sel, "LOAD_PHY_PARA_FROM_FILE - REALTEK_CONFIG_PATH_WITH_IC_NAME_FOLDER\n");
-	#endif
-
 /* configurations about TX power */
 #ifdef CONFIG_CALIBRATE_TX_POWER_BY_REGULATORY
 	RTW_PRINT_SEL(sel, "CONFIG_CALIBRATE_TX_POWER_BY_REGULATORY\n");
 #endif
 #ifdef CONFIG_CALIBRATE_TX_POWER_TO_MAX
 	RTW_PRINT_SEL(sel, "CONFIG_CALIBRATE_TX_POWER_TO_MAX\n");
-#endif
 #endif
 	RTW_PRINT_SEL(sel, "RTW_DEF_MODULE_REGULATORY_CERT=0x%02x\n", RTW_DEF_MODULE_REGULATORY_CERT);
 

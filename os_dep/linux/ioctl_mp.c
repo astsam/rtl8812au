@@ -1077,7 +1077,7 @@ int rtw_mp_trx_query(struct net_device *dev,
 	return 0;
 }
 
-
+/*
 int rtw_mp_pwrtrk(struct net_device *dev,
 		  struct iw_request_info *info,
 		  struct iw_point *wrqu, char *extra)
@@ -1095,7 +1095,6 @@ int rtw_mp_pwrtrk(struct net_device *dev,
 
 	enable = 1;
 	if (wrqu->length > 1) {
-		/* not empty string*/
 		if (strncmp(input, "stop", 4) == 0) {
 			enable = 0;
 			sprintf(extra, "mp tx power tracking stop");
@@ -1116,7 +1115,7 @@ int rtw_mp_pwrtrk(struct net_device *dev,
 
 	return 0;
 }
-
+*/
 
 
 int rtw_mp_psd(struct net_device *dev,

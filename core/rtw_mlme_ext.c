@@ -1338,11 +1338,11 @@ void mgt_dispatcher(_adapter *padapter, union recv_frame *precv_frame)
 #ifdef CONFIG_AP_MODE
 	switch (get_frame_sub_type(pframe)) {
 	case WIFI_AUTH:
-		if (MLME_IS_AP(padapter) || MLME_IS_MESH(padapter))
+		if (MLME_IS_AP(padapter) || MLME_IS_MESH(padapter)) {
 			ptable->func = &OnAuth;
-		else
+		} else
 			ptable->func = &OnAuthClient;
-	/* pass through */
+	/* Intentional fallthrough */
 	case WIFI_ASSOCREQ:
 	case WIFI_REASSOCREQ:
 		_mgt_dispatcher(padapter, ptable, precv_frame);
@@ -2150,9 +2150,10 @@ unsigned int OnAuth(_adapter *padapter, union recv_frame *precv_frame)
 			}
 			_exit_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 
-			if (seq == 1)
+			if (seq == 1) {
 				; /* TODO: STA re_auth and auth timeout */
 
+			}
 		}
 	}
 
@@ -4130,7 +4131,8 @@ void issue_p2p_GO_response(_adapter *padapter, u8 *raddr, u8 *frame_body, uint l
 	u8			action = P2P_PUB_ACTION_ACTION;
 	u32			p2poui = cpu_to_be32(P2POUI);
 	u8			oui_subtype = P2P_GO_NEGO_RESP;
-	u8			wpsie[255] = { 0x00 }, p2pie[255] = { 0x00 };
+	u8                      *wpsie;
+	u8			p2pie[ 255 ] = { 0x00 };
 	u8			p2pielen = 0;
 	uint			wpsielen = 0;
 	u16			wps_devicepassword_id = 0x0000;
@@ -4153,6 +4155,8 @@ void issue_p2p_GO_response(_adapter *padapter, u8 *raddr, u8 *frame_body, uint l
 	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
 	if (pmgntframe == NULL)
 		return;
+
+	wpsie = rtw_zmalloc(256);
 
 	RTW_INFO("[%s] In, result = %d\n", __FUNCTION__,  result);
 	/* update attribute */
@@ -4536,6 +4540,8 @@ void issue_p2p_GO_response(_adapter *padapter, u8 *raddr, u8 *frame_body, uint l
 
 	dump_mgntframe(padapter, pmgntframe);
 
+	kfree(wpsie);
+
 	return;
 
 }
@@ -4595,8 +4601,6 @@ void issue_p2p_GO_confirm(_adapter *padapter, u8 *raddr, u8 result)
 	pframe = rtw_set_fixed_ie(pframe, 4, (unsigned char *) &(p2poui), &(pattrib->pktlen));
 	pframe = rtw_set_fixed_ie(pframe, 1, &(oui_subtype), &(pattrib->pktlen));
 	pframe = rtw_set_fixed_ie(pframe, 1, &(pwdinfo->negotiation_dialog_token), &(pattrib->pktlen));
-
-
 
 	/*	P2P IE Section. */
 

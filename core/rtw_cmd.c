@@ -30,7 +30,6 @@ sint	_rtw_init_cmd_priv(struct	cmd_priv *pcmdpriv)
 {
 	sint res = _SUCCESS;
 
-
 	_rtw_init_sema(&(pcmdpriv->cmd_queue_sema), 0);
 	/* _rtw_init_sema(&(pcmdpriv->cmd_done_sema), 0); */
 	_rtw_init_sema(&(pcmdpriv->start_cmdthread_sema), 0);
@@ -3259,7 +3258,7 @@ static void dynamic_update_bcn_check(_adapter *padapter)
 
 		if (_FALSE != ATOMIC_READ(&pmlmepriv->olbc)
 			&& _FALSE != ATOMIC_READ(&pmlmepriv->olbc_ht)) {
-					
+
 			if (rtw_ht_operation_update(padapter) > 0) {
 				update_beacon(padapter, _HT_CAPABILITY_IE_, NULL, _FALSE);
 				update_beacon(padapter, _HT_ADD_INFO_IE_, NULL, _TRUE);

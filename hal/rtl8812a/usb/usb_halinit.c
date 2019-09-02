@@ -23,7 +23,6 @@
 
 #endif
 
-
 static void _dbg_dump_macreg(_adapter *padapter)
 {
 	u32 offset = 0;
@@ -43,7 +42,6 @@ _ConfigChipOutEP_8812(
 )
 {
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(pAdapter);
-
 
 	pHalData->OutEpQueueSel = 0;
 	pHalData->OutEpNumber = 0;
@@ -222,7 +220,6 @@ _InitBurstPktLen(IN PADAPTER Adapter)
 	u1Byte speedvalue, provalue, temp;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 
-
 	/* rtw_write16(Adapter, REG_TRXDMA_CTRL_8195, 0xf5b0); */
 	/* rtw_write16(Adapter, REG_TRXDMA_CTRL_8812, 0xf5b4); */
 	rtw_write8(Adapter, 0xf050, 0x01);  /* usb3 rx interval */
@@ -368,10 +365,6 @@ static u32 _InitPowerOn_8812AU(_adapter *padapter)
 
 	return _SUCCESS;
 }
-
-
-
-
 
 /* ---------------------------------------------------------------
  *
@@ -603,7 +596,6 @@ _InitPageBoundary_8812AUsb(
 
 }
 
-
 static VOID
 _InitNormalChipRegPriority_8812AUsb(
 	IN	PADAPTER	Adapter,
@@ -632,7 +624,6 @@ _InitNormalChipTwoOutEpPriority_8812AUsb(
 	HAL_DATA_TYPE	*pHalData	= GET_HAL_DATA(Adapter);
 	struct registry_priv *pregistrypriv = &Adapter->registrypriv;
 	u16			beQ, bkQ, viQ, voQ, mgtQ, hiQ;
-
 
 	u16	valueHi = 0;
 	u16	valueLow = 0;
@@ -738,7 +729,6 @@ _InitNormalChipFourOutEpPriority_8812AUsb(
 	init_hi_queue_config_8812a_usb(Adapter);
 }
 
-
 static VOID
 _InitQueuePriority_8812AUsb(
 	IN	PADAPTER Adapter
@@ -761,8 +751,6 @@ _InitQueuePriority_8812AUsb(
 		break;
 	}
 }
-
-
 
 static VOID
 _InitHardwareDropIncorrectBulkOut_8812A(
@@ -838,7 +826,6 @@ _InitWMACSetting_8812A(
 	/* Accept all multicast address */
 	rtw_write32(Adapter, REG_MAR, 0xFFFFFFFF);
 	rtw_write32(Adapter, REG_MAR + 4, 0xFFFFFFFF);
-
 
 	/* Accept all data frames */
 	/* value16 = 0xFFFF; */
@@ -922,7 +909,6 @@ _InitEDCA_8812AUsb(
 	rtw_write8(Adapter, REG_USTIME_EDCA, 0x50);
 }
 
-
 static VOID
 _InitBeaconMaxError_8812A(
 	IN  PADAPTER	Adapter,
@@ -935,7 +921,6 @@ _InitBeaconMaxError_8812A(
 	/* rtw_write8(Adapter, REG_BCN_MAX_ERR, (InfraMode ? 0xFF : 0x10));	 */
 #endif
 }
-
 
 #ifdef CONFIG_RTW_LED
 static void _InitHWLed(PADAPTER Adapter)
@@ -1017,7 +1002,6 @@ usb_AggSettingTxUpdate_8812A(
 
 #endif
 }	/* usb_AggSettingTxUpdate */
-
 
 /*-----------------------------------------------------------------------------
  * Function:	usb_AggSettingRxUpdate()
@@ -1130,7 +1114,6 @@ USB_AggModeSwitch(
 		return;	/* Inf not support. */
 	}
 
-
 	if (pMgntInfo->LinkDetectInfo.bHigherBusyRxTraffic == TRUE &&
 	    pHalData->UsbRxHighSpeedMode == FALSE) {
 		pHalData->UsbRxHighSpeedMode = TRUE;
@@ -1139,7 +1122,6 @@ USB_AggModeSwitch(
 		pHalData->UsbRxHighSpeedMode = FALSE;
 	} else
 		return;
-
 
 #if USB_RX_AGGREGATION_92C
 	if (pHalData->UsbRxHighSpeedMode == TRUE) {
@@ -1188,8 +1170,6 @@ USB_AggModeSwitch(
 #endif
 #endif
 }	/* USB_AggModeSwitch */
-
-
 
 /* Set CCK and OFDM Block "ON" */
 static VOID _BBTurnOnBlock(
@@ -1242,7 +1222,8 @@ enum {
  * 2010/08/26 MH Add for selective suspend mode check.
  * If Efuse 0x0e bit1 is not enabled, we can not support selective suspend for Minicard and
  * slim card.
- *   */
+ *
+*/
 static VOID
 HalDetectSelectiveSuspendMode(
 	IN PADAPTER				Adapter
@@ -1310,7 +1291,6 @@ void _ps_close_RF(_adapter *padapter)
 	/* phy_SsPwrSwitch92CU(padapter, rf_off, 1); */
 }
 
-
 /*	A lightweight deinit function	*/
 static void rtl8812au_hw_reset(_adapter *Adapter)
 {
@@ -1366,7 +1346,6 @@ u32 rtl8812au_hal_init(PADAPTER Adapter)
 	rt_rf_power_state		eRfPowerStateToSet;
 
 	systime init_start_time = rtw_get_current_time();
-
 
 #ifdef DBG_HAL_INIT_PROFILING
 
@@ -1437,9 +1416,6 @@ u32 rtl8812au_hal_init(PADAPTER Adapter)
 #define HAL_INIT_PROFILE_TAG(stage) do {} while (0)
 #endif /* DBG_HAL_INIT_PROFILING */
 
-
-
-
 	HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_BEGIN);
 	if (pwrctrlpriv->bkeepfwalive) {
 		_ps_open_RF(Adapter);
@@ -1490,8 +1466,6 @@ u32 rtl8812au_hal_init(PADAPTER Adapter)
 		Like "CONFIG_DEINIT_BEFORE_INIT" in 92du chip
 	*/
 	rtl8812au_hw_reset(Adapter);
-
-
 
 	HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_PW_ON);
 	status = rtw_hal_power_on(Adapter);
@@ -1615,7 +1589,6 @@ u32 rtl8812au_hal_init(PADAPTER Adapter)
 #endif /* CONFIG_TX_MCAST2UNI */
 #endif /* CONFIG_CONCURRENT_MODE || CONFIG_TX_MCAST2UNI */
 
-
 #ifdef CONFIG_RTW_LED
 	_InitHWLed(Adapter);
 #endif /* CONFIG_RTW_LED */
@@ -1721,7 +1694,6 @@ u32 rtl8812au_hal_init(PADAPTER Adapter)
 		rtw_write8(Adapter, REG_SDIO_CTRL_8812, 0x0);
 		rtw_write8(Adapter, REG_ACLK_MON, 0x0);
 
-
 		HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_IQK);
 		/* 2010/08/26 MH Merge from 8192CE. */
 		if (pwrctrlpriv->rf_pwrstate == rf_on) {
@@ -1751,7 +1723,6 @@ u32 rtl8812au_hal_init(PADAPTER Adapter)
 
 	HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC21);
 
-
 	/* HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_PABIAS);
 	 *	_InitPABias(Adapter); */
 
@@ -1780,7 +1751,6 @@ u32 rtl8812au_hal_init(PADAPTER Adapter)
 	rtw_write32(Adapter, REG_FWHW_TXQ_CTRL, rtw_read32(Adapter, REG_FWHW_TXQ_CTRL) | BIT(12));
 #endif /* CONFIG_XMIT_ACK */
 
-
 exit:
 	HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_END);
 
@@ -1798,8 +1768,6 @@ exit:
 			);
 	}
 #endif
-
-
 
 	return status;
 }
@@ -1921,7 +1889,6 @@ u32 rtl8812au_hal_deinit(PADAPTER Adapter)
 	return _SUCCESS;
 }
 
-
 unsigned int rtl8812au_inirp_init(PADAPTER Adapter)
 {
 	u8 i;
@@ -1936,11 +1903,9 @@ unsigned int rtl8812au_inirp_init(PADAPTER Adapter)
 	u32(*_read_interrupt)(struct intf_hdl *pintfhdl, u32 addr);
 #endif
 
-
 	_read_port = pintfhdl->io_ops._read_port;
 
 	status = _SUCCESS;
-
 
 	precvpriv->ff_hwaddr = RECV_BULK_IN_ADDR;
 
@@ -1970,8 +1935,6 @@ unsigned int rtl8812au_inirp_init(PADAPTER Adapter)
 
 exit:
 
-
-
 	return status;
 
 }
@@ -1980,7 +1943,6 @@ unsigned int rtl8812au_inirp_deinit(PADAPTER Adapter)
 {
 
 	rtw_read_port_cancel(Adapter);
-
 
 	return _SUCCESS;
 }
@@ -2010,7 +1972,6 @@ hal_ReadIDs_8812AU(
 			pHalData->EEPROMVID = ReadLE2Byte(&PROMContent[EEPROM_VID_8821AU]);
 			pHalData->EEPROMPID = ReadLE2Byte(&PROMContent[EEPROM_PID_8821AU]);
 		}
-
 
 		/* Customer ID, 0x00 and 0xff are reserved for Realtek.		 */
 		pHalData->EEPROMCustomerID = *(u8 *)&PROMContent[EEPROM_CustomID_8812];
@@ -2458,6 +2419,10 @@ u8 SetHwReg8812AU(PADAPTER Adapter, u8 variable, u8 *val)
 		break;
 
 	case HW_VAR_USB_MODE:
+#ifdef CONFIG_USB_DEBUG
+		dev_info(&pdvobjpriv->pusbdev->dev,
+			 DRV_NAME " switch sethwreg HW_VAR_USB_MODE\n");
+#endif
 		/* U2 to U3 */
 		if (registry_par->switch_usb_mode == 1) {
 			if (IS_HIGH_SPEED_USB(Adapter)) {

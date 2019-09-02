@@ -31,7 +31,6 @@
 extern int rtw_ht_enable;
 #endif
 
-
 #define RTL_IOCTL_WPA_SUPPLICANT	(SIOCIWFIRSTPRIV+30)
 
 #define SCAN_ITEM_SIZE 768
@@ -173,8 +172,6 @@ void rtw_request_wps_pbc_event(_adapter *padapter)
 		/*	0 is the default value and it means the application monitors the HW PBC doesn't privde its pid to driver. */
 		return;
 	}
-
-	rtw_signal_process(padapter->pid[0], SIGUSR1);
 
 #endif
 
@@ -2459,18 +2456,15 @@ static int rtw_wx_get_essid(struct net_device *dev,
 	    (check_fwstate(pmlmepriv, WIFI_ADHOC_MASTER_STATE) == _TRUE)) {
 		len = pcur_bss->Ssid.SsidLength;
 
-		wrqu->essid.length = len;
-
 		_rtw_memcpy(extra, pcur_bss->Ssid.Ssid, len);
 
-		wrqu->essid.flags = 1;
 	} else {
-		ret = -1;
-		goto exit;
+		len = 0;
+		*extra = 0;
 	}
 
-exit:
-
+	wrqu->essid.length = len;
+	wrqu->essid.flags = 1;
 
 	return ret;
 
@@ -9123,7 +9117,6 @@ exit:
 }
 
 
-#ifdef CONFIG_MP_INCLUDED
 static int rtw_mp_efuse_set(struct net_device *dev,
 			    struct iw_request_info *info,
 			    union iwreq_data *wdata, char *extra)
@@ -9148,7 +9141,6 @@ static int rtw_mp_efuse_set(struct net_device *dev,
 	u16 wifimaplen;
 	int err;
 	boolean bcmpchk = _TRUE;
-
 
 	wrqu = (struct iw_point *)wdata;
 	padapter = rtw_netdev_priv(dev);
@@ -9852,597 +9844,6 @@ exit:
 
 	return err;
 }
-
-#ifdef CONFIG_RTW_CUSTOMER_STR
-static int rtw_mp_customer_str(
-	struct net_device *dev,
-	struct iw_request_info *info,
-	union iwreq_data *wrqu, char *extra)
-{
-	_adapter *adapter = rtw_netdev_priv(dev);
-	u32 len;
-	u8 *pbuf = NULL, *pch;
-	char *ptmp;
-	u8 param[RTW_CUSTOMER_STR_LEN];
-	u8 count = 0;
-	u8 tmp;
-	u8 i;
-	u32 pos;
-	u8 ret;
-	u8 read = 0;
-
-	if (adapter->registrypriv.mp_mode != 1
-		|| !adapter->registrypriv.mp_customer_str)
-		return -EFAULT;
-
-	len = wrqu->data.length + 1;
-
-	pbuf = (u8 *)rtw_zmalloc(len);
-	if (pbuf == NULL) {
-		RTW_WARN("%s: no memory!\n", __func__);
-		return -ENOMEM;
-	}
-
-	if (copy_from_user(pbuf, wrqu->data.pointer, wrqu->data.length)) {
-		rtw_mfree(pbuf, len);
-		RTW_WARN("%s: copy from user fail!\n", __func__);
-		return -EFAULT;
-	}
-	RTW_INFO("%s: string=\"%s\"\n", __func__, pbuf);
-
-	ptmp = (char *)pbuf;
-	pch = strsep(&ptmp, ",");
-	if ((pch == NULL) || (strlen(pch) == 0)) {
-		rtw_mfree(pbuf, len);
-		RTW_INFO("%s: parameter error(no cmd)!\n", __func__);
-		return -EFAULT;
-	}
-
-	_rtw_memset(param, 0xFF, RTW_CUSTOMER_STR_LEN);
-
-	if (strcmp(pch, "read") == 0) {
-		read = 1;
-		ret = rtw_hal_customer_str_read(adapter, param);
-
-	} else if (strcmp(pch, "write") == 0) {
-		do {
-			pch = strsep(&ptmp, ":");
-			if ((pch == NULL) || (strlen(pch) == 0))
-				break;
-			if (strlen(pch) != 2
-				|| IsHexDigit(*pch) == _FALSE
-				|| IsHexDigit(*(pch + 1)) == _FALSE
-				|| sscanf(pch, "%hhx", &tmp) != 1
-			) {
-				RTW_WARN("%s: invalid 8-bit hex!\n", __func__);
-				rtw_mfree(pbuf, len);
-				return -EFAULT;
-			}
-
-			param[count++] = tmp;
-
-		} while (count < RTW_CUSTOMER_STR_LEN);
-
-		if (count == 0) {
-			rtw_mfree(pbuf, len);
-			RTW_WARN("%s: no input!\n", __func__);
-			return -EFAULT;
-		}
-		ret = rtw_hal_customer_str_write(adapter, param);
-	} else {
-		rtw_mfree(pbuf, len);
-		RTW_INFO("%s: parameter error(unknown cmd)!\n", __func__);
-		return -EFAULT;
-	}
-
-	pos = sprintf(extra, "%s: ", read ? "read" : "write");
-	if (read == 0 || ret == _SUCCESS) {
-		for (i = 0; i < RTW_CUSTOMER_STR_LEN; i++)
-			pos += sprintf(extra + pos, "%02x:", param[i]);
-		extra[pos] = 0;
-		pos--;
-	}
-	pos += sprintf(extra + pos, " %s", ret == _SUCCESS ? "OK" : "FAIL");
-
-	wrqu->data.length = strlen(extra) + 1;
-
-free_buf:
-	rtw_mfree(pbuf, len);
-	return 0;
-}
-#endif /* CONFIG_RTW_CUSTOMER_STR */
-
-static int rtw_priv_mp_set(struct net_device *dev,
-			   struct iw_request_info *info,
-			   union iwreq_data *wdata, char *extra)
-{
-
-	struct iw_point *wrqu = (struct iw_point *)wdata;
-	u32 subcmd = wrqu->flags;
-#ifdef CONFIG_CONCURRENT_MODE
-	PADAPTER padapter = rtw_netdev_priv(dev);
-#endif
-
-	if (!is_primary_adapter(padapter)) {
-		RTW_INFO("MP mode only primary Adapter support\n");
-		return -EIO;
-	}
-
-	switch (subcmd) {
-	case CTA_TEST:
-		RTW_INFO("set CTA_TEST\n");
-		rtw_cta_test_start(dev, info, wdata, extra);
-		break;
-	case MP_DISABLE_BT_COEXIST:
-		RTW_INFO("set case MP_DISABLE_BT_COEXIST\n");
-		rtw_mp_disable_bt_coexist(dev, info, wdata, extra);
-		break;
-	case MP_IQK:
-		RTW_INFO("set MP_IQK\n");
-		rtw_mp_iqk(dev, info, wrqu, extra);
-		break;
-	case MP_LCK:
-		RTW_INFO("set MP_LCK\n");
-		rtw_mp_lck(dev, info, wrqu, extra);
-	break;
-
-	default:
-		return -EIO;
-	}
-
-	return 0;
-}
-
-static int rtw_priv_mp_get(struct net_device *dev,
-			   struct iw_request_info *info,
-			   union iwreq_data *wdata, char *extra)
-{
-
-	struct iw_point *wrqu = (struct iw_point *)wdata;
-	u32 subcmd = wrqu->flags;
-#ifdef CONFIG_CONCURRENT_MODE
-	PADAPTER padapter = rtw_netdev_priv(dev);
-#endif
-
-	if (!is_primary_adapter(padapter)) {
-		RTW_INFO("MP mode only primary Adapter support\n");
-		return -EIO;
-	}
-
-	switch (subcmd) {
-	case MP_START:
-		RTW_INFO("set case mp_start\n");
-		rtw_mp_start(dev, info, wrqu, extra);
-		break;
-	case MP_STOP:
-		RTW_INFO("set case mp_stop\n");
-		rtw_mp_stop(dev, info, wrqu, extra);
-		break;
-	case MP_BANDWIDTH:
-		RTW_INFO("set case mp_bandwidth\n");
-		rtw_mp_bandwidth(dev, info, wrqu, extra);
-		break;
-	case MP_RESET_STATS:
-		RTW_INFO("set case MP_RESET_STATS\n");
-		rtw_mp_reset_stats(dev, info, wrqu, extra);
-		break;
-	case MP_SetRFPathSwh:
-		RTW_INFO("set MP_SetRFPathSwitch\n");
-		rtw_mp_SetRFPath(dev, info, wrqu, extra);
-		break;
-	case WRITE_REG:
-		rtw_mp_write_reg(dev, info, wrqu, extra);
-		break;
-	case WRITE_RF:
-		rtw_mp_write_rf(dev, info, wrqu, extra);
-		break;
-	case MP_PHYPARA:
-		RTW_INFO("mp_get  MP_PHYPARA\n");
-		rtw_mp_phypara(dev, info, wrqu, extra);
-		break;
-	case MP_CHANNEL:
-		RTW_INFO("set case mp_channel\n");
-		rtw_mp_channel(dev , info, wrqu, extra);
-		break;
-    	case  MP_CHL_OFFSET:
-       		RTW_INFO("set case mp_ch_offset\n");
-        	rtw_mp_ch_offset(dev , info, wrqu, extra);
-        	break;
-	case READ_REG:
-		RTW_INFO("mp_get  READ_REG\n");
-		rtw_mp_read_reg(dev, info, wrqu, extra);
-		break;
-	case READ_RF:
-		RTW_INFO("mp_get  READ_RF\n");
-		rtw_mp_read_rf(dev, info, wrqu, extra);
-		break;
-	case MP_RATE:
-		RTW_INFO("set case mp_rate\n");
-		rtw_mp_rate(dev, info, wrqu, extra);
-		break;
-	case MP_TXPOWER:
-		RTW_INFO("set case MP_TXPOWER\n");
-		rtw_mp_txpower(dev, info, wrqu, extra);
-		break;
-	case MP_ANT_TX:
-		RTW_INFO("set case MP_ANT_TX\n");
-		rtw_mp_ant_tx(dev, info, wrqu, extra);
-		break;
-	case MP_ANT_RX:
-		RTW_INFO("set case MP_ANT_RX\n");
-		rtw_mp_ant_rx(dev, info, wrqu, extra);
-		break;
-	case MP_QUERY:
-		rtw_mp_trx_query(dev, info, wrqu, extra);
-		break;
-	case MP_CTX:
-		RTW_INFO("set case MP_CTX\n");
-		rtw_mp_ctx(dev, info, wrqu, extra);
-		break;
-	case MP_ARX:
-		RTW_INFO("set case MP_ARX\n");
-		rtw_mp_arx(dev, info, wrqu, extra);
-		break;
-	case MP_DUMP:
-		RTW_INFO("set case MP_DUMP\n");
-		rtw_mp_dump(dev, info, wrqu, extra);
-		break;
-	case MP_PSD:
-		RTW_INFO("set case MP_PSD\n");
-		rtw_mp_psd(dev, info, wrqu, extra);
-		break;
-	case MP_THER:
-		RTW_INFO("set case MP_THER\n");
-		rtw_mp_thermal(dev, info, wrqu, extra);
-		break;
-	case MP_PwrCtlDM:
-		RTW_INFO("set MP_PwrCtlDM\n");
-		rtw_mp_PwrCtlDM(dev, info, wrqu, extra);
-		break;
-	case MP_QueryDrvStats:
-		RTW_INFO("mp_get MP_QueryDrvStats\n");
-		rtw_mp_QueryDrv(dev, info, wdata, extra);
-		break;
-	case MP_PWRTRK:
-		RTW_INFO("set case MP_PWRTRK\n");
-		rtw_mp_pwrtrk(dev, info, wrqu, extra);
-		break;
-#ifdef CONFIG_MP_INCLUDED
-	case EFUSE_SET:
-		RTW_INFO("set case efuse set\n");
-		rtw_mp_efuse_set(dev, info, wdata, extra);
-		break;
-#endif
-	case EFUSE_GET:
-		RTW_INFO("efuse get EFUSE_GET\n");
-		rtw_mp_efuse_get(dev, info, wdata, extra);
-		break;
-	case MP_GET_TXPOWER_INX:
-		RTW_INFO("mp_get MP_GET_TXPOWER_INX\n");
-		rtw_mp_txpower_index(dev, info, wrqu, extra);
-		break;
-	case MP_GETVER:
-		RTW_INFO("mp_get MP_GETVER\n");
-		rtw_mp_getver(dev, info, wdata, extra);
-		break;
-	case MP_MON:
-		RTW_INFO("mp_get MP_MON\n");
-		rtw_mp_mon(dev, info, wdata, extra);
-		break;
-	case EFUSE_MASK:
-		RTW_INFO("mp_get EFUSE_MASK\n");
-		rtw_efuse_mask_file(dev, info, wdata, extra);
-		break;
-	case  EFUSE_FILE:
-		RTW_INFO("mp_get EFUSE_FILE\n");
-		rtw_efuse_file_map(dev, info, wdata, extra);
-		break;
-	case  MP_TX:
-		RTW_INFO("mp_get MP_TX\n");
-		rtw_mp_tx(dev, info, wdata, extra);
-		break;
-	case  MP_RX:
-		RTW_INFO("mp_get MP_RX\n");
-		rtw_mp_rx(dev, info, wdata, extra);
-		break;
-	case MP_HW_TX_MODE:
-		RTW_INFO("mp_get MP_HW_TX_MODE\n");
-		rtw_mp_hwtx(dev, info, wdata, extra);
-		break;
-#ifdef CONFIG_RTW_CUSTOMER_STR
-	case MP_CUSTOMER_STR:
-		RTW_INFO("customer str\n");
-		rtw_mp_customer_str(dev, info, wdata, extra);
-		break;
-#endif
-	case MP_PWRLMT:
-		RTW_INFO("mp_get MP_SETPWRLMT\n");
-		rtw_mp_pwrlmt(dev, info, wdata, extra);
-		break;
-	case MP_PWRBYRATE:
-		RTW_INFO("mp_get MP_SETPWRBYRATE\n");
-		rtw_mp_pwrbyrate(dev, info, wdata, extra);
-		break;
-	case  BT_EFUSE_FILE:
-		RTW_INFO("mp_get BT EFUSE_FILE\n");
-		rtw_bt_efuse_file_map(dev, info, wdata, extra);
-		break;
-	case  MP_SWRFPath:
-		RTW_INFO("mp_get MP_SWRFPath\n");
-		rtw_mp_switch_rf_path(dev, info, wrqu, extra);
-		break;
-	default:
-		return -EIO;
-	}
-
-	return 0;
-}
-#endif /*#if defined(CONFIG_MP_INCLUDED)*/
-
-
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-#define DBG_MP_SDIO_INDIRECT_ACCESS 1
-static int rtw_mp_sd_iread(struct net_device *dev
-			   , struct iw_request_info *info
-			   , struct iw_point *wrqu
-			   , char *extra)
-{
-	char input[16];
-	u8 width;
-	unsigned long addr;
-	u32 ret = 0;
-	PADAPTER padapter = rtw_netdev_priv(dev);
-
-	if (wrqu->length > 16) {
-		RTW_INFO(FUNC_ADPT_FMT" wrqu->length:%d\n", FUNC_ADPT_ARG(padapter), wrqu->length);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (copy_from_user(input, wrqu->pointer, wrqu->length)) {
-		RTW_INFO(FUNC_ADPT_FMT" copy_from_user fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EFAULT;
-		goto exit;
-	}
-
-	_rtw_memset(extra, 0, wrqu->length);
-
-	if (sscanf(input, "%hhu,%lx", &width, &addr) != 2) {
-		RTW_INFO(FUNC_ADPT_FMT" sscanf fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (addr > 0x3FFF) {
-		RTW_INFO(FUNC_ADPT_FMT" addr:0x%lx\n", FUNC_ADPT_ARG(padapter), addr);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (DBG_MP_SDIO_INDIRECT_ACCESS)
-		RTW_INFO(FUNC_ADPT_FMT" width:%u, addr:0x%lx\n", FUNC_ADPT_ARG(padapter), width, addr);
-
-	switch (width) {
-	case 1:
-		sprintf(extra, "0x%02x", rtw_sd_iread8(padapter, addr));
-		wrqu->length = strlen(extra);
-		break;
-	case 2:
-		sprintf(extra, "0x%04x", rtw_sd_iread16(padapter, addr));
-		wrqu->length = strlen(extra);
-		break;
-	case 4:
-		sprintf(extra, "0x%08x", rtw_sd_iread32(padapter, addr));
-		wrqu->length = strlen(extra);
-		break;
-	default:
-		wrqu->length = 0;
-		ret = -EINVAL;
-		break;
-	}
-
-exit:
-	return ret;
-}
-
-static int rtw_mp_sd_iwrite(struct net_device *dev
-			    , struct iw_request_info *info
-			    , struct iw_point *wrqu
-			    , char *extra)
-{
-	char width;
-	unsigned long addr, data;
-	int ret = 0;
-	PADAPTER padapter = rtw_netdev_priv(dev);
-	char input[32];
-
-	if (wrqu->length > 32) {
-		RTW_INFO(FUNC_ADPT_FMT" wrqu->length:%d\n", FUNC_ADPT_ARG(padapter), wrqu->length);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (copy_from_user(input, wrqu->pointer, wrqu->length)) {
-		RTW_INFO(FUNC_ADPT_FMT" copy_from_user fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EFAULT;
-		goto exit;
-	}
-
-	_rtw_memset(extra, 0, wrqu->length);
-
-	if (sscanf(input, "%hhu,%lx,%lx", &width, &addr, &data) != 3) {
-		RTW_INFO(FUNC_ADPT_FMT" sscanf fail\n", FUNC_ADPT_ARG(padapter));
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (addr > 0x3FFF) {
-		RTW_INFO(FUNC_ADPT_FMT" addr:0x%lx\n", FUNC_ADPT_ARG(padapter), addr);
-		ret = -EINVAL;
-		goto exit;
-	}
-
-	if (DBG_MP_SDIO_INDIRECT_ACCESS)
-		RTW_INFO(FUNC_ADPT_FMT" width:%u, addr:0x%lx, data:0x%lx\n", FUNC_ADPT_ARG(padapter), width, addr, data);
-
-	switch (width) {
-	case 1:
-		if (data > 0xFF) {
-			ret = -EINVAL;
-			break;
-		}
-		rtw_sd_iwrite8(padapter, addr, data);
-		break;
-	case 2:
-		if (data > 0xFFFF) {
-			ret = -EINVAL;
-			break;
-		}
-		rtw_sd_iwrite16(padapter, addr, data);
-		break;
-	case 4:
-		rtw_sd_iwrite32(padapter, addr, data);
-		break;
-	default:
-		wrqu->length = 0;
-		ret = -EINVAL;
-		break;
-	}
-
-exit:
-	return ret;
-}
-#endif /* CONFIG_SDIO_INDIRECT_ACCESS */
-
-static int rtw_priv_set(struct net_device *dev,
-			struct iw_request_info *info,
-			union iwreq_data *wdata, char *extra)
-{
-	struct iw_point *wrqu = (struct iw_point *)wdata;
-	u32 subcmd = wrqu->flags;
-	PADAPTER padapter = rtw_netdev_priv(dev);
-
-	if (padapter == NULL)
-		return -ENETDOWN;
-
-	if (padapter->bup == _FALSE) {
-		RTW_INFO(" %s fail =>(padapter->bup == _FALSE )\n", __FUNCTION__);
-		return -ENETDOWN;
-	}
-
-	if (RTW_CANNOT_RUN(padapter)) {
-		RTW_INFO("%s fail =>(bSurpriseRemoved == _TRUE) || ( bDriverStopped == _TRUE)\n", __func__);
-		return -ENETDOWN;
-	}
-
-	if (extra == NULL) {
-		wrqu->length = 0;
-		return -EIO;
-	}
-
-	if (subcmd < MP_NULL) {
-#ifdef CONFIG_MP_INCLUDED
-		rtw_priv_mp_set(dev, info, wdata, extra);
-#endif
-		return 0;
-	}
-
-	switch (subcmd) {
-#ifdef CONFIG_WOWLAN
-	case MP_WOW_ENABLE:
-		RTW_INFO("set case MP_WOW_ENABLE: %s\n", extra);
-
-		rtw_wowlan_ctrl(dev, info, wdata, extra);
-		break;
-	case MP_WOW_SET_PATTERN:
-		RTW_INFO("set case MP_WOW_SET_PATTERN: %s\n", extra);
-		rtw_wowlan_set_pattern(dev, info, wdata, extra);
-		break;
-#endif
-#ifdef CONFIG_AP_WOWLAN
-	case MP_AP_WOW_ENABLE:
-		RTW_INFO("set case MP_AP_WOW_ENABLE: %s\n", extra);
-		rtw_ap_wowlan_ctrl(dev, info, wdata, extra);
-		break;
-#endif
-#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
-	case VENDOR_IE_SET:
-		RTW_INFO("set case VENDOR_IE_SET\n");
-		rtw_vendor_ie_set(dev , info , wdata , extra);
-		break;
-#endif
-	default:
-		return -EIO;
-	}
-
-	return 0;
-}
-
-
-static int rtw_priv_get(struct net_device *dev,
-			struct iw_request_info *info,
-			union iwreq_data *wdata, char *extra)
-{
-	struct iw_point *wrqu = (struct iw_point *)wdata;
-	u32 subcmd = wrqu->flags;
-	PADAPTER padapter = rtw_netdev_priv(dev);
-
-
-	if (padapter == NULL)
-		return -ENETDOWN;
-
-	if (padapter->bup == _FALSE) {
-		RTW_INFO(" %s fail =>(padapter->bup == _FALSE )\n", __FUNCTION__);
-		return -ENETDOWN;
-	}
-
-	if (RTW_CANNOT_RUN(padapter)) {
-		RTW_INFO("%s fail =>(padapter->bSurpriseRemoved == _TRUE) || ( padapter->bDriverStopped == _TRUE)\n", __func__);
-		return -ENETDOWN;
-	}
-
-	if (extra == NULL) {
-		wrqu->length = 0;
-		return -EIO;
-	}
-
-	if (subcmd < MP_NULL) {
-#ifdef CONFIG_MP_INCLUDED
-		rtw_priv_mp_get(dev, info, wdata, extra);
-#endif
-		return 0;
-	}
-
-	switch (subcmd) {
-#if defined(CONFIG_RTL8723B)
-	case MP_SetBT:
-		RTW_INFO("set MP_SetBT\n");
-		rtw_mp_SetBT(dev, info, wdata, extra);
-		break;
-#endif
-#ifdef CONFIG_SDIO_INDIRECT_ACCESS
-	case MP_SD_IREAD:
-		rtw_mp_sd_iread(dev, info, wrqu, extra);
-		break;
-	case MP_SD_IWRITE:
-		rtw_mp_sd_iwrite(dev, info, wrqu, extra);
-		break;
-#endif
-#ifdef CONFIG_APPEND_VENDOR_IE_ENABLE
-	case VENDOR_IE_GET:
-		RTW_INFO("get case VENDOR_IE_GET\n");
-		rtw_vendor_ie_get(dev , info , wdata , extra);
-		break;
-#endif
-	default:
-		return -EIO;
-	}
-
-	rtw_msleep_os(10); /* delay 5ms for sending pkt before exit adb shell operation */
-	return 0;
-}
-
-
 
 static int rtw_wx_tdls_wfd_enable(struct net_device *dev,
 				  struct iw_request_info *info,
@@ -11660,10 +11061,10 @@ static void printdata(u8 *pbuf, u32 len)
 	}
 
 	if (i < len) {
-#ifdef CONFIG_BIG_ENDIAN
+#ifdef __BIG_ENDIAN
 		for (; i < len, i++)
 			printk("%02X", pbuf + i);
-#else /* CONFIG_LITTLE_ENDIAN */
+#else /* __LITTLE_ENDIAN */
 #if 0
 		val = 0;
 		_rtw_memcpy(&val, pbuf + i, len - i);
@@ -11678,7 +11079,7 @@ static void printdata(u8 *pbuf, u32 len)
 		n = (4 - n) * 2;
 		printk("%8s", str + n);
 #endif
-#endif /* CONFIG_LITTLE_ENDIAN */
+#endif /* __LITTLE_ENDIAN */
 	}
 	printk("\n");
 }
@@ -12312,8 +11713,8 @@ static iw_handler rtw_private_handler[] = {
 	rtw_wx_write_rf,					/* 0x0C */
 	rtw_wx_read_rf,					/* 0x0D */
 
-	rtw_priv_set,					/*0x0E*/
-	rtw_priv_get,					/*0x0F*/
+	//rtw_priv_set,					/*0x0E*/
+	//rtw_priv_get,					/*0x0F*/
 
 	rtw_p2p_set,					/* 0x10 */
 	rtw_p2p_get,					/* 0x11 */

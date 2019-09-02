@@ -771,17 +771,6 @@ static u8 mpt_ProStartTest(PADAPTER padapter)
 /*
  * General use
  */
-s32 SetPowerTracking(PADAPTER padapter, u8 enable)
-{
-
-	hal_mpt_SetPowerTracking(padapter, enable);
-	return 0;
-}
-
-void GetPowerTracking(PADAPTER padapter, u8 *enable)
-{
-	hal_mpt_GetPowerTracking(padapter, enable);
-}
 
 void rtw_mp_trigger_iqk(PADAPTER padapter)
 {

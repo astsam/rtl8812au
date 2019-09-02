@@ -3392,13 +3392,6 @@ static void read_chip_version_8812a(PADAPTER Adapter)
 	/* value32 = rtw_read32(Adapter, REG_GPIO_OUTSTS); */
 	pHalData->version_id.ROMVer = 0;	/* ROM code version. */
 
-	/* For multi-function consideration. Added by Roger, 2010.10.06. */
-	pHalData->MultiFunc = RT_MULTI_FUNC_NONE;
-	value32 = rtw_read32(Adapter, REG_MULTI_FUNC_CTRL);
-	pHalData->MultiFunc |= ((value32 & WL_FUNC_EN) ? RT_MULTI_FUNC_WIFI : 0);
-	pHalData->MultiFunc |= ((value32 & BT_FUNC_EN) ? RT_MULTI_FUNC_BT : 0);
-	pHalData->PolarityCtl = ((value32 & WL_HWPDN_SL) ? RT_POLARITY_HIGH_ACT : RT_POLARITY_LOW_ACT);
-
 	rtw_hal_config_rftype(Adapter);
 #if 1
 	dump_chip_info(pHalData->version_id);
@@ -3797,8 +3790,6 @@ SetBeamformRfMode_8812(
 	else
 		phy_set_bb_reg(Adapter, rTxPath_Jaguar, bMaskByte1, 0x11);
 }
-
-
 
 VOID
 SetBeamformEnter_8812(
