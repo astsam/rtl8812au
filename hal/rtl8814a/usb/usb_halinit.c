@@ -1665,7 +1665,7 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_MISC31);
 		for(i=0; i<6; i++)
 		{			
 #ifdef CONFIG_CONCURRENT_MODE
-			if(Adapter->iface_type == IFACE_PORT1)
+			if(Adapter->hw_port == HW_PORT1)
 				mac_addr[i] = rtw_read8(Adapter, REG_MACID1+i);
 			else
 #endif
