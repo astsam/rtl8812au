@@ -1748,178 +1748,224 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 			.subcmd = GSCAN_SUBCMD_GET_CAPABILITIES
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
-		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_gscan_get_capabilities
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_SET_CONFIG
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_set_scan_cfg
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_SET_SCAN_CONFIG
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_set_batch_scan_cfg
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_ENABLE_GSCAN
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
 		.doit = rtw_cfgvendor_initiate_gscan
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_ENABLE_FULL_SCAN_RESULTS
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_enable_full_scan_result
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_SET_HOTLIST
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_hotlist_cfg
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_SET_SIGNIFICANT_CHANGE_CONFIG
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_significant_change_cfg
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_GET_SCAN_RESULTS
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_gscan_get_batch_results
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = GSCAN_SUBCMD_GET_CHANNEL_LIST
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_gscan_get_channel_list
-	},
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 #endif /* GSCAN_SUPPORT */
 #if defined(RTT_SUPPORT) && 0
-	{
+		{
 		{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = RTT_SUBCMD_SET_CONFIG
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_rtt_set_config
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = RTT_SUBCMD_CANCEL_CONFIG
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_rtt_cancel_config
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = RTT_SUBCMD_GETCAPABILITY
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_rtt_get_capability
-	},
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA, æ
+		.maxattr = 1
+#endif
+		},
 #endif /* RTT_SUPPORT */
 #ifdef CONFIG_RTW_CFGVEDNOR_LLSTATS
-	{
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LSTATS_SUBCMD_GET_INFO
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_lstats_get_info
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+		},
 		{
-			.vendor_id = OUI_GOOGLE,
+			{
+#endif			.vendor_id = OUI_GOOGLE,
 			.subcmd = LSTATS_SUBCMD_SET_INFO
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_lstats_set_info
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LSTATS_SUBCMD_CLEAR_INFO
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_lstats_clear_info
-	},
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 #endif /* CONFIG_RTW_CFGVEDNOR_LLSTATS */
 #ifdef CONFIG_RTW_CFGVEDNOR_RSSIMONITOR
-        {
-                {
+        	{
+                	{
                         .vendor_id = OUI_GOOGLE,
                         .subcmd = WIFI_SUBCMD_SET_RSSI_MONITOR
                 },
                 .flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
                 .doit = rtw_cfgvendor_set_rssi_monitor
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
         },
 #endif /* CONFIG_RTW_CFGVEDNOR_RSSIMONITOR */
 #ifdef CONFIG_RTW_CFGVENDOR_WIFI_LOGGER
@@ -1929,32 +1975,41 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 			.subcmd = LOGGER_START_LOGGING
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_start_logging
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LOGGER_GET_FEATURE
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_get_feature
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LOGGER_GET_VER
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_get_version
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
 	},
 	{
 		{
@@ -1962,21 +2017,27 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 			.subcmd = LOGGER_GET_RING_STATUS
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_get_ring_status
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LOGGER_GET_RING_DATA
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_get_ring_data
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
 	},
 	{
 		{
@@ -1984,103 +2045,132 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 			.subcmd = LOGGER_TRIGGER_MEM_DUMP
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_get_firmware_memory_dump
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LOGGER_START_PKT_FATE_MONITORING
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_start_pkt_fate_monitoring
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LOGGER_GET_TX_PKT_FATES
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_get_tx_pkt_fates
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = LOGGER_GET_RX_PKT_FATES
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_logger_get_rx_pkt_fates
-	},
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 #endif /* CONFIG_RTW_CFGVENDOR_WIFI_LOGGER */
 #ifdef CONFIG_RTW_WIFI_HAL
 #ifdef CONFIG_RTW_CFGVENDOR_RANDOM_MAC_OUI
-	{
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = WIFI_SUBCMD_SET_PNO_RANDOM_MAC_OUI
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_set_rand_mac_oui
-	},
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
 #endif
-	{
+		},
+#endif
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = WIFI_SUBCMD_NODFS_SET
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_set_nodfs_flag
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = WIFI_SUBCMD_SET_COUNTRY_CODE
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_set_country
-	},
-	{
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = WIFI_SUBCMD_CONFIG_ND_OFFLOAD
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_set_nd_offload
-	},
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
+		},
 #endif /* CONFIG_RTW_WIFI_HAL */
-	{
 		{
+			{
 			.vendor_id = OUI_GOOGLE,
 			.subcmd = WIFI_SUBCMD_GET_FEATURE_SET
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_get_feature_set
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
 	},
 	{
 		{
@@ -2088,10 +2178,13 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 			.subcmd = WIFI_SUBCMD_GET_FEATURE_SET_MATRIX
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,0)
 		.policy = VENDOR_CMD_RAW_DATA,
-#endif
 		.doit = rtw_cfgvendor_get_feature_set_matrix
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
+		,
+		.policy = VENDOR_CMD_RAW_DATA,
+		.maxattr = 1
+#endif
 	}
 };
 
