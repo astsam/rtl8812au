@@ -23,7 +23,8 @@ Only for use with Linux & Android
 * WPA3 SAE
 * Wi-Fi Direct
 * Hostapd
-* Kernel up to v5.2+
+* Kernel up to v5.3+
+* RTKMPtool for low level debug
 ```
 
 ### TODO
@@ -113,13 +114,13 @@ sudo apt-get install linux-headers-`uname -r`
 sudo apt-get install bc raspberrypi-kernel-headers
 ```
 
-Then run this step to change platform in Makefile, For RPI 2/3:
+Then run this step to change platform in Makefile, For RPI 1/2/3:
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefile
 ```
 
-But for RPI 3 B+ you will need to run those below which builds the ARM64 arch driver:
+But for RPI 3B+ & 4B you will need to run those below which builds the ARM64 arch driver:
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
@@ -199,3 +200,5 @@ evilphish   - https://github.com/evilphish
 fariouche   - https://github.com/fariouche
 CGarces     - https://github.com/CGarces
 ZerBea      - https://github.com/ZerBea
+lwfinger    - https://github.com/lwfinger
+Ulli-Kroll  - https://github.com/Ulli-Kroll
