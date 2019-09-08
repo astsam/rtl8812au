@@ -192,8 +192,9 @@ at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkMa
 sudo service NetworkManager restart
 ```
 
-### Credits
+### Credits / Contributors
 
+```
 astsam      - https://github.com/astsam
 aircrack-ng - https://github.com/aircrack-ng
 evilphish   - https://github.com/evilphish
@@ -202,3 +203,4 @@ CGarces     - https://github.com/CGarces
 ZerBea      - https://github.com/ZerBea
 lwfinger    - https://github.com/lwfinger
 Ulli-Kroll  - https://github.com/Ulli-Kroll
+```
