@@ -30,13 +30,15 @@ Only for use with Linux & Android
 ### TODO
 
 ```
-* Test & fix the 8821au support
-* Clean out Windows & FreeBSD code
-* Clean out unsupported chipsets
+* Test & fix the 8821au support (@fariouche has been working on it)
+* Clean out Windows & FreeBSD code (partially. some NDIS code and switches around)
+* Clean out unsupported chipsets (partially. some switches left all around
+* Throw/rip Intel WIDI support out, it's left behind anyway.
+* Consider adding rtl8188eus HAL/phydm support into the driver for simplicity.
 ```
 ### IPERF3 benchmark
 <b>[Device]</b> Alfa Networks AWUS036ACH<br>
-<b>[Chipset]</b> 8812au (rtl8812au)<br>
+<b>[Chipset]</b> 88XXau (rtl8812au)<br>
 <b>[Branch]</b> v5.6.4.1<br>
 <b>[Distance]</b> 10m free sight
 ```
@@ -179,6 +181,14 @@ value can be 0 or 1
 $ cat /proc/net/rtl8812au/$(your interface name)/led_enable
 ```
 
+### USB Mode Switch
+
+0: doesn't switch, 1: switch from usb2.0 to usb 3.0 2: switch from usb3.0 to usb 2.0
+```sh
+$ rmmod 88XXau
+$ modprobe 88XXau rtw_switch_usb_mode:int (0: no switch 1: switch from usb2 to usb3 2: switch from usb3 to usb2)
+```
+
 ### NetworkManager
 
 Newer versions of NetworkManager switches to random MAC address. Some users would prefer to use a fixed address. 
@@ -203,4 +213,7 @@ CGarces     - https://github.com/CGarces
 ZerBea      - https://github.com/ZerBea
 lwfinger    - https://github.com/lwfinger
 Ulli-Kroll  - https://github.com/Ulli-Kroll
+
+All the others interested and participating. Appreciate it!
+
 ```
