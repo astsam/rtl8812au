@@ -205,6 +205,7 @@ static struct usb_device_id rtw_usb_id_tbl[] = {
 	{USB_DEVICE(0x2357, 0x011E), .driver_info = RTL8821}, /* TP Link - T2U Nano */
 	{USB_DEVICE(0x2357, 0x0122), .driver_info = RTL8821}, /* TP Link - T2U Nano */
 	{USB_DEVICE(0x2357, 0x0120), .driver_info = RTL8821}, /* TP Link - T2U Plus */
+	{USB_DEVICE(0x2357, 0x011F), .driver_info = RTL8821}, /* TP Link - T2U v3 */
 #endif
 
 #ifdef CONFIG_RTL8814A
