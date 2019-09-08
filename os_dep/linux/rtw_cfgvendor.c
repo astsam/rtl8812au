@@ -2164,7 +2164,6 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 			.subcmd = WIFI_SUBCMD_GET_FEATURE_SET
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-		.policy = VENDOR_CMD_RAW_DATA,
 		.doit = rtw_cfgvendor_get_feature_set
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
 		,
@@ -2178,7 +2177,6 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 			.subcmd = WIFI_SUBCMD_GET_FEATURE_SET_MATRIX
 		},
 		.flags = WIPHY_VENDOR_CMD_NEED_WDEV | WIPHY_VENDOR_CMD_NEED_NETDEV,
-		.policy = VENDOR_CMD_RAW_DATA,
 		.doit = rtw_cfgvendor_get_feature_set_matrix
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
 		,
