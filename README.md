@@ -116,7 +116,7 @@ sudo apt-get install linux-headers-`uname -r`
 sudo apt-get install bc raspberrypi-kernel-headers
 ```
 
-Then run this step to change platform in Makefile, For RPI 1/2/3:
+Then run this step to change platform in Makefile, For RPI 1/2/3/ & 0/Zero:
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefile
