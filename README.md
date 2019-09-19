@@ -214,6 +214,8 @@ ZerBea      - https://github.com/ZerBea
 lwfinger    - https://github.com/lwfinger
 Ulli-Kroll  - https://github.com/Ulli-Kroll
 
+Aldo, thanks to Realtek and Alfa Networks for all they're help & support.
+
 All the others interested and participating. Appreciate it!
 
 ```
