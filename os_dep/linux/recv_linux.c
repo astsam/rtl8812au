@@ -619,7 +619,8 @@ void rtw_hostapd_mlme_rx(_adapter *padapter, union recv_frame *precv_frame)
 	skb->ip_summed = CHECKSUM_NONE;
 	skb->pkt_type = PACKET_OTHERHOST;
 	/* skb->protocol = __constant_htons(0x0019); ETH_P_80211_RAW */
-	skb->protocol = __constant_htons(0x0003); /*ETH_P_80211_RAW*/
+	// skb->protocol = __constant_htons(0x0003); /*ETH_P_80211_RAW*/
+	skb->protocol = htons(ETH_P_802_2); /* ETH_P_80211_RAW */
 
 	/* RTW_INFO("(1)data=0x%x, head=0x%x, tail=0x%x, mac_header=0x%x, len=%d\n", skb->data, skb->head, skb->tail, skb->mac_header, skb->len); */
 

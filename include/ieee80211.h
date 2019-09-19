@@ -1852,8 +1852,9 @@ enum rtw_ieee80211_wnm_actioncode {
 #define WME_TSPEC_DIRECTION_DOWNLINK 1
 #define WME_TSPEC_DIRECTION_BI_DIRECTIONAL 3
 
-
 #define OUI_BROADCOM 0x00904c /* Broadcom (Epigram) */
+#define OUI_ATHEROS 0x00037f /*Atheros*/
+#define OUI_WFA 0x506f9a
 
 #define VENDOR_HT_CAPAB_OUI_TYPE 0x33 /* 00-90-4c:0x33 */
 
@@ -2028,6 +2029,7 @@ struct rtw_ieee802_11_elems {
 	u8 vht_operation_len;
 	u8 *vht_op_mode_notify;
 	u8 vht_op_mode_notify_len;
+	uint oui;
 	u8 *rm_en_cap;
 	u8 rm_en_cap_len;
 #ifdef CONFIG_RTW_MESH

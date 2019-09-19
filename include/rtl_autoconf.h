@@ -30,6 +30,11 @@
 
 #define PLATFORM_LINUX
 
+/*
+ * Monitor function Config
+ */
+//#define CONFIG_RADIOTAP_WITH_RXDESC
+
 /* #define CONFIG_IOCTL_CFG80211 1 */
 
 #ifdef CONFIG_IOCTL_CFG80211
