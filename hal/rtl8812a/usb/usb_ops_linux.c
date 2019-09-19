@@ -125,7 +125,6 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 	pbuf = pskb->data;
 #endif/* CONFIG_USE_USB_BUFFER_ALLOC_RX */
 
-
 #ifdef CONFIG_USB_RX_AGGREGATION
 	pkt_cnt = GET_RX_STATUS_DESC_USB_AGG_PKTNUM_8812(pbuf);
 #endif
