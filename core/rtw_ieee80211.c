@@ -1577,10 +1577,13 @@ extern char *rtw_initmac;
  * @out: buf to store mac address decided
  * @hw_mac_addr: mac address from efuse/epprom
  */
-void rtw_macaddr_cfg(u8 *out, const u8 *hw_mac_addr)
+void rtw_macaddr_cfg(struct device *dev, u8 *out, const u8 *hw_mac_addr)
 {
 #define DEFAULT_RANDOM_MACADDR 1
 	u8 mac[ETH_ALEN];
+	struct device_node *np = dev->of_node;
+	const unsigned char *addr;
+	int len;
 
 	if (out == NULL) {
 		rtw_warn_on(1);
@@ -1611,21 +1614,27 @@ void rtw_macaddr_cfg(u8 *out, const u8 *hw_mac_addr)
 
 err_chk:
 	if (rtw_check_invalid_mac_address(mac, _TRUE) == _TRUE) {
-#if DEFAULT_RANDOM_MACADDR
-		RTW_ERR("invalid mac addr:"MAC_FMT", assign random MAC\n", MAC_ARG(mac));
-		*((u32 *)(&mac[2])) = rtw_random32();
-		mac[0] = 0x00;
-		mac[1] = 0xe0;
-		mac[2] = 0x4c;
-#else
-		RTW_ERR("invalid mac addr:"MAC_FMT", assign default one\n", MAC_ARG(mac));
-		mac[0] = 0x00;
-		mac[1] = 0xe0;
-		mac[2] = 0x4c;
-		mac[3] = 0x87;
-		mac[4] = 0x00;
-		mac[5] = 0x00;
-#endif
+		if (np &&
+		    (addr = of_get_property(np, "local-mac-address", &len)) &&
+		    len == ETH_ALEN) {
+			memcpy(mac, addr, ETH_ALEN);
+		} else {
+			#if DEFAULT_RANDOM_MACADDR
+			DBG_871X_LEVEL(_drv_err_, "invalid mac addr:"MAC_FMT", assign random MAC\n", MAC_ARG(mac));
+			*((u32 *)(&mac[2])) = rtw_random32();
+			mac[0] = 0x00;
+			mac[1] = 0xe0;
+			mac[2] = 0x4c;
+			#else
+			DBG_871X_LEVEL(_drv_err_, "invalid mac addr:"MAC_FMT", assign default one\n", MAC_ARG(mac));
+			mac[0] = 0x00;
+			mac[1] = 0xe0;
+			mac[2] = 0x4c;
+			mac[3] = 0x87;
+			mac[4] = 0x00;
+			mac[5] = 0x00;
+			#endif
+		}
 	}
 
 	_rtw_memcpy(out, mac, ETH_ALEN);
