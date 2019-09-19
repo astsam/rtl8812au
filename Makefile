@@ -56,6 +56,7 @@ CONFIG_BR_EXT = y
 CONFIG_TDLS = n
 CONFIG_AP_MODE = n
 CONFIG_WIFI_MONITOR = y
+CONFIG_NET_NS = y
 # If you are setting up AP (e.g. by hostapd) in 802.11ac mode, you may have to choose 'y' below.
 # Otherwise some channels may be  flagged 'NO-IR' (i.e. Passive scanning) by the driver.
 CONFIG_DISABLE_REGD_C=y
