@@ -245,7 +245,7 @@ struct registry_priv {
 	/* BIT1 - 40MHz, 1: support, 0: non-support */
 	/* BIT2 - 80MHz, 1: support, 0: non-support */
 	/* BIT3 - 160MHz, 1: support, 0: non-support */
-	u8	short_gi;
+	//u8	short_gi;
 	/* BIT0: Enable VHT LDPC Rx, BIT1: Enable VHT LDPC Tx, BIT4: Enable HT LDPC Rx, BIT5: Enable HT LDPC Tx */
 	u8	ldpc_cap;
 	/* BIT0: Enable VHT STBC Rx, BIT1: Enable VHT STBC Tx, BIT4: Enable HT STBC Rx, BIT5: Enable HT STBC Tx */

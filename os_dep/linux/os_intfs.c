@@ -221,7 +221,7 @@ MODULE_PARM_DESC(rtw_rx_ampdu_sz_limit_4ss, "RX AMPDU size limit for 4SS link of
 * BIT1 - 40MHz, 0: non-support, 1: support
 * BIT2 - 80MHz, 0: non-support, 1: support
 * BIT3 - 160MHz, 0: non-support, 1: support */
-int rtw_short_gi = 0xf;
+//int rtw_short_gi = 0xf;
 /* BIT0: Enable VHT LDPC Rx, BIT1: Enable VHT LDPC Tx, BIT4: Enable HT LDPC Rx, BIT5: Enable HT LDPC Tx */
 int rtw_ldpc_cap = 0x33;
 /* BIT0: Enable VHT STBC Rx, BIT1: Enable VHT STBC Tx, BIT4: Enable HT STBC Rx, BIT5: Enable HT STBC Tx */
@@ -964,7 +964,7 @@ uint loadparam(_adapter *padapter)
 		registry_par->rx_stbc = (u8)rtw_rx_stbc;
 		registry_par->rx_ampdu_amsdu = (u8)rtw_rx_ampdu_amsdu;
 		registry_par->tx_ampdu_amsdu = (u8)rtw_tx_ampdu_amsdu;
-		registry_par->short_gi = (u8)rtw_short_gi;
+		//registry_par->short_gi = (u8)rtw_short_gi;
 		registry_par->ldpc_cap = (u8)rtw_ldpc_cap;
 #if defined(CONFIG_CUSTOMER01_SMART_ANTENNA)
 		rtw_stbc_cap = 0x0;
