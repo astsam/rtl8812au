@@ -2328,6 +2328,7 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 		//sinfo->txrate.flags |= NL80211_RATE_INFO_VHT_NSS;
 		//sinfo->txrate.nss = rtw_vht_mcsmap_to_nss(psta->vhtpriv.vht_mcs_map);
 
+
 		/* bw_mode is more delicate
 		   sinfo->txrate.bw is flagged
 		   psta->bw_mode */
@@ -2370,9 +2371,10 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
 
 		/* is this actually the dtim_period? */
 		sinfo->bss_param.flags |= STATION_INFO_BSS_PARAM_DTIM_PERIOD;
-		sinfo->bss_param.dtim_period = pwrctl->dtim;
+		//sinfo->bss_param.dtim_period = pwrctl->dtim;
 
-		sinfo->bss_param.beacon_interval = get_beacon_interval(wlan_network->network);
+		// kimocoder: this one below needs attention
+		//sinfo->bss_param.beacon_interval = get_beacon_interval(wlan_network->network);
 
 #endif
 
@@ -2423,7 +2425,7 @@ static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 	NDIS_802_11_NETWORK_INFRASTRUCTURE networkType;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
 	struct wireless_dev *rtw_wdev = padapter->rtw_wdev;
-	struct mlme_ext_priv *pmlmeext = &(padapter->mlmeextpriv);
+	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
 #ifdef CONFIG_P2P
 	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
 	u8 is_p2p = _FALSE;
@@ -2441,12 +2443,14 @@ static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 		goto exit;
 	}
 
+
 	RTW_INFO(FUNC_NDEV_FMT" call netdev_open\n", FUNC_NDEV_ARG(ndev));
 	if (netdev_open(ndev) != 0) {
 		RTW_INFO(FUNC_NDEV_FMT" call netdev_open fail\n", FUNC_NDEV_ARG(ndev));
 		ret = -EPERM;
 		goto exit;
 	}
+
 
 	if (_FAIL == rtw_pwr_wakeup(padapter)) {
 		RTW_INFO(FUNC_NDEV_FMT" call rtw_pwr_wakeup fail\n", FUNC_NDEV_ARG(ndev));
@@ -6123,11 +6127,7 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	RTW_INFO(FUNC_ADPT_FMT" ch:%d bw:%d, offset:%d\n"
 		, FUNC_ADPT_ARG(padapter), chan_target, chan_width, chan_offset);
 
-	padapter->mlmeextpriv.cur_channel = target_channel;
-	rtw_ps_deny(padapter, PS_DENY_IOCTL);
-	//LeaveAllPowerSaveModeDirect(padapter); /* leave PS mode for guaranteeing to access hw register successfully */
 	rtw_set_chbw_cmd(padapter, chan_target, chan_width, chan_offset, RTW_CMDF_WAIT_ACK);
-	rtw_ps_deny_cancel(padapter, PS_DENY_IOCTL);
 
 	return 0;
 }
@@ -6227,10 +6227,7 @@ static int cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy
 	RTW_INFO(FUNC_ADPT_FMT" ch:%d bw:%d, offset:%d\n"
 		, FUNC_ADPT_ARG(padapter), target_channal, target_width, target_offset);
 
-	padapter->mlmeextpriv.cur_channel = target_channel;
-	rtw_ps_deny(padapter, PS_DENY_IOCTL);
 	rtw_set_chbw_cmd(padapter, target_channal, target_width, target_offset, RTW_CMDF_WAIT_ACK);
-	rtw_ps_deny_cancel(padapter, PS_DENY_IOCTL);
 
 	return 0;
 }
@@ -9535,15 +9532,12 @@ static void rtw_cfg80211_init_vht_capab_ex(_adapter *padapter, struct ieee80211_
 {
 //todo: Support for other bandwidths
 /* NSS = Number of Spatial Streams */
-//#define MAX_BIT_RATE_80MHZ_NSS3		1300	/* Mbps */
-//#define MAX_BIT_RATE_80MHZ_NSS2		867		/* Mbps */
-//#define MAX_BIT_RATE_80MHZ_NSS1		433		/* Mbps */
+#define MAX_BIT_RATE_80MHZ_NSS3		1300	/* Mbps */
+#define MAX_BIT_RATE_80MHZ_NSS2		867		/* Mbps */
+#define MAX_BIT_RATE_80MHZ_NSS1		434		/* Mbps */
 	struct registry_priv *pregistrypriv = &padapter->registrypriv;
 	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct vht_priv	*pvhtpriv = &pmlmepriv->vhtpriv;
-	u32 rx_packet_offset, max_recvbuf_sz;
-	u16 HighestRate;
-	u8 bw, rf_num;
 	rtw_vht_use_default_setting(padapter);
 	/* RX LDPC */
 	if (TEST_FLAG(pvhtpriv->ldpc_cap, LDPC_VHT_ENABLE_RX))
@@ -9551,10 +9545,6 @@ static void rtw_cfg80211_init_vht_capab_ex(_adapter *padapter, struct ieee80211_
 	/* TX STBC */
 	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_TX))
 		vht_cap->cap |= IEEE80211_VHT_CAP_TXSTBC;
-
-	if (pvhtpriv->sgi_80m)
-			vht_cap->cap |= IEEE80211_VHT_CAP_SHORT_GI_80;
-
 	/* RX STBC */
 	if (TEST_FLAG(pvhtpriv->stbc_cap, STBC_VHT_ENABLE_RX)) {
 		switch (rf_type) {
@@ -9598,67 +9588,13 @@ static void rtw_cfg80211_init_vht_capab_ex(_adapter *padapter, struct ieee80211_
 	/* MCS map */
 	vht_cap->vht_mcs.tx_mcs_map = pvhtpriv->vht_mcs_map[0] | (pvhtpriv->vht_mcs_map[1] << 8);
 	vht_cap->vht_mcs.rx_mcs_map = vht_cap->vht_mcs.tx_mcs_map;
-	/* B0 B1 Maximum MPDU Length */
-	rtw_hal_get_def_var(padapter, HAL_DEF_RX_PACKET_OFFSET, &rx_packet_offset);
-	rtw_hal_get_def_var(padapter, HAL_DEF_MAX_RECVBUF_SZ, &max_recvbuf_sz);
-
-	if ((max_recvbuf_sz - rx_packet_offset) >= 11454) {
-		vht_cap->cap |= IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454;
-	} else if ((max_recvbuf_sz - rx_packet_offset) >= 7991) {
-		vht_cap->cap |= IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_7991;
-	} else if ((max_recvbuf_sz - rx_packet_offset) >= 3895) {
-		vht_cap->cap |= IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_3895;
+	if (rf_type == RF_1T1R) {
+		vht_cap->vht_mcs.tx_highest = MAX_BIT_RATE_80MHZ_NSS1;
+		vht_cap->vht_mcs.rx_highest = MAX_BIT_RATE_80MHZ_NSS1;
 	}
-	/* B2 B3 Supported Channel Width Set */
-	if (hal_chk_bw_cap(padapter, BW_CAP_160M) && REGSTY_IS_BW_5G_SUPPORT(pregistrypriv, CHANNEL_WIDTH_160)) {
-		if (hal_chk_bw_cap(padapter, BW_CAP_80_80M) && REGSTY_IS_BW_5G_SUPPORT(pregistrypriv, CHANNEL_WIDTH_80_80))
-			vht_cap->cap |= IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_160_80PLUS80MHZ;
-		else
-	   		vht_cap->cap |= IEEE80211_VHT_CAP_SUPP_CHAN_WIDTH_160MHZ;
-	}
-
-#ifdef CONFIG_BEAMFORMING
-	/* B11 SU Beamformer Capable */
-	if (TEST_FLAG(pvhtpriv->beamform_cap, BEAMFORMING_VHT_BEAMFORMER_ENABLE)) {
-		vht_cap->cap |= IEEE80211_VHT_CAP_SU_BEAMFORMER_CAPABLE;
-		/* B16 17 18 Number of Sounding Dimensions */
-		rtw_hal_get_def_var(padapter, HAL_DEF_BEAMFORMER_CAP, (u8 *)&rf_num);
-		vht_cap->cap |= rf_num << IEEE80211_VHT_CAP_SOUNDING_DIMENSIONS_SHIFT;
-		/* B19 MU Beamformer Capable */
-		if (TEST_FLAG(pvhtpriv->beamform_cap, BEAMFORMING_VHT_MU_MIMO_AP_ENABLE))
-			vht_cap->cap |= IEEE80211_VHT_CAP_MU_BEAMFORMER_CAPABLE;
-		}
-	/* B12 SU Beamformee Capable */
-	if (TEST_FLAG(pvhtpriv->beamform_cap, BEAMFORMING_VHT_BEAMFORMEE_ENABLE)) {
-	  	vht_cap->cap |= IEEE80211_VHT_CAP_SU_BEAMFORMEE_CAPABLE;
-	  	// B13 14 15 Compressed Steering Number of Beamformer Antennas Supported
-	  	rtw_hal_get_def_var(padapter, HAL_DEF_BEAMFORMEE_CAP, (u8 *)&rf_num);
-	  	vht_cap->cap |= rf_num << IEEE80211_VHT_CAP_BEAMFORMEE_STS_SHIFT;
-	  	/* B20 MU Beamformee Capable */
-	  	if (TEST_FLAG(pvhtpriv->beamform_cap, BEAMFORMING_VHT_MU_MIMO_STA_ENABLE))
-	    	vht_cap->cap |= IEEE80211_VHT_CAP_MU_BEAMFORMEE_CAPABLE;
-	}
-#endif
-
-	/* B22 +HTC-VHT Capable */
-	vht_cap->cap |= IEEE80211_VHT_CAP_HTC_VHT;
-
-	/* B23 24 25 Maximum A-MPDU Length Exponent */
-	if (pregistrypriv->ampdu_factor != 0xFE)
-	  vht_cap->cap |= pregistrypriv->ampdu_factor << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT;
-	else
-	  vht_cap->cap |= 7 << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT;
-
-	/* B26 27 VHT Link Adaptation Capable */
-	/* find the largest bw supported by both registry and hal */
-	/* this is taken from core/rtw_vht.c */
-	bw = hal_largest_bw(padapter, REGSTY_BW_5G(pregistrypriv));
-	HighestRate = rtw_vht_mcs_to_data_rate(bw, pvhtpriv->sgi_80m, pvhtpriv->vht_highest_rate);
-
-	vht_cap->vht_mcs.tx_highest = HighestRate;
-	vht_cap->vht_mcs.rx_highest = HighestRate;
-
-	return;
+	if (pvhtpriv->sgi_80m)
+		vht_cap->cap |= IEEE80211_VHT_CAP_SHORT_GI_80;
+	vht_cap->cap |= (pvhtpriv->ampdu_len << IEEE80211_VHT_CAP_MAX_A_MPDU_LENGTH_EXPONENT_SHIFT);
 }
 
 void rtw_cfg80211_init_wiphy(_adapter *padapter)

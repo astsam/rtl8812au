@@ -188,9 +188,6 @@ struct rx_pkt_attrib	{
 	u32 tsfl;
 	u32	MacIDValidEntry[2];	/* 64 bits present 64 entry. */
 	u8	ppdu_cnt;
-#ifdef CONFIG_RADIOTAP_WITH_RXDESC
-	u8	rxdesc[RXDESC_SIZE];
-#endif
 	u32 	free_cnt;		/* free run counter */
 	struct phydm_phyinfo_struct phy_info;
 

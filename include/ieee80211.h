@@ -1852,9 +1852,8 @@ enum rtw_ieee80211_wnm_actioncode {
 #define WME_TSPEC_DIRECTION_DOWNLINK 1
 #define WME_TSPEC_DIRECTION_BI_DIRECTIONAL 3
 
+
 #define OUI_BROADCOM 0x00904c /* Broadcom (Epigram) */
-#define OUI_ATHEROS 0x00037f /*Atheros*/
-#define OUI_WFA 0x506f9a
 
 #define VENDOR_HT_CAPAB_OUI_TYPE 0x33 /* 00-90-4c:0x33 */
 
@@ -2029,7 +2028,6 @@ struct rtw_ieee802_11_elems {
 	u8 vht_operation_len;
 	u8 *vht_op_mode_notify;
 	u8 vht_op_mode_notify_len;
-	uint oui;
 	u8 *rm_en_cap;
 	u8 rm_en_cap_len;
 #ifdef CONFIG_RTW_MESH
@@ -2176,7 +2174,7 @@ uint rtw_get_cckrate_size(u8 *rate,u32 rate_length);
 int rtw_check_network_type(unsigned char *rate, int ratelen, int channel);
 
 u8 rtw_check_invalid_mac_address(u8 *mac_addr, u8 check_local_bit);
-void rtw_macaddr_cfg(struct device *dev, u8 *out, const u8 *hw_mac_addr);
+void rtw_macaddr_cfg(u8 *out, const u8 *hw_mac_addr);
 
 u16 rtw_mcs_rate(u8 rf_type, u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate);
 u8	rtw_ht_mcsset_to_nss(u8 *supp_mcs_set);
