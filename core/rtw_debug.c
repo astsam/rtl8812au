@@ -5471,7 +5471,7 @@ int proc_get_monitor(struct seq_file *m, void *v)
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(dev);
 	struct mlme_priv *pmlmepriv = &(padapter->mlmepriv);
 
-	if (WIFI_MONITOR_STATE == get_fwstate(pmlmepriv)) {
+if (check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) == _TRUE) {
 		RTW_PRINT_SEL(m, "Monitor mode : Enable\n");
 
 		RTW_PRINT_SEL(m, "ch=%d, ch_offset=%d, bw=%d\n",

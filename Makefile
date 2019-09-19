@@ -76,6 +76,8 @@ CONFIG_RTW_DEBUG = n
 CONFIG_RTW_LOG_LEVEL = 3
 CONFIG_USB_DEBUG = n
 #DEBUG=1
+######################### Enable Country Set ###############
+CONFIG_RTW_IOCTL_SET_COUNTRY = y
 ######################## Wake On Lan ##########################
 CONFIG_WOWLAN = n
 #bit2: deauth, bit1: unicast, bit0: magic pkt.
@@ -614,6 +616,11 @@ ifeq ($(CONFIG_RTW_DEBUG), y)
 EXTRA_CFLAGS += -DCONFIG_RTW_DEBUG
 EXTRA_CFLAGS += -DRTW_LOG_LEVEL=$(CONFIG_RTW_LOG_LEVEL)
 endif
+
+ifeq ($(CONFIG_RTW_IOCTL_SET_COUNTRY), y)
+EXTRA_CFLAGS += -DCONFIG_RTW_IOCTL_SET_COUNTRY
+endif
+
 EXTRA_CFLAGS += -DDM_ODM_SUPPORT_TYPE=0x04
 
 ifeq ($(CONFIG_PLATFORM_I386_PC), y)
