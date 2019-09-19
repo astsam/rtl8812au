@@ -6123,7 +6123,11 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	RTW_INFO(FUNC_ADPT_FMT" ch:%d bw:%d, offset:%d\n"
 		, FUNC_ADPT_ARG(padapter), chan_target, chan_width, chan_offset);
 
+	padapter->mlmeextpriv.cur_channel = target_channel;
+	rtw_ps_deny(padapter, PS_DENY_IOCTL);
+	//LeaveAllPowerSaveModeDirect(padapter); /* leave PS mode for guaranteeing to access hw register successfully */
 	rtw_set_chbw_cmd(padapter, chan_target, chan_width, chan_offset, RTW_CMDF_WAIT_ACK);
+	rtw_ps_deny_cancel(padapter, PS_DENY_IOCTL);
 
 	return 0;
 }
@@ -6223,7 +6227,10 @@ static int cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy
 	RTW_INFO(FUNC_ADPT_FMT" ch:%d bw:%d, offset:%d\n"
 		, FUNC_ADPT_ARG(padapter), target_channal, target_width, target_offset);
 
+	padapter->mlmeextpriv.cur_channel = target_channel;
+	rtw_ps_deny(padapter, PS_DENY_IOCTL);
 	rtw_set_chbw_cmd(padapter, target_channal, target_width, target_offset, RTW_CMDF_WAIT_ACK);
+	rtw_ps_deny_cancel(padapter, PS_DENY_IOCTL);
 
 	return 0;
 }
