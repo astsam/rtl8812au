@@ -73,6 +73,14 @@ matrix:
           packages:
             - gcc-7
             - libssl1.1
-      env: COMPILER=gcc-7 KVER=4.19.45
+      env: COMPILER=gcc-7 KVER=4.19.67
     - compiler: gcc
-      env: COMPILER=gcc-5 KVER=3.14.79
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'ppa:ondrej/nginx-mainline'
+          packages:
+            - gcc-7
+            - libssl1.1
+      env: COMPILER=gcc-7 KVER=4.15.18
