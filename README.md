@@ -24,8 +24,15 @@ Only for use with Linux & Android
 * WPA3 SAE
 * Wi-Fi Direct
 * Hostapd
+* USB 3.0 (currently forced down to 2.0)
 * Kernel up to v5.3+
 * RTKMPtool for low level debug
+```
+
+### Known Issues
+```
+* VMware Workstation has issues, giving kernel oops on module load.
+* Ubuntu has enabled module signing (kernel) by default, workaround: turn off "secure boot"
 ```
 
 ### TODO
