@@ -20,7 +20,6 @@
 #endif /* CONFIG_IOCTL_CFG80211 */
 #include <hal_data.h>
 
-
 struct mlme_handler mlme_sta_tbl[] = {
 	{WIFI_ASSOCREQ,		"OnAssocReq",	&OnAssocReq},
 	{WIFI_ASSOCRSP,		"OnAssocRsp",	&OnAssocRsp},
@@ -94,14 +93,13 @@ struct action_handler OnAction_tbl[] = {
 	{RTW_WLAN_CATEGORY_P2P, "ACTION_P2P", &OnAction_p2p},
 };
 
-
 u8	null_addr[ETH_ALEN] = {0, 0, 0, 0, 0, 0};
 
 /**************************************************
 OUI definitions for the vendor specific IE
 ***************************************************/
 unsigned char	RTW_WPA_OUI[] = {0x00, 0x50, 0xf2, 0x01};
-unsigned char WMM_OUI[] = {0x00, 0x50, 0xf2, 0x02};
+unsigned char   WMM_OUI[] = {0x00, 0x50, 0xf2, 0x02};
 unsigned char	WPS_OUI[] = {0x00, 0x50, 0xf2, 0x04};
 unsigned char	P2P_OUI[] = {0x50, 0x6F, 0x9A, 0x09};
 unsigned char	WFD_OUI[] = {0x50, 0x6F, 0x9A, 0x0A};
@@ -258,6 +256,7 @@ void rtw_txpwr_init_regd(struct rf_ctl_t *rfctl)
 		);
 		if (rfctl->regd_name)
 			break;
+			// Intentional fallthrough
 	default:
 		rfctl->regd_name = regd_str(TXPWR_LMT_WW);
 		RTW_PRINT("assign %s for default case\n", regd_str(TXPWR_LMT_WW));
