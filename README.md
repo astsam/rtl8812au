@@ -17,6 +17,14 @@ Only for use with Linux & Android
 [![aircrack-ng](https://img.shields.io/badge/aircrack--ng-supported-blue.svg)](https://github.com/aircrack-ng/aircrack-ng)
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
 
+### Important information
+```
+* With later kernels, it seems scanning (with "iw list") got issues, however, wifite2 scanning works fine..(weird!)
+* Setting monitor with the "iw" or "iwconfig" makes frame injection unstable, workaround: use "airmon-ng start <adapter>" for now
+
+Don't know what happened, but it could be kernels, iw update, network-manager.. needs some attention.
+```
+
 ### Supports
 ```
 * Monitor mode
