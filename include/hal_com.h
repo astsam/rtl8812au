@@ -233,12 +233,11 @@ typedef enum _WAKEUP_REASON{
 
 /*
  * Queue Select Value in TxDesc
- *
-*/
-#define QSLT_BK							0x2 /* 0x01 */
+ *   */
+#define QSLT_BK							0x2/* 0x01 */
 #define QSLT_BE							0x0
-#define QSLT_VI							0x5 /* 0x4 */
-#define QSLT_VO							0x7 /* 0x6 */
+#define QSLT_VI							0x5/* 0x4 */
+#define QSLT_VO							0x7/* 0x6 */
 #define QSLT_BEACON						0x10
 #define QSLT_HIGH						0x11
 #define QSLT_MGNT						0x12
@@ -566,10 +565,16 @@ void rtw_hal_ch_sw_iqk_info_restore(_adapter *padapter, u8 ch_sw_use_case);
 	void rtw_hal_set_input_gpio(_adapter *padapter, u8 index);
 #endif
 
+#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+	extern char *rtw_phy_file_path;
+	extern char rtw_phy_para_file_path[PATH_LENGTH_MAX];
+	#define GetLineFromBuffer(buffer)   strsep(&buffer, "\r\n")
+#endif
+
 void update_IOT_info(_adapter *padapter);
 #ifdef CONFIG_RTS_FULL_BW
 void rtw_set_rts_bw(_adapter *padapter);
-#endif /*CONFIG_RTS_FULL_BW*/
+#endif/*CONFIG_RTS_FULL_BW*/
 void hal_set_crystal_cap(_adapter *adapter, u8 crystal_cap);
 
 void ResumeTxBeacon(_adapter *padapter);

@@ -15,6 +15,7 @@
 #ifndef __HAL_INTF_H__
 #define __HAL_INTF_H__
 
+
 enum RTL871X_HCI_TYPE {
 	RTW_PCIE	= BIT0,
 	RTW_USB	= BIT1,
@@ -58,6 +59,7 @@ typedef enum _HAL_HW_TIMER_TYPE {
 	HAL_TIMER_TXBF = 1,
 	HAL_TIMER_EARLYMODE = 2,
 } HAL_HW_TIMER_TYPE, *PHAL_HW_TIMER_TYPE;
+
 
 typedef enum _HW_VARIABLES {
 	HW_VAR_MEDIA_STATUS,

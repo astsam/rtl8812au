@@ -132,7 +132,7 @@ int rtw_os_xmit_resource_alloc(_adapter *padapter, struct xmit_buf *pxmitbuf, u3
 		int i;
 		for (i = 0; i < 8; i++) {
 			pxmitbuf->pxmit_urb[i] = usb_alloc_urb(0, GFP_KERNEL);
-			if (!pxmitbuf->pxmit_urb[i]) {
+			if (pxmitbuf->pxmit_urb[i] == NULL) {
 				RTW_INFO("pxmitbuf->pxmit_urb[i]==NULL");
 				return _FAIL;
 			}

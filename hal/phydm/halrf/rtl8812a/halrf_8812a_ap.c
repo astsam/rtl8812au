@@ -185,7 +185,7 @@ odm_tx_pwr_track_set_pwr8812a(
 	} else
 		return;
 }	/* odm_TxPwrTrackSetPwr88E */
-/*
+
 void configure_txpower_track_8812a(
 	struct txpwrtrack_cfg	*config
 )
@@ -201,7 +201,7 @@ void configure_txpower_track_8812a(
 	config->do_iqk = do_iqk_8812a;
 	config->phy_lc_calibrate = phy_lc_calibrate_8812a;
 }
-*/
+
 #endif
 
 /* 1 7.	IQK */

@@ -18,6 +18,7 @@
 
 --------------------------------------------------------------------------------*/
 
+
 #ifndef __DRV_TYPES_H__
 #define __DRV_TYPES_H__
 
@@ -31,6 +32,14 @@
 #ifdef CONFIG_ARP_KEEP_ALIVE
 	#include <net/neighbour.h>
 	#include <net/arp.h>
+#endif
+
+#ifdef PLATFORM_OS_XP
+	#include <drv_types_xp.h>
+#endif
+
+#ifdef PLATFORM_OS_CE
+	#include <drv_types_ce.h>
 #endif
 
 #ifdef PLATFORM_LINUX
@@ -82,7 +91,7 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 #include <rtw_sreset.h>
 #include <hal_intf.h>
 #include <hal_com.h>
-#include <hal_com_h2c.h>
+#include<hal_com_h2c.h>
 #include <hal_com_led.h>
 #include "../hal/hal_dm.h"
 #include <rtw_qos.h>
@@ -93,6 +102,7 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 #include <rtw_ioctl.h>
 #include <rtw_ioctl_set.h>
 #include <rtw_ioctl_query.h>
+#include <rtw_ioctl_rtl.h>
 #include <osdep_intf.h>
 #include <rtw_eeprom.h>
 #include <sta_info.h>
@@ -209,9 +219,6 @@ struct registry_priv {
 	u8	software_decrypt;
 #ifdef CONFIG_TX_EARLY_MODE
 	u8   early_mode;
-#endif
-#ifdef CONFIG_SW_LED
-	u8   led_ctrl;
 #endif
 	u8	acm_method;
 	/* WMM */
@@ -353,6 +360,10 @@ struct registry_priv {
 	u8  check_fw_ps;
 	u8	RegPwrTrimEnable;
 
+#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+	u8	load_phy_file;
+	u8	RegDecryptCustomFile;
+#endif
 #ifdef CONFIG_CONCURRENT_MODE
 	u8 virtual_iface_num;
 #endif
@@ -675,7 +686,7 @@ struct debug_priv {
 	u32 dbg_carddisable_cnt;
 	u32 dbg_carddisable_error_cnt;
 	u32 dbg_ps_insuspend_cnt;
-	u32 dbg_dev_unload_inIPS_cnt;
+	u32	dbg_dev_unload_inIPS_cnt;
 	u32 dbg_wow_leave_ps_fail_cnt;
 	u32 dbg_scan_pwr_state_cnt;
 	u32 dbg_downloadfw_pwr_state_cnt;
@@ -1106,7 +1117,7 @@ struct dvobj_priv {
 	_timer txbcn_timer;
 #endif
 	_timer dynamic_chk_timer; /* dynamic/periodic check timer */
-
+	
 #ifdef CONFIG_RTW_NAPI_DYNAMIC
 	u8 en_napi_dynamic;
 #endif /* CONFIG_RTW_NAPI_DYNAMIC */
@@ -1157,10 +1168,40 @@ struct dvobj_priv {
 	u8 *usb_vendor_req_buf;
 #endif
 
+#ifdef PLATFORM_WINDOWS
+	/* related device objects */
+	PDEVICE_OBJECT	pphysdevobj;/* pPhysDevObj; */
+	PDEVICE_OBJECT	pfuncdevobj;/* pFuncDevObj; */
+	PDEVICE_OBJECT	pnextdevobj;/* pNextDevObj; */
+
+	u8	nextdevstacksz;/* unsigned char NextDeviceStackSize;	 */ /* = (CHAR)CEdevice->pUsbDevObj->StackSize + 1; */
+
+	/* urb for control diescriptor request */
+
+#ifdef PLATFORM_OS_XP
+	struct _URB_CONTROL_DESCRIPTOR_REQUEST descriptor_urb;
+	PUSB_CONFIGURATION_DESCRIPTOR	pconfig_descriptor;/* UsbConfigurationDescriptor; */
+#endif
+
+#ifdef PLATFORM_OS_CE
+	WCHAR			active_path[MAX_ACTIVE_REG_PATH];	/* adapter regpath */
+	USB_EXTENSION	usb_extension;
+
+	_nic_hdl		pipehdls_r8192c[0x10];
+#endif
+
+	u32	config_descriptor_len;/* ULONG UsbConfigurationDescriptorLength; */
+#endif/* PLATFORM_WINDOWS */
+
 #ifdef PLATFORM_LINUX
 	struct usb_interface *pusbintf;
 	struct usb_device *pusbdev;
 #endif/* PLATFORM_LINUX */
+
+#ifdef PLATFORM_FREEBSD
+	struct usb_interface *pusbintf;
+	struct usb_device *pusbdev;
+#endif/* PLATFORM_FREEBSD */
 
 #endif/* CONFIG_USB_HCI */
 
@@ -1222,8 +1263,8 @@ struct dvobj_priv {
 	u8 tpt_mode; /* RTK T/P Testing Mode, 0:default mode */
 	u32 edca_be_ul;
 	u32 edca_be_dl;
-#endif
-	/* also for RTK T/P Testing Mode */
+#endif 
+	/* also for RTK T/P Testing Mode */ 
 	u8 scan_deny;
 
 };
@@ -1492,6 +1533,17 @@ struct _ADAPTER {
 	void (*intf_start)(_adapter *adapter);
 	void (*intf_stop)(_adapter *adapter);
 
+#ifdef PLATFORM_WINDOWS
+	_nic_hdl		hndis_adapter;/* hNdisAdapter(NDISMiniportAdapterHandle); */
+	_nic_hdl		hndis_config;/* hNdisConfiguration; */
+	NDIS_STRING fw_img;
+
+	u32	NdisPacketFilter;
+	u8	MCList[MAX_MCAST_LIST_NUM][6];
+	u32	MCAddrCount;
+#endif /* end of PLATFORM_WINDOWS */
+
+
 #ifdef PLATFORM_LINUX
 	_nic_hdl pnetdev;
 	char old_ifname[IFNAMSIZ];
@@ -1527,6 +1579,11 @@ struct _ADAPTER {
 
 #endif /* PLATFORM_LINUX */
 
+#ifdef PLATFORM_FREEBSD
+	_nic_hdl pifp;
+	int bup;
+	_lock glock;
+#endif /* PLATFORM_FREEBSD */
 	u8 mac_addr[ETH_ALEN];
 	int net_closed;
 
@@ -1697,8 +1754,7 @@ static inline void rtw_clr_drv_stopped(_adapter *padapter)
 
 /*
  * Function disabled.
- *
-*/
+ *   */
 #define DF_TX_BIT		BIT0			/*write_port_cancel*/
 #define DF_RX_BIT		BIT1			/*read_port_cancel*/
 #define DF_IO_BIT		BIT2

@@ -1191,6 +1191,62 @@ u8 *rtw_get_wps_attr_content(u8 *wps_ie, uint wps_ielen, u16 target_attr_id , u8
 	return NULL;
 }
 
+/* OWE */
+
+/**
+ * rtw_get_OWE_ie - Search OWE IE from a series of IEs
+ * @in_ie: Address of IEs to search
+ * @in_len: Length limit from in_ie
+ * @wps_ie: If not NULL and OWE IE is found, OWE IE will be copied to the buf starting from owe_ie
+ * @wps_ielen: If not NULL and OWE IE is found, will set to the length of the entire OWE IE
+ *
+ * Returns: The address of the OWE IE found, or NULL
+ */
+u8 *rtw_get_owe_ie(const u8 *in_ie, uint in_len, u8 *owe_ie, uint *owe_ielen)
+{
+	uint cnt;
+	const u8 *oweie_ptr = NULL;
+	u8 eid;
+
+	if (owe_ielen)
+		*owe_ielen = 0;
+
+	if (!in_ie) {
+		rtw_warn_on(1);
+		return (u8 *)oweie_ptr;
+	}
+
+	if (in_len <= 0)
+		return (u8 *)oweie_ptr;
+
+	cnt = 0;
+
+	while (cnt + 1 + 4 < in_len) {
+		eid = in_ie[cnt];
+
+		if (cnt + 1 + 4 >= MAX_IE_SZ) {
+			rtw_warn_on(1);
+			return NULL;
+		}
+
+		if ((eid == WLAN_EID_EXTENSION) && (in_ie[cnt + 2] == WLAN_EID_EXT_OWE_DH_PARAM)) {
+			oweie_ptr = in_ie + cnt;
+
+			if (owe_ie)
+				_rtw_memcpy(owe_ie, &in_ie[cnt], in_ie[cnt + 1] + 2);
+
+			if (owe_ielen)
+				*owe_ielen = in_ie[cnt + 1] + 2;
+
+			break;
+		} else
+			cnt += in_ie[cnt + 1] + 2;
+
+	}
+
+	return (u8 *)oweie_ptr;
+}
+
 static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
 		struct rtw_ieee802_11_elems *elems,
 		int show_errors)
@@ -1394,7 +1450,7 @@ ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
 			elems->timeout_int = pos;
 			elems->timeout_int_len = elen;
 			break;
-		case WLAN_EID_HT_CAPABILITY:
+		case WLAN_EID_HT_CAP:
 			elems->ht_capabilities = pos;
 			elems->ht_capabilities_len = elen;
 			break;
@@ -1410,7 +1466,7 @@ ParseRes rtw_ieee802_11_parse_elems(u8 *start, uint len,
 			elems->vht_operation = pos;
 			elems->vht_operation_len = elen;
 			break;
-		case WLAN_EID_OPMODE_NOTIF:
+		case WLAN_EID_VHT_OP_MODE_NOTIFY:
 			elems->vht_op_mode_notify = pos;
 			elems->vht_op_mode_notify_len = elen;
 			break;
@@ -1653,7 +1709,7 @@ void dump_ht_cap_ie(void *sel, const u8 *ie, u32 ie_len)
 	const u8 *ht_cap_ie;
 	sint ht_cap_ielen;
 
-	ht_cap_ie = rtw_get_ie(ie, WLAN_EID_HT_CAPABILITY, &ht_cap_ielen, ie_len);
+	ht_cap_ie = rtw_get_ie(ie, WLAN_EID_HT_CAP, &ht_cap_ielen, ie_len);
 	if (!ie || ht_cap_ie != ie)
 		return;
 

@@ -5405,10 +5405,6 @@ u8 rtw_halmac_switch_usb_mode(struct dvobj_priv *d, enum RTW_USB_SPEED usb_mode)
 	mac = dvobj_to_halmac(d);
 	api = HALMAC_GET_API(mac);
 	halmac_usb_mode = _usb_mode_drv2halmac(usb_mode);
-#ifdef CONFIG_USB_DEBUG
-	dev_info(&d->pusbdev->dev,
-		  DRV_NAME " call api->halmac_set_hw_value()\n");
-#endif
 	status = api->halmac_set_hw_value(mac, HALMAC_HW_USB_MODE, (void *)&halmac_usb_mode);
 
 	if (HALMAC_RET_SUCCESS != status)

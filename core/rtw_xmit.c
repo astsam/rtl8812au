@@ -16,7 +16,6 @@
 
 #include <drv_types.h>
 #include <hal_data.h>
-#include <net/cfg80211.h>
 
 #if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
 	#error "Shall be Linux or Windows, but not both!\n"
@@ -1379,12 +1378,11 @@ static s32 update_attrib(_adapter *padapter, _pkt *pkt, struct pkt_attrib *pattr
 		_rtw_memcpy(pattrib->ra, pattrib->dst, ETH_ALEN);
 		_rtw_memcpy(pattrib->ta, get_bssid(pmlmepriv), ETH_ALEN);
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_ap);
-	} else {
+	} else
 		DBG_COUNTER(padapter->tx_logs.core_tx_upd_attrib_unknown);
 
 get_sta_info:
 	bmcast = IS_MCAST(pattrib->ra);
-	}
 	if (bmcast) {
 		psta = rtw_get_bcmc_stainfo(padapter);
 		if (psta == NULL) { /* if we cannot get psta => drop the pkt */

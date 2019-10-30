@@ -19,13 +19,6 @@
 
 #include <rtw_wifi_regd.h>
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0))
-#define ieee80211_band nl80211_band
-#define IEEE80211_BAND_2GHZ NL80211_BAND_2GHZ
-#define IEEE80211_BAND_5GHZ NL80211_BAND_5GHZ
-#define IEEE80211_NUM_BANDS NUM_NL80211_BANDS
-#endif
-
 static struct country_code_to_enum_rd allCountries[] = {
 	{COUNTRY_CODE_USER, "RD"},
 };
@@ -50,11 +43,13 @@ static struct country_code_to_enum_rd allCountries[] = {
 
 /* 2G chan 12 - chan 13, PASSIV SCAN */
 #define RTW_2GHZ_CH12_13	\
-	REG_RULE(2467-10, 2472+10, 40, 0, 20, 0)
+	REG_RULE(2467-10, 2472+10, 40, 0, 20,	\
+		 NL80211_RRF_PASSIVE_SCAN)
 
 /* 2G chan 14, PASSIVS SCAN, NO OFDM (B only) */
 #define RTW_2GHZ_CH14	\
-REG_RULE(2484-10, 2484+10, 40, 0, 20, 0)
+	REG_RULE(2484-10, 2484+10, 40, 0, 20,	\
+		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_OFDM)
 
 /* 5G chan 36 - chan 64 */
 #define RTW_5GHZ_5150_5350	\
@@ -73,15 +68,15 @@ REG_RULE(2484-10, 2484+10, 40, 0, 20, 0)
 
 /* 5G chan 36 - chan 165 */
 #define RTW_5GHZ_5150_5850	\
-	REG_RULE(5150-10, 5850+10, 40, 0, 30, 0)
+	REG_RULE(5150-10, 5850+10, 40, 0, 30,	\
+		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
 
 static const struct ieee80211_regdomain rtw_regdom_rd = {
-	.n_reg_rules = 4,
+	.n_reg_rules = 3,
 	.alpha2 = "99",
 	.reg_rules = {
 		RTW_2GHZ_CH01_11,
 		RTW_2GHZ_CH12_13,
-		RTW_2GHZ_CH14,
 		RTW_5GHZ_5150_5850,
 	}
 };
@@ -279,15 +274,11 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 				ch = &sband->channels[j];
 
 				if (ch)
-#ifndef CONFIG_DISABLE_REGD_C
 					ch->flags = IEEE80211_CHAN_DISABLED;
-#else
-					ch->flags = 0;
-#endif
 			}
 		}
 	}
-#ifndef CONFIG_DISABLE_REGD_C
+
 	/* channels apply by channel plans. */
 	for (i = 0; i < max_chan_nums; i++) {
 		channel = channel_set[i].ChannelNum;
@@ -325,7 +316,6 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 		}
 		#endif /* CONFIG_DFS */
 	}
-#endif
 }
 
 static const struct ieee80211_regdomain *_rtw_regdomain_select(struct

@@ -18,6 +18,9 @@
 
 #define NUM_IOREQ		8
 
+#ifdef PLATFORM_WINDOWS
+	#define MAX_PROT_SZ	64
+#endif
 #ifdef PLATFORM_LINUX
 	#define MAX_PROT_SZ	(64-16)
 #endif
@@ -37,15 +40,19 @@
 #define _IO_SYNC_		BIT(13)
 #define _IO_CMDMASK_	(0x1F80)
 
+
 /*
 	For prompt mode accessing, caller shall free io_req
 	Otherwise, io_handler will free io_req
 */
 
+
+
 /* IO STATUS TYPE */
 #define _IO_ERR_		BIT(2)
 #define _IO_SUCCESS_	BIT(1)
 #define _IO_DONE_		BIT(0)
+
 
 #define IO_RD32			(_IO_SYNC_ | _IO_WORD_)
 #define IO_RD16			(_IO_SYNC_ | _IO_HW_)
@@ -64,11 +71,15 @@
 #define IO_WR8_ASYNC	(_IO_WRITE_ | _IO_BYTE_)
 
 /*
+
 	Only Sync. burst accessing is provided.
+
 */
 
 #define IO_WR_BURST(x)		(_IO_WRITE_ | _IO_SYNC_ | _IO_BURST_ | ((x) & _IOSZ_MASK_))
 #define IO_RD_BURST(x)		(_IO_SYNC_ | _IO_BURST_ | ((x) & _IOSZ_MASK_))
+
+
 
 /* below is for the intf_option bit defition... */
 
@@ -130,12 +141,26 @@ struct io_req {
 	u8	*pbuf;
 	_sema	sema;
 
+#ifdef PLATFORM_OS_CE
+#ifdef CONFIG_USB_HCI
+	/* URB handler for rtw_write_mem */
+	USB_TRANSFER usb_transfer_write_mem;
+#endif
+#endif
+
 	void (*_async_io_callback)(_adapter *padater, struct io_req *pio_req, u8 *cnxt);
 	u8 *cnxt;
+
+#ifdef PLATFORM_OS_XP
+	PMDL pmdl;
+	PIRP  pirp;
 
 #ifdef CONFIG_SDIO_HCI
 	PSDBUS_REQUEST_PACKET sdrp;
 #endif
+
+#endif
+
 
 };
 
@@ -167,7 +192,7 @@ struct	intf_hdl {
 
 struct reg_protocol_rd {
 
-#ifdef __LITTLE_ENDIAN
+#ifdef CONFIG_LITTLE_ENDIAN
 
 	/* DW1 */
 	u32		NumOfTrans:4;
@@ -189,6 +214,7 @@ struct reg_protocol_rd {
 	/* u32		Value; */
 #else
 
+
 	/* DW1 */
 	u32 Reserved1:4;
 	u32 NumOfTrans:4;
@@ -198,6 +224,7 @@ struct reg_protocol_rd {
 	/* DW2 */
 	u32 WriteEnable:1;
 	u32 ByteCount:7;
+
 
 	u32 Reserved3:3;
 	u32 Byte4Access:1;
@@ -219,9 +246,11 @@ struct reg_protocol_rd {
 
 };
 
+
 struct reg_protocol_wt {
 
-#ifdef __LITTLE_ENDIAN
+
+#ifdef CONFIG_LITTLE_ENDIAN
 
 	/* DW1 */
 	u32		NumOfTrans:4;
@@ -290,11 +319,13 @@ struct reg_protocol_wt {
 #define MAX_CONTINUAL_IO_ERR SD_IO_TRY_CNT
 #endif
 
+
 int rtw_inc_and_chk_continual_io_error(struct dvobj_priv *dvobj);
 void rtw_reset_continual_io_error(struct dvobj_priv *dvobj);
 
 /*
 Below is the data structure used by _io_handler
+
 */
 
 struct io_queue {
@@ -319,6 +350,7 @@ extern uint ioreq_flush(_adapter *adapter, struct io_queue *ioqueue);
 extern void sync_ioreq_enqueue(struct io_req *preq, struct io_queue *ioqueue);
 extern uint sync_ioreq_flush(_adapter *adapter, struct io_queue *ioqueue);
 
+
 extern uint free_ioreq(struct io_req *preq, struct io_queue *pio_queue);
 extern struct io_req *alloc_ioreq(struct io_queue *pio_q);
 
@@ -334,6 +366,7 @@ extern u32 _rtw_read32(_adapter *adapter, u32 addr);
 extern void _rtw_read_mem(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 extern void _rtw_read_port(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 extern void _rtw_read_port_cancel(_adapter *adapter);
+
 
 extern int _rtw_write8(_adapter *adapter, u32 addr, u8 val);
 extern int _rtw_write16(_adapter *adapter, u32 addr, u16 val);
@@ -469,6 +502,7 @@ extern void ioreq_write8(_adapter *adapter, u32 addr, u8 val);
 extern void ioreq_write16(_adapter *adapter, u32 addr, u16 val);
 extern void ioreq_write32(_adapter *adapter, u32 addr, u32 val);
 
+
 extern uint async_read8(_adapter *adapter, u32 addr, u8 *pbuff,
 	void (*_async_io_callback)(_adapter *padater, struct io_req *pio_req, u8 *cnxt), u8 *cnxt);
 extern uint async_read16(_adapter *adapter, u32 addr,  u8 *pbuff,
@@ -489,7 +523,9 @@ extern void async_write32(_adapter *adapter, u32 addr, u32 val,
 extern void async_write_mem(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 extern void async_write_port(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 
+
 int rtw_init_io_priv(_adapter *padapter, void (*set_intf_ops)(_adapter *padapter, struct _io_ops *pops));
+
 
 extern uint alloc_io_queue(_adapter *adapter);
 extern void free_io_queue(_adapter *adapter);

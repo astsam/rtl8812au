@@ -14,11 +14,13 @@
  *****************************************************************************/
 #ifndef __DRV_CONF_H__
 #define __DRV_CONF_H__
-
-#include <generated/autoconf.h>
-#include "rtl_autoconf.h"
+#include "autoconf.h"
 #include "hal_ic_cfg.h"
+#if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
 
+	#error "Shall be Linux or Windows, but not both!\n"
+
+#endif
 #define CONFIG_RSSI_PRIORITY
 #ifdef CONFIG_RTW_REPEATER_SON
 	#ifndef CONFIG_AP
@@ -362,7 +364,7 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 #define CONFIG_HWMPCAP_GEN3
 #endif
 
-#if defined(CONFIG_HWMPCAP_GEN1) && (CONFIG_IFACE_NUMBER > 2)
+#if defined(CONFIG_HWMPCAP_GEN1) && (CONFIG_IFACE_NUMBER > 2) 
 	#ifdef CONFIG_POWER_SAVING
 	/*#warning "Disable PS when CONFIG_IFACE_NUMBER > 2"*/
 	#undef CONFIG_POWER_SAVING
@@ -498,11 +500,11 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 	#endif
 #endif
 
-#define CONFIG_RTW_TPT_MODE
+#define CONFIG_RTW_TPT_MODE 
 
 #ifdef CONFIG_PCI_BCN_POLLING
 #define CONFIG_BCN_ICF
-#endif
+#endif 
 
 #ifndef CONFIG_PCI_MSI
 #define CONFIG_RTW_PCI_MSI_DISABLE

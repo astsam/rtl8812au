@@ -2695,10 +2695,6 @@ union recv_frame *recvframe_defrag(_adapter *adapter, _queue *defrag_q)
 	plist = get_next(phead);
 	prframe = LIST_CONTAINOR(plist, union recv_frame, u);
 	pfhdr = &prframe->u.hdr;
-	if (!pfhdr) {
-		pr_err("pfhdr NULL in %s\n", __func__);
-		return NULL;
-	}
 	rtw_list_delete(&(prframe->u.list));
 
 	if (curfragnum != pfhdr->attrib.frag_num) {
@@ -4046,15 +4042,8 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 	if (pattrib->mfrag)
 		hdr_buf[rt_len] |= IEEE80211_RADIOTAP_F_FRAG;
 
-#ifdef CONFIG_RX_PACKET_APPEND_FCS
-        // Start by always indicating FCS is there:
-        hdr_buf[rt_len] |= IEEE80211_RADIOTAP_F_FCS;
-
-        // Next, test for prior conditions that will remove FCS, and update flag accordingly:
-        if(check_fwstate(&padapter->mlmepriv,WIFI_MONITOR_STATE) == _FALSE)
-                if((pattrib->pkt_rpt_type == NORMAL_RX) && (pHalData->ReceiveConfig & RCR_APPFCS))
-                        hdr_buf[rt_len] &= ~IEEE80211_RADIOTAP_F_FCS;
-#endif
+	/* always append FCS */
+	hdr_buf[rt_len] |= IEEE80211_RADIOTAP_F_FCS;
 
 
 	if (0)

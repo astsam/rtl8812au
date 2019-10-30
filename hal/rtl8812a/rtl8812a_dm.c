@@ -31,6 +31,7 @@
  * Global var
  * ************************************************************ */
 
+
 static VOID
 dm_CheckProtection(
 	IN	PADAPTER	Adapter
@@ -139,6 +140,7 @@ dm_InterruptMigration(
 	BOOLEAN			bCurrentIntMt, bCurrentACIntDisable;
 	BOOLEAN			IntMtToSet = _FALSE;
 	BOOLEAN			ACIntToSet = _FALSE;
+
 
 	/* Retrieve current interrupt migration and Tx four ACs IMR settings first. */
 	bCurrentIntMt = pHalData->bInterruptMigration;
@@ -259,6 +261,7 @@ rtl8812_InitHalDm(
 	rtw_phydm_init(Adapter);
 	/* Adapter->fix_rate = 0xFF; */
 }
+
 
 VOID
 rtl8812_HalDmWatchDog(

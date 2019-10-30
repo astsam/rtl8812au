@@ -24,7 +24,7 @@ void interrupt_handler_8812au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 	struct reportpwrstate_parm pwr_rpt;
 
 	if (pkt_len != INTERRUPT_MSG_FORMAT_LEN) {
-		//RTW_INFO("%s Invalid interrupt content length (%d)!\n", __FUNCTION__, pkt_len);
+		RTW_INFO("%s Invalid interrupt content length (%d)!\n", __FUNCTION__, pkt_len);
 		return ;
 	}
 
@@ -42,7 +42,7 @@ void interrupt_handler_8812au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 		hisr_ex = le32_to_cpu(hisr_ex);
 
 		if ((hisr != 0) || (hisr_ex != 0))
-			//RTW_INFO("===> %s hisr:0x%08x ,hisr_ex:0x%08x\n", __FUNCTION__, hisr, hisr_ex);
+			RTW_INFO("===> %s hisr:0x%08x ,hisr_ex:0x%08x\n", __FUNCTION__, hisr, hisr_ex);
 	}
 #endif
 
@@ -69,11 +69,11 @@ void interrupt_handler_8812au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 		{
 #if 0
 			if (pHalData->IntArray[0] & IMR_BCNDMAINT0_88E)
-				//RTW_INFO("%s: HISR_BCNERLY_INT\n", __func__);
+				RTW_INFO("%s: HISR_BCNERLY_INT\n", __func__);
 			if (pHalData->IntArray[0] & IMR_TBDOK_88E)
-				//RTW_INFO("%s: HISR_TXBCNOK\n", __func__);
+				RTW_INFO("%s: HISR_TXBCNOK\n", __func__);
 			if (pHalData->IntArray[0] & IMR_TBDER_88E)
-				//RTW_INFO("%s: HISR_TXBCNERR\n", __func__);
+				RTW_INFO("%s: HISR_TXBCNERR\n", __func__);
 #endif
 			rtw_mi_set_tx_beacon_cmd(padapter);
 		}
@@ -84,13 +84,13 @@ void interrupt_handler_8812au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 
 #ifdef DBG_CONFIG_ERROR_DETECT_INT
 	if (pHalData->IntArray[1]  & IMR_TXERR_88E)
-		//RTW_INFO("===> %s Tx Error Flag Interrupt Status\n", __FUNCTION__);
+		RTW_INFO("===> %s Tx Error Flag Interrupt Status\n", __FUNCTION__);
 	if (pHalData->IntArray[1]  & IMR_RXERR_88E)
-		//RTW_INFO("===> %s Rx Error Flag INT Status\n", __FUNCTION__);
+		RTW_INFO("===> %s Rx Error Flag INT Status\n", __FUNCTION__);
 	if (pHalData->IntArray[1]  & IMR_TXFOVW_88E)
-		//RTW_INFO("===> %s Transmit FIFO Overflow\n", __FUNCTION__);
+		RTW_INFO("===> %s Transmit FIFO Overflow\n", __FUNCTION__);
 	if (pHalData->IntArray[1]  & IMR_RXFOVW_88E)
-		//RTW_INFO("===> %s Receive FIFO Overflow\n", __FUNCTION__);
+		RTW_INFO("===> %s Receive FIFO Overflow\n", __FUNCTION__);
 #endif/* DBG_CONFIG_ERROR_DETECT_INT */
 
 #ifdef CONFIG_FW_C2H_REG
@@ -125,6 +125,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 	pbuf = pskb->data;
 #endif/* CONFIG_USE_USB_BUFFER_ALLOC_RX */
 
+
 #ifdef CONFIG_USB_RX_AGGREGATION
 	pkt_cnt = GET_RX_STATUS_DESC_USB_AGG_PKTNUM_8812(pbuf);
 #endif
@@ -132,7 +133,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 	do {
 		precvframe = rtw_alloc_recvframe(pfree_recv_queue);
 		if (precvframe == NULL) {
-			//RTW_INFO("%s()-%d: rtw_alloc_recvframe() failed! RX Drop!\n", __FUNCTION__, __LINE__);
+			RTW_INFO("%s()-%d: rtw_alloc_recvframe() failed! RX Drop!\n", __FUNCTION__, __LINE__);
 			goto _exit_recvbuf2recvframe;
 		}
 
@@ -145,7 +146,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 		pattrib = &precvframe->u.hdr.attrib;
 
 		if ((padapter->registrypriv.mp_mode == 0) && ((pattrib->crc_err) || (pattrib->icv_err))) {
-			//RTW_INFO("%s: RX Warning! crc_err=%d icv_err=%d, skip!\n", __FUNCTION__, pattrib->crc_err, pattrib->icv_err);
+			RTW_INFO("%s: RX Warning! crc_err=%d icv_err=%d, skip!\n", __FUNCTION__, pattrib->crc_err, pattrib->icv_err);
 
 			rtw_free_recvframe(precvframe, pfree_recv_queue);
 			goto _exit_recvbuf2recvframe;
@@ -154,7 +155,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 		pkt_offset = RXDESC_SIZE + pattrib->drvinfo_sz + pattrib->shift_sz + pattrib->pkt_len;
 
 		if ((pattrib->pkt_len <= 0) || (pkt_offset > transfer_len)) {
-			//RTW_INFO("%s()-%d: RX Warning!,pkt_len<=0 or pkt_offset> transfer_len\n", __FUNCTION__, __LINE__);
+			RTW_INFO("%s()-%d: RX Warning!,pkt_len<=0 or pkt_offset> transfer_len\n", __FUNCTION__, __LINE__);
 			rtw_free_recvframe(precvframe, pfree_recv_queue);
 			goto _exit_recvbuf2recvframe;
 		}
@@ -214,7 +215,7 @@ void rtl8812au_xmit_tasklet(void *priv)
 
 	while (1) {
 		if (RTW_CANNOT_TX(padapter)) {
-			//RTW_INFO("xmit_tasklet => bDriverStopped or bSurpriseRemoved or bWritePortCancel\n");
+			RTW_INFO("xmit_tasklet => bDriverStopped or bSurpriseRemoved or bWritePortCancel\n");
 			break;
 		}
 

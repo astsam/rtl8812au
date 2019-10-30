@@ -1238,7 +1238,7 @@ exit:
 
 void rtw_rf_set_tx_gain_offset(_adapter *adapter, u8 path, s8 offset)
 {
-#if defined(CONFIG_RTL8821A)
+#if !defined(CONFIG_RTL8814A) && !defined(CONFIG_RTL8822B) && !defined(CONFIG_RTL8821C)
 	u8 write_value;
 #endif
 	u8 target_path = 0;
@@ -1298,9 +1298,14 @@ void rtw_rf_set_tx_gain_offset(_adapter *adapter, u8 path, s8 offset)
 		rtw_hal_write_rfreg(adapter, target_path, 0x55, 0x0f8000, write_value);
 		break;
 #endif /* CONFIG_RTL8821A */
-#if defined(CONFIG_RTL8814A)
+#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8192F)
 	case RTL8814A:
-#endif /* CONFIG_RTL8814A */
+	case RTL8822B:
+	case RTL8821C:
+	case RTL8192F:
+		RTW_INFO("\nkfree by PhyDM on the sw CH. path %d\n", path);
+		break;
+#endif /* CONFIG_RTL8814A || CONFIG_RTL8822B || CONFIG_RTL8821C */
 
 	default:
 		rtw_warn_on(1);

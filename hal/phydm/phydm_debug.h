@@ -276,8 +276,6 @@ static __inline void PHYDM_DBG_F(PDM_ODM_T dm, int comp, char *fmt, ...)
 	} while (0)
 #endif
 
-#define ODM_RT_TRACE(dm, comp, level, fmt)
-
 #else /*@#if DBG*/
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 static __inline void PHYDM_DBG(struct dm_struct *dm, int comp, char *fmt, ...)
@@ -311,7 +309,7 @@ static __inline void PHYDM_DBG_F(struct dm_struct *dm, int comp, char *fmt, ...)
 #define PHYDM_DBG_F(dm, comp, fmt, args...)
 #endif
 #define PHYDM_PRINT_ADDR(dm, comp, title_str, ptr)
-#define ODM_RT_TRACE(dm, comp, level, fmt)
+
 #endif
 
 #define	DBGPORT_PRI_3	3	/*@Debug function (the highest priority)*/

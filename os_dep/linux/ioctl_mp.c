@@ -19,10 +19,6 @@
 #include <rtw_mp_ioctl.h>
 #include "../../hal/phydm/phydm_precomp.h"
 
-#ifdef MARK_KERNEL_PFU
-	#include <linux/kernel.h>
-	#include <asm/fpu/api.h>
-#endif
 
 #if defined(CONFIG_RTL8723B)
 	#include <rtw_bt_mp.h>
@@ -1077,7 +1073,7 @@ int rtw_mp_trx_query(struct net_device *dev,
 	return 0;
 }
 
-/*
+
 int rtw_mp_pwrtrk(struct net_device *dev,
 		  struct iw_request_info *info,
 		  struct iw_point *wrqu, char *extra)
@@ -1095,6 +1091,7 @@ int rtw_mp_pwrtrk(struct net_device *dev,
 
 	enable = 1;
 	if (wrqu->length > 1) {
+		/* not empty string*/
 		if (strncmp(input, "stop", 4) == 0) {
 			enable = 0;
 			sprintf(extra, "mp tx power tracking stop");
@@ -1115,7 +1112,7 @@ int rtw_mp_pwrtrk(struct net_device *dev,
 
 	return 0;
 }
-*/
+
 
 
 int rtw_mp_psd(struct net_device *dev,
@@ -1721,10 +1718,6 @@ int rtw_mp_tx(struct net_device *dev,
 
 			PMAC_Get_Pkt_Param(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 
-			#ifdef MARK_KERNEL_PFU
-				kernel_fpu_begin();
-			#endif
-
 			if (MPT_IS_CCK_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 
 				CCK_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
@@ -1733,11 +1726,6 @@ int rtw_mp_tx(struct net_device *dev,
 				/* 24 BIT*/
 				L_SIG_generator(pMptCtx->PMacPktInfo.N_sym, &pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 			}
-
-			#ifdef MARK_KERNEL_PFU
-				kernel_fpu_end();
-			#endif
-
 			/*	48BIT*/
 			if (MPT_IS_HT_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 				HT_SIG_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
