@@ -1904,7 +1904,7 @@ static const struct wiphy_vendor_command rtw_vendor_cmds[] = {
 		.doit = rtw_cfgvendor_rtt_get_capability
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
 		,
-		.policy = VENDOR_CMD_RAW_DATA, æ
+		.policy = VENDOR_CMD_RAW_DATA,
 		.maxattr = 1
 #endif
 		},
