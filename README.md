@@ -40,11 +40,10 @@ Only for use with Linux & Android
 ### TODO
 
 ```
-* Test & fix the 8821au support (@fariouche has been working on it)
-* Clean out Windows & FreeBSD code (partially. some NDIS code and switches around)
-* Clean out unsupported chipsets (partially. some switches left all around
-* Throw/rip Intel WIDI support out, it's left behind anyway.
-* Consider adding rtl8188eus HAL/phydm support into the driver for simplicity.
+* Add the 8821au and 8814au HAL
+* Add txpower control
+* Add more "iw" output
+* Upload newer docs/ (from v5.6.4.2)
 ```
 ### IPERF3 benchmark
 <b>[Device]</b> Alfa Networks AWUS036ACH<br>
