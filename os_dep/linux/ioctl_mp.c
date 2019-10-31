@@ -2069,7 +2069,7 @@ int rtw_mp_hwtx(struct net_device *dev,
 	struct mp_priv *pmp_priv = &padapter->mppriv;
 	PMPT_CONTEXT		pMptCtx = &(padapter->mppriv.mpt_ctx);
 
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8821B) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)
+#if defined(CONFIG_MP_VHT_HW_TX_MODE)
 	u8		input[wrqu->data.length];
 
 	if (copy_from_user(input, wrqu->data.pointer, wrqu->data.length))
