@@ -2428,9 +2428,9 @@ int rtw_check_beacon_data(_adapter *padapter, u8 *pbuf,  int len)
 		/* Parsing VHT OPERATION IE */
 
 		if (vht_cap == _TRUE
-			&& MLME_IS_MESH(padapter) /* allow only mesh temporarily before VHT IE checking is ready */
 		) {
-			rtw_check_for_vht20(padapter, ie + _BEACON_IE_OFFSET_, pbss_network->IELength - _BEACON_IE_OFFSET_);
+			if(MLME_IS_MESH(padapter)) /* allow only mesh temporarily before VHT IE checking is ready */
+				rtw_check_for_vht20(padapter, ie + _BEACON_IE_OFFSET_, pbss_network->IELength - _BEACON_IE_OFFSET_);
 			pmlmepriv->ori_vht_en = 1;
 			pmlmepriv->vhtpriv.vht_option = _TRUE;
 		} else if (REGSTY_IS_11AC_AUTO(pregistrypriv)) {

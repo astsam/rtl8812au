@@ -9220,12 +9220,12 @@ static void rtw_cfg80211_init_ht_capab_ex(_adapter *padapter
 
 			case RF_2T2R:
 			case RF_1T2R:
-				ht_cap->cap |= IEEE80211_HT_CAP_RX_STBC_2R;/* Only one spatial-stream STBC RX is supported */
+				ht_cap->cap |= IEEE80211_HT_CAP_RX_STBC_1R;/* Only one spatial-stream STBC RX is supported */
 				break;
 			case RF_3T3R:
 			case RF_3T4R:
 			case RF_4T4R:
-				ht_cap->cap |= IEEE80211_HT_CAP_RX_STBC_3R;/* Only one spatial-stream STBC RX is supported */
+				ht_cap->cap |= IEEE80211_HT_CAP_RX_STBC_1R;/* Only one spatial-stream STBC RX is supported */
 				break;
 			default:
 				RTW_INFO("[warning] rf_type %d is not expected\n", rf_type);
@@ -9413,8 +9413,6 @@ static void rtw_cfg80211_preinit_wiphy(_adapter *adapter, struct wiphy *wiphy)
 {
 	struct dvobj_priv *dvobj = adapter_to_dvobj(adapter);
 	struct registry_priv *regsty = dvobj_to_regsty(dvobj);
-	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
-struct ieee80211_supported_band *band;
 
 	wiphy->signal_type = CFG80211_SIGNAL_TYPE_MBM;
 
@@ -9553,31 +9551,6 @@ struct ieee80211_supported_band *band;
 
 #if (KERNEL_VERSION(3, 8, 0) <= LINUX_VERSION_CODE)
 	wiphy->features |= NL80211_FEATURE_SAE;
-#endif
-
-	wiphy->available_antennas_tx = hal_spec->tx_nss_num;
-	wiphy->available_antennas_rx = hal_spec->rx_nss_num;
-
-if (IsSupported24G(adapter->registrypriv.wireless_mode)) {
-		band = wiphy->bands[NL80211_BAND_2GHZ];
-		if (band) {
-			#if defined(CONFIG_80211N_HT)
-			rtw_cfg80211_init_ht_capab(adapter, &band->ht_cap, BAND_ON_2_4G, RF_1T1R);
-			#endif
-		}
-	}
-#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	if (is_supported_5g(adapter->registrypriv.wireless_mode)) {
-		band = wiphy->bands[NL80211_BAND_5GHZ];
-		if (band) {
-			#if defined(CONFIG_80211N_HT)
-			rtw_cfg80211_init_ht_capab(adapter, &band->ht_cap, BAND_ON_5G, RF_1T1R);
-			#endif
-			#if defined(CONFIG_80211AC_VHT) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
-			rtw_cfg80211_init_vht_capab(adapter, &band->vht_cap, BAND_ON_5G, RF_1T1R);
-			#endif
-		}
-	}
 #endif
 }
 

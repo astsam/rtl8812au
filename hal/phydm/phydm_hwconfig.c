@@ -189,7 +189,7 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 			else if (e_rf_path == RF_PATH_D)
 				READ_AND_CONFIG_MP(8814a, _radiod);
 		} else if (config_type == CONFIG_RF_TXPWR_LMT) {
-			if (dm->rfe_type == 0)
+			/*if (dm->rfe_type == 0)
 				READ_AND_CONFIG_MP(8814a, _txpwr_lmt_type0);
 			else if (dm->rfe_type == 1)
 				READ_AND_CONFIG_MP(8814a, _txpwr_lmt_type1);
@@ -203,7 +203,7 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 				READ_AND_CONFIG_MP(8814a, _txpwr_lmt_type7);
 			else if (dm->rfe_type == 8)
 				READ_AND_CONFIG_MP(8814a, _txpwr_lmt_type8);
-			else
+			else*/
 				READ_AND_CONFIG_MP(8814a, _txpwr_lmt);
 		}
 	}
@@ -572,14 +572,14 @@ odm_config_rf_with_tx_pwr_track_header_file(struct dm_struct *dm)
 			READ_AND_CONFIG_MP(8814a, _txpowertrack_type2);
 		else if (dm->rfe_type == 5)
 			READ_AND_CONFIG_MP(8814a, _txpowertrack_type5);
-		else if (dm->rfe_type == 7)
+		/*else if (dm->rfe_type == 7)
 			READ_AND_CONFIG_MP(8814a, _txpowertrack_type7);
 		else if (dm->rfe_type == 8)
-			READ_AND_CONFIG_MP(8814a, _txpowertrack_type8);
+			READ_AND_CONFIG_MP(8814a, _txpowertrack_type8);*/
 		else
 			READ_AND_CONFIG_MP(8814a, _txpowertrack);
 
-		READ_AND_CONFIG_MP(8814a, _txpowertssi);
+		//READ_AND_CONFIG_MP(8814a, _txpowertssi);
 	}
 #endif
 #if RTL8703B_SUPPORT
@@ -914,7 +914,7 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 		else if (config_type == CONFIG_BB_AGC_TAB)
 			READ_AND_CONFIG_MP(8814a, _agc_tab);
 		else if (config_type == CONFIG_BB_PHY_REG_PG) {
-			if (dm->rfe_type == 0)
+			/*if (dm->rfe_type == 0)
 				READ_AND_CONFIG_MP(8814a, _phy_reg_pg_type0);
 			else if (dm->rfe_type == 2)
 				READ_AND_CONFIG_MP(8814a, _phy_reg_pg_type2);
@@ -928,7 +928,7 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 				READ_AND_CONFIG_MP(8814a, _phy_reg_pg_type7);
 			else if (dm->rfe_type == 8)
 				READ_AND_CONFIG_MP(8814a, _phy_reg_pg_type8);
-			else
+			else*/
 				READ_AND_CONFIG_MP(8814a, _phy_reg_pg);
 		} else if (config_type == CONFIG_BB_PHY_REG_MP)
 			READ_AND_CONFIG_MP(8814a, _phy_reg_mp);
