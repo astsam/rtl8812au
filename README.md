@@ -34,13 +34,13 @@ Only for use with Linux & Android
 ### Known Issues
 ```
 * VMware Workstation has issues, giving kernel oops on module load.
-* Ubuntu has enabled module signing (kernel) by default, workaround: turn off "secure boot"
+* Ubuntu has enabled module signing (kernel) by default, workaround:
+run the 'install-and-sign-ubuntu.sh' in 'tools' folder
 ```
 
 ### TODO
 
 ```
-* Add the 8821au and 8814au HAL
 * Add txpower control
 * Add more "iw" output
 * Upload newer docs/ (from v5.6.4.2)
