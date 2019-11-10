@@ -9496,9 +9496,12 @@ struct ieee80211_supported_band *band;
 	/* wiphy->flags |= WIPHY_FLAG_OFFCHAN_TX | WIPHY_FLAG_HAVE_AP_SME; */
 #endif
 
-#if defined(CONFIG_PM) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0) && \
-			   LINUX_VERSION_CODE < KERNEL_VERSION(4, 12, 0))
-	wiphy->flags |= WIPHY_FLAG_SUPPORTS_SCHED_SCAN;
+#if defined(CONFIG_PM) && (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 0, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0))
+ 	wiphy->max_sched_scan_reqs = 1;
+#else
+  	wiphy->flags |= WIPHY_FLAG_SUPPORTS_SCHED_SCAN;
+#endif
 #ifdef CONFIG_PNO_SUPPORT
 	wiphy->max_sched_scan_ssids = MAX_PNO_LIST_COUNT;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 2, 0)
