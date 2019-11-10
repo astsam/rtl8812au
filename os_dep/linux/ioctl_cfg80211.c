@@ -3021,9 +3021,6 @@ bypass_p2p_chk:
 		goto check_need_indicate_scan_done;
 	}
 
-#else
-
-
 #ifdef CONFIG_MP_INCLUDED
 	if (rtw_mp_mode_check(padapter)) {
 		RTW_INFO("MP mode block Scan request\n");
