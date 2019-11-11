@@ -1124,6 +1124,9 @@ ifeq ($(CONFIG_PLATFORM_I386_PC), y)
 ## For I386 X86 ToolChain use Hardware FLOATING
 EXTRA_CFLAGS += -mhard-float
 EXTRA_CFLAGS += -DMARK_KERNEL_PFU
+else ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
+## For Rpi3: use hardware floating, but not on the api
+EXTRA_CFLAGS += -mfloat-abi=softfp
 else
 ## For ARM ToolChain use Hardware FLOATING
 # Raspbian kernel is with soft-float.
@@ -1155,7 +1158,6 @@ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
 INSTALL_PREFIX :=
 STAGINGMODDIR := /lib/modules/$(KVER)/kernel/drivers/staging
 endif
-
 
 ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
