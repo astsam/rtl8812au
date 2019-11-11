@@ -217,6 +217,7 @@ static u32 getcrc32(u8 *buf, sint len)
 	for (p = buf; len > 0; ++p, --len)
 		crc = crc32_table[(crc ^ *p) & 0xff] ^ (crc >> 8);
 	return ~crc;    /* transmit complement, per CRC-32 spec */
+}
 
 /*
 	Need to consider the fragment  situation
@@ -237,6 +238,7 @@ void rtw_wep_encrypt(_adapter *padapter, u8 *pxmitframe)
 	struct	pkt_attrib	*pattrib = &((struct xmit_frame *)pxmitframe)->attrib;
 	struct	security_priv	*psecuritypriv = &padapter->securitypriv;
 	struct	xmit_priv		*pxmitpriv = &padapter->xmitpriv;
+
 
 	if (((struct xmit_frame *)pxmitframe)->buf_addr == NULL)
 		return;
