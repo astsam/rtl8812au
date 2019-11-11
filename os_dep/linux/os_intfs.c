@@ -1571,6 +1571,9 @@ void rtw_hook_if_ops(struct net_device *ndev)
 #ifdef CONFIG_CONCURRENT_MODE
 static void rtw_hook_vir_if_ops(struct net_device *ndev);
 #endif
+static const struct device_type wlan_type = {
+	.name = "wlan",
+};
 struct net_device *rtw_init_netdev(_adapter *old_padapter)
 {
 	_adapter *padapter;
@@ -1589,6 +1592,7 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 	pnetdev->mtu = WLAN_DATA_MAXLEN;
 	pnetdev->max_mtu = WLAN_DATA_MAXLEN;
 
+	pnetdev->dev.type = &wlan_type;
 	padapter = rtw_netdev_priv(pnetdev);
 	padapter->pnetdev = pnetdev;
 
