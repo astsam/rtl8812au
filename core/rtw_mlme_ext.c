@@ -20,7 +20,6 @@
 #endif /* CONFIG_IOCTL_CFG80211 */
 #include <hal_data.h>
 
-
 struct mlme_handler mlme_sta_tbl[] = {
 	{WIFI_ASSOCREQ,		"OnAssocReq",	&OnAssocReq},
 	{WIFI_ASSOCRSP,		"OnAssocRsp",	&OnAssocRsp},
@@ -8619,7 +8618,6 @@ void issue_auth(_adapter *padapter, struct sta_info *psta, unsigned short status
 	pframe += sizeof(struct rtw_ieee80211_hdr_3addr);
 	pattrib->pktlen = sizeof(struct rtw_ieee80211_hdr_3addr);
 
-
 	if (psta) { /* for AP mode */
 #ifdef CONFIG_NATIVEAP_MLME
 
@@ -8627,18 +8625,15 @@ void issue_auth(_adapter *padapter, struct sta_info *psta, unsigned short status
 		_rtw_memcpy(pwlanhdr->addr2, adapter_mac_addr(padapter), ETH_ALEN);
 		_rtw_memcpy(pwlanhdr->addr3, adapter_mac_addr(padapter), ETH_ALEN);
 
-
 		/* setting auth algo number */
 		val16 = (u16)psta->authalg;
-
-		if (status != _STATS_SUCCESSFUL_)
-			val16 = 0;
 
 		if (val16)	{
 			val16 = cpu_to_le16(val16);
 			use_shared_key = 1;
+		} else {
+			val16 = 0;
 		}
-
 		pframe = rtw_set_fixed_ie(pframe, _AUTH_ALGM_NUM_, (unsigned char *)&val16, &(pattrib->pktlen));
 
 		/* setting auth seq number */
