@@ -28,11 +28,9 @@
 
 #define CONFIG_USB_HCI
 
-
 #define PLATFORM_LINUX
 
-
-/* #define CONFIG_IOCTL_CFG80211 1 */
+#define CONFIG_IOCTL_CFG80211 1
 
 #ifdef CONFIG_IOCTL_CFG80211
 	/* #define RTW_USE_CFG80211_STA_EVENT */ /* Indecate new sta asoc through cfg80211_new_sta */
