@@ -4655,6 +4655,10 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 		goto out;
 	}
 
+	mon_ndev->min_mtu = WLAN_MIN_ETHFRM_LEN;
+	mon_ndev->mtu = WLAN_DATA_MAXLEN;
+	mon_ndev->max_mtu = WLAN_DATA_MAXLEN;
+
 	mon_ndev->type = ARPHRD_IEEE80211_RADIOTAP;
 	strncpy(mon_ndev->name, name, IFNAMSIZ);
 	mon_ndev->name[IFNAMSIZ - 1] = 0;

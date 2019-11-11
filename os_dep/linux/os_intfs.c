@@ -1592,6 +1592,10 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
 	if (!pnetdev)
 		return NULL;
 
+	pnetdev->min_mtu = WLAN_MIN_ETHFRM_LEN;
+	pnetdev->mtu = WLAN_DATA_MAXLEN;
+	pnetdev->max_mtu = WLAN_DATA_MAXLEN;
+
 	padapter = rtw_netdev_priv(pnetdev);
 	padapter->pnetdev = pnetdev;
 
