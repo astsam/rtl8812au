@@ -2323,6 +2323,11 @@ enum nl80211_iftype {
 	NL80211_IFTYPE_MAX = NUM_NL80211_IFTYPES - 1
 };
 #endif
+
+#ifdef CONFIG_CONCURRENT_MODE
+extern int netdev_if2_open(struct net_device *pnetdev);
+#endif
+
 static int cfg80211_rtw_change_iface(struct wiphy *wiphy,
 				     struct net_device *ndev,
 				     enum nl80211_iftype type,
