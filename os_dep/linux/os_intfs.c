@@ -2786,6 +2786,8 @@ static int netdev_vir_if_close(struct net_device *pnetdev)
 #endif
 
 #ifdef CONFIG_IOCTL_CFG80211
+	wdev->iftype = NL80211_IFTYPE_MONITOR;
+	wdev->current_bss = NULL;
 	rtw_scan_abort(padapter);
 	rtw_cfg80211_wait_scan_req_empty(padapter, 200);
 	adapter_wdev_data(padapter)->bandroid_scan = _FALSE;
@@ -3314,7 +3316,7 @@ int _netdev_open(struct net_device *pnetdev)
 	}
 	#endif /*CONFIG_AUTOSUSPEND*/
 
-	if (!rtw_is_hw_init_completed(padapter)) { // ips 
+	if (!rtw_is_hw_init_completed(padapter)) { // ips
 		rtw_clr_surprise_removed(padapter);
 		rtw_clr_drv_stopped(padapter);
 		RTW_ENABLE_FUNC(padapter, DF_RX_BIT);
@@ -3412,11 +3414,13 @@ int _netdev_open(struct net_device *pnetdev)
 {
 	uint status;
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
+#ifdef CONFIG_IOCTL_CFG80211
+	struct wireless_dev *wdev = padapter->rtw_wdev;
+#endif
 	struct pwrctrl_priv *pwrctrlpriv = adapter_to_pwrctl(padapter);
 #ifdef CONFIG_BT_COEXIST_SOCKET_TRX
 	HAL_DATA_TYPE		*pHalData = GET_HAL_DATA(padapter);
 #endif /* CONFIG_BT_COEXIST_SOCKET_TRX */
-
 
 	RTW_INFO(FUNC_NDEV_FMT" , bup=%d\n", FUNC_NDEV_ARG(pnetdev), padapter->bup);
 
@@ -3514,7 +3518,6 @@ int _netdev_open(struct net_device *pnetdev)
 	} else
 		RTW_INFO("CONFIG_BT_COEXIST: VIRTUAL_ADAPTER\n");
 #endif /* CONFIG_BT_COEXIST_SOCKET_TRX */
-
 
 netdev_open_normal_process:
 
