@@ -46,7 +46,6 @@ void interrupt_handler_8814au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 	}
 #endif
 
-
 #ifdef CONFIG_LPS_LCLK
 	if (pHalData->IntArray[0]  & IMR_CPWM_88E) {
 		_rtw_memcpy(&pwr_rpt.state, &(pbuf[USB_INTR_CONTENT_CPWM1_OFFSET]), 1);
@@ -76,7 +75,6 @@ void interrupt_handler_8814au(_adapter *padapter, u16 pkt_len, u8 *pbuf)
 			if (pHalData->IntArray[0] & IMR_TBDER_88E)
 				RTW_INFO("%s: HISR_TXBCNERR\n", __func__);
 #endif /* 0 */
-		
 
 			if(check_fwstate(pmlmepriv, WIFI_AP_STATE))
 			{
@@ -184,8 +182,9 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 		}
 
 #ifdef CONFIG_RX_PACKET_APPEND_FCS
-		if(pattrib->pkt_rpt_type == NORMAL_RX)
-			pattrib->pkt_len -= IEEE80211_FCS_LEN;
+                if (check_fwstate(&padapter->mlmepriv, WIFI_MONITOR_STATE) == _FALSE)
+                        if ((pattrib->pkt_rpt_type == NORMAL_RX) && (pHalData->ReceiveConfig & RCR_APPFCS))
+                                pattrib->pkt_len -= IEEE80211_FCS_LEN;
 #endif
 		if (rtw_os_alloc_recvframe(padapter, precvframe,
 			(pbuf + pattrib->shift_sz + pattrib->drvinfo_sz + RXDESC_SIZE), pskb) == _FAIL) {
@@ -249,7 +248,7 @@ _exit_recvbuf2recvframe:
 #endif
 
 void rtl8814au_xmit_tasklet(void *priv)
-{	
+{
 	int ret = _FALSE;
 	_adapter *padapter = (_adapter*)priv;
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
@@ -269,31 +268,31 @@ void rtl8814au_xmit_tasklet(void *priv)
 
 		if(ret==_FALSE)
 			break;
-		
+
 	}
-	
+
 }
 
 void rtl8814au_set_intf_ops(struct _io_ops	*pops)
-{		
-	_rtw_memset((u8 *)pops, 0, sizeof(struct _io_ops));	
+{
+	_rtw_memset((u8 *)pops, 0, sizeof(struct _io_ops));
 
 	pops->_read8 = &usb_read8;
 	pops->_read16 = &usb_read16;
 	pops->_read32 = &usb_read32;
 	pops->_read_mem = &usb_read_mem;
-	pops->_read_port = &usb_read_port;	
-	
+	pops->_read_port = &usb_read_port;
+
 	pops->_write8 = &usb_write8;
 	pops->_write16 = &usb_write16;
 	pops->_write32 = &usb_write32;
 	pops->_writeN = &usb_writeN;
-	
-#ifdef CONFIG_USB_SUPPORT_ASYNC_VDN_REQ	
+
+#ifdef CONFIG_USB_SUPPORT_ASYNC_VDN_REQ
 	pops->_write8_async= &usb_async_write8;
 	pops->_write16_async = &usb_async_write16;
 	pops->_write32_async = &usb_async_write32;
-#endif	
+#endif
 	pops->_write_mem = &usb_write_mem;
 	pops->_write_port = &usb_write_port;
 
@@ -311,4 +310,3 @@ void rtl8814au_set_hw_type(struct dvobj_priv *pdvobj)
 	pdvobj->HardwareType = HARDWARE_TYPE_RTL8814AU;
 	RTW_INFO("CHIP TYPE: RTL8814\n");
 }
-
