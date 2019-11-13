@@ -4697,6 +4697,11 @@ static int rtw_cfg80211_add_monitor_if(_adapter *padapter, char *name, struct ne
 	mon_ndev->type = ARPHRD_IEEE80211_RADIOTAP;
 	strncpy(mon_ndev->name, name, IFNAMSIZ);
 	mon_ndev->name[IFNAMSIZ - 1] = 0;
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12 ,0))
+	mon_ndev->needs_free_netdev = true;
+#else
+	mon_ndev->destructor = rtw_ndev_destructor;
+#endif
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(4, 11, 8))
 	mon_ndev->priv_destructor = rtw_ndev_destructor;
 #else
@@ -4916,9 +4921,7 @@ static int rtw_add_beacon(_adapter *adapter, const u8 *head, size_t head_len, co
 	struct mlme_priv *pmlmepriv = &(adapter->mlmepriv);
 	/* struct sta_priv *pstapriv = &padapter->stapriv; */
 
-
 	RTW_INFO("%s beacon_head_len=%zu, beacon_tail_len=%zu\n", __FUNCTION__, head_len, tail_len);
-
 
 	if (check_fwstate(pmlmepriv, WIFI_AP_STATE) != _TRUE)
 		return -EINVAL;
@@ -4936,7 +4939,6 @@ static int rtw_add_beacon(_adapter *adapter, const u8 *head, size_t head_len, co
 	pbuf = rtw_zmalloc(head_len + tail_len);
 	if (!pbuf)
 		return -ENOMEM;
-
 
 	/* _rtw_memcpy(&pstapriv->max_num_sta, param->u.bcn_ie.reserved, 2); */
 
@@ -4995,7 +4997,6 @@ static int rtw_add_beacon(_adapter *adapter, const u8 *head, size_t head_len, co
 		ret = 0;
 	} else
 		ret = -EINVAL;
-
 
 	rtw_mfree(pbuf, head_len + tail_len);
 
@@ -5073,7 +5074,6 @@ static int cfg80211_rtw_start_ap(struct wiphy *wiphy, struct net_device *ndev,
 	rtw_mi_buddy_set_scan_deny(adapter, 300);
 	ret = rtw_add_beacon(adapter, settings->beacon.head, settings->beacon.head_len,
 		settings->beacon.tail, settings->beacon.tail_len);
-
 
         // In cases like WPS, the proberesp and assocresp IEs vary from the beacon, and need to be explicitly set
         if(ret == 0) {
@@ -5564,7 +5564,6 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 		return -EINVAL;
 	}
 
-
 	if (!target_mac) {
 		RTW_INFO("flush all sta, and cam_entry\n");
 
@@ -5576,14 +5575,12 @@ static int	cfg80211_rtw_del_station(struct wiphy *wiphy, struct net_device *ndev
 		return ret;
 	}
 
-
 	RTW_INFO("free sta macaddr =" MAC_FMT "\n", MAC_ARG(target_mac));
 
 	if (target_mac[0] == 0xff && target_mac[1] == 0xff &&
 	    target_mac[2] == 0xff && target_mac[3] == 0xff &&
 	    target_mac[4] == 0xff && target_mac[5] == 0xff)
 		return -EINVAL;
-
 
 	_enter_critical_bh(&pstapriv->asoc_list_lock, &irqL);
 
@@ -5754,7 +5751,7 @@ release_plink_ctl:
 		if (del_sta) {
 			u8 sta_addr[ETH_ALEN];
 			u8 updated = _FALSE;
-			
+
 			_rtw_memcpy(sta_addr, del_sta->cmn.mac_addr, ETH_ALEN);
 			updated = ap_free_sta(adapter, del_sta, 0, 0, 1);
 			rtw_mesh_expire_peer(stapriv->padapter, sta_addr);
@@ -5839,7 +5836,7 @@ static int	cfg80211_rtw_dump_station(struct wiphy *wiphy, struct net_device *nde
 	else
 		_rtw_memcpy(mac, plink->addr, ETH_ALEN);
 	#endif
-	
+
 	sinfo->filled = 0;
 
 	if (psta) {
@@ -6384,7 +6381,6 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	u8 *frame_body = (unsigned char *)(buf + sizeof(struct rtw_ieee80211_hdr_3addr));
 	size_t frame_body_len = len - sizeof(struct rtw_ieee80211_hdr_3addr);
 
-
 	RTW_INFO("[%s] In\n", __FUNCTION__);
 
 	/* prepare for building provision_request frame	 */
@@ -6418,14 +6414,12 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 		break;
 	}
 
-
 	if (rtw_get_p2p_ie(frame_body + _PUBLIC_ACTION_IE_OFFSET_, frame_body_len - _PUBLIC_ACTION_IE_OFFSET_, p2p_ie, &p2p_ielen)) {
 
 		rtw_get_p2p_attr_content(p2p_ie, p2p_ielen, P2P_ATTR_DEVICE_INFO, devinfo_content, &devinfo_contentlen);
 		rtw_get_p2p_attr_content(p2p_ie, p2p_ielen, P2P_ATTR_CAPABILITY, (u8 *)&capability, &capability_len);
 
 	}
-
 
 	/* start to build provision_request frame	 */
 	_rtw_memset(wpsie, 0, sizeof(wpsie));
@@ -6435,7 +6429,6 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
 	if (pmgntframe == NULL)
 		return;
-
 
 	/* update attribute */
 	pattrib = &pmgntframe->attrib;
@@ -6466,7 +6459,6 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	pframe = rtw_set_fixed_ie(pframe, 1, &(oui_subtype), &(pattrib->pktlen));
 	pframe = rtw_set_fixed_ie(pframe, 1, &(dialogToken), &(pattrib->pktlen));
 
-
 	/* build_prov_disc_request_p2p_ie	 */
 	/*	P2P OUI */
 	p2pielen = 0;
@@ -6496,7 +6488,6 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	_rtw_memcpy(p2p_ie + p2pielen, &capability, 2);
 	p2pielen += 2;
 
-
 	/*	Device Info ATTR */
 	/*	Type: */
 	p2p_ie[p2pielen++] = P2P_ATTR_DEVICE_INFO;
@@ -6511,7 +6502,6 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	/*	Value: */
 	_rtw_memcpy(p2p_ie + p2pielen, devinfo_content, devinfo_contentlen);
 	p2pielen += devinfo_contentlen;
-
 
 	pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_, p2pielen, (unsigned char *) p2p_ie, &p2p_ielen);
 	/* p2pielen = build_prov_disc_request_p2p_ie( pwdinfo, pframe, NULL, 0, pwdinfo->tx_prov_disc_info.peerDevAddr); */
@@ -6549,7 +6539,6 @@ void rtw_cfg80211_issue_p2p_provision_request(_adapter *padapter, const u8 *buf,
 	wpsielen += 2;
 
 	pframe = rtw_set_ie(pframe, _VENDOR_SPECIFIC_IE_, wpsielen, (unsigned char *) wpsie, &pattrib->pktlen);
-
 
 #ifdef CONFIG_WFD
 	wfdielen = build_provdisc_req_wfd_ie(pwdinfo, pframe);
