@@ -14,15 +14,15 @@
  *****************************************************************************/
 #if defined(CONFIG_MP_INCLUDED)
 
+#ifdef MARK_KERNEL_PFU
+	#include <linux/kernel.h>
+	#include <asm/fpu/api.h>
+#endif
+
 #include <drv_types.h>
 #include <rtw_mp.h>
 #include <rtw_mp_ioctl.h>
 #include "../../hal/phydm/phydm_precomp.h"
-
-
-#if defined(CONFIG_RTL8723B)
-	#include <rtw_bt_mp.h>
-#endif
 
 /*
  * Input Format: %s,%d,%d
@@ -112,7 +112,6 @@ int rtw_mp_write_reg(struct net_device *dev,
 
 	return ret;
 }
-
 
 /*
  * Input Format: %s,%d
@@ -248,7 +247,6 @@ int rtw_mp_read_reg(struct net_device *dev,
 	return ret;
 }
 
-
 /*
  * Input Format: %d,%x,%x
  *	%d is RF path, should be smaller than MAX_RF_PATH_NUMS
@@ -265,11 +263,9 @@ int rtw_mp_write_rf(struct net_device *dev,
 	PADAPTER padapter = rtw_netdev_priv(dev);
 	char input[wrqu->length];
 
-
 	_rtw_memset(input, 0, wrqu->length);
 	if (copy_from_user(input, wrqu->pointer, wrqu->length))
 		return -EFAULT;
-
 
 	ret = sscanf(input, "%d,%x,%x", &path, &addr, &data);
 	if (ret < 3)
@@ -291,7 +287,6 @@ int rtw_mp_write_rf(struct net_device *dev,
 
 	return 0;
 }
-
 
 /*
  * Input Format: %d,%x
@@ -361,7 +356,6 @@ int rtw_mp_read_rf(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_start(struct net_device *dev,
 		 struct iw_request_info *info,
 		 struct iw_point *wrqu, char *extra)
@@ -385,8 +379,6 @@ int rtw_mp_start(struct net_device *dev,
 	return ret;
 }
 
-
-
 int rtw_mp_stop(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra)
@@ -403,7 +395,6 @@ int rtw_mp_stop(struct net_device *dev,
 
 	return ret;
 }
-
 
 int rtw_mp_rate(struct net_device *dev,
 		struct iw_request_info *info,
@@ -452,7 +443,6 @@ int rtw_mp_rate(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_channel(struct net_device *dev,
 		   struct iw_request_info *info,
 		   struct iw_point *wrqu, char *extra)
@@ -480,7 +470,6 @@ int rtw_mp_channel(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_ch_offset(struct net_device *dev,
 		   struct iw_request_info *info,
 		   struct iw_point *wrqu, char *extra)
@@ -505,7 +494,6 @@ int rtw_mp_ch_offset(struct net_device *dev,
 	wrqu->length = strlen(extra);
 	return 0;
 }
-
 
 int rtw_mp_bandwidth(struct net_device *dev,
 		     struct iw_request_info *info,
@@ -539,7 +527,6 @@ int rtw_mp_bandwidth(struct net_device *dev,
 
 	return 0;
 }
-
 
 int rtw_mp_txpower_index(struct net_device *dev,
 			 struct iw_request_info *info,
@@ -586,7 +573,6 @@ int rtw_mp_txpower_index(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_txpower(struct net_device *dev,
 		   struct iw_request_info *info,
 		   struct iw_point *wrqu, char *extra)
@@ -624,7 +610,6 @@ int rtw_mp_txpower(struct net_device *dev,
 	wrqu->length = strlen(extra);
 	return 0;
 }
-
 
 int rtw_mp_ant_tx(struct net_device *dev,
 		  struct iw_request_info *info,
@@ -671,7 +656,6 @@ int rtw_mp_ant_tx(struct net_device *dev,
 	wrqu->length = strlen(extra);
 	return 0;
 }
-
 
 int rtw_mp_ant_rx(struct net_device *dev,
 		  struct iw_request_info *info,
@@ -721,7 +705,6 @@ int rtw_mp_ant_rx(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_set_ctx_destAddr(struct net_device *dev,
 			 struct iw_request_info *info,
 			 struct iw_point *wrqu, char *extra)
@@ -745,8 +728,6 @@ int rtw_set_ctx_destAddr(struct net_device *dev,
 	RTW_INFO("pattrib->dst:%x %x %x %x %x %x\n", pattrib->dst[0], pattrib->dst[1], pattrib->dst[2], pattrib->dst[3], pattrib->dst[4], pattrib->dst[5]);
 	return 0;
 }
-
-
 
 int rtw_mp_ctx(struct net_device *dev,
 	       struct iw_request_info *info,
@@ -849,8 +830,6 @@ int rtw_mp_ctx(struct net_device *dev,
 	return status;
 }
 
-
-
 int rtw_mp_disable_bt_coexist(struct net_device *dev,
 			      struct iw_request_info *info,
 			      union iwreq_data *wrqu, char *extra)
@@ -889,7 +868,6 @@ int rtw_mp_disable_bt_coexist(struct net_device *dev,
 
 	return 0;
 }
-
 
 int rtw_mp_arx(struct net_device *dev,
 	       struct iw_request_info *info,
@@ -1044,7 +1022,6 @@ int rtw_mp_arx(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_trx_query(struct net_device *dev,
 		     struct iw_request_info *info,
 		     struct iw_point *wrqu, char *extra)
@@ -1072,7 +1049,6 @@ int rtw_mp_trx_query(struct net_device *dev,
 
 	return 0;
 }
-
 
 int rtw_mp_pwrtrk(struct net_device *dev,
 		  struct iw_request_info *info,
@@ -1113,8 +1089,6 @@ int rtw_mp_pwrtrk(struct net_device *dev,
 	return 0;
 }
 
-
-
 int rtw_mp_psd(struct net_device *dev,
 	       struct iw_request_info *info,
 	       struct iw_point *wrqu, char *extra)
@@ -1134,7 +1108,6 @@ int rtw_mp_psd(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_thermal(struct net_device *dev,
 		   struct iw_request_info *info,
 		   struct iw_point *wrqu, char *extra)
@@ -1147,36 +1120,6 @@ int rtw_mp_thermal(struct net_device *dev,
 #endif
 #if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A) || defined(CONFIG_RTL8814A)
 	u16 addr = EEPROM_THERMAL_METER_8812;
-#endif
-#ifdef CONFIG_RTL8192E
-	u16 addr = EEPROM_THERMAL_METER_8192E;
-#endif
-#ifdef CONFIG_RTL8192F
-	u16 addr = EEPROM_THERMAL_METER_8192F;
-#endif
-#ifdef CONFIG_RTL8723B
-	u16 addr = EEPROM_THERMAL_METER_8723B;
-#endif
-#ifdef CONFIG_RTL8703B
-	u16 addr = EEPROM_THERMAL_METER_8703B;
-#endif
-#ifdef CONFIG_RTL8723D
-	u16 addr = EEPROM_THERMAL_METER_8723D;
-#endif
-#ifdef CONFIG_RTL8188F
-	u16 addr = EEPROM_THERMAL_METER_8188F;
-#endif
-#ifdef CONFIG_RTL8188GTV
-	u16 addr = EEPROM_THERMAL_METER_8188GTV;
-#endif
-#ifdef CONFIG_RTL8822B
-	u16 addr = EEPROM_THERMAL_METER_8822B;
-#endif
-#ifdef CONFIG_RTL8821C
-	u16 addr = EEPROM_THERMAL_METER_8821C;
-#endif
-#ifdef CONFIG_RTL8710B
-	u16 addr = EEPROM_THERMAL_METER_8710B;
 #endif
 	u16 cnt = 1;
 	u16 max_available_size = 0;
@@ -1209,7 +1152,6 @@ int rtw_mp_thermal(struct net_device *dev,
 }
 
 
-
 int rtw_mp_reset_stats(struct net_device *dev,
 		       struct iw_request_info *info,
 		       struct iw_point *wrqu, char *extra)
@@ -1235,7 +1177,6 @@ int rtw_mp_reset_stats(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_dump(struct net_device *dev,
 		struct iw_request_info *info,
 		struct iw_point *wrqu, char *extra)
@@ -1256,7 +1197,6 @@ int rtw_mp_dump(struct net_device *dev,
 	}
 	return 0;
 }
-
 
 int rtw_mp_phypara(struct net_device *dev,
 		   struct iw_request_info *info,
@@ -1284,7 +1224,6 @@ int rtw_mp_phypara(struct net_device *dev,
 	return 0;
 
 }
-
 
 int rtw_mp_SetRFPath(struct net_device *dev,
 		     struct iw_request_info *info,
@@ -1335,7 +1274,6 @@ int rtw_mp_SetRFPath(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_switch_rf_path(struct net_device *dev,
 			struct iw_request_info *info,
 			struct iw_point *wrqu, char *extra)
@@ -1345,7 +1283,6 @@ int rtw_mp_switch_rf_path(struct net_device *dev,
 	char	input[wrqu->length];
 	int		bwlg = 1, bwla = 1, btg = 1, bbt=1;
 	u8 ret = 0;
-
 
 	if (copy_from_user(input, wrqu->pointer, wrqu->length))
 		return -EFAULT;
@@ -1414,7 +1351,6 @@ int rtw_mp_QueryDrv(struct net_device *dev,
 	return 0;
 }
 
-
 int rtw_mp_PwrCtlDM(struct net_device *dev,
 		    struct iw_request_info *info,
 		    struct iw_point *wrqu, char *extra)
@@ -1477,7 +1413,6 @@ int rtw_mp_getver(struct net_device *dev,
 	wrqu->data.length = strlen(extra);
 	return 0;
 }
-
 
 int rtw_mp_mon(struct net_device *dev,
 	       struct iw_request_info *info,
@@ -1615,7 +1550,6 @@ int rtw_mp_pretx_proc(PADAPTER padapter, u8 bStartTest, char *extra)
 	return 0;
 }
 
-
 int rtw_mp_tx(struct net_device *dev,
 	      struct iw_request_info *info,
 	      union iwreq_data *wrqu, char *extra)
@@ -1716,6 +1650,9 @@ int rtw_mp_tx(struct net_device *dev,
 
 			_rtw_memset(pMptCtx->PMacTxInfo.MacAddress, 0xFF, ETH_ALEN);
 
+			#ifdef MARK_KERNEL_PFU
+				kernel_fpu_begin();
+			#endif
 			PMAC_Get_Pkt_Param(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 
 			if (MPT_IS_CCK_RATE(pMptCtx->PMacTxInfo.TX_RATE))
@@ -1726,6 +1663,9 @@ int rtw_mp_tx(struct net_device *dev,
 				/* 24 BIT*/
 				L_SIG_generator(pMptCtx->PMacPktInfo.N_sym, &pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
 			}
+			#ifdef MARK_KERNEL_PFU
+				kernel_fpu_end();
+			#endif
 			/*	48BIT*/
 			if (MPT_IS_HT_RATE(pMptCtx->PMacTxInfo.TX_RATE))
 				HT_SIG_generator(&pMptCtx->PMacTxInfo, &pMptCtx->PMacPktInfo);
@@ -1739,7 +1679,6 @@ int rtw_mp_tx(struct net_device *dev,
 				/* 32 BIT*/
 				VHT_Delimiter_generator(&pMptCtx->PMacTxInfo);
 			}
-
 			mpt_ProSetPMacTx(padapter);
 
 		} else if (strncmp(extra, "pmact,mode=", 11) == 0) {
@@ -1938,7 +1877,6 @@ int rtw_mp_tx(struct net_device *dev,
 	return status;
 }
 
-
 int rtw_mp_rx(struct net_device *dev,
 	      struct iw_request_info *info,
 	      union iwreq_data *wrqu, char *extra)
@@ -2059,7 +1997,6 @@ int rtw_mp_rx(struct net_device *dev,
 	wrqu->data.length = strlen(extra);
 	return 0;
 }
-
 
 int rtw_mp_hwtx(struct net_device *dev,
 		struct iw_request_info *info,
@@ -2236,7 +2173,6 @@ int rtw_efuse_mask_file(struct net_device *dev,
 	wrqu->data.length = strlen(extra);
 	return 0;
 }
-
 
 int rtw_efuse_file_map(struct net_device *dev,
 		       struct iw_request_info *info,
@@ -2455,9 +2391,6 @@ int rtw_mp_SetBT(struct net_device *dev,
 #endif
 		RTW_INFO(" FirmwareDownload!\n");
 
-#if defined(CONFIG_RTL8723B)
-		status = rtl8723b_FirmwareDownload(padapter, _FALSE);
-#endif
 		RTW_INFO("Wait for FirmwareDownloadBT fw boot!\n");
 		rtw_msleep_os(1000);
 #ifdef CONFIG_BT_COEXIST
