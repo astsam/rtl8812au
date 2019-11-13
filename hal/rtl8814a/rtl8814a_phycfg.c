@@ -1169,7 +1169,7 @@ PHY_SetTxPowerLevel8814(
 						   		{MGN_VHT3SS_MCS4, MGN_VHT3SS_MCS5, MGN_VHT3SS_MCS6, MGN_VHT3SS_MCS7}, 
 						 		{MGN_VHT3SS_MCS8, MGN_VHT3SS_MCS9, 0, 0}};	
 
-	
+
 	for( path = RF_PATH_A; path <= RF_PATH_D; ++path )
 	{
 			phy_set_tx_power_level_by_path(Adapter, Channel, (u8)path);
@@ -1183,7 +1183,7 @@ PHY_SetTxPowerLevel8814(
 }
 
 /**************************************************************************************************************
- *   Description: 
+ *   Description:
  *       The low-level interface to get the FINAL Tx Power Index , called  by both MP and Normal Driver.
  *
  *                                                                                    <20120830, Kordan>
@@ -1192,8 +1192,8 @@ u8
 PHY_GetTxPowerIndex8814A(
 	IN	PADAPTER		pAdapter,
 	IN	enum rf_path		RFPath,
-	IN	u8			Rate,	
-	IN	u8			BandWidth,	
+	IN	u8			Rate,
+	IN	u8			BandWidth,
 	IN	u8			Channel,
 	struct txpwr_idx_comp *tic
 	)
