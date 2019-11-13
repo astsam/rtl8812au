@@ -31,7 +31,6 @@
  * Global var
  * ************************************************************ */
 
-
 static VOID
 dm_CheckProtection(
 	IN	PADAPTER	Adapter
@@ -140,7 +139,6 @@ dm_InterruptMigration(
 	BOOLEAN			bCurrentIntMt, bCurrentACIntDisable;
 	BOOLEAN			IntMtToSet = _FALSE;
 	BOOLEAN			ACIntToSet = _FALSE;
-
 
 	/* Retrieve current interrupt migration and Tx four ACs IMR settings first. */
 	bCurrentIntMt = pHalData->bInterruptMigration;
@@ -262,7 +260,6 @@ rtl8812_InitHalDm(
 	/* Adapter->fix_rate = 0xFF; */
 }
 
-
 VOID
 rtl8812_HalDmWatchDog(
 	IN	PADAPTER	Adapter
@@ -350,6 +347,8 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 
 	Init_ODM_ComInfo_8812(Adapter);
 	odm_init_all_timers(podmpriv);
+
+	pHalData->CurrentTxPwrIdx = 20;
 }
 
 void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)
