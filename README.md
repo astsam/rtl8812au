@@ -21,7 +21,7 @@ Only for use with Linux & Android
 ### What's new
 ```
 Realtek released a new multichip 'base', the v5.6.4.2 which supports Android 10, kernel v5.3+
-and they fixed the P2P NoA potentially buffer overflow. [See full changelog](https://github.com/aircrack-ng/rtl8812au/blob/v5.6.4.2/ReleaseNotes.pdf)
+and they fixed the P2P NoA potentially buffer overflow. (See ReleaseNotes.pdf)
 
 While we on our side added our patchset for penetration testing abilities,
 added monitor mode & frame injection, unlocked channels, adding txpower control and others,
