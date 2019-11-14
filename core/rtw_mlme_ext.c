@@ -7505,21 +7505,22 @@ void update_mgnt_tx_rate(_adapter *padapter, u8 rate)
 	/* RTW_INFO("%s(): rate = %x\n",__FUNCTION__, rate); */
 }
 
-
 void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u8	wireless_mode;
 	struct mlme_ext_priv	*pmlmeext = &(padapter->mlmeextpriv);
-	struct xmit_priv		*pxmitpriv = &padapter->xmitpriv;
-	struct sta_info		*psta = NULL;
-	struct sta_priv		*pstapriv = &padapter->stapriv;
+	//struct xmit_priv		*pxmitpriv = &padapter->xmitpriv;
+	//struct sta_info		*psta = NULL;
+	//struct sta_priv		*pstapriv = &padapter->stapriv;
 
-	psta = rtw_get_stainfo(pstapriv, pattrib->ra);
+	//psta = rtw_get_stainfo(pstapriv, pattrib->ra);
+	struct xmit_priv 		*pxmitpriv = &padapter->xmitpriv;
 
 	pattrib->hdrlen = 24;
 	pattrib->nr_frags = 1;
 	pattrib->priority = 7;
+	pattrib->inject = 0xa5;
 	pattrib->mac_id = RTW_DEFAULT_MGMT_MACID;
 	pattrib->qsel = QSLT_MGNT;
 
@@ -7531,22 +7532,22 @@ void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 		wireless_mode = WIRELESS_11G;
 
 	pattrib->raid = rtw_get_mgntframe_raid(padapter, wireless_mode);
-#ifdef CONFIG_80211AC_VHT
-	if (pHalData->rf_type == RF_1T1R)
-		pattrib->raid = RATEID_IDX_VHT_1SS;
-	else if (pHalData->rf_type == RF_2T2R || pHalData->rf_type == RF_2T4R)
-		pattrib->raid = RATEID_IDX_VHT_2SS;
-	else if (pHalData->rf_type == RF_3T3R)
-		pattrib->raid = RATEID_IDX_VHT_3SS;
-	else
-		pattrib->raid = RATEID_IDX_BGN_40M_1SS;
-#endif
+	#ifdef CONFIG_80211AC_VHT
+		if (pHalData->rf_type == RF_1T1R)
+			pattrib->raid = RATEID_IDX_VHT_1SS;
+		else if (pHalData->rf_type == RF_2T2R || pHalData->rf_type == RF_2T4R)
+			pattrib->raid = RATEID_IDX_VHT_2SS;
+		else if (pHalData->rf_type == RF_3T3R)
+			pattrib->raid = RATEID_IDX_VHT_3SS;
+		else
+			pattrib->raid = RATEID_IDX_BGN_40M_1SS;
+	#endif
 
-#ifdef CONFIG_80211AC_VHT
-	pattrib->rate = MGN_VHT1SS_MCS9;
-#else
-	pattrib->rate = MGN_MCS7;
-#endif
+	#ifdef CONFIG_80211AC_VHT
+		pattrib->rate = MGN_VHT1SS_MCS9;
+	#else
+		pattrib->rate = MGN_MCS7;
+	#endif
 
 	pattrib->encrypt = _NO_PRIVACY_;
 	pattrib->bswenc = _FALSE;
@@ -7559,13 +7560,12 @@ void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 
 	pattrib->seqnum = pmlmeext->mgnt_seq;
 
-	pattrib->retry_ctrl = _TRUE;
+	pattrib->retry_ctrl = _FALSE;
 
 	pattrib->mbssid = 0;
 	pattrib->hw_ssn_sel = pxmitpriv->hw_ssn_seq_no;
 
 }
-
 
 void update_mgntframe_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 {
@@ -7588,7 +7588,6 @@ void update_mgntframe_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 #ifdef CONFIG_MCC_MODE
 	update_mcc_mgntframe_attrib(padapter, pattrib);
 #endif
-
 
 #ifdef CONFIG_P2P_PS_NOA_USE_MACID_SLEEP
 #ifdef CONFIG_CONCURRENT_MODE
@@ -7614,7 +7613,6 @@ void update_mgntframe_attrib(_adapter *padapter, struct pkt_attrib *pattrib)
 			}
 		}
 #endif /* CONFIG_P2P_PS_NOA_USE_MACID_SLEEP */
-
 
 	pattrib->pktlen = 0;
 
@@ -7746,7 +7744,6 @@ s32 dump_mgntframe_and_wait_ack(_adapter *padapter, struct xmit_frame *pmgntfram
 	return dump_mgntframe_and_wait_ack_timeout(padapter, pmgntframe, 500);
 }
 
-
 int update_hidden_ssid(u8 *ies, u32 ies_len, u8 hidden_ssid_mode)
 {
 	u8 *ssid_ie;
@@ -7803,7 +7800,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 	struct wifidirect_info	*pwdinfo = &(padapter->wdinfo);
 #endif /* CONFIG_P2P */
 
-
 	/* RTW_INFO("%s\n", __FUNCTION__); */
 
 #ifdef CONFIG_BCN_ICF
@@ -7839,7 +7835,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 
 	pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
 	pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
-
 
 	fctrl = &(pwlanhdr->frame_ctl);
 	*(fctrl) = 0;
@@ -8020,7 +8015,7 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 		pattrib->pktlen += rtw_build_vendor_ie(padapter , &pframe , WIFI_BEACON_VENDOR_IE_BIT);
 #endif
 
-#ifdef CONFIG_RTL8812A 
+#ifdef CONFIG_RTL8812A
 		pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen );
 #endif/*CONFIG_RTL8812A*/
 
@@ -8070,7 +8065,6 @@ void issue_beacon(_adapter *padapter, int timeout_ms)
 		/* ERP IE */
 		pframe = rtw_set_ie(pframe, _ERPINFO_IE_, 1, &erpinfo, &pattrib->pktlen);
 	}
-
 
 	/* EXTERNDED SUPPORTED RATE */
 	if (rate_len > 8)
@@ -8140,7 +8134,6 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 		return;
 	}
 
-
 	/* update attribute */
 	pattrib = &pmgntframe->attrib;
 	update_mgntframe_attrib(padapter, pattrib);
@@ -8166,7 +8159,6 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 	pattrib->hdrlen = sizeof(struct rtw_ieee80211_hdr_3addr);
 	pattrib->pktlen = pattrib->hdrlen;
 	pframe += pattrib->hdrlen;
-
 
 	if (cur_network->IELength > MAX_IE_SZ)
 		return;
@@ -8293,11 +8285,9 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 			pframe = rtw_set_ie(pframe, _ERPINFO_IE_, 1, &erpinfo, &pattrib->pktlen);
 		}
 
-
 		/* EXTERNDED SUPPORTED RATE */
 		if (rate_len > 8)
 			pframe = rtw_set_ie(pframe, _EXT_SUPPORTEDRATES_IE_, (rate_len - 8), (cur_network->SupportedRates + 8), &pattrib->pktlen);
-
 
 		/* todo:HT for adhoc */
 
@@ -8341,7 +8331,6 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 	}
 #endif /* CONFIG_P2P */
 
-
 #ifdef CONFIG_AUTO_AP_MODE
 	{
 		struct sta_info	*psta;
@@ -8371,12 +8360,11 @@ void issue_probersp(_adapter *padapter, unsigned char *da, u8 is_valid_p2p_probe
 	}
 #endif /* CONFIG_AUTO_AP_MODE */
 
-#ifdef CONFIG_RTL8812A 
+#ifdef CONFIG_RTL8812A
 	pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen);
 #endif/*CONFIG_RTL8812A*/
 
 	pattrib->last_txcmdsz = pattrib->pktlen;
-
 
 	dump_mgntframe(padapter, pmgntframe);
 
@@ -8413,7 +8401,6 @@ int _issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 
 	/* update attribute */
 	pattrib = &pmgntframe->attrib;
 	update_mgntframe_attrib(padapter, pattrib);
-
 
 	_rtw_memset(pmgntframe->buf_addr, 0, WLANHDR_OFFSET + TXDESC_OFFSET);
 
@@ -8505,13 +8492,11 @@ int _issue_probereq(_adapter *padapter, const NDIS_802_11_SSID *pssid, const u8 
 	pattrib->pktlen += rtw_build_vendor_ie(padapter , &pframe , WIFI_PROBEREQ_VENDOR_IE_BIT);
 #endif
 
-#ifdef CONFIG_RTL8812A 
+#ifdef CONFIG_RTL8812A
 	pframe = rtw_hal_set_8812a_vendor_ie(padapter, pframe, &pattrib->pktlen );
-#endif/*CONFIG_RTL8812A*/
-
+#endif /* CONFIG_RTL8812A */
 
 	pattrib->last_txcmdsz = pattrib->pktlen;
-
 
 	if (wait_ack)
 		ret = dump_mgntframe_and_wait_ack(padapter, pmgntframe);
@@ -8690,7 +8675,6 @@ void issue_auth(_adapter *padapter, struct sta_info *psta, unsigned short status
 		val16 = cpu_to_le16(val16);
 		pframe = rtw_set_fixed_ie(pframe, _AUTH_SEQ_NUM_, (unsigned char *)&val16, &(pattrib->pktlen));
 
-
 		/* setting status code... */
 		val16 = status;
 		val16 = cpu_to_le16(val16);
@@ -8727,7 +8711,6 @@ void issue_auth(_adapter *padapter, struct sta_info *psta, unsigned short status
 	return;
 }
 
-
 void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *pstat, int pkt_type)
 {
 #ifdef CONFIG_AP_MODE
@@ -8763,7 +8746,6 @@ void issue_asocrsp(_adapter *padapter, unsigned short status, struct sta_info *p
 	/* update attribute */
 	pattrib = &pmgntframe->attrib;
 	update_mgntframe_attrib(padapter, pattrib);
-
 
 	_rtw_memset(pmgntframe->buf_addr, 0, WLANHDR_OFFSET + TXDESC_OFFSET);
 
