@@ -4006,10 +4006,33 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 
 	u8 hdr_buf[64] = {0};
 	u16 rt_len = 8;
+	u32 tmp_32bit;
+	int i;
 
 	/* create header */
 	rtap_hdr = (struct ieee80211_radiotap_header *)&hdr_buf[0];
 	rtap_hdr->it_version = PKTHDR_RADIOTAP_VERSION;
+
+	if(pHalData->NumTotalRFPath>0) {
+		rtap_hdr->it_present |=	(1<<IEEE80211_RADIOTAP_EXT) |
+			(1<<IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE);
+
+		if(pHalData->NumTotalRFPath>1) {
+			tmp_32bit = (1<<IEEE80211_RADIOTAP_ANTENNA) |
+				(1<<IEEE80211_RADIOTAP_DBM_ANTSIGNAL) |
+				(1<<IEEE80211_RADIOTAP_EXT) |
+				(1<<IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE);
+
+			for(i=0; i<pHalData->NumTotalRFPath-1; i++) {
+				memcpy(&hdr_buf[rt_len], &tmp_32bit, 4);
+				rt_len += 4;
+			}
+		}
+		tmp_32bit = (1<<IEEE80211_RADIOTAP_ANTENNA) |
+			(1<<IEEE80211_RADIOTAP_DBM_ANTSIGNAL);
+		memcpy(&hdr_buf[rt_len], &tmp_32bit, 4);
+		rt_len += 4;
+	}
 
 #ifdef CONFIG_RTL8814A
 	/* RTL8814AU rx descriptor has no bandwidth, ldpc, stbc and sgi info */
@@ -4114,17 +4137,23 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_DBM_ANTNOISE);
 	hdr_buf[rt_len] = 0;
 	rt_len += 1;
+#endif
 
+	rt_len++;	// alignment
 	/* Signal Quality */
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_LOCK_QUALITY);
-	hdr_buf[rt_len] = pattrib->phy_info.signal_quality;
-	rt_len += 1;
-#endif
+	tmp_16bit = cpu_to_le16(pattrib->phy_info.signal_quality);
+	memcpy(&hdr_buf[rt_len], &tmp_16bit, 2);
+	rt_len += 2;
+#if 0
 
 	/* Antenna */
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_ANTENNA);
-	hdr_buf[rt_len] = 0; /* pHalData->rf_type; */
+	hdr_buf[rt_len] = pHalData->rf_type;
 	rt_len += 1;
+
+	rt_len++;	// alignment
+#endif
 
 	/* RX flags */
 	rtap_hdr->it_present |= (1 << IEEE80211_RADIOTAP_RX_FLAGS);
@@ -4233,6 +4262,13 @@ static sint fill_radiotap_hdr(_adapter *padapter, union recv_frame *precvframe, 
 		tmp_16bit = 0;
 		memcpy(&hdr_buf[rt_len], &tmp_16bit, 2);
 		rt_len += 2;
+	}
+
+	for(i=0; i<pHalData->NumTotalRFPath; i++) {
+		hdr_buf[rt_len] = pattrib->phy_info.rx_pwr[i];
+		rt_len ++;
+		hdr_buf[rt_len] = i;
+		rt_len ++;
 	}
 
 	/* push to skb */
