@@ -204,8 +204,7 @@ _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/wifi_regd.o \
 			os_dep/linux/rtw_android.o \
 			os_dep/linux/rtw_proc.o \
-			os_dep/linux/rtw_rhashtable.o \
-			os_dep/linux/rtw_radiotap.o
+			os_dep/linux/rtw_rhashtable.o
 
 ifeq ($(CONFIG_MP_INCLUDED), y)
 _OS_INTFS_FILES += os_dep/linux/ioctl_mp.o
@@ -2203,15 +2202,11 @@ $(MODULE_NAME)-y += $(_PLATFORM_FILES)
 
 $(MODULE_NAME)-$(CONFIG_MP_INCLUDED) += core/rtw_mp.o
 
-ifeq ($(CONFIG_RTL8723B), y)
-$(MODULE_NAME)-$(CONFIG_MP_INCLUDED)+= core/rtw_bt_mp.o
-endif
-
-obj-$(CONFIG_RTL8812AU) := $(MODULE_NAME).o
+obj-$(CONFIG_88XXAU) := $(MODULE_NAME).o
 
 else
 
-export CONFIG_RTL8812AU = m
+export CONFIG_88XXAU = m
 
 all: modules
 
@@ -2266,7 +2261,6 @@ endif
 config_r:
 	@echo "make config"
 	/bin/bash script/Configure script/config.in
-
 
 .PHONY: modules clean
 
