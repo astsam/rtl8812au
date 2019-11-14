@@ -174,7 +174,11 @@ CONFIG_CUSTOMER_HUAWEI_GENERAL = n
 
 CONFIG_DRVEXT_MODULE = n
 
+ifeq ($(CONFIG_RTL8812AU), )
 export TopDIR ?= $(shell pwd)
+else
+export TopDIR ?= $(shell pwd)/drivers/net/wireless/rtl8812au
+endif
 
 ########### COMMON  #################################
 ifeq ($(CONFIG_USB_HCI), y)
