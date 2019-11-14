@@ -20,11 +20,12 @@ Only for use with Linux & Android
 
 ### Supports
 ```
-* Android Q supported
+* Android 10 supported
 * Monitor mode
 * Frame injection
 * WPA3 SAE
 * Wi-Fi Direct
+* wpa_supplicant
 * Hostapd
 * USB 3.0 (currently forced down to 2.0)
 * Kernel up to v5.3+
@@ -33,6 +34,9 @@ Only for use with Linux & Android
 
 ### Known Issues
 ```
+* Interferrence has to be 'killed' with "airmon-ng check kill" or it may not go into monitor mode,
+  it should anyway be a good thing to do before research in monitor mode.
+  
 * VMware Workstation has issues, giving kernel oops on module load.
 * Ubuntu has enabled module signing (kernel) by default, workaround:
 run the 'install-and-sign-ubuntu.sh' in 'tools' folder
@@ -41,9 +45,8 @@ run the 'install-and-sign-ubuntu.sh' in 'tools' folder
 ### TODO
 
 ```
-* Add txpower control
-* Add more "iw" output
-* Upload newer docs/ (from v5.6.4.2)
+* Do a walkthrough in the code, use some time and
+  check every corner og HAL and PHYDM for more junk & bugs.
 ```
 ### IPERF3 benchmark
 <b>[Device]</b> Alfa Networks AWUS036ACH<br>
