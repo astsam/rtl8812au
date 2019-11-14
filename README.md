@@ -21,12 +21,12 @@ Only for use with Linux & Android
 ### What's new
 ```
 Realtek released a new multichip 'base', the v5.6.4.2 which supports Android 10, kernel v5.3
-and they fixed the P2P NoA potentially buffer overflow.
-<br>
+and they fixed the P2P NoA potentially buffer overflow. [See full changelog](ReleaseNotes.pdf)
+
 While we on our side added our patchset for penetration testing abilities,
 added monitor mode & frame injection, unlocked channels, adding txpower control and others,
 keeping it running as kernels are pushed faster then lightning these days.
-<br>
+
 Follow the README.md, 'iwconfig' is deprecated, use 'iw' .. allways kill
 interference with 'airmon-ng check kill' or 'kill -9 <pid>' first!
 ```
