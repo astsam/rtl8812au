@@ -496,7 +496,6 @@ struct pkt_attrib {
 	 */
 	u8 bf_pkt_type;
 #endif
-	u8  inject; /* == a5 if injected */
 
 };
 #endif
@@ -564,6 +563,7 @@ enum {
 	RTW_SCTX_DONE_CMD_DROP,
 	RTX_SCTX_CSTR_WAIT_RPT2,
 };
+
 
 void rtw_sctx_init(struct submit_ctx *sctx, int timeout_ms);
 int rtw_sctx_wait(struct submit_ctx *sctx, const char *msg);
