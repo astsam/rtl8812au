@@ -34,12 +34,12 @@ Only for use with Linux & Android
 
 ### Known Issues
 ```
-* Interferrence has to be 'killed' with "airmon-ng check kill" or it may not go into monitor mode,
-  it should anyway be a good thing to do before research in monitor mode.
+* Adapter interference has to be 'killed' with "airmon-ng check kill" or it may not go into monitor mode,
+  it should anyway always be a good thing to do before doing research in monitor mode.
   
 * VMware Workstation has issues, giving kernel oops on module load.
-* Ubuntu has enabled module signing (kernel) by default, workaround:
-run the 'install-and-sign-ubuntu.sh' in 'tools' folder
+* Ubuntu has enabled module signing (kernel) by default,
+  workaround: run the 'install-and-sign-ubuntu.sh' in 'tools' folder
 ```
 
 ### TODO
