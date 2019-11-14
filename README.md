@@ -36,13 +36,14 @@ interference with 'airmon-ng check kill' or 'kill -9 <pid>' first!
 * Android 10 supported
 * Monitor mode
 * Frame injection
+* MESH Mode (IBSS)
 * WPA3 SAE
 * Wi-Fi Direct
 * wpa_supplicant
 * Hostapd
-* USB 3.0 (currently forced down to 2.0)
+* USB 3.0 (currently forced down to 2)
 * Kernel up to v5.3+
-* RTKMPtool for low level debug
+* RTKMPtool Android app (low level debug)
 ```
 
 ### Known Issues
@@ -59,7 +60,7 @@ interference with 'airmon-ng check kill' or 'kill -9 <pid>' first!
 
 ```
 * Do a walkthrough in the code, use some time and
-  check every corner og HAL and PHYDM for more junk & bugs.
+  check every corner of HAL and PHYDM for more junk & bugs.
 ```
 ### IPERF3 benchmark
 <b>[Device]</b> Alfa Networks AWUS036ACH<br>
@@ -100,45 +101,45 @@ interference with 'airmon-ng check kill' or 'kill -9 <pid>' first!
 ### DKMS
 This driver can be installed using [DKMS]. This is a system which will automatically recompile and install a kernel module when a new kernel gets installed or updated. To make use of DKMS, install the `dkms` package, which on Debian (based) systems is done like this:
 ```
-sudo apt-get install dkms
+$ sudo apt-get install dkms
 ```
 
 ### Installation of Driver
 In order to install the driver open a terminal in the directory with the source code and execute the following command:
 ```
-sudo ./dkms-install.sh
+$ sudo ./dkms-install.sh
 ```
 
 ### Removal of Driver
 In order to remove the driver from your system open a terminal in the directory with the source code and execute the following command:
 ```
-sudo ./dkms-remove.sh
+$ sudo ./dkms-remove.sh
 ```
 
 ### Make
 For building & installing the driver with 'make' use
 ```
-make
-make install
+$ make
+$ make install
 ```
 
 ### Notes
 Download
 ```
-git clone -b v5.6.4.2 https://github.com/aircrack-ng/rtl8812au.git
+$ git clone -b v5.6.4.2 https://github.com/aircrack-ng/rtl8812au.git
 cd rtl*
 ```
 Package / Build dependencies (Kali)
 ```
-sudo apt-get install build-essential
-sudo apt-get install bc
-sudo apt-get install libelf-dev
-sudo apt-get install linux-headers-`uname -r`
+$ sudo apt-get install build-essential
+$ sudo apt-get install bc
+$ sudo apt-get install libelf-dev
+$ sudo apt-get install linux-headers-`uname -r`
 ```
 #### For Raspberry (RPI)
 
 ```
-sudo apt-get install bc raspberrypi-kernel-headers
+$ sudo apt-get install bc raspberrypi-kernel-headers
 ```
 
 Then run this step to change platform in Makefile, For RPI 1/2/3/ & 0/Zero:
@@ -155,32 +156,32 @@ $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makef
 
 In addition, if you receive an error message about `unrecognized command line option ‘-mgeneral-regs-only’` (i.e., Raspbian Buster), you will need to run the following commands:
 ```
-sed -i 's/^dkms build/ARCH=arm dkms build/' dkms-install.sh
-sed -i 's/^MAKE="/MAKE="ARCH=arm\ /' dkms.conf
+$ sed -i 's/^dkms build/ARCH=arm dkms build/' dkms-install.sh
+$ sed -i 's/^MAKE="/MAKE="ARCH=arm\ /' dkms.conf
 ```
 
 For setting monitor mode
   1. Fix problematic interference in monitor mode.
   ```
-  airmon-ng check kill
+  $ airmon-ng check kill
   ```
   You may also uncheck the box "Automatically connect to this network when it is avaiable" in nm-connection-editor. This only works if you have a saved wifi connection.
 
   2. Set interface down
   ```
-  sudo ip link set wlan0 down
+  $ sudo ip link set wlan0 down
   ```
   3. Set monitor mode
   ```
-  sudo iw dev wlan0 set type monitor
+  $ sudo iw dev wlan0 set type monitor
   ```
   4. Set interface up
   ```
-  sudo ip link set wlan0 up
+  $ sudo ip link set wlan0 up
   ```
 For setting TX power
 ```
-sudo iw wlan0 set txpower fixed 3000
+$ sudo iw wlan0 set txpower fixed 3000
 ```
 
 ### LED control
@@ -230,23 +231,22 @@ wifi.scan-rand-mac-address=no
 ```
 at the end of file /etc/NetworkManager/NetworkManager.conf and restart NetworkManager with the command:
 ```
-sudo service NetworkManager restart
+$ sudo service NetworkManager restart
 ```
 
 ### Credits / Contributors
 
 ```
-astsam      - https://github.com/astsam
-aircrack-ng - https://github.com/aircrack-ng
-evilphish   - https://github.com/evilphish
-fariouche   - https://github.com/fariouche
-CGarces     - https://github.com/CGarces
-ZerBea      - https://github.com/ZerBea
-lwfinger    - https://github.com/lwfinger
-Ulli-Kroll  - https://github.com/Ulli-Kroll
+Alfa Networks - https://www.alfa.com.tw/
+Realtek.      - https://www.realtek.com
+aircrack-ng   - https://www.aircrack-ng.org
 
-Also, thanks to Realtek and Alfa Networks for all they're help & support.
-
-All the others interested and participating. Appreciate it!
+astsam        - https://github.com/astsam
+evilphish     - https://github.com/evilphish
+fariouche     - https://github.com/fariouche
+CGarces       - https://github.com/CGarces
+ZerBea        - https://github.com/ZerBea
+lwfinger      - https://github.com/lwfinger
+Ulli-Kroll.   - https://github.com/Ulli-Kroll
 
 ```
