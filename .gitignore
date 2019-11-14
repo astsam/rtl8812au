@@ -8,3 +8,4 @@ modules.order
 .tmp_versions
 .cache.mk
 *.mod
+*.o.d

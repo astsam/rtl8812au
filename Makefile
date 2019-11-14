@@ -204,7 +204,8 @@ _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/wifi_regd.o \
 			os_dep/linux/rtw_android.o \
 			os_dep/linux/rtw_proc.o \
-			os_dep/linux/rtw_rhashtable.o
+			os_dep/linux/rtw_rhashtable.o \
+			os_dep/linux/rtw_radiotap.o
 
 ifeq ($(CONFIG_MP_INCLUDED), y)
 _OS_INTFS_FILES += os_dep/linux/ioctl_mp.o
@@ -2277,7 +2278,7 @@ clean:
 	cd hal ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
 	cd core ; rm -fr */*.mod.c */*.mod */*.o */.*.cmd */*.ko
 	cd core ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
-	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
+	cd os_dep/linux ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko *.o.d
 	cd os_dep ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
 	cd platform ; rm -fr *.mod.c *.mod *.o .*.cmd *.ko
 	rm -fr Module.symvers ; rm -fr Module.markers ; rm -fr modules.order
