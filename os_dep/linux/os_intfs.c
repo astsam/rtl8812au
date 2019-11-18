@@ -1504,7 +1504,9 @@ static const struct net_device_ops rtw_netdev_ops = {
 #endif
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
+#ifdef CONFIG_WIRELESS_EXT
 	.ndo_do_ioctl = rtw_ioctl,
+#endif
 };
 #endif
 
@@ -2810,7 +2812,9 @@ static const struct net_device_ops rtw_netdev_vir_if_ops = {
 	.ndo_start_xmit = rtw_xmit_entry,
 	.ndo_set_mac_address = rtw_net_set_mac_address,
 	.ndo_get_stats = rtw_net_get_stats,
+#ifdef CONFIG_WIRELESS_EXT
 	.ndo_do_ioctl = rtw_ioctl,
+#endif
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
 	.ndo_select_queue	= rtw_select_queue,
 #endif

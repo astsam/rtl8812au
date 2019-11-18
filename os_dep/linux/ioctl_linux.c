@@ -266,6 +266,7 @@ uint	rtw_is_cckratesonly_included(u8 *rate)
 }
 */
 
+#ifdef CONFIG_WIRELESS_EXT
 static int search_p2p_wfd_ie(_adapter *padapter,
 		struct iw_request_info *info, struct wlan_network *pnetwork,
 		char *start, char *stop)
@@ -339,6 +340,7 @@ static int search_p2p_wfd_ie(_adapter *padapter,
 #endif /* CONFIG_P2P */
 	return _TRUE;
 }
+#endif
 static inline char *iwe_stream_mac_addr_proess(_adapter *padapter,
 		struct iw_request_info *info, struct wlan_network *pnetwork,
 		char *start, char *stop, struct iw_event *iwe)
@@ -782,6 +784,7 @@ static inline char   *iwe_stream_net_rsv_process(_adapter *padapter,
 	return start;
 }
 
+#ifdef CONFIG_WIRELESS_EXT
 static char *translate_scan(_adapter *padapter,
 		struct iw_request_info *info, struct wlan_network *pnetwork,
 		char *start, char *stop)
@@ -1198,7 +1201,9 @@ exit:
 
 	return ret;
 }
+#endif
 
+#ifdef CONFIG_WIRELESS_EXT
 static int rtw_wx_get_name(struct net_device *dev,
 			   struct iw_request_info *info,
 			   union iwreq_data *wrqu, char *extra)
@@ -12023,6 +12028,7 @@ free_buf:
 	return 0;
 }
 
+#ifdef CONFIG_WIRELESS_EXT
 static iw_handler rtw_handlers[] = {
 	NULL,					/* SIOCSIWCOMMIT */
 	rtw_wx_get_name,		/* SIOCGIWNAME */
@@ -12346,7 +12352,9 @@ static iw_handler rtw_private_handler[] = {
 	rtw_widi_set_probe_request,		/* 0x1F */
 #endif /* CONFIG_INTEL_WIDI */
 };
+#endif
 
+#ifdef CONFIG_WIRELESS_EXT
 #if WIRELESS_EXT >= 17
 static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 {
@@ -12402,6 +12410,7 @@ static struct iw_statistics *rtw_get_wireless_stats(struct net_device *dev)
 	return &padapter->iwstats;
 }
 #endif
+#endif
 
 #ifdef CONFIG_WIRELESS_EXT
 struct iw_handler_def rtw_handlers_def = {
@@ -12417,7 +12426,6 @@ struct iw_handler_def rtw_handlers_def = {
 	.get_wireless_stats = rtw_get_wireless_stats,
 #endif
 };
-#endif
 
 /* copy from net/wireless/wext.c start
  * ----------------------------------------------------------------
@@ -12795,6 +12803,7 @@ exit:
 
 	return err;
 }
+#endif
 
 #ifdef CONFIG_COMPAT
 static int rtw_ioctl_compat_wext_private(struct net_device *dev, struct ifreq *rq)
@@ -12822,6 +12831,7 @@ static int rtw_ioctl_compat_wext_private(struct net_device *dev, struct ifreq *r
 }
 #endif /* CONFIG_COMPAT */
 
+#ifdef CONFIG_WIRELESS_EXT
 static int rtw_ioctl_standard_wext_private(struct net_device *dev, struct ifreq *rq)
 {
 	struct iw_point *iwp;
@@ -12886,3 +12896,6 @@ int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 
 	return ret;
 }
+
+#endif
+#endif

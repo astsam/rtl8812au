@@ -14,13 +14,10 @@
  *****************************************************************************/
 #ifndef __DRV_CONF_H__
 #define __DRV_CONF_H__
-#include "autoconf.h"
 #include "hal_ic_cfg.h"
-#if defined(PLATFORM_LINUX) && defined (PLATFORM_WINDOWS)
+#include <generated/autoconf.h>
+#include "rtl_autoconf.h"
 
-	#error "Shall be Linux or Windows, but not both!\n"
-
-#endif
 #define CONFIG_RSSI_PRIORITY
 #ifdef CONFIG_RTW_REPEATER_SON
 	#ifndef CONFIG_AP
