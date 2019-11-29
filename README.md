@@ -186,31 +186,24 @@ $ sudo iw wlan0 set txpower fixed 3000
 
 ### LED control
 
-#### You can now control LED behaviour statically by Makefile, for example:
-
-```sh
-CONFIG_LED_ENABLE = n
-```
-value can be y or n
-
 #### statically by module parameter in /etc/modprobe.d/8812au.conf or wherever, for example:
 
 ```sh
-options 88XXau rtw_led_enable=0
+options 88XXau rtw_led_ctrl=0
 ```
 value can be 0 or 1
 
-#### or dynamically by writing to /proc/net/rtl8812au/$(your interface name)/led_enable, for example:
+#### or dynamically by writing to /proc/net/rtl8812au/$(your interface name)/led_ctrl, for example:
 
 ```sh
-$ echo "0" > /proc/net/rtl8812au/$(your interface name)/led_enable
+$ echo "0" > /proc/net/rtl8812au/$(your interface name)/led_ctrl
 ```
 value can be 0 or 1
 
 #### check current value:
 
 ```sh
-$ cat /proc/net/rtl8812au/$(your interface name)/led_enable
+$ cat /proc/net/rtl8812au/$(your interface name)/led_ctrl
 ```
 
 ### USB Mode Switch
