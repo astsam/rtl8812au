@@ -1,38 +1,30 @@
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS) -fno-pie
 EXTRA_CFLAGS += -O1
-#EXTRA_CFLAGS += -O3
-#EXTRA_CFLAGS += -Wall
-#EXTRA_CFLAGS += -Wextra
-#EXTRA_CFLAGS += -Werror
-#EXTRA_CFLAGS += -pedantic
-#EXTRA_CFLAGS += -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes
 EXTRA_CFLAGS += -Wno-unused-variable
 EXTRA_CFLAGS += -Wno-unused-value
 EXTRA_CFLAGS += -Wno-unused-label
 EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 EXTRA_CFLAGS += -Wno-unused
-EXTRA_CFLAGS += -Wno-date-time
 EXTRA_CFLAGS += -Wno-uninitialized
 EXTRA_CFLAGS += -Wno-cast-function-type
 EXTRA_CFLAGS += -Wno-misleading-indentation
 EXTRA_CFLAGS += -Wno-missing-field-initializers
-#EXTRA_CFLAGS += -Wimplicit-fallthrough
+EXTRA_CFLAGS += -Wimplicit-fallthrough
 EXTRA_CFLAGS += -Wno-vla -g
-#EXTRA_CFLAGS += -Wno-tautological-compare
-#EXTRA_CFLAGS += -Wno-incompatible-pointer-types
-#EXTRA_CFLAGS += -Wsign-conversion
+EXTRA_CFLAGS += -Wno-tautological-compare
+EXTRA_CFLAGS += -Wno-incompatible-pointer-types
+EXTRA_CFLAGS += -Wsign-conversion
 # Relax some warnings from '-Wextra' so we won't get flooded with warnings
-#EXTRA_CFLAGS += -Wno-sign-compare -Wno-sign-conversion
-#EXTRA_CFLAGS += -Wno-type-limits
+EXTRA_CFLAGS += -Wno-sign-compare -Wno-sign-conversion
+EXTRA_CFLAGS += -Wno-type-limits
 
-GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )
-ifeq ($(GCC_VER_49),1)
+#GCC_VER_49 := $(shell echo `$(CC) -dumpversion | cut -f1-2 -d.` \>= 4.9 | bc )
+#ifeq ($(GCC_VER_49),1)
 EXTRA_CFLAGS += -Wno-date-time	# Fix compile error && warning on gcc 4.9 and later
-endif
+#endif
 
 EXTRA_CFLAGS += -I$(src)/include
-
 EXTRA_LDFLAGS += --strip-debug
 
 ########################## WIFI IC ############################

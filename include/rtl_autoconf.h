@@ -22,15 +22,16 @@
  */
 #define AUTOCONF_INCLUDED
 #define RTL871X_MODULE_NAME "8812AU"
+
+/*
 #ifndef DRV_NAME
 #define DRV_NAME "rtl8812au"
 #endif
+*/
 
 #define CONFIG_USB_HCI
 
 #define PLATFORM_LINUX
-
-#define CONFIG_IOCTL_CFG80211 1
 
 #ifdef CONFIG_IOCTL_CFG80211
 	/* #define RTW_USE_CFG80211_STA_EVENT */ /* Indecate new sta asoc through cfg80211_new_sta */
@@ -58,6 +59,7 @@
 #endif
 
 #define CONFIG_80211N_HT
+
 #define CONFIG_80211AC_VHT
 #ifdef CONFIG_80211AC_VHT
 	#ifndef CONFIG_80211N_HT
@@ -83,7 +85,7 @@
 
 #define CONFIG_RECV_REORDERING_CTRL	1
 
-#define CONFIG_DFS	1
+#define CONFIG_DFS	0
 
  /* #define CONFIG_SUPPORT_USB_INT */
  #ifdef CONFIG_SUPPORT_USB_INT
@@ -179,8 +181,7 @@
 	#define CONFIG_TDLS_CH_SW	/* Enable this flag only when we confirm that TDLS CH SW is supported in FW */
 #endif
 
-
-#define CONFIG_SKB_COPY	1/* for amsdu */
+#define CONFIG_SKB_COPY	1 /* for amsdu */
 
 #define CONFIG_RTW_LED
 #ifdef CONFIG_RTW_LED
@@ -324,7 +325,7 @@
 /*
  * Debug Related Config
  */
-#define DBG	1
+#define DBG	0
 
 #define CONFIG_PROC_DEBUG
 
@@ -347,7 +348,9 @@
 /* #define DBG_RX_SIGNAL_DISPLAY_PROCESSING */
 /* #define DBG_RX_SIGNAL_DISPLAY_SSID_MONITORED "jeff-ap" */
 
-
+#define DBG_TX_POWER_IDX 1
+#define DBG_PG_TXPWR_READ 1
+#define DBG_HIGHEST_RATE_BMP_BW_CHANGE 1
 
 /* #define DBG_SHOW_MCUFWDL_BEFORE_51_ENABLE */
 /* #define DBG_ROAMING_TEST */
