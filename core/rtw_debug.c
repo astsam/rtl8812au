@@ -17,11 +17,6 @@
 #include <drv_types.h>
 #include <hal_data.h>
 
-#ifdef asm_inline
-#undef asm_inline
-#define asm_inline asm
-#endif
-
 #ifdef CONFIG_RTW_DEBUG
 const char *rtw_log_level_str[] = {
 	"_DRV_NONE_ = 0",

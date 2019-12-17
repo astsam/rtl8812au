@@ -13,11 +13,6 @@
  *
  *****************************************************************************/
 
-#ifdef asm_inline
-#undef asm_inline
-#define asm_inline asm
-#endif
-
 #define _OSDEP_SERVICE_C_
 
 #include <drv_types.h>

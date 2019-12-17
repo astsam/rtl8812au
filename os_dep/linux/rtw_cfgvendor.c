@@ -15,11 +15,6 @@
 
 #include <drv_types.h>
 
-#ifdef asm_inline
-#undef asm_inline
-#define asm_inline asm
-#endif
-
 #ifdef CONFIG_IOCTL_CFG80211
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)) || defined(RTW_VENDOR_EXT_SUPPORT)

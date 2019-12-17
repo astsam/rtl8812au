@@ -15,11 +15,6 @@
 #ifndef __OSDEP_LINUX_SERVICE_H_
 #define __OSDEP_LINUX_SERVICE_H_
 
-#ifdef asm_inline
-#undef asm_inline
-#define asm_inline asm
-#endif
-
 #include <linux/version.h>
 #include <linux/spinlock.h>
 #include <linux/compiler.h>

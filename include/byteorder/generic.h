@@ -15,11 +15,6 @@
 #ifndef _LINUX_BYTEORDER_GENERIC_H
 #define _LINUX_BYTEORDER_GENERIC_H
 
-#ifdef asm_inline
-#undef asm_inline
-#define asm_inline asm
-#endif
-
 /*
  * linux/byteorder_generic.h
  * Generic Byte-reordering support
