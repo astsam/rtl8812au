@@ -14,6 +14,11 @@
  *****************************************************************************/
 #if defined(CONFIG_MP_INCLUDED)
 
+#ifdef asm_inline
+#undef asm_inline
+#define asm_inline asm
+#endif
+
 #ifdef MARK_KERNEL_PFU
 	#include <linux/kernel.h>
 	#include <asm/fpu/api.h>
