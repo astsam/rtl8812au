@@ -12863,6 +12863,8 @@ static int rtw_ioctl_wext_private(struct net_device *dev, struct ifreq *rq)
 #endif /* CONFIG_COMPAT */
 		return rtw_ioctl_standard_wext_private(dev, rq);
 }
+#endif /* CONFIG_WIRELESS_EXT */
+#endif /* also CONFIG_WIRELESS_EXT */
 
 int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 {
@@ -12870,6 +12872,7 @@ int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	int ret = 0;
 
 	switch (cmd) {
+#ifdef CONFIG_WIRELESS_EXT
 	case RTL_IOCTL_WPA_SUPPLICANT:
 		ret = wpa_supplicant_ioctl(dev, &wrq->u.data);
 		break;
@@ -12877,11 +12880,9 @@ int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	case RTL_IOCTL_HOSTAPD:
 		ret = rtw_hostapd_ioctl(dev, &wrq->u.data);
 		break;
-#ifdef CONFIG_WIRELESS_EXT
 	case SIOCSIWMODE:
 		ret = rtw_wx_set_mode(dev, NULL, &wrq->u, NULL);
 		break;
-#endif
 #endif /* CONFIG_AP_MODE */
 	case SIOCDEVPRIVATE:
 		ret = rtw_ioctl_wext_private(dev, rq);
@@ -12889,6 +12890,7 @@ int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	case (SIOCDEVPRIVATE+1):
 		ret = rtw_android_priv_cmd(dev, rq, cmd);
 		break;
+#endif
 	default:
 		ret = -EOPNOTSUPP;
 		break;
@@ -12897,5 +12899,3 @@ int rtw_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
 	return ret;
 }
 
-#endif
-#endif
