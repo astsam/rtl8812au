@@ -27,12 +27,6 @@ Only for use with Linux & Android
   better range then branches below + more fixes from Realtek
 ```
 
-### TODO
-
-`
-* Do a walkthrough in the code, use some time and
-  check every corner of HAL and PHYDM for more junk & bugs.
-```
 ### IPERF3 benchmark
 <b>[Device]</b> Alfa Networks AWUS036ACH<br>
 <b>[Chipset]</b> 88XXau (rtl8812au)<br>
