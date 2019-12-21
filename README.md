@@ -18,47 +18,18 @@ Only for use with Linux & Android
 [![wifite2](https://img.shields.io/badge/wifite2-supported-blue.svg)](https://github.com/derv82/wifite2)
 
 
-### What's new
+### Important!
 ```
-Realtek released a new multichip 'base', the v5.6.4.2 which supports Android 10, kernel v5.3+
-and they fixed the P2P NoA potentially buffer overflow. (See ReleaseNotes.pdf)
+* Use "ip" and "iw" instead of "ifconfig" and "iwconfig"
+     It's described further down, READ THE README!
 
-While we on our side added our patchset for penetration testing abilities,
-added monitor mode & frame injection, unlocked channels, adding txpower control and others,
-keeping it running as kernels are pushed faster then lightning these days.
-
-Follow the README.md, 'iwconfig' is deprecated, use 'iw' .. allways kill
-interference with 'airmon-ng check kill' or 'kill -9 <pid>' first!
-```
-
-### Supports
-```
-* Android 10 supported
-* Monitor mode
-* Frame injection
-* MESH Mode (IBSS)
-* WPA3 SAE
-* Wi-Fi Direct
-* wpa_supplicant
-* Hostapd
-* USB 3.0 (currently forced down to 2)
-* Kernel up to v5.3+
-* RTKMPtool Android app (low level debug)
-```
-
-### Known Issues
-```
-* Adapter interference has to be 'killed' with "airmon-ng check kill" or it may not go into monitor mode,
-  it should anyway always be a good thing to do before doing research in monitor mode.
-  
-* VMware Workstation has issues, giving kernel oops on module load.
-* Ubuntu has enabled module signing (kernel) by default,
-  workaround: run the 'install-and-sign-ubuntu.sh' in 'tools' folder
+* v5.3.4 is the stable branch, not this, but this does have
+  better range then branches below + more fixes from Realtek
 ```
 
 ### TODO
 
-```
+`
 * Do a walkthrough in the code, use some time and
   check every corner of HAL and PHYDM for more junk & bugs.
 ```
