@@ -24,7 +24,9 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-8
+            - gcc-9
+      env: COMPILER=gcc-9 KVER=5.4.8
+    - compiler: gcc
       env: COMPILER=gcc-8 KVER=5.4.8
     - compiler: gcc
       env: COMPILER=gcc-7 KVER=5.4.8
@@ -42,7 +44,9 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - gcc-8
+            - gcc-9
+      env: COMPILER=gcc-9 KVER=4.19.86
+    - compiler: gcc
       env: COMPILER=gcc-8 KVER=4.19.86
     - compiler: gcc
       env: COMPILER=gcc-7 KVER=4.19.86
