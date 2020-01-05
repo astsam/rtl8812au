@@ -1,7 +1,7 @@
 language: c
 compiler: gcc
 sudo: required
-dist: eoan
+dist: disco
 
 before_install:
   - export ALL_DEB=$(wget --quiet -O - ${KERNEL_URL}v${KVER}/ | grep -o 'href=".*"' | grep -m1 all | cut -d '"' -f 2)
