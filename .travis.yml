@@ -25,21 +25,21 @@ matrix:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
           packages:
             - gcc-9
-      env: COMPILER=gcc-9 KVER=5.4.14
+      env: COMPILER=gcc-9 KVER=5.4.16
     - compiler: gcc
       addons:
         apt:
           packages:
             - gcc-8
-      env: COMPILER=gcc-8 KVER=5.4.14
+      env: COMPILER=gcc-8 KVER=5.4.16
     - compiler: gcc
-      env: COMPILER=gcc-7 KVER=5.4.14
+      env: COMPILER=gcc-7 KVER=5.4.16
     - compiler: gcc
       addons:
         apt:
           packages:
             - gcc-6
-      env: COMPILER=gcc-6 KVER=5.4.14
+      env: COMPILER=gcc-6 KVER=5.4.16
     - compiler: gcc
       addons:
         apt:
