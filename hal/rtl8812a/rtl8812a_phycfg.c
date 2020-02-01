@@ -1465,6 +1465,7 @@ phy_SwBand8812(
 	return ret_value;
 }
 
+#pragma clang optimize off
 u8
 phy_GetSecondaryChnl_8812(
 	IN	PADAPTER	Adapter
@@ -1506,6 +1507,7 @@ phy_GetSecondaryChnl_8812(
 	/*RTW_INFO("SCMapping: SC Value %x\n", ((SCSettingOf40 << 4) | SCSettingOf20));*/
 	return (SCSettingOf40 << 4) | SCSettingOf20;
 }
+#pragma clang optimize on
 
 VOID
 phy_SetRegBW_8812(
