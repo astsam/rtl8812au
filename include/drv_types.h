@@ -457,6 +457,8 @@ struct registry_priv {
 	u8 tdmadig_mode;
 	u8 tdmadig_dynamic;
 #endif/*CONFIG_TDMADIG*/
+
+	u8 monitor_disable_1m;
 };
 
 /* For registry parameters */
