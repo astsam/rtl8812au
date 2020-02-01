@@ -1080,7 +1080,7 @@ void *wifi_get_country_code(char *ccode)
 	if (!ccode)
 		return NULL;
 	if (wifi_control_data && wifi_control_data->get_country_code)
-		return wifi_control_data->get_country_code(ccode);
+		return wifi_control_data->get_country_code(ccode, 0);
 	return NULL;
 }
 #endif /* (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 39)) */
