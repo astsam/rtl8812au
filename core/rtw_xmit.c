@@ -4415,6 +4415,7 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 	u8 dummybuf[32];
 	int len = skb->len, rtap_len, consume;
 
+	int alloc_tries, alloc_delay;
 
 	rtw_mstat_update(MSTAT_TYPE_SKB, MSTAT_ALLOC_SUCCESS, skb->truesize);
 
@@ -4442,11 +4443,16 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 	}
 #endif
 
-	pmgntframe = alloc_mgtxmitframe(pxmitpriv);
-	if (pmgntframe == NULL) {
-		rtw_udelay_os(500);
-		goto fail;
+	alloc_delay = 100;
+	for (alloc_tries=3; alloc_tries > 0; alloc_tries--) {
+		pmgntframe = alloc_mgtxmitframe(pxmitpriv);
+		if (pmgntframe != NULL)
+			break;
+		rtw_udelay_os(alloc_delay);
+		alloc_delay += alloc_delay/2;
 	}
+	if (pmgntframe == NULL)
+		goto fail;
 
 	_rtw_memset(pmgntframe->buf_addr, 0, WLANHDR_OFFSET + TXDESC_OFFSET);
 	pframe = (u8 *)(pmgntframe->buf_addr) + TXDESC_OFFSET;
