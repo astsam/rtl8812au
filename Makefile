@@ -7,6 +7,7 @@ EXTRA_CFLAGS += -Wno-unused-parameter
 EXTRA_CFLAGS += -Wno-unused-function
 #EXTRA_CFLAGS += -Wno-parentheses-equality
 #EXTRA_CFLAGS += -Wno-pointer-bool-conversion
+EXTRA_CFLAGS += -Wno-unknown-pragmas
 EXTRA_CFLAGS += -Wno-unused
 EXTRA_CFLAGS += -Wno-vla -g
 
