@@ -25,6 +25,8 @@ CONFIG_RTL8821A = y
 CONFIG_RTL8814A = y
 ######################### Interface ###########################
 CONFIG_USB_HCI = y
+########################### Android ###########################
+CONFIG_SIGNAL_DISPLAY_DBM = y
 ########################## Features ###########################
 CONFIG_NET_NS = y
 CONFIG_MP_INCLUDED = y
