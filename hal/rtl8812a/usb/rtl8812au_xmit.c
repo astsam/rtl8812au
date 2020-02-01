@@ -304,7 +304,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 			if (pattrib->retry_ctrl == _TRUE)
 				SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 6);
 			else
-				SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 12);
+				SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 0);
 		}
 
 #ifdef CONFIG_XMIT_ACK
