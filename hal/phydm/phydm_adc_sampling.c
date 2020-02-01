@@ -1075,7 +1075,7 @@ void phydm_la_set_buff_mode(void *dm_void, enum la_buff_mode mode)
 		end_pos_tmp = 0x8000;
 		break;
 	default:
-		pr_debug("[%s] Warning!", __func__);
+		//pr_debug("[%s] Warning!", __func__);
 		break;
 	}
 
