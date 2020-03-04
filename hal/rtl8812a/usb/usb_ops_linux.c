@@ -114,6 +114,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 	struct recv_priv	*precvpriv = &padapter->recvpriv;
 	_queue			*pfree_recv_queue = &precvpriv->free_recv_queue;
 	_pkt *pskb;
+	struct dvobj_priv *pdvobj = adapter_to_dvobj(padapter);
 
 #ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
 	pskb = NULL;
@@ -127,7 +128,10 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 
 
 #ifdef CONFIG_USB_RX_AGGREGATION
-	pkt_cnt = GET_RX_STATUS_DESC_USB_AGG_PKTNUM_8812(pbuf);
+	if (pdvobj->chip_type == RTL8812)
+		pkt_cnt = GET_RX_STATUS_DESC_USB_AGG_PKTNUM_8812(pbuf);
+	else if (pdvobj->chip_type == RTL8814A)
+		pkt_cnt = GET_RX_STATUS_DESC_DMA_AGG_NUM_8814A(pbuf);
 #endif
 
 	do {
@@ -141,7 +145,10 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 		precvframe->u.hdr.precvbuf = NULL;	/* can't access the precvbuf for new arch. */
 		precvframe->u.hdr.len = 0;
 
-		rtl8812_query_rx_desc_status(precvframe, pbuf);
+		if (pdvobj->chip_type == RTL8812)
+			rtl8812_query_rx_desc_status(precvframe, pbuf);
+		else if (pdvobj->chip_type == RTL8814A)
+			rtl8814_query_rx_desc_status(precvframe, pbuf);
 
 		pattrib = &precvframe->u.hdr.attrib;
 
@@ -184,7 +191,8 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 			} else if (pattrib->pkt_rpt_type == HIS_REPORT) {
 				/*RTW_INFO("%s rx USB HISR\n", __func__);*/
 #ifdef CONFIG_SUPPORT_USB_INT
-				interrupt_handler_8812au(padapter, pattrib->pkt_len, precvframe->u.hdr.rx_data);
+				if (pdvobj->chip_type == RTL8812)
+					interrupt_handler_8812au(padapter, pattrib->pkt_len, precvframe->u.hdr.rx_data);
 #endif
 			}
 			rtw_free_recvframe(precvframe, pfree_recv_queue);

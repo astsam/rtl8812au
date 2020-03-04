@@ -307,25 +307,25 @@ void CheckAutoloadState8812A(PADAPTER padapter);
 u8	GetEEPROMSize8812A(PADAPTER padapter);
 void InitPGData8812A(PADAPTER padapter);
 void	Hal_EfuseParseIDCode8812A(PADAPTER padapter, u8 *hwinfo);
-void	Hal_ReadPROMVersion8812A(PADAPTER padapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
-void	Hal_ReadTxPowerInfo8812A(PADAPTER padapter, u8 *hwinfo, BOOLEAN	AutoLoadFail);
-void	Hal_ReadBoardType8812A(PADAPTER pAdapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
-void	Hal_ReadThermalMeter_8812A(PADAPTER	Adapter, u8 *PROMContent, BOOLEAN	AutoloadFail);
-void	Hal_ReadChannelPlan8812A(PADAPTER padapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
-void	Hal_EfuseParseXtal_8812A(PADAPTER pAdapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
-void	Hal_ReadAntennaDiversity8812A(PADAPTER pAdapter, u8 *PROMContent, BOOLEAN AutoLoadFail);
-void	Hal_ReadAmplifierType_8812A(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
-void	Hal_ReadPAType_8821A(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
-void	Hal_ReadRFEType_8812A(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
-void	Hal_EfuseParseBTCoexistInfo8812A(PADAPTER Adapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
-void	hal_ReadUsbType_8812AU(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
+void	Hal_ReadPROMVersion8812A(PADAPTER padapter, u8 *hwinfo, boolean AutoLoadFail);
+void	Hal_ReadTxPowerInfo8812A(PADAPTER padapter, u8 *hwinfo, boolean	AutoLoadFail);
+void	Hal_ReadBoardType8812A(PADAPTER pAdapter, u8 *hwinfo, boolean AutoLoadFail);
+void	Hal_ReadThermalMeter_8812A(PADAPTER	Adapter, u8 *PROMContent, boolean	AutoloadFail);
+void	Hal_ReadChannelPlan8812A(PADAPTER padapter, u8 *hwinfo, boolean AutoLoadFail);
+void	Hal_EfuseParseXtal_8812A(PADAPTER pAdapter, u8 *hwinfo, boolean AutoLoadFail);
+void	Hal_ReadAntennaDiversity8812A(PADAPTER pAdapter, u8 *PROMContent, boolean AutoLoadFail);
+void	Hal_ReadAmplifierType_8812A(PADAPTER Adapter, u8 *PROMContent, boolean AutoloadFail);
+void	Hal_ReadPAType_8821A(PADAPTER Adapter, u8 *PROMContent, boolean AutoloadFail);
+void	Hal_ReadRFEType_8812A(PADAPTER Adapter, u8 *PROMContent, boolean AutoloadFail);
+void	Hal_EfuseParseBTCoexistInfo8812A(PADAPTER Adapter, u8 *hwinfo, boolean AutoLoadFail);
+void	hal_ReadUsbType_8812AU(PADAPTER Adapter, u8 *PROMContent, boolean AutoloadFail);
 #ifdef CONFIG_MP_INCLUDED
 int	FirmwareDownloadBT(PADAPTER Adapter, PRT_MP_FIRMWARE pFirmware);
 #endif
-void	Hal_ReadRemoteWakeup_8812A(PADAPTER padapter, u8 *hwinfo, BOOLEAN AutoLoadFail);
+void	Hal_ReadRemoteWakeup_8812A(PADAPTER padapter, u8 *hwinfo, boolean AutoLoadFail);
 
-BOOLEAN HalDetectPwrDownMode8812(PADAPTER Adapter);
-void Hal_EfuseParseKFreeData_8821A(PADAPTER Adapter, u8 *PROMContent, BOOLEAN AutoloadFail);
+boolean HalDetectPwrDownMode8812(PADAPTER Adapter);
+void Hal_EfuseParseKFreeData_8821A(PADAPTER Adapter, u8 *PROMContent, boolean AutoloadFail);
 
 #ifdef CONFIG_WOWLAN
 void Hal_DetectWoWMode(PADAPTER pAdapter);
@@ -351,19 +351,19 @@ void rtl8812_start_thread(PADAPTER padapter);
 void rtl8812_stop_thread(PADAPTER padapter);
 
 #ifdef CONFIG_PCI_HCI
-BOOLEAN	InterruptRecognized8812AE(PADAPTER Adapter);
-VOID	UpdateInterruptMask8812AE(PADAPTER Adapter, u32 AddMSR, u32 AddMSR1, u32 RemoveMSR, u32 RemoveMSR1);
-VOID	InitTRXDescHwAddress8812AE(PADAPTER Adapter);
+boolean	InterruptRecognized8812AE(PADAPTER Adapter);
+void	UpdateInterruptMask8812AE(PADAPTER Adapter, u32 AddMSR, u32 AddMSR1, u32 RemoveMSR, u32 RemoveMSR1);
+void	InitTRXDescHwAddress8812AE(PADAPTER Adapter);
 #endif
 
 #ifdef CONFIG_BT_COEXIST
 void rtl8812a_combo_card_WifiOnlyHwInit(PADAPTER Adapter);
 #endif
 
-VOID
+void
 Hal_PatchwithJaguar_8812(
-	IN PADAPTER				Adapter,
-	IN RT_MEDIA_STATUS		MediaStatus
+		PADAPTER				Adapter,
+		RT_MEDIA_STATUS		MediaStatus
 );
 
 #endif /* __RTL8188E_HAL_H__ */

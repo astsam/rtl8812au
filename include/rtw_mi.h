@@ -244,6 +244,8 @@ u8 rtw_mi_buddy_check_pending_xmitbuf(_adapter *padapter);
 #if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
 #ifdef CONFIG_RTL8822B
 	#include <rtl8822b_hal.h>
+#elif defined(CONFIG_RTL8822C)
+	#include <rtl8822c_hal.h>
 #else
 	extern s32 _dequeue_writeport(PADAPTER padapter);
 #endif

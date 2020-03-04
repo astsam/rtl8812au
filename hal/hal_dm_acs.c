@@ -539,10 +539,8 @@ s16 rtw_noise_measure_curchan(_adapter *padapter)
 	u8 is_pause_dig = _TRUE;
 	u8 cur_chan = rtw_get_oper_ch(padapter);
 
-#ifndef CONFIG_ALLOW_UNLINKED_NOISE_MONITOR
 	if (rtw_linked_check(padapter) == _FALSE)
 		return noise;
-#endif
 
 	rtw_ps_deny(padapter, PS_DENY_IOCTL);
 	LeaveAllPowerSaveModeDirect(padapter);

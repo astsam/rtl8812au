@@ -318,12 +318,12 @@ u8 rtw_get_op_chs_by_cch_bw(u8 cch, u8 bw, u8 **op_chs, u8 *op_ch_num)
 	u8 valid = 1;
 
 	if (cch <= 14
-		&& bw >= CHANNEL_WIDTH_20 && bw <= CHANNEL_WIDTH_40
+		&& bw <= CHANNEL_WIDTH_40
 	) {
 		c_chs_ent = &center_chs_2g_by_bw[bw];
 		op_chs_ent = &op_chs_of_cch_2g_by_bw[bw];
 	} else if (cch >= 36 && cch <= 177
-		&& bw >= CHANNEL_WIDTH_20 && bw <= CHANNEL_WIDTH_160
+		&& bw <= CHANNEL_WIDTH_160
 	) {
 		c_chs_ent = &center_chs_5g_by_bw[bw];
 		op_chs_ent = &op_chs_of_cch_5g_by_bw[bw];
@@ -565,6 +565,186 @@ const u8 _rf_type_to_rf_rx_cnt[] = {
 	1, /*RF_TYPE_MAX*/
 };
 
+const char *const _rf_type_to_rfpath_str[] = {
+	"RF_1T1R",
+	"RF_1T2R",
+	"RF_2T2R",
+	"RF_2T3R",
+	"RF_2T4R",
+	"RF_3T3R",
+	"RF_3T4R",
+	"RF_4T4R",
+	"RF_TYPE_MAX"
+};
+
+void rf_type_to_default_trx_bmp(enum rf_type rf, enum bb_path *tx, enum bb_path *rx)
+{
+	switch (rf) {
+	case RF_1T1R:
+		*tx = BB_PATH_A;
+		*rx = BB_PATH_A;
+		break;
+	case RF_1T2R:
+		*tx = BB_PATH_A;
+		*rx = BB_PATH_AB;
+		break;
+	case RF_2T2R:
+		*tx = BB_PATH_AB;
+		*rx = BB_PATH_AB;
+		break;
+	case RF_2T3R:
+		*tx = BB_PATH_AB;
+		*rx = BB_PATH_ABC;
+		break;
+	case RF_2T4R:
+		*tx = BB_PATH_AB;
+		*rx = BB_PATH_ABCD;
+		break;
+	case RF_3T3R:
+		*tx = BB_PATH_ABC;
+		*rx = BB_PATH_ABC;
+		break;
+	case RF_3T4R:
+		*tx = BB_PATH_ABC;
+		*rx = BB_PATH_ABCD;
+		break;
+	case RF_4T4R:
+		*tx = BB_PATH_ABCD;
+		*rx = BB_PATH_ABCD;
+		break;
+	default:
+		*tx = BB_PATH_A;
+		*rx = BB_PATH_A;
+		break;
+	}
+}
+
+static const u8 _trx_num_to_rf_type[RF_PATH_MAX][RF_PATH_MAX] = {
+	{RF_1T1R,		RF_1T2R,		RF_TYPE_MAX,	RF_TYPE_MAX},
+	{RF_TYPE_MAX,	RF_2T2R,		RF_2T3R,		RF_2T4R},
+	{RF_TYPE_MAX,	RF_TYPE_MAX,	RF_3T3R,		RF_3T4R},
+	{RF_TYPE_MAX,	RF_TYPE_MAX,	RF_TYPE_MAX,	RF_4T4R},
+};
+
+enum rf_type trx_num_to_rf_type(u8 tx_num, u8 rx_num)
+{
+	if (tx_num > 0 && tx_num <= RF_PATH_MAX && rx_num > 0 && rx_num <= RF_PATH_MAX)
+		return _trx_num_to_rf_type[tx_num - 1][rx_num - 1];
+	return RF_TYPE_MAX;
+}
+
+enum rf_type trx_bmp_to_rf_type(u8 tx_bmp, u8 rx_bmp)
+{
+	u8 tx_num = 0;
+	u8 rx_num = 0;
+	int i;
+
+	for (i = 0; i < RF_PATH_MAX; i++) {
+		if (tx_bmp >> i & BIT0)
+			tx_num++;
+		if (rx_bmp >> i & BIT0)
+			rx_num++;
+	}
+
+	return trx_num_to_rf_type(tx_num, rx_num);
+}
+
+bool rf_type_is_a_in_b(enum rf_type a, enum rf_type b)
+{
+	return rf_type_to_rf_tx_cnt(a) <= rf_type_to_rf_tx_cnt(b)
+		&& rf_type_to_rf_rx_cnt(a) <= rf_type_to_rf_rx_cnt(b);
+}
+
+static void rtw_path_bmp_limit_from_higher(u8 *bmp, u8 *bmp_bit_cnt, u8 bit_cnt_lmt)
+{
+	int i;
+
+	for (i = RF_PATH_MAX - 1; *bmp_bit_cnt > bit_cnt_lmt && i >= 0; i--) {
+		if (*bmp & BIT(i)) {
+			*bmp &= ~BIT(i);
+			(*bmp_bit_cnt)--;
+		}
+	}
+}
+
+u8 rtw_restrict_trx_path_bmp_by_rftype(u8 trx_path_bmp, enum rf_type type, u8 *tx_num, u8 *rx_num)
+{
+	u8 bmp_tx = (trx_path_bmp & 0xF0) >> 4;
+	u8 bmp_rx = trx_path_bmp & 0x0F;
+	u8 bmp_tx_num = 0, bmp_rx_num = 0;
+	u8 tx_num_lmt, rx_num_lmt;
+	enum rf_type ret_type = RF_TYPE_MAX;
+	int i, j;
+
+	for (i = 0; i < RF_PATH_MAX; i++) {
+		if (bmp_tx & BIT(i))
+			bmp_tx_num++;
+		if (bmp_rx & BIT(i))
+			bmp_rx_num++;
+	}
+
+	/* limit higher bit first according to input type */
+	tx_num_lmt = rf_type_to_rf_tx_cnt(type);
+	rx_num_lmt = rf_type_to_rf_rx_cnt(type);
+	rtw_path_bmp_limit_from_higher(&bmp_tx, &bmp_tx_num, tx_num_lmt);
+	rtw_path_bmp_limit_from_higher(&bmp_rx, &bmp_rx_num, rx_num_lmt);
+
+	/* search for valid rf_type (larger RX prefer) */
+	for (j = bmp_rx_num; j > 0; j--) {
+		for (i = bmp_tx_num; i > 0; i--) {
+			ret_type = trx_num_to_rf_type(i, j);
+			if (RF_TYPE_VALID(ret_type)) {
+				rtw_path_bmp_limit_from_higher(&bmp_tx, &bmp_tx_num, i);
+				rtw_path_bmp_limit_from_higher(&bmp_rx, &bmp_rx_num, j);
+				if (tx_num)
+					*tx_num = bmp_tx_num;
+				if (rx_num)
+					*rx_num = bmp_rx_num;
+				goto exit;
+			}
+		}
+	}
+
+exit:
+	return RF_TYPE_VALID(ret_type) ? ((bmp_tx << 4) | bmp_rx) : 0x00;
+}
+
+/* config to non N-TX value, path with lower index prefer */
+void tx_path_nss_set_default(enum bb_path txpath_nss[], u8 txpath_num_nss[], u8 txpath)
+{
+	int i, j;
+	u8 cnt;
+
+	for (i = 4; i > 0; i--) {
+		cnt = 0;
+		txpath_nss[i - 1] = 0;
+		for (j = 0; j < RF_PATH_MAX; j++) {
+			if (txpath & BIT(j)) {
+				txpath_nss[i - 1] |= BIT(j);
+				if (++cnt == i)
+					break;
+			}
+		}
+		txpath_num_nss[i - 1] = i;
+	}
+}
+
+/* config to full N-TX value */
+void tx_path_nss_set_full_tx(enum bb_path txpath_nss[], u8 txpath_num_nss[], u8 txpath)
+{
+	u8 tx_num = 0;
+	int i;
+
+	for (i = 0; i < RF_PATH_MAX; i++)
+		if (txpath & BIT(i))
+			tx_num++;
+
+	for (i = 4; i > 0; i--) {
+		txpath_nss[i - 1] = txpath;
+		txpath_num_nss[i - 1] = tx_num;
+	}
+}
+
 const char *const _regd_str[] = {
 	"NONE",
 	"FCC",
@@ -574,6 +754,7 @@ const char *const _regd_str[] = {
 	"KCC",
 	"ACMA",
 	"CHILE",
+	"MEXICO",
 	"WW",
 };
 
@@ -738,6 +919,7 @@ void dump_txpwr_lmt(void *sel, _adapter *adapter)
 {
 #define TMP_STR_LEN 16
 	struct rf_ctl_t *rfctl = adapter_to_rfctl(adapter);
+	HAL_DATA_TYPE *hal_data = GET_HAL_DATA(adapter);
 	struct hal_spec_t *hal_spec = GET_HAL_SPEC(adapter);
 	_irqL irqL;
 	char fmt[16];
@@ -762,9 +944,10 @@ void dump_txpwr_lmt(void *sel, _adapter *adapter)
 
 	RTW_PRINT_SEL(sel, "txpwr_lmt_2g_cck_ofdm_state:0x%02x\n", rfctl->txpwr_lmt_2g_cck_ofdm_state);
 	#ifdef CONFIG_IEEE80211_BAND_5GHZ
-	if (IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
+	if (IS_HARDWARE_TYPE_JAGUAR_ALL(adapter)) {
 		RTW_PRINT_SEL(sel, "txpwr_lmt_5g_cck_ofdm_state:0x%02x\n", rfctl->txpwr_lmt_5g_cck_ofdm_state);
 		RTW_PRINT_SEL(sel, "txpwr_lmt_5g_20_40_ref:0x%02x\n", rfctl->txpwr_lmt_5g_20_40_ref);
+	}
 	#endif
 	RTW_PRINT_SEL(sel, "\n");
 
@@ -801,14 +984,14 @@ void dump_txpwr_lmt(void *sel, _adapter *adapter)
 					continue;
 				if (bw > CHANNEL_WIDTH_40 && tlrs == TXPWR_LMT_RS_HT)
 					continue;
-				if (tlrs == TXPWR_LMT_RS_VHT && !IS_HARDWARE_TYPE_JAGUAR_AND_JAGUAR2(adapter))
+				if (tlrs == TXPWR_LMT_RS_VHT && !IS_HARDWARE_TYPE_JAGUAR_ALL(adapter))
 					continue;
 
 				for (ntx_idx = RF_1TX; ntx_idx < MAX_TX_COUNT; ntx_idx++) {
 					struct txpwr_lmt_ent *ent;
 					_list *cur, *head;
 
-					if (ntx_idx >= hal_spec->tx_nss_num)
+					if (ntx_idx + 1 > hal_data->max_tx_cnt)
 						continue;
 
 					/* bypass CCK multi-TX is not defined */
@@ -968,7 +1151,11 @@ void dump_txpwr_lmt(void *sel, _adapter *adapter)
 							if (path >= rfpath_num)
 								break;
 
+#ifdef CONFIG_USE_TSSI
+							base = PHY_GetTxPowerByRateOriginal(adapter, band, path, MGN_MCS7);
+#else
 							base = PHY_GetTxPowerByRateBase(adapter, band, path, rs);
+#endif
 
 							_RTW_PRINT_SEL(sel, "|");
 							head = &rfctl->txpwr_lmt_list;
@@ -1238,7 +1425,7 @@ exit:
 
 void rtw_rf_set_tx_gain_offset(_adapter *adapter, u8 path, s8 offset)
 {
-#if defined(CONFIG_RTL8821A)
+#if !defined(CONFIG_RTL8814A) && !defined(CONFIG_RTL8822B) && !defined(CONFIG_RTL8821C) && !defined(CONFIG_RTL8822C)
 	u8 write_value;
 #endif
 	u8 target_path = 0;
@@ -1294,13 +1481,13 @@ void rtw_rf_set_tx_gain_offset(_adapter *adapter, u8 path, s8 offset)
 
 #ifdef CONFIG_RTL8821A
 	case RTL8821:
-		write_value = RF_TX_GAIN_OFFSET_8821A(offset);
-		rtw_hal_write_rfreg(adapter, target_path, 0x55, 0x0f8000, write_value);
+		rtw_hal_write_rfreg(adapter, target_path, 0x55, 0x0f8000, RF_TX_GAIN_OFFSET_8821A(offset));
 		break;
 #endif /* CONFIG_RTL8821A */
-#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8192F)
+#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8192F) || defined(CONFIG_RTL8822C)
 	case RTL8814A:
 	case RTL8822B:
+	case RTL8822C:	
 	case RTL8821C:
 	case RTL8192F:
 		RTW_INFO("\nkfree by PhyDM on the sw CH. path %d\n", path);

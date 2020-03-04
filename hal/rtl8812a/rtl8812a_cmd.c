@@ -158,7 +158,7 @@ u8 rtl8812_set_rssi_cmd(_adapter *padapter, u8 *param)
 	return res;
 }
 
-u8	Get_VHT_ENI(
+static u8	Get_VHT_ENI(
 	u32		IOTAction,
 	u32		WirelessMode,
 	u32		ratr_bitmap
@@ -582,11 +582,11 @@ void rtl8812_set_FwJoinBssReport_cmd(PADAPTER padapter, u8 mstatus)
 		rtl8812_download_rsvd_page(padapter, RT_MEDIA_CONNECT);
 }
 
-static VOID
+static void
 C2HTxBeamformingHandler_8812(
-	IN	PADAPTER		Adapter,
-	IN	u8				*CmdBuf,
-	IN	u8				CmdLen
+	PADAPTER		Adapter,
+	u8				*CmdBuf,
+	u8				CmdLen
 )
 {
 	u8	status = CmdBuf[0] & BIT0;
@@ -616,11 +616,11 @@ C2HTxBeamformingHandler_8812(
 #endif /*#ifdef CONFIG_BEAMFORMING*/
 }
 
-static VOID
+static void
 C2HTxFeedbackHandler_8812(
-	IN	PADAPTER	Adapter,
-	IN	u8			*CmdBuf,
-	IN	u8			CmdLen
+	PADAPTER	Adapter,
+	u8			*CmdBuf,
+	u8			CmdLen
 )
 {
 #ifdef CONFIG_XMIT_ACK
@@ -648,7 +648,6 @@ s32 c2h_handler_8812a(_adapter *adapter, u8 id, u8 seq, u8 plen, u8 *payload)
 		break;
 	}
 
-exit:
 	return ret;
 }
 

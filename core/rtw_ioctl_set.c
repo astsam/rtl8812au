@@ -197,84 +197,6 @@ exit:
 	return ret;
 }
 
-#ifdef PLATFORM_WINDOWS
-u8 rtw_pnp_set_power_wakeup(_adapter *padapter)
-{
-	u8 res = _SUCCESS;
-
-
-
-	res = rtw_setstandby_cmd(padapter, 0);
-
-
-
-	return res;
-}
-
-u8 rtw_pnp_set_power_sleep(_adapter *padapter)
-{
-	u8 res = _SUCCESS;
-
-
-	/* DbgPrint("+rtw_pnp_set_power_sleep\n"); */
-
-	res = rtw_setstandby_cmd(padapter, 1);
-
-
-
-	return res;
-}
-
-u8 rtw_set_802_11_reload_defaults(_adapter *padapter, NDIS_802_11_RELOAD_DEFAULTS reloadDefaults)
-{
-
-
-
-	/* SecClearAllKeys(Adapter); */
-	/* 8711 CAM was not for En/Decrypt only */
-	/* so, we can't clear all keys. */
-	/* should we disable WPAcfg (ox0088) bit 1-2, instead of clear all CAM */
-
-	/* TO DO... */
-
-
-	return _TRUE;
-}
-
-u8 set_802_11_test(_adapter *padapter, NDIS_802_11_TEST *test)
-{
-	u8 ret = _TRUE;
-
-
-	switch (test->Type) {
-	case 1:
-		NdisMIndicateStatus(padapter->hndis_adapter, NDIS_STATUS_MEDIA_SPECIFIC_INDICATION, (PVOID)&test->AuthenticationEvent, test->Length - 8);
-		NdisMIndicateStatusComplete(padapter->hndis_adapter);
-		break;
-
-	case 2:
-		NdisMIndicateStatus(padapter->hndis_adapter, NDIS_STATUS_MEDIA_SPECIFIC_INDICATION, (PVOID)&test->RssiTrigger, sizeof(NDIS_802_11_RSSI));
-		NdisMIndicateStatusComplete(padapter->hndis_adapter);
-		break;
-
-	default:
-		ret = _FALSE;
-		break;
-	}
-
-
-	return ret;
-}
-
-u8	rtw_set_802_11_pmkid(_adapter	*padapter, NDIS_802_11_PMKID *pmkid)
-{
-	u8	ret = _SUCCESS;
-
-	return ret;
-}
-
-#endif
-
 u8 rtw_set_802_11_bssid(_adapter *padapter, u8 *bssid)
 {
 	_irqL irqL;
@@ -395,7 +317,7 @@ u8 rtw_set_802_11_ssid(_adapter *padapter, NDIS_802_11_SSID *ssid)
 			}
 #ifdef CONFIG_LPS
 			else
-				rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_JOINBSS, 1);
+				rtw_lps_ctrl_wk_cmd(padapter, LPS_CTRL_JOINBSS, 0);
 #endif
 		} else {
 
@@ -791,9 +713,6 @@ u16 rtw_get_cur_max_rate(_adapter *adapter)
 	unsigned char	sta_bssrate[NumRates];
 	struct sta_info *psta = NULL;
 	u8	short_GI = 0;
-#ifdef CONFIG_80211N_HT
-	u8	rf_type = 0;
-#endif
 
 #ifdef CONFIG_MP_INCLUDED
 	if (adapter->registrypriv.mp_mode == 1) {
@@ -814,9 +733,7 @@ u16 rtw_get_cur_max_rate(_adapter *adapter)
 
 #ifdef CONFIG_80211N_HT
 	if (is_supported_ht(psta->wireless_mode)) {
-		rtw_hal_get_hwreg(adapter, HW_VAR_RF_TYPE, (u8 *)(&rf_type));
-		max_rate = rtw_mcs_rate(rf_type
-			, (psta->cmn.bw_mode == CHANNEL_WIDTH_40) ? 1 : 0
+		max_rate = rtw_ht_mcs_rate((psta->cmn.bw_mode == CHANNEL_WIDTH_40) ? 1 : 0
 			, short_GI
 			, psta->htpriv.ht_cap.supp_mcs_set
 		);

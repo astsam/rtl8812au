@@ -11,110 +11,105 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
+ *
  *****************************************************************************/
 
-/*Image2HeaderVersion: 2.19*/
+/*Image2HeaderVersion: R3 1.5.6*/
 #include "mp_precomp.h"
 #include "../phydm_precomp.h"
 
 #if (RTL8814A_SUPPORT == 1)
-static BOOLEAN
-CheckPositive(
-	struct dm_struct    *pDM_Odm,
-	u32  Condition1,
-	u32  Condition2,
-	u32  Condition3,
-	u32  Condition4
+static boolean
+check_positive(struct dm_struct *dm,
+	       const u32	condition1,
+	       const u32	condition2,
+	       const u32	condition3,
+	       const u32	condition4
 )
 {
-	u1Byte    _BoardType = ((pDM_Odm->board_type & BIT4) >> 4) << 0 | /* _GLNA*/
-				((pDM_Odm->board_type & BIT3) >> 3) << 1 | /* _GPA*/ 
-				((pDM_Odm->board_type & BIT7) >> 7) << 2 | /* _ALNA*/
-				((pDM_Odm->board_type & BIT6) >> 6) << 3 | /* _APA */
-				((pDM_Odm->board_type & BIT2) >> 2) << 4;  /* _BT*/  
+	u32	cond1 = condition1, cond2 = condition2,
+		cond3 = condition3, cond4 = condition4;
 
-	u4Byte	cond1   = Condition1, cond2 = Condition2, cond3 = Condition3, cond4 = Condition4;
-	u4Byte    driver1 = pDM_Odm->cut_version       << 24 | 
-				(pDM_Odm->support_interface & 0xF0) << 16 | 
-				pDM_Odm->support_platform  << 16 | 
-				pDM_Odm->package_type      << 12 | 
-				(pDM_Odm->support_interface & 0x0F) << 8  |
-				_BoardType;
+	u8	cut_version_for_para =
+		(dm->cut_version ==  ODM_CUT_A) ? 15 : dm->cut_version;
 
-	u4Byte    driver2 = (pDM_Odm->type_glna & 0xFF) <<  0 |  
-				(pDM_Odm->type_gpa & 0xFF)  <<  8 | 
-				(pDM_Odm->type_alna & 0xFF) << 16 | 
-				(pDM_Odm->type_apa & 0xFF)  << 24; 
+	u8	pkg_type_for_para =
+		(dm->package_type == 0) ? 15 : dm->package_type;
 
-u4Byte    driver3 = 0;
+	u32	driver1 = cut_version_for_para << 24 |
+			(dm->support_interface & 0xF0) << 16 |
+			dm->support_platform << 16 |
+			pkg_type_for_para << 12 |
+			(dm->support_interface & 0x0F) << 8  |
+			dm->rfe_type;
 
-	u4Byte    driver4 = (pDM_Odm->type_glna & 0xFF00) >>  8 |
-				(pDM_Odm->type_gpa & 0xFF00) |
-				(pDM_Odm->type_alna & 0xFF00) << 8 |
-				(pDM_Odm->type_apa & 0xFF00)  << 16;
+	u32	driver2 = (dm->type_glna & 0xFF) <<  0 |
+			(dm->type_gpa & 0xFF)  <<  8 |
+			(dm->type_alna & 0xFF) << 16 |
+			(dm->type_apa & 0xFF)  << 24;
 
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
-	"===> CheckPositive (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n", cond1, cond2, cond3, cond4);
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
-	"===> CheckPositive (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n", driver1, driver2, driver3, driver4);
+	u32	driver3 = 0;
 
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
-	"	(Platform, Interface) = (0x%X, 0x%X)\n", pDM_Odm->support_platform, pDM_Odm->support_interface);
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
-	"	(Board, Package) = (0x%X, 0x%X)\n", pDM_Odm->board_type, pDM_Odm->package_type);
+	u32	driver4 = (dm->type_glna & 0xFF00) >>  8 |
+			(dm->type_gpa & 0xFF00) |
+			(dm->type_alna & 0xFF00) << 8 |
+			(dm->type_apa & 0xFF00)  << 16;
 
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+		  "===> %s (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n",
+		  __func__, cond1, cond2, cond3, cond4);
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+		  "===> %s (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n",
+		  __func__, driver1, driver2, driver3, driver4);
 
-	/*============== Value Defined Check ===============*/
-	/*QFN Type [15:12] and Cut Version [27:24] need to do value check*/
-	
-	if (((cond1 & 0x0000F000) != 0) && ((cond1 & 0x0000F000) != (driver1 & 0x0000F000)))
-		return FALSE;
-	if (((cond1 & 0x0F000000) != 0) && ((cond1 & 0x0F000000) != (driver1 & 0x0F000000)))
-		return FALSE;
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+		  "	(Platform, Interface) = (0x%X, 0x%X)\n",
+		  dm->support_platform, dm->support_interface);
+	PHYDM_DBG(dm, ODM_COMP_INIT, "	(RFE, Package) = (0x%X, 0x%X)\n",
+		  dm->rfe_type, dm->package_type);
 
+	/*============== value Defined Check ===============*/
+	/*cut version [27:24] need to do value check*/
+	if (((cond1 & 0x0F000000) != 0) &&
+	    ((cond1 & 0x0F000000) != (driver1 & 0x0F000000)))
+		return false;
+
+	/*pkg type [15:12] need to do value check*/
+	if (((cond1 & 0x0000F000) != 0) &&
+	    ((cond1 & 0x0000F000) != (driver1 & 0x0000F000)))
+		return false;
+
+	/*interface [11:8] need to do value check*/
+	if (((cond1 & 0x00000F00) != 0) &&
+	    ((cond1 & 0x00000F00) != (driver1 & 0x00000F00)))
+		return false;
 	/*=============== Bit Defined Check ================*/
 	/* We don't care [31:28] */
 
-	cond1   &= 0x00FF0FFF; 
-	driver1 &= 0x00FF0FFF; 
+	cond1 &= 0x000000FF;
+	driver1 &= 0x000000FF;
 
-	if ((cond1 & driver1) == cond1) {
-		u4Byte bitMask = 0;
-
-		if ((cond1 & 0x0F) == 0) /* BoardType is DONTCARE*/
-			return TRUE;
-
-		if ((cond1 & BIT0) != 0) /*GLNA*/
-			bitMask |= 0x000000FF;
-		if ((cond1 & BIT1) != 0) /*GPA*/
-			bitMask |= 0x0000FF00;
-		if ((cond1 & BIT2) != 0) /*ALNA*/
-			bitMask |= 0x00FF0000;
-		if ((cond1 & BIT3) != 0) /*APA*/
-			bitMask |= 0xFF000000;
-
-		if (((cond2 & bitMask) == (driver2 & bitMask)) && ((cond4 & bitMask) == (driver4 & bitMask)))  /* BoardType of each RF path is matched*/
-			return TRUE;
-		else
-			return FALSE;
-	} else
-		return FALSE;
+	if (cond1 == driver1)
+		return true;
+	else
+		return false;
 }
-static BOOLEAN
-CheckNegative(
-	struct dm_struct    *pDM_Odm,
-	u32  Condition1,
-	u32  Condition2
-)
-{
-	return TRUE;
-}
+
 
 /******************************************************************************
-*                           MAC_REG.TXT
-******************************************************************************/
+ *                           mac_reg.TXT
+ ******************************************************************************/
 
-u4Byte Array_MP_8814A_MAC_REG[] = { 
+const u32 array_mp_8814a_mac_reg[] = {
 		0x010, 0x0000007C,
 		0x014, 0x000000DB,
 		0x016, 0x00000002,
@@ -204,7 +199,7 @@ u4Byte Array_MP_8814A_MAC_REG[] = {
 		0x514, 0x0000000A,
 		0x516, 0x0000000A,
 		0x521, 0x0000002F,
-		0x525, 0x0000004F,
+		0x525, 0x00000047,
 		0x550, 0x00000010,
 		0x551, 0x00000010,
 		0x559, 0x00000002,
@@ -262,63 +257,69 @@ u4Byte Array_MP_8814A_MAC_REG[] = {
 };
 
 void
-odm_read_and_config_mp_8814a_mac_reg(
-	struct	dm_struct *  pDM_Odm
-)
+odm_read_and_config_mp_8814a_mac_reg(struct dm_struct *dm)
 {
-	u4Byte     i         = 0;
-	u1Byte     cCond;
-	BOOLEAN bMatched = TRUE, bSkipped = FALSE;
-	u4Byte     ArrayLen    = sizeof(Array_MP_8814A_MAC_REG)/sizeof(u4Byte);
-	pu4Byte    Array       = Array_MP_8814A_MAC_REG;
-	
-	u4Byte	v1 = 0, v2 = 0, pre_v1 = 0, pre_v2 = 0;
+	u32	i = 0;
+	u8	c_cond;
+	boolean	is_matched = true, is_skipped = false;
+	u32	array_len =
+			sizeof(array_mp_8814a_mac_reg) / sizeof(u32);
+	u32	*array = (u32 *)array_mp_8814a_mac_reg;
 
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT, "===> ODM_ReadAndConfig_MP_8814A_MAC_REG\n");
+	u32	v1 = 0, v2 = 0, pre_v1 = 0, pre_v2 = 0;
+	u32	a1 = 0, a2 = 0, a3 = 0, a4 = 0;
 
-	while ((i + 1) < ArrayLen) {
-		v1 = Array[i];
-		v2 = Array[i + 1];
+	PHYDM_DBG(dm, ODM_COMP_INIT, "===> %s\n", __func__);
 
-		if (v1 & (BIT31 | BIT30)) {/*positive & negative condition*/
-			if (v1 & BIT31) {/* positive condition*/
-				cCond  = (u1Byte)((v1 & (BIT29|BIT28)) >> 28);
-				if (cCond == COND_ENDIF) {/*end*/
-					bMatched = TRUE;
-					bSkipped = FALSE;
-					PHYDM_DBG(pDM_Odm, ODM_COMP_INIT, "ENDIF\n");
-				} else if (cCond == COND_ELSE) { /*else*/
-					bMatched = bSkipped?FALSE:TRUE;
-					PHYDM_DBG(pDM_Odm, ODM_COMP_INIT, "ELSE\n");
+	while ((i + 1) < array_len) {
+		v1 = array[i];
+		v2 = array[i + 1];
+
+		if (v1 & (BIT(31) | BIT(30))) {/*positive & negative condition*/
+			if (v1 & BIT(31)) {/* positive condition*/
+				c_cond  =
+					(u8)((v1 & (BIT(29) | BIT(28))) >> 28);
+				if (c_cond == COND_ENDIF) {/*end*/
+					is_matched = true;
+					is_skipped = false;
+					PHYDM_DBG(dm, ODM_COMP_INIT, "ENDIF\n");
+				} else if (c_cond == COND_ELSE) { /*else*/
+					is_matched = is_skipped ? false : true;
+					PHYDM_DBG(dm, ODM_COMP_INIT, "ELSE\n");
 				} else {/*if , else if*/
 					pre_v1 = v1;
 					pre_v2 = v2;
-					PHYDM_DBG(pDM_Odm, ODM_COMP_INIT, "IF or ELSE IF\n");
+					PHYDM_DBG(dm, ODM_COMP_INIT,
+						  "IF or ELSE IF\n");
 				}
-			} else if (v1 & BIT30) { /*negative condition*/
-				if (bSkipped == FALSE) {
-					if (CheckPositive(pDM_Odm, pre_v1, pre_v2, v1, v2)) {
-						bMatched = TRUE;
-						bSkipped = TRUE;
+			} else if (v1 & BIT(30)) { /*negative condition*/
+				if (!is_skipped) {
+					a1 = pre_v1; a2 = pre_v2;
+					a3 = v1; a4 = v2;
+					if (check_positive(dm,
+							   a1, a2, a3, a4)) {
+						is_matched = true;
+						is_skipped = true;
 					} else {
-						bMatched = FALSE;
-						bSkipped = FALSE;
+						is_matched = false;
+						is_skipped = false;
 					}
-				} else
-					bMatched = FALSE;
+				} else {
+					is_matched = false;
+				}
 			}
 		} else {
-			if (bMatched)
-				odm_ConfigMAC_8814A(pDM_Odm, v1, (u1Byte)v2);
+			if (is_matched)
+				odm_config_mac_8814a(dm, v1, (u8)v2);
 		}
 		i = i + 2;
 	}
 }
 
-u4Byte
+u32
 odm_get_version_mp_8814a_mac_reg(void)
 {
-	   return 85;
+		return 110;
 }
 
 #endif /* end of HWIMG_SUPPORT*/

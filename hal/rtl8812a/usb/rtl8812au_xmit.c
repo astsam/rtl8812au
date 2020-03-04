@@ -126,7 +126,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 		rtl8812a_fill_txdesc_sectype(pattrib, ptxdesc);
 #if defined(CONFIG_CONCURRENT_MODE)
 		if (bmcst)
-			fill_txdesc_force_bmc_camid(pattrib, ptxdesc);
+			rtl8812a_fill_txdesc_force_bmc_camid(pattrib, ptxdesc);
 #endif
 
 		/* offset 20 */
@@ -214,7 +214,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 				SET_TX_DESC_TX_RATE_8812(ptxdesc, (pHalData->INIDATA_RATE[pattrib->mac_id] & 0x7F));
 			}
 			if (bmcst)
-				fill_txdesc_bmc_tx_rate(pattrib, ptxdesc);
+				rtl8812a_fill_txdesc_bmc_tx_rate(pattrib, ptxdesc);
 
 			if (padapter->fix_rate != 0xFF) { /* modify data rate by iwpriv */
 				SET_TX_DESC_USE_RATE_8812(ptxdesc, 1);

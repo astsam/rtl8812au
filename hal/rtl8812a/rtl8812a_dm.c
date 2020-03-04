@@ -30,10 +30,10 @@
 /* ************************************************************
  * Global var
  * ************************************************************ */
-
-static VOID
+#if 0
+static void
 dm_CheckProtection(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 #if 0
@@ -54,6 +54,7 @@ dm_CheckProtection(
 	}
 #endif
 }
+#endif
 
 #ifdef CONFIG_SUPPORT_HW_WPS_PBC
 static void dm_CheckPbcGPIO(_adapter *padapter)
@@ -129,9 +130,9 @@ static void dm_CheckPbcGPIO(_adapter *padapter)
  *
  *	Created by Roger, 2010.03.05.
  *   */
-VOID
+void
 dm_InterruptMigration(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
@@ -203,7 +204,7 @@ dm_InterruptMigration(
  *   */
 static void
 dm_InitGPIOSetting(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	PHAL_DATA_TYPE		pHalData = GET_HAL_DATA(Adapter);
@@ -247,7 +248,7 @@ static void Init_ODM_ComInfo_8812(PADAPTER	Adapter)
 
 void
 rtl8812_InitHalDm(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
@@ -260,9 +261,9 @@ rtl8812_InitHalDm(
 	/* Adapter->fix_rate = 0xFF; */
 }
 
-VOID
+void
 rtl8812_HalDmWatchDog(
-	IN	PADAPTER	Adapter
+	PADAPTER	Adapter
 )
 {
 	BOOLEAN		bFwCurrentInPSMode = _FALSE;
@@ -327,7 +328,7 @@ skip_dm:
 	return;
 }
 
-void rtl8812_init_dm_priv(IN PADAPTER Adapter)
+void rtl8812_init_dm_priv(PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dm_struct		*podmpriv = &pHalData->odmpriv;
@@ -348,10 +349,10 @@ void rtl8812_init_dm_priv(IN PADAPTER Adapter)
 	Init_ODM_ComInfo_8812(Adapter);
 	odm_init_all_timers(podmpriv);
 
-	pHalData->CurrentTxPwrIdx = 20;
+	//pHalData->CurrentTxPwrIdx = 20;
 }
 
-void rtl8812_deinit_dm_priv(IN PADAPTER Adapter)
+void rtl8812_deinit_dm_priv(PADAPTER Adapter)
 {
 	PHAL_DATA_TYPE	pHalData = GET_HAL_DATA(Adapter);
 	struct dm_struct		*podmpriv = &pHalData->odmpriv;

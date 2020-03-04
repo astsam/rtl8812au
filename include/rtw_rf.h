@@ -95,6 +95,14 @@ typedef enum _BAND_TYPE {
 	BAND_MAX = 3,
 } BAND_TYPE, *PBAND_TYPE;
 
+#ifdef CONFIG_NARROWBAND_SUPPORTING
+enum nb_config {
+	RTW_NB_CONFIG_NONE		= 0,
+	RTW_NB_CONFIG_WIDTH_5	= 5,
+	RTW_NB_CONFIG_WIDTH_10	= 6,
+};
+#endif
+
 extern const char *const _band_str[];
 #define band_str(band) (((band) >= BAND_MAX) ? _band_str[BAND_MAX] : _band_str[(band)])
 
@@ -147,6 +155,18 @@ extern const u8 _rf_type_to_rf_tx_cnt[];
 extern const u8 _rf_type_to_rf_rx_cnt[];
 #define rf_type_to_rf_rx_cnt(rf_type) (RF_TYPE_VALID(rf_type) ? _rf_type_to_rf_rx_cnt[rf_type] : 0)
 
+extern const char *const _rf_type_to_rfpath_str[];
+#define rf_type_to_rfpath_str(rf_type) (RF_TYPE_VALID(rf_type) ? _rf_type_to_rfpath_str[rf_type] : "UNKNOWN")
+
+void rf_type_to_default_trx_bmp(enum rf_type rf, enum bb_path *tx, enum bb_path *rx);
+
+enum rf_type trx_num_to_rf_type(u8 tx_num, u8 rx_num);
+enum rf_type trx_bmp_to_rf_type(u8 tx_bmp, u8 rx_bmp);
+bool rf_type_is_a_in_b(enum rf_type a, enum rf_type b);
+u8 rtw_restrict_trx_path_bmp_by_rftype(u8 trx_path_bmp, enum rf_type type, u8 *tx_num, u8 *rx_num);
+void tx_path_nss_set_default(enum bb_path txpath_nss[], u8 txpath_num_nss[], u8 txpath);
+void tx_path_nss_set_full_tx(enum bb_path txpath_nss[], u8 txpath_num_nss[], u8 txpath);
+
 int rtw_ch2freq(int chan);
 int rtw_freq2ch(int freq);
 bool rtw_chbw_to_freq_range(u8 ch, u8 bw, u8 offset, u32 *hi, u32 *lo);
@@ -162,7 +182,8 @@ typedef enum _REGULATION_TXPWR_LMT {
 	TXPWR_LMT_KCC = 5,
 	TXPWR_LMT_ACMA = 6,
 	TXPWR_LMT_CHILE = 7,
-	TXPWR_LMT_WW = 8, /* smallest of all available limit, keep last */
+	TXPWR_LMT_MEXICO = 8,
+	TXPWR_LMT_WW = 9, /* smallest of all available limit, keep last */
 } REGULATION_TXPWR_LMT;
 
 extern const char *const _regd_str[];

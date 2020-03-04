@@ -555,7 +555,7 @@
 /*
  * 9. Security Control Registers	(Offset: )
  *   */
-#define	RWCAM_8814A						REG_CAMCMD_8814A		/* IN 8190 Data Sheet is called CAMcmd */
+#define	RWCAM_8814A						REG_CAMCMD_8814A		/*  8190 Data Sheet is called CAMcmd */
 #define	WCAMI_8814A						REG_CAMWRITE_8814A		/* Software write CAM input content */
 #define	RCAMO_8814A						REG_CAMREAD_8814A		/* Software read/write CAM config */
 #define	CAMDBG_8814A						REG_CAMDBG_8814A
@@ -644,13 +644,5 @@ So the following defines for 92C is not entire!!!!!!
 #define REG_USB_HRPWM_U3			0xF052
 
 #define LAST_ENTRY_OF_TX_PKT_BUFFER_8814A       (2048-1)	/* 20130415 KaiYuan add for 8814 */
-
-#define MACID_NUM_8814A 128
-#define SEC_CAM_ENT_NUM_8814A 64
-#define HW_PORT_NUM_8814A	5
-#define NSS_NUM_8814A 3
-#define BAND_CAP_8814A (BAND_CAP_2G | BAND_CAP_5G)
-#define BW_CAP_8814A (BW_CAP_20M | BW_CAP_40M | BW_CAP_80M)
-#define PROTO_CAP_8814A (PROTO_CAP_11B | PROTO_CAP_11G | PROTO_CAP_11N | PROTO_CAP_11AC)
 
 #endif /* __RTL8814A_SPEC_H__ */

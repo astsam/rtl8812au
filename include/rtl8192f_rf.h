@@ -76,8 +76,8 @@
 #define CONFIG_8192F_TYPE5_DRV_DIS
 #endif/*CONFIG_PCI_HCI*/
 
-int PHY_RF6052_Config8192F(IN PADAPTER pdapter);
+int PHY_RF6052_Config8192F(PADAPTER pdapter);
 
-void PHY_RF6052SetBandwidth8192F(IN PADAPTER Adapter, IN enum channel_width Bandwidth);
+void PHY_RF6052SetBandwidth8192F(PADAPTER Adapter, enum channel_width Bandwidth);
 
 #endif/* __RTL8192F_RF_H__ */

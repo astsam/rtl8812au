@@ -59,14 +59,14 @@ u8 WLAN_AKM_FT_FILS_SHA384[] = {0x00, 0x0f, 0xac, 17};
  * for adhoc-master to generate ie and provide supported-rate to fw
  * ----------------------------------------------------------- */
 
-static u8	WIFI_CCKRATES[] = {
+u8	WIFI_CCKRATES[] = {
 	(IEEE80211_CCK_RATE_1MB | IEEE80211_BASIC_RATE_MASK),
 	(IEEE80211_CCK_RATE_2MB | IEEE80211_BASIC_RATE_MASK),
 	(IEEE80211_CCK_RATE_5MB | IEEE80211_BASIC_RATE_MASK),
 	(IEEE80211_CCK_RATE_11MB | IEEE80211_BASIC_RATE_MASK)
 };
 
-static u8	WIFI_OFDMRATES[] = {
+u8	WIFI_OFDMRATES[] = {
 	(IEEE80211_OFDM_RATE_6MB),
 	(IEEE80211_OFDM_RATE_9MB),
 	(IEEE80211_OFDM_RATE_12MB),
@@ -408,52 +408,6 @@ exit:
 	return ret;
 }
 
- /* Returns:  remove size OR  _FAIL: not updated*/
-int rtw_remove_ie_g_rate(u8 *ie, uint *ie_len, uint offset, u8 eid)
-{
-	int ret = _FAIL;
-	u8 *tem_target_ie;
-	u8 *target_ie;
-	u32 target_ielen,temp_target_ielen,cck_rate_size,rm_size;
-	u8 *start;
-	uint search_len;
-	u8 *remain_ies;
-	uint remain_len;
-	if (!ie || !ie_len || *ie_len <= offset)
-		goto exit;
-
-	start = ie + offset;
-	search_len = *ie_len - offset;
-
-	while (1) {
-		tem_target_ie=rtw_get_ie(start,eid,&temp_target_ielen,search_len);
-		
-		/*if(tem_target_ie)
-			RTW_INFO("%s, tem_target_ie=%u\n", __FUNCTION__,*tem_target_ie);*/
-		if (tem_target_ie && temp_target_ielen) {
-			cck_rate_size = rtw_get_cckrate_size((tem_target_ie+2), temp_target_ielen);
-			rm_size = temp_target_ielen - cck_rate_size;
-			RTW_DBG("%s,cck_rate_size=%u rm_size=%u\n", __FUNCTION__, cck_rate_size, rm_size);
-			temp_target_ielen=temp_target_ielen + 2;/*org size of  Supposrted Rates(include id + length)*/
-			/*RTW_INFO("%s, temp_target_ielen=%u\n", __FUNCTION__,temp_target_ielen);*/
-			remain_ies = tem_target_ie + temp_target_ielen;
-			remain_len = search_len - (remain_ies - start);
-			target_ielen=cck_rate_size;/*discount g mode rate 6, 9 12,18Mbps,id , length*/
-			*(tem_target_ie+1)=target_ielen;/*set new length to Supposrted Rates*/
-			target_ie=tem_target_ie+target_ielen + 2;/*set target ie to address of rate 6Mbps */
-	
-			_rtw_memmove(target_ie, remain_ies, remain_len);
-			*ie_len = *ie_len - rm_size;
-			ret = rm_size;
-
-			start = target_ie;
-			search_len = remain_len;
-		} else
-			break;
-	}
-exit:
-	return ret;
-}
 void rtw_set_supported_rate(u8 *SupportedRates, uint mode)
 {
 
@@ -481,6 +435,71 @@ void rtw_set_supported_rate(u8 *SupportedRates, uint mode)
 		break;
 
 	}
+}
+
+void rtw_filter_suppport_rateie(WLAN_BSSID_EX *pbss_network, u8 keep)
+{
+	u8 i, idx = 0, new_rate[NDIS_802_11_LENGTH_RATES_EX], *p;
+	uint iscck, isofdm, ie_orilen = 0, remain_len;
+	u8 *remain_ies;
+
+	p = rtw_get_ie(pbss_network->IEs + _BEACON_IE_OFFSET_, _SUPPORTEDRATES_IE_, &ie_orilen, (pbss_network->IELength - _BEACON_IE_OFFSET_));
+	if (!p)
+		return;
+
+	_rtw_memset(new_rate, 0, NDIS_802_11_LENGTH_RATES_EX);
+	for (i=0; i < ie_orilen; i++) {
+		iscck = rtw_is_cck_rate(p[i+2]);
+		isofdm= rtw_is_ofdm_rate(p[i+2]);
+		if (((keep == CCK) && iscck)
+			|| ((keep == OFDM) && isofdm))
+			new_rate[idx++]= rtw_is_basic_rate_ofdm(p[i+2]) ? p[i+2]|IEEE80211_BASIC_RATE_MASK : p[i+2];
+	}
+	/*	update rate ie	*/
+	p[1] = idx;
+	_rtw_memcpy(p+2, new_rate, idx);
+	/*	update remain ie & IELength*/
+	remain_ies = p + 2 + ie_orilen;
+	remain_len = pbss_network->IELength - (remain_ies - pbss_network->IEs);
+	_rtw_memmove(p+2+idx, remain_ies, remain_len);
+	pbss_network->IELength -= (ie_orilen - idx);
+}
+ 
+
+/*
+	Adjust those items by given wireless_mode
+		1. pbss_network->IELength
+		2. pbss_network->IE (SUPPORTRATE & EXT_SUPPORTRATE)
+		3. pbss_network->SupportedRates
+*/
+
+u8 rtw_update_rate_bymode(WLAN_BSSID_EX *pbss_network, u32 mode)
+{
+	u8 network_type, *p, *ie = pbss_network->IEs;
+	sint ie_len;
+	uint network_ielen = pbss_network->IELength;
+
+	if (mode == WIRELESS_11B) {
+		/*only keep CCK in support_rate IE and remove whole ext_support_rate IE*/
+		rtw_filter_suppport_rateie(pbss_network, CCK);
+		p = rtw_get_ie(ie + _BEACON_IE_OFFSET_, _EXT_SUPPORTEDRATES_IE_, &ie_len, pbss_network->IELength - _BEACON_IE_OFFSET_);
+		if (p) {
+			rtw_ies_remove_ie(ie , &network_ielen, _BEACON_IE_OFFSET_, _EXT_SUPPORTEDRATES_IE_, NULL, 0);
+			pbss_network->IELength -= ie_len;
+		}
+		network_type = WIRELESS_11B;
+	} else if ((mode & WIRELESS_11B) == 0) {
+		/* Remove CCK in support_rate IE */
+		rtw_filter_suppport_rateie(pbss_network, OFDM);
+		if (pbss_network->Configuration.DSConfig > 14)
+			network_type = WIRELESS_11A;
+		else
+			network_type = WIRELESS_11G;
+	} else
+		network_type = WIRELESS_11BG;		/*	do nothing	*/
+
+	rtw_set_supported_rate(pbss_network->SupportedRates, network_type);
+	return network_type;
 }
 
 uint	rtw_get_rateset_len(u8	*rateset)
@@ -1189,62 +1208,6 @@ u8 *rtw_get_wps_attr_content(u8 *wps_ie, uint wps_ielen, u16 target_attr_id , u8
 	}
 
 	return NULL;
-}
-
-/* OWE */
-
-/**
- * rtw_get_OWE_ie - Search OWE IE from a series of IEs
- * @in_ie: Address of IEs to search
- * @in_len: Length limit from in_ie
- * @wps_ie: If not NULL and OWE IE is found, OWE IE will be copied to the buf starting from owe_ie
- * @wps_ielen: If not NULL and OWE IE is found, will set to the length of the entire OWE IE
- *
- * Returns: The address of the OWE IE found, or NULL
- */
-u8 *rtw_get_owe_ie(const u8 *in_ie, uint in_len, u8 *owe_ie, uint *owe_ielen)
-{
-	uint cnt;
-	const u8 *oweie_ptr = NULL;
-	u8 eid;
-
-	if (owe_ielen)
-		*owe_ielen = 0;
-
-	if (!in_ie) {
-		rtw_warn_on(1);
-		return (u8 *)oweie_ptr;
-	}
-
-	if (in_len <= 0)
-		return (u8 *)oweie_ptr;
-
-	cnt = 0;
-
-	while (cnt + 1 + 4 < in_len) {
-		eid = in_ie[cnt];
-
-		if (cnt + 1 + 4 >= MAX_IE_SZ) {
-			rtw_warn_on(1);
-			return NULL;
-		}
-
-		if ((eid == WLAN_EID_EXTENSION) && (in_ie[cnt + 2] == WLAN_EID_EXT_OWE_DH_PARAM)) {
-			oweie_ptr = in_ie + cnt;
-
-			if (owe_ie)
-				_rtw_memcpy(owe_ie, &in_ie[cnt], in_ie[cnt + 1] + 2);
-
-			if (owe_ielen)
-				*owe_ielen = in_ie[cnt + 1] + 2;
-
-			break;
-		} else
-			cnt += in_ie[cnt + 1] + 2;
-
-	}
-
-	return (u8 *)oweie_ptr;
 }
 
 static int rtw_ieee802_11_parse_vendor_specific(u8 *pos, uint elen,
@@ -2798,7 +2761,7 @@ u32	rtw_ht_mcs_set_to_bitmap(u8 *mcs_set, u8 nss)
 }
 
 /* show MCS rate, unit: 100Kbps */
-u16 rtw_mcs_rate(u8 rf_type, u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate)
+u16 rtw_ht_mcs_rate(u8 bw_40MHz, u8 short_GI, unsigned char *MCS_rate)
 {
 	u16 max_rate = 0;
 

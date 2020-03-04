@@ -1,7 +1,7 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -11,99 +11,37 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
+ *****************************************************************************/
 #ifndef __INC_ODM_REGCONFIG_H_8814A
 #define __INC_ODM_REGCONFIG_H_8814A
- 
+
 #if (RTL8814A_SUPPORT == 1)
 
-void
-odm_ConfigRFReg_8814A(
-	struct dm_struct    *pDM_Odm,
-	u32 					Addr,
-	u32 					Data,
-	enum rf_path     RF_PATH,
-	u32				    RegAddr
-	);
+void odm_config_rf_reg_8814a(struct dm_struct *dm, u32 addr, u32 data,
+			     enum rf_path rf_path, u32 reg_addr);
 
-void 
-odm_ConfigRF_RadioA_8814A(
-	struct dm_struct    *pDM_Odm,
-	u32 					Addr,
-	u32 					Data
-	);
+void odm_config_rf_radio_a_8814a(struct dm_struct *dm, u32 addr, u32 data);
 
-void 
-odm_ConfigRF_RadioB_8814A(
-	struct dm_struct    *pDM_Odm,
-	u32 					Addr,
-	u32 					Data
-	);
+void odm_config_rf_radio_b_8814a(struct dm_struct *dm, u32 addr, u32 data);
 
-void 
-odm_ConfigRF_RadioC_8814A(
-	struct dm_struct    *pDM_Odm,
-	u32 					Addr,
-	u32 					Data
-	);
+void odm_config_rf_radio_c_8814a(struct dm_struct *dm, u32 addr, u32 data);
 
-void 
-odm_ConfigRF_RadioD_8814A(
-	struct dm_struct    *pDM_Odm,
-	u32 					Addr,
-	u32 					Data
-	);
+void odm_config_rf_radio_d_8814a(struct dm_struct *dm, u32 addr, u32 data);
 
-void 
-odm_ConfigMAC_8814A(
- 	struct dm_struct    *pDM_Odm,
- 	u32 		Addr,
- 	IN 	u1Byte 		Data
- 	);
+void odm_config_mac_8814a(struct dm_struct *dm, u32 addr, u8 data);
 
-void 
-odm_ConfigBB_AGC_8814A(
-    struct dm_struct    *pDM_Odm,
-    u32 		Addr,
-    u32 		Bitmask,
-    u32 		Data
-    );
+void odm_config_bb_agc_8814a(struct dm_struct *dm, u32 addr, u32 bitmask,
+			     u32 data);
 
-void
-odm_ConfigBB_PHY_REG_PG_8814A(
-	struct dm_struct    *pDM_Odm,
-	u32		Band,
-	u32		RfPath,
-	u32		TxNum,
-    u32 		Addr,
-    u32 		Bitmask,
-    u32 		Data
-    );
+void odm_config_bb_phy_reg_pg_8814a(struct dm_struct *dm, u32 band, u32 rf_path,
+				    u32 tx_num, u32 addr, u32 bitmask,
+				    u32 data);
 
-void 
-odm_ConfigBB_PHY_8814A(
-	struct dm_struct    *pDM_Odm,
-    u32 		Addr,
-    u32 		Bitmask,
-    u32 		Data
-    );
+void odm_config_bb_phy_8814a(struct dm_struct *dm, u32 addr, u32 bitmask,
+			     u32 data);
 
-void
-odm_ConfigBB_TXPWR_LMT_8814A(
-	struct dm_struct    *pDM_Odm,
-	u8*		Regulation,
-	u8*		Band,
-	u8*		Bandwidth,
-	u8*		RateSection,
-	u8*		RfPath,
-	u8* 	Channel,
-	u8*		PowerLimit
-    );
+void odm_config_bb_txpwr_lmt_8814a(struct dm_struct *dm, u8 *regulation,
+				   u8 *band, u8 *bandwidth, u8 *rate_section,
+				   u8 *rf_path, u8 *channel, u8 *power_limit);
 #endif
-#endif // end of SUPPORT
-
+#endif /* end of SUPPORT */

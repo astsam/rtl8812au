@@ -2,5 +2,5 @@ config 88XXAU
 	tristate "Realtek 88XXau USB WiFi"
 	depends on USB
 	---help---
-	  Help message of 88XXau
+	  Support for 8812au, 8821au and 8814au
 

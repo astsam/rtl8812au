@@ -19,14 +19,6 @@
 
 #include <rtw_wifi_regd.h>
 
-static struct country_code_to_enum_rd allCountries[] = {
-	{COUNTRY_CODE_USER, "RD"},
-};
-
-/*
- * REG_RULE(freq start, freq end, bandwidth, max gain, eirp, reg_flags)
- */
-
 /*
  *Only these channels all allow active
  *scan on all world regulatory domains
@@ -46,6 +38,30 @@ static struct country_code_to_enum_rd allCountries[] = {
 	REG_RULE(2467-10, 2472+10, 40, 0, 20,	\
 		 NL80211_RRF_PASSIVE_SCAN)
 
+/* 5G chan 36 - chan 165 */
+#define RTW_5GHZ_5150_5850	\
+	REG_RULE(5150-10, 5850+10, 40, 0, 30,	\
+		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
+
+static const struct ieee80211_regdomain rtw_regdom_rd = {
+	.n_reg_rules = 3,
+	.alpha2 = "99",
+	.reg_rules = {
+		RTW_2GHZ_CH01_11,
+		RTW_2GHZ_CH12_13,
+		RTW_5GHZ_5150_5850,
+	}
+};
+
+#if 0
+/*
+ * REG_RULE(freq start, freq end, bandwidth, max gain, eirp, reg_flags)
+ */
+
+static struct country_code_to_enum_rd allCountries[] = {
+	{COUNTRY_CODE_USER, "RD"},
+};
+
 /* 2G chan 14, PASSIVS SCAN, NO OFDM (B only) */
 #define RTW_2GHZ_CH14	\
 	REG_RULE(2484-10, 2484+10, 40, 0, 20,	\
@@ -53,42 +69,25 @@ static struct country_code_to_enum_rd allCountries[] = {
 
 /* 5G chan 36 - chan 64 */
 #define RTW_5GHZ_5150_5350	\
-	REG_RULE(5150-10, 5350+10, 80, 0, 30,	\
-	NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
+	REG_RULE(5150-10, 5350+10, 40, 0, 30,	\
+		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
 
 /* 5G chan 100 - chan 165 */
 #define RTW_5GHZ_5470_5850	\
-	REG_RULE(5470-10, 5850+10, 80, 0, 30, \
-	 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
+	REG_RULE(5470-10, 5850+10, 40, 0, 30, \
+		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
 
 /* 5G chan 149 - chan 165 */
 #define RTW_5GHZ_5725_5850	\
-	REG_RULE(5725-10, 5850+10, 80, 0, 30, \
-		NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
-
-/* 5G chan 36 - chan 165 */
-#define RTW_5GHZ_5150_5850	\
-	REG_RULE(5150-10, 5850+10, 80, 0, 30,	\
+	REG_RULE(5725-10, 5850+10, 40, 0, 30, \
 		 NL80211_RRF_PASSIVE_SCAN | NL80211_RRF_NO_IBSS)
 
-static const struct ieee80211_regdomain rtw_regdom_rd = {
-	.n_reg_rules = 4,
-	.alpha2 = "99",
-	.reg_rules = {
-		RTW_2GHZ_CH01_11,
-		RTW_2GHZ_CH12_13,
-		RTW_2GHZ_CH14,
-		RTW_5GHZ_5150_5850,
-	}
-};
 
-#if 0
 static const struct ieee80211_regdomain rtw_regdom_11 = {
 	.n_reg_rules = 1,
 	.alpha2 = "99",
 	.reg_rules = {
 		RTW_2GHZ_CH01_11,
-		RTW_2GHZ_CH12_13
 	}
 };
 
@@ -142,8 +141,7 @@ static const struct ieee80211_regdomain rtw_regdom_14 = {
 	}
 };
 
-#endif
-#if 0
+
 static struct rtw_regulatory *rtw_regd;
 #endif
 
@@ -258,18 +256,19 @@ static void _rtw_reg_apply_active_scan_flags(struct wiphy *wiphy,
 
 void rtw_regd_apply_flags(struct wiphy *wiphy)
 {
+#ifndef CONFIG_DISABLE_REGD_C				// by channel plan
 	struct dvobj_priv *dvobj = wiphy_to_dvobj(wiphy);
-	//struct rf_ctl_t *rfctl = dvobj_to_rfctl(dvobj);
-	//RT_CHANNEL_INFO *channel_set = rfctl->channel_set;
-	//u8 max_chan_nums = rfctl->max_chan_nums;
+	struct rf_ctl_t *rfctl = dvobj_to_rfctl(dvobj);
+	RT_CHANNEL_INFO *channel_set = rfctl->channel_set;
+	u8 max_chan_nums = rfctl->max_chan_nums;
 
 	struct ieee80211_supported_band *sband;
 	struct ieee80211_channel *ch;
 	unsigned int i, j;
 	u16 channel;
-	//u32 freq;
+	u32 freq;
 
-	/* all channels enable */
+	/* all channels disable */
 	for (i = 0; i < NUM_NL80211_BANDS; i++) {
 		sband = wiphy->bands[i];
 
@@ -278,15 +277,12 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 				ch = &sband->channels[j];
 
 				if (ch)
-					ch->flags &= ~(IEEE80211_CHAN_DISABLED|IEEE80211_CHAN_NO_HT40PLUS|
-						IEEE80211_CHAN_NO_HT40MINUS|IEEE80211_CHAN_NO_80MHZ|
-						IEEE80211_CHAN_NO_160MHZ|IEEE80211_CHAN_NO_IR);
+					ch->flags = IEEE80211_CHAN_DISABLED;
 			}
 		}
 	}
 
 	/* channels apply by channel plans. */
-	/*
 	for (i = 0; i < max_chan_nums; i++) {
 		channel = channel_set[i].ChannelNum;
 		freq = rtw_ch2freq(channel);
@@ -321,9 +317,47 @@ void rtw_regd_apply_flags(struct wiphy *wiphy)
 			ch->flags |= IEEE80211_CHAN_NO_IR;
 			#endif
 		}
-		#endif CONFIG_DFS
+		#endif /* CONFIG_DFS */
 	}
-*/
+#else
+	struct ieee80211_supported_band *sband;
+	struct ieee80211_channel *ch;
+	unsigned int i, j;
+	u16 channels[37] =
+	    { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 36, 40, 44, 48, 52, 56,
+		60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140,
+		149, 153,
+		157, 161, 165
+	};
+	u16 channel;
+	u32 freq;
+
+	for (i = 0; i < IEEE80211_NUM_BANDS; i++) {
+		sband = wiphy->bands[i];
+
+		if (sband)
+			for (j = 0; j < sband->n_channels; j++) {
+				ch = &sband->channels[j];
+
+				if (ch)
+					ch->flags = IEEE80211_CHAN_DISABLED;
+			}
+	}
+
+	for (i = 0; i < 37; i++) {
+		channel = channels[i];
+		freq = rtw_ch2freq(channel);
+
+		ch = ieee80211_get_channel(wiphy, freq);
+		if (ch) {
+			if (channel <= 11)
+				ch->flags = 0;
+			else
+				ch->flags = 0;	//IEEE80211_CHAN_PASSIVE_SCAN;
+		}
+		//printk("%s: freq %d(%d) flag 0x%02X \n", __func__, freq, channel, ch->flags);
+	}
+#endif
 }
 
 static const struct ieee80211_regdomain *_rtw_regdomain_select(struct
@@ -395,17 +429,6 @@ static void _rtw_regd_init_wiphy(struct rtw_regulatory *reg, struct wiphy *wiphy
 	wiphy_apply_custom_regulatory(wiphy, regd);
 
 	rtw_regd_apply_flags(wiphy);
-}
-
-static struct country_code_to_enum_rd *_rtw_regd_find_country(u16 countrycode)
-{
-	int i;
-
-	for (i = 0; i < ARRAY_SIZE(allCountries); i++) {
-		if (allCountries[i].countrycode == countrycode)
-			return &allCountries[i];
-	}
-	return NULL;
 }
 
 int rtw_regd_init(struct wiphy *wiphy)

@@ -572,7 +572,7 @@ struct mlme_ext_priv {
 	u8 txss_ctrl_en;
 	u16 txss_tp_th;/*Mbps*/
 	u8 txss_tp_chk_cnt;/*unit 2s*/
-	u8 txss_1ss;
+	bool txss_1ss;
 	u8 txss_momi_type_bk;
 #endif
 };
@@ -716,7 +716,6 @@ void write_cam_cache(_adapter *adapter, u8 id, u16 ctrl, u8 *mac, u8 *key);
 void clear_cam_cache(_adapter *adapter, u8 id);
 
 void invalidate_cam_all(_adapter *padapter);
-void CAM_empty_entry(PADAPTER Adapter, u8 ucIndex);
 
 void flush_all_cam_entry(_adapter *padapter);
 
@@ -835,12 +834,16 @@ s8 rtw_macid_get_ch_g(struct macid_ctl_t *macid_ctl, u8 id);
 void rtw_alloc_macid(_adapter *padapter, struct sta_info *psta);
 void rtw_release_macid(_adapter *padapter, struct sta_info *psta);
 u8 rtw_search_max_mac_id(_adapter *padapter);
-void rtw_macid_ctl_set_h2c_msr(struct macid_ctl_t *macid_ctl, u8 id, u8 h2c_msr);
+u8 rtw_macid_ctl_set_h2c_msr(struct macid_ctl_t *macid_ctl, u8 id, u8 h2c_msr);
 void rtw_macid_ctl_set_bw(struct macid_ctl_t *macid_ctl, u8 id, u8 bw);
 void rtw_macid_ctl_set_vht_en(struct macid_ctl_t *macid_ctl, u8 id, u8 en);
 void rtw_macid_ctl_set_rate_bmp0(struct macid_ctl_t *macid_ctl, u8 id, u32 bmp);
 void rtw_macid_ctl_set_rate_bmp1(struct macid_ctl_t *macid_ctl, u8 id, u32 bmp);
+#ifdef CONFIG_PROTSEL_MACSLEEP
+void rtw_macid_ctl_init_sleep_reg(struct macid_ctl_t *macid_ctl, u16 reg_ctrl, u16 reg_info);
+#else
 void rtw_macid_ctl_init_sleep_reg(struct macid_ctl_t *macid_ctl, u16 m0, u16 m1, u16 m2, u16 m3);
+#endif
 void rtw_macid_ctl_init(struct macid_ctl_t *macid_ctl);
 void rtw_macid_ctl_deinit(struct macid_ctl_t *macid_ctl);
 u8 rtw_iface_bcmc_id_get(_adapter *padapter);
@@ -872,7 +875,7 @@ void report_wmm_edca_update(_adapter *padapter);
 
 void beacon_timing_control(_adapter *padapter);
 u8 chk_bmc_sleepq_cmd(_adapter *padapter);
-extern u8 set_tx_beacon_cmd(_adapter *padapter);
+extern u8 set_tx_beacon_cmd(_adapter *padapter, u8 flags);
 unsigned int setup_beacon_frame(_adapter *padapter, unsigned char *beacon_frame);
 void update_mgnt_tx_rate(_adapter *padapter, u8 rate);
 void update_monitor_frame_attrib(_adapter *padapter, struct pkt_attrib *pattrib);
@@ -1013,6 +1016,8 @@ void mlmeext_joinbss_event_callback(_adapter *padapter, int join_res);
 void mlmeext_sta_del_event_callback(_adapter *padapter);
 void mlmeext_sta_add_event_callback(_adapter *padapter, struct sta_info *psta);
 
+int rtw_get_rx_chk_limit(_adapter *adapter);
+void rtw_set_rx_chk_limit(_adapter *adapter, int limit);
 void linked_status_chk(_adapter *padapter, u8 from_timer);
 
 #define rtw_get_bcn_cnt(adapter)	(adapter->mlmeextpriv.cur_bcn_cnt)
@@ -1047,6 +1052,8 @@ void reassoc_timer_hdl(_adapter *padapter);
 		_set_timer(&(mlmeext)->link_timer, (ms)); \
 	} while (0)
 
+bool rtw_is_cck_rate(u8 rate);
+bool rtw_is_ofdm_rate(u8 rate);
 bool rtw_is_basic_rate_cck(u8 rate);
 bool rtw_is_basic_rate_ofdm(u8 rate);
 bool rtw_is_basic_rate_mix(u8 rate);

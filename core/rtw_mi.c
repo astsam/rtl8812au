@@ -754,12 +754,6 @@ void rtw_mi_buddy_intf_stop(_adapter *adapter)
 }
 
 #ifdef CONFIG_NEW_NETDEV_HDL
-static u8 _rtw_mi_hal_iface_init(_adapter *padapter, void *data)
-{
-	if (rtw_hal_iface_init(padapter) == _SUCCESS)
-		return _TRUE;
-	return _FALSE;
-}
 u8 rtw_mi_hal_iface_init(_adapter *padapter)
 {
 	int i;
@@ -832,7 +826,7 @@ static u8 _rtw_mi_beacon_update(_adapter *padapter, void *data)
 	if (!MLME_IS_STA(padapter)
 	    && check_fwstate(&padapter->mlmepriv, _FW_LINKED) == _TRUE) {
 		RTW_INFO(ADPT_FMT" - update_beacon\n", ADPT_ARG(padapter));
-		update_beacon(padapter, 0xFF, NULL, _TRUE);
+		update_beacon(padapter, 0xFF, NULL, _TRUE, 0);
 	}
 	return _TRUE;
 }
@@ -1235,7 +1229,7 @@ static u8 _rtw_mi_set_tx_beacon_cmd(_adapter *adapter, void *data)
 
 	if (MLME_IS_AP(adapter) || MLME_IS_MESH(adapter)) {
 		if (pmlmepriv->update_bcn == _TRUE)
-			set_tx_beacon_cmd(adapter);
+			set_tx_beacon_cmd(adapter, 0);
 	}
 	return _TRUE;
 }
@@ -1289,14 +1283,15 @@ u8 rtw_mi_buddy_stay_in_p2p_mode(_adapter *padapter)
 _adapter *rtw_get_iface_by_id(_adapter *padapter, u8 iface_id)
 {
 	_adapter *iface = NULL;
-	struct dvobj_priv *dvobj = adapter_to_dvobj(padapter);
+	struct dvobj_priv *dvobj;
 
 	if ((padapter == NULL) || (iface_id >= CONFIG_IFACE_NUMBER)) {
 		rtw_warn_on(1);
 		return iface;
 	}
 
-	return  dvobj->padapters[iface_id];
+	dvobj = adapter_to_dvobj(padapter);
+	return dvobj->padapters[iface_id];
 }
 
 _adapter *rtw_get_iface_by_macddr(_adapter *padapter, const u8 *mac_addr)
