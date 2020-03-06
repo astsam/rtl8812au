@@ -3472,9 +3472,10 @@ void init_hal_spec_8821a(_adapter *adapter)
 	hal_spec->ic_name = "rtl8821a";
 	hal_spec->macid_num = 128;
 	hal_spec->sec_cam_ent_num = 64;
-	hal_spec->sec_cap = 0;
+	hal_spec->sec_cap = SEC_CAP_CHK_BMC;
 	hal_spec->rfpath_num_2g = 1;
 	hal_spec->rfpath_num_5g = 1;
+	hal_spec->rf_reg_path_num = 1;
 	hal_spec->txgi_max = 63;
 	hal_spec->txgi_pdbm = 2;
 	hal_spec->max_tx_cnt = 1;
@@ -3490,6 +3491,10 @@ void init_hal_spec_8821a(_adapter *adapter)
 			    | WL_FUNC_MIRACAST
 			    | WL_FUNC_TDLS
 			    ;
+
+#if CONFIG_TX_AC_LIFETIME
+	hal_spec->tx_aclt_unit_factor = 8;
+#endif
 
 	hal_spec->pg_txpwr_saddr = 0x10;
 	hal_spec->pg_txgi_diff_factor = 1;
@@ -3510,9 +3515,10 @@ void init_hal_spec_8812a(_adapter *adapter)
 	hal_spec->ic_name = "rtl8812a";
 	hal_spec->macid_num = 128;
 	hal_spec->sec_cam_ent_num = 64;
-	hal_spec->sec_cap = 0;
+	hal_spec->sec_cap = SEC_CAP_CHK_BMC;
 	hal_spec->rfpath_num_2g = 2;
 	hal_spec->rfpath_num_5g = 2;
+	hal_spec->rf_reg_path_num = 2;
 	hal_spec->txgi_max = 63;
 	hal_spec->txgi_pdbm = 2;
 	hal_spec->max_tx_cnt = 2;
@@ -3528,6 +3534,10 @@ void init_hal_spec_8812a(_adapter *adapter)
 			    | WL_FUNC_MIRACAST
 			    | WL_FUNC_TDLS
 			    ;
+
+#if CONFIG_TX_AC_LIFETIME
+	hal_spec->tx_aclt_unit_factor = 8;
+#endif
 
 	hal_spec->pg_txpwr_saddr = 0x10;
 	hal_spec->pg_txgi_diff_factor = 1;
@@ -4299,11 +4309,11 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8 *val)
 				/* select BCN on port 1 */
 				rtw_write8(Adapter, REG_CCK_CHECK_8812,	 rtw_read8(Adapter, REG_CCK_CHECK_8812) | BIT(5));
 			}
-
+#ifdef CONFIG_CONCURRENT_MODE
 			if (!rtw_mi_buddy_check_mlmeinfo_state(Adapter, WIFI_FW_ASSOC_SUCCESS))
 				rtw_write8(Adapter, REG_BCN_CTRL,
 					rtw_read8(Adapter, REG_BCN_CTRL) & ~EN_BCN_FUNCTION);
-
+#endif
 			/* BCN1 TSF will sync to BCN0 TSF with offset(0x518) if if1_sta linked */
 			/* rtw_write8(Adapter, REG_BCN_CTRL_1, rtw_read8(Adapter, REG_BCN_CTRL_1)|BIT(5)); */
 			/* rtw_write8(Adapter, REG_DUAL_TSF_RST, BIT(3)); */
@@ -4746,12 +4756,12 @@ u8 SetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval)
 		}
 	}
 		break;
-
+#endif
 	case HW_VAR_CAM_INVALID_ALL:
 		val32 = BIT(31) | BIT(30);
-		rtw_write32(padapter, RWCAM, val32);
+		rtw_write32(padapter, REG_CAMCMD, val32);
 		break;
-#endif
+
 	case HW_VAR_AC_PARAM_VO:
 		rtw_write32(padapter, REG_EDCA_VO_PARAM, *(u32 *)pval);
 		break;
@@ -4797,7 +4807,7 @@ u8 SetHwReg8812A(PADAPTER padapter, u8 variable, u8 *pval)
 		RTW_INFO("[HW_VAR_ACM_CTRL] Write 0x%X\n", AcmCtrl);
 		rtw_write8(padapter, REG_ACMHWCTRL, AcmCtrl);
 	}
-		break;
+	break;
 #ifdef CONFIG_80211N_HT
 	case HW_VAR_AMPDU_FACTOR: {
 		u32	AMPDULen = *(u8 *)pval;
