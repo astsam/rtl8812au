@@ -10147,12 +10147,6 @@ int rtw_wiphy_register(struct wiphy *wiphy)
 {
 	RTW_INFO(FUNC_WIPHY_FMT"\n", FUNC_WIPHY_ARG(wiphy));
 
-#if ( ((LINUX_VERSION_CODE < KERNEL_VERSION(5, 3, 0)) &&  \
-        LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)) \
-     || defined(RTW_VENDOR_EXT_SUPPORT) )
-	rtw_cfgvendor_attach(wiphy);
-#endif
-
 	rtw_regd_init(wiphy);
 
 	return wiphy_register(wiphy);
@@ -10161,12 +10155,6 @@ int rtw_wiphy_register(struct wiphy *wiphy)
 void rtw_wiphy_unregister(struct wiphy *wiphy)
 {
 	RTW_INFO(FUNC_WIPHY_FMT"\n", FUNC_WIPHY_ARG(wiphy));
-
-#if ( ((LINUX_VERSION_CODE < KERNEL_VERSION(5, 3, 0)) &&  \
-        LINUX_VERSION_CODE >= KERNEL_VERSION(3, 14, 0)) \
-     || defined(RTW_VENDOR_EXT_SUPPORT) )
-	rtw_cfgvendor_detach(wiphy);
-#endif
 
 	#if defined(RTW_DEDICATED_P2P_DEVICE)
 	rtw_pd_iface_free(wiphy);
