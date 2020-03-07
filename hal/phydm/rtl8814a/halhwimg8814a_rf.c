@@ -5798,6 +5798,7 @@ odm_read_and_config_mp_8814a_txpwr_lmt(
 *                           TXPWR_LMT_type2.TXT
 ******************************************************************************/
 
+/*
 const char *Array_MP_8814A_TXPWR_LMT_type2[] = { 
 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "36", 
 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "36", 
@@ -6814,6 +6815,7 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type2(
 *                           TXPWR_LMT_Type3.TXT
 ******************************************************************************/
 
+/*
 const char *Array_MP_8814A_TXPWR_LMT_Type3[] = { 
 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "46", 
 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "40", 
@@ -7789,6 +7791,7 @@ const char *Array_MP_8814A_TXPWR_LMT_Type3[] = {
 	"MKK", "5G", "80M", "VHT", "4T", "155", "63"
 };
 
+/*
 void
 _odm_read_and_config_mp_8814a_txpwr_lmt_type3(
 	struct	dm_struct *  pDM_Odm
@@ -7798,13 +7801,6 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type3(
 	u4Byte     ArrayLen    = sizeof(Array_MP_8814A_TXPWR_LMT_Type3)/sizeof(pu1Byte);
 	pu1Byte    *Array      = (pu1Byte *)Array_MP_8814A_TXPWR_LMT_Type3;
 
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PADAPTER		Adapter = pDM_Odm->Adapter;
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
-
-	PlatformZeroMemory(pHalData->BufOfLinesPwrLmt, MAX_LINES_HWCONFIG_TXT*MAX_BYTES_LINE_HWCONFIG_TXT);
-	pHalData->nLinesReadPwrLmt = ArrayLen/7;
-#endif
 
 	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT, "===> ODM_ReadAndConfig_MP_8814A_TXPWR_LMT_Type3\n");
 
@@ -7816,12 +7812,8 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type3(
 		pu1Byte rfPath = Array[i+4];
 		pu1Byte chnl = Array[i+5];
 		pu1Byte val = Array[i+6];
-	
+
 		odm_ConfigBB_TXPWR_LMT_8814A(pDM_Odm, regulation, band, bandwidth, rate, rfPath, chnl, val);
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-		rsprintf((char *)pHalData->BufOfLinesPwrLmt[i/7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
-			regulation, band, bandwidth, rate, rfPath, chnl, val);
-#endif
 	}
 
 }
@@ -7830,6 +7822,7 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type3(
 *                           TXPWR_LMT_Type5.TXT
 ******************************************************************************/
 
+/*
 const char *Array_MP_8814A_TXPWR_LMT_Type5[] = { 
 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "46", 
 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "40", 
@@ -8803,8 +8796,10 @@ const char *Array_MP_8814A_TXPWR_LMT_Type5[] = {
 	"FCC", "5G", "80M", "VHT", "4T", "155", "46", 
 	"ETSI", "5G", "80M", "VHT", "4T", "155", "40", 
 	"MKK", "5G", "80M", "VHT", "4T", "155", "63"
-};
+//};
 
+
+/*
 void
 _odm_read_and_config_mp_8814a_txpwr_lmt_type5(
 	struct	dm_struct *  pDM_Odm
@@ -8832,7 +8827,7 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type5(
 		pu1Byte rfPath = Array[i+4];
 		pu1Byte chnl = Array[i+5];
 		pu1Byte val = Array[i+6];
-	
+
 		odm_ConfigBB_TXPWR_LMT_8814A(pDM_Odm, regulation, band, bandwidth, rate, rfPath, chnl, val);
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		rsprintf((char *)pHalData->BufOfLinesPwrLmt[i/7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
@@ -8841,6 +8836,7 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type5(
 	}
 
 }
+*/
 
 #endif /* end of HWIMG_SUPPORT*/
 
