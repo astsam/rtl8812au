@@ -6774,7 +6774,7 @@ const char *Array_MP_8814A_TXPWR_LMT_type2[] = {
 };
 
 void
-odm_read_and_config_mp_8814a_txpwr_lmt_type2(
+_odm_read_and_config_mp_8814a_txpwr_lmt_type2(
 	struct	dm_struct *  pDM_Odm
 )
 {
@@ -7790,7 +7790,7 @@ const char *Array_MP_8814A_TXPWR_LMT_Type3[] = {
 };
 
 void
-odm_read_and_config_mp_8814a_txpwr_lmt_type3(
+_odm_read_and_config_mp_8814a_txpwr_lmt_type3(
 	struct	dm_struct *  pDM_Odm
 )
 {
@@ -8806,7 +8806,7 @@ const char *Array_MP_8814A_TXPWR_LMT_Type5[] = {
 };
 
 void
-odm_read_and_config_mp_8814a_txpwr_lmt_type5(
+_odm_read_and_config_mp_8814a_txpwr_lmt_type5(
 	struct	dm_struct *  pDM_Odm
 )
 {
