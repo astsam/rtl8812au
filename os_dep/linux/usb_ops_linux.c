@@ -631,9 +631,6 @@ u32 usb_write_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *wmem)
 #endif /* CONFIG_USE_USB_BUFFER_ALLOC_TX */
 
 #ifdef USB_PACKET_OFFSET_SZ
-#if (USB_PACKET_OFFSET_SZ == 0)
-	purb->transfer_flags |= URB_ZERO_PACKET;
-#endif
 #endif
 
 #if 0
