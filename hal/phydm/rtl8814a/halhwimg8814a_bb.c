@@ -3949,7 +3949,7 @@ odm_read_and_config_mp_8814a_phy_reg_pg(
 *                           PHY_REG_PG_Type2.TXT
 ******************************************************************************/
 
-u32 Array_MP_8814A_PHY_REG_PG_Type2[] = { 
+u32 Array_MP_8814A_PHY_REG_PG_Type2[] = {
 	0, 0, 0, 0x00000c20, 0xffffffff, 0x36363636,
 	0, 0, 0, 0x00000c24, 0xffffffff, 0x36363636,
 	0, 0, 0, 0x00000c28, 0xffffffff, 0x30323436,
@@ -4085,7 +4085,7 @@ u32 Array_MP_8814A_PHY_REG_PG_Type2[] = {
 };
 
 void
-odm_read_and_config_mp_8814a_phy_reg_pg_type2(
+_odm_read_and_config_mp_8814a_phy_reg_pg_type2(
 	struct dm_struct*   pDM_Odm
 )
 {
@@ -4265,7 +4265,7 @@ u32 Array_MP_8814A_PHY_REG_PG_Type3[] = {
 };
 
 void
-odm_read_and_config_mp_8814a_phy_reg_pg_type3(
+_odm_read_and_config_mp_8814a_phy_reg_pg_type3(
 	struct dm_struct*   pDM_Odm
 )
 {
@@ -4445,7 +4445,7 @@ u32 Array_MP_8814A_PHY_REG_PG_Type5[] = {
 };
 
 void
-odm_read_and_config_mp_8814a_phy_reg_pg_type5(
+_odm_read_and_config_mp_8814a_phy_reg_pg_type5(
 	struct dm_struct*   pDM_Odm
 )
 {
