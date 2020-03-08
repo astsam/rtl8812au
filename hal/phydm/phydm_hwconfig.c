@@ -23,7 +23,7 @@
  *
  *****************************************************************************/
 
-/*@************************************************************
+/*************************************************************
  * include files
  ************************************************************/
 
@@ -31,14 +31,12 @@
 #include "phydm_precomp.h"
 
 #define READ_AND_CONFIG_MP(ic, txt) (odm_read_and_config_mp_##ic##txt(dm))
-#define READ_AND_CONFIG_TC(ic, txt) (odm_read_and_config_tc_##ic##txt(dm))
 
 #define READ_AND_CONFIG READ_AND_CONFIG_MP
-
+#define READ_FIRMWARE     READ_FIRMWARE_MP
 #define GET_VERSION_MP(ic, txt) (odm_get_version_mp_##ic##txt())
-#define GET_VERSION_TC(ic, txt) (odm_get_version_tc_##ic##txt())
 
-#define GET_VERSION(ic, txt) GET_VERSION_MP(ic, txt)
+#define GET_VERSION(ic, txt) GET_VERSION_MP(ic,txt)
 
 enum hal_status
 odm_config_rf_with_header_file(struct dm_struct *dm,
