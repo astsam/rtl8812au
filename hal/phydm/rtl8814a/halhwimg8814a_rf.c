@@ -53,20 +53,20 @@ u4Byte    driver3 = 0;
 				(pDM_Odm->type_alna & 0xFF00) << 8 |
 				(pDM_Odm->type_apa & 0xFF00)  << 16;
 
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
+	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,
 	"===> CheckPositive (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n", cond1, cond2, cond3, cond4);
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
+	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,
 	"===> CheckPositive (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n", driver1, driver2, driver3, driver4);
 
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
+	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,
 	"	(Platform, Interface) = (0x%X, 0x%X)\n", pDM_Odm->support_platform, pDM_Odm->support_interface);
-	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,  
+	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT,
 	"	(Board, Package) = (0x%X, 0x%X)\n", pDM_Odm->board_type, pDM_Odm->package_type);
 
 
 	/*============== Value Defined Check ===============*/
 	/*QFN Type [15:12] and Cut Version [27:24] need to do value check*/
-	
+
 	if (((cond1 & 0x0000F000) != 0) && ((cond1 & 0x0000F000) != (driver1 & 0x0000F000)))
 		return FALSE;
 	if (((cond1 & 0x0F000000) != 0) && ((cond1 & 0x0F000000) != (driver1 & 0x0F000000)))
@@ -75,8 +75,8 @@ u4Byte    driver3 = 0;
 	/*=============== Bit Defined Check ================*/
 	/* We don't care [31:28] */
 
-	cond1   &= 0x00FF0FFF; 
-	driver1 &= 0x00FF0FFF; 
+	cond1   &= 0x00FF0FFF;
+	driver1 &= 0x00FF0FFF;
 
 	if ((cond1 & driver1) == cond1) {
 		u4Byte bitMask = 0;
@@ -114,7 +114,7 @@ CheckNegative(
 *                           RadioA.TXT
 ******************************************************************************/
 
-u4Byte Array_MP_8814A_RadioA[] = { 
+u4Byte Array_MP_8814A_RadioA[] = {
 		0x018, 0x00013124,
 		0x040, 0x00000C00,
 		0x058, 0x00000F98,
@@ -1249,7 +1249,7 @@ ODM_GetVersion_MP_8814A_RadioA(void)
 *                           RadioB.TXT
 ******************************************************************************/
 
-u4Byte Array_MP_8814A_RadioB[] = { 
+u4Byte Array_MP_8814A_RadioB[] = {
 		0x018, 0x00013124,
 		0x040, 0x00000C00,
 		0x058, 0x00000F98,
@@ -2292,7 +2292,7 @@ ODM_GetVersion_MP_8814A_RadioB(void)
 *                           RadioC.TXT
 ******************************************************************************/
 
-u4Byte Array_MP_8814A_RadioC[] = { 
+u4Byte Array_MP_8814A_RadioC[] = {
 		0x018, 0x00013124,
 		0x040, 0x00000C00,
 		0x058, 0x00000F98,
@@ -3338,7 +3338,7 @@ ODM_GetVersion_MP_8814A_RadioC(void)
 *                           RadioD.TXT
 ******************************************************************************/
 
-u4Byte Array_MP_8814A_RadioD[] = { 
+u4Byte Array_MP_8814A_RadioD[] = {
 		0x018, 0x00013124,
 		0x040, 0x00000C00,
 		0x058, 0x00000F98,
@@ -4332,7 +4332,7 @@ odm_read_and_config_mp_8814a_radiod(
 	BOOLEAN bMatched = TRUE, bSkipped = FALSE;
 	u4Byte     ArrayLen    = sizeof(Array_MP_8814A_RadioD)/sizeof(u4Byte);
 	pu4Byte    Array       = Array_MP_8814A_RadioD;
-	
+
 	u4Byte	v1 = 0, v2 = 0, pre_v1 = 0, pre_v2 = 0;
 
 	PHYDM_DBG(pDM_Odm, ODM_COMP_INIT, "===> ODM_ReadAndConfig_MP_8814A_RadioD\n");
@@ -4782,7 +4782,7 @@ odm_read_and_config_mp_8814a_txpowertrack_type5(
 *                           TXPWR_LMT.TXT
 ******************************************************************************/
 
-const char *Array_MP_8814A_TXPWR_LMT[] = { 
+const char *Array_MP_8814A_TXPWR_LMT[] = {
 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "36", 
 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "32", 
 	"MKK", "2.4G", "20M", "CCK", "1T", "01", "32",
@@ -5784,7 +5784,7 @@ odm_read_and_config_mp_8814a_txpwr_lmt(
 		pu1Byte rfPath = Array[i+4];
 		pu1Byte chnl = Array[i+5];
 		pu1Byte val = Array[i+6];
-	
+
 		odm_ConfigBB_TXPWR_LMT_8814A(pDM_Odm, regulation, band, bandwidth, rate, rfPath, chnl, val);
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		rsprintf((char *)pHalData->BufOfLinesPwrLmt[i/7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
@@ -6801,7 +6801,7 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type2(
 		pu1Byte rfPath = Array[i+4];
 		pu1Byte chnl = Array[i+5];
 		pu1Byte val = Array[i+6];
-	
+
 		odm_ConfigBB_TXPWR_LMT_8814A(pDM_Odm, regulation, band, bandwidth, rate, rfPath, chnl, val);
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 		rsprintf((char *)pHalData->BufOfLinesPwrLmt[i/7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
@@ -6811,11 +6811,10 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type2(
 
 }
 
-/******************************************************************************
+******************************************************************************
 *                           TXPWR_LMT_Type3.TXT
-******************************************************************************/
+******************************************************************************
 
-/*
 const char *Array_MP_8814A_TXPWR_LMT_Type3[] = { 
 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "46", 
 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "40", 
@@ -7791,7 +7790,6 @@ const char *Array_MP_8814A_TXPWR_LMT_Type3[] = {
 	"MKK", "5G", "80M", "VHT", "4T", "155", "63"
 };
 
-/*
 void
 _odm_read_and_config_mp_8814a_txpwr_lmt_type3(
 	struct	dm_struct *  pDM_Odm
@@ -7818,11 +7816,10 @@ _odm_read_and_config_mp_8814a_txpwr_lmt_type3(
 
 }
 
-/******************************************************************************
+******************************************************************************
 *                           TXPWR_LMT_Type5.TXT
-******************************************************************************/
+******************************************************************************
 
-/*
 const char *Array_MP_8814A_TXPWR_LMT_Type5[] = { 
 	"FCC", "2.4G", "20M", "CCK", "1T", "01", "46", 
 	"ETSI", "2.4G", "20M", "CCK", "1T", "01", "40", 
@@ -8796,10 +8793,9 @@ const char *Array_MP_8814A_TXPWR_LMT_Type5[] = {
 	"FCC", "5G", "80M", "VHT", "4T", "155", "46", 
 	"ETSI", "5G", "80M", "VHT", "4T", "155", "40", 
 	"MKK", "5G", "80M", "VHT", "4T", "155", "63"
-//};
+};
 
 
-/*
 void
 _odm_read_and_config_mp_8814a_txpwr_lmt_type5(
 	struct	dm_struct *  pDM_Odm
