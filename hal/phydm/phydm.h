@@ -829,7 +829,6 @@ struct dm_struct {
 	u8			rssi_max;
 	u8			rssi_max_macid;
 	u8			rssi_min_by_path;
-	boolean			is_mp_chip;
 	boolean			is_one_entry_only;
 	u32			one_entry_macid;
 	u32			one_entry_tp;

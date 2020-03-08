@@ -33,26 +33,12 @@
 #define READ_AND_CONFIG_MP(ic, txt) (odm_read_and_config_mp_##ic##txt(dm))
 #define READ_AND_CONFIG_TC(ic, txt) (odm_read_and_config_tc_##ic##txt(dm))
 
-#if (PHYDM_TESTCHIP_SUPPORT == 1)
-#define READ_AND_CONFIG(ic, txt)                     \
-	do {                                         \
-		if (dm->is_mp_chip)                  \
-			READ_AND_CONFIG_MP(ic, txt); \
-		else                                 \
-			READ_AND_CONFIG_TC(ic, txt); \
-	} while (0)
-#else
 #define READ_AND_CONFIG READ_AND_CONFIG_MP
-#endif
 
 #define GET_VERSION_MP(ic, txt) (odm_get_version_mp_##ic##txt())
 #define GET_VERSION_TC(ic, txt) (odm_get_version_tc_##ic##txt())
 
-#if (PHYDM_TESTCHIP_SUPPORT == 1)
-#define GET_VERSION(ic, txt) (dm->is_mp_chip ? GET_VERSION_MP(ic, txt) : GET_VERSION_TC(ic, txt))
-#else
 #define GET_VERSION(ic, txt) GET_VERSION_MP(ic, txt)
-#endif
 
 enum hal_status
 odm_config_rf_with_header_file(struct dm_struct *dm,
@@ -65,8 +51,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 #endif
 	enum hal_status result = HAL_STATUS_SUCCESS;
 
-	PHYDM_DBG(dm, ODM_COMP_INIT, "===>%s (%s)\n", __func__,
-		  (dm->is_mp_chip) ? "MPChip" : "TestChip");
 	PHYDM_DBG(dm, ODM_COMP_INIT,
 		  "support_platform: 0x%X, support_interface: 0x%X, board_type: 0x%X\n",
 		  dm->support_platform, dm->support_interface, dm->board_type);
@@ -470,8 +454,6 @@ odm_config_rf_with_header_file(struct dm_struct *dm,
 enum hal_status
 odm_config_rf_with_tx_pwr_track_header_file(struct dm_struct *dm)
 {
-	PHYDM_DBG(dm, ODM_COMP_INIT, "===>%s (%s)\n", __func__,
-		  (dm->is_mp_chip) ? "MPChip" : "TestChip");
 	PHYDM_DBG(dm, ODM_COMP_INIT,
 		  "support_platform: 0x%X, support_interface: 0x%X, board_type: 0x%X\n",
 		  dm->support_platform, dm->support_interface, dm->board_type);
@@ -493,10 +475,7 @@ odm_config_rf_with_tx_pwr_track_header_file(struct dm_struct *dm)
 		if (dm->support_interface == ODM_ITRF_PCIE)
 			READ_AND_CONFIG_MP(8812a, _txpowertrack_pcie);
 		else if (dm->support_interface == ODM_ITRF_USB) {
-			if (dm->rfe_type == 3 && dm->is_mp_chip)
-				READ_AND_CONFIG_MP(8812a, _txpowertrack_rfe3);
-			else
-				READ_AND_CONFIG_MP(8812a, _txpowertrack_usb);
+			READ_AND_CONFIG_MP(8812a, _txpowertrack_usb);
 		}
 	}
 #endif
@@ -793,24 +772,7 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 		else if (config_type == CONFIG_BB_AGC_TAB)
 			READ_AND_CONFIG_MP(8812a, _agc_tab);
 		else if (config_type == CONFIG_BB_PHY_REG_PG) {
-			if (dm->rfe_type == 3 && dm->is_mp_chip)
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_asus);
-#if (DM_ODM_SUPPORT_TYPE & ODM_WIN)
-			else if (mgnt_info->CustomerID == RT_CID_WNC_NEC && dm->is_mp_chip)
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_nec);
-#if RT_PLATFORM == PLATFORM_MACOSX
-			/*@{1827}{1024} for BUFFALO power by rate table. Isaiah 2013-11-29*/
-			else if (mgnt_info->CustomerID == RT_CID_DNI_BUFFALO)
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_dni);
-			/* TP-Link T4UH, Isaiah 2015-03-16*/
-			else if (mgnt_info->CustomerID == RT_CID_TPLINK_HPWR) {
-				pr_debug("RT_CID_TPLINK_HPWR:: _PHY_REG_PG_TPLINK\n");
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg_tplink);
-			}
-#endif
-#endif
-			else
-				READ_AND_CONFIG_MP(8812a, _phy_reg_pg);
+			READ_AND_CONFIG_MP(8812a, _phy_reg_pg);
 		} else if (config_type == CONFIG_BB_PHY_REG_MP)
 			READ_AND_CONFIG_MP(8812a, _phy_reg_mp);
 		else if (config_type == CONFIG_BB_AGC_TAB_DIFF) {
@@ -837,16 +799,6 @@ odm_config_bb_with_header_file(struct dm_struct *dm,
 			if ((hal_data->EEPROMSVID == 0x1043 && hal_data->EEPROMSMID == 0x207F))
 				READ_AND_CONFIG_MP(8821a, _phy_reg_pg_e202_sa);
 			else
-#endif
-#if (RT_PLATFORM == PLATFORM_MACOSX)
-				/*@  for BUFFALO pwr by rate table */
-				if (mgnt_info->CustomerID == RT_CID_DNI_BUFFALO) {
-				/*@  for BUFFALO pwr by rate table (JP/US)*/
-				if (mgnt_info->ChannelPlan == RT_CHANNEL_DOMAIN_US_2G_CANADA_5G)
-					READ_AND_CONFIG_MP(8821a, _phy_reg_pg_dni_us);
-				else
-					READ_AND_CONFIG_MP(8821a, _phy_reg_pg_dni_jp);
-			} else
 #endif
 #endif
 				READ_AND_CONFIG_MP(8821a, _phy_reg_pg);
@@ -1184,8 +1136,6 @@ odm_config_mac_with_header_file(struct dm_struct *dm)
 {
 	enum hal_status result = HAL_STATUS_SUCCESS;
 
-	PHYDM_DBG(dm, ODM_COMP_INIT, "===>%s (%s)\n", __func__,
-		  (dm->is_mp_chip) ? "MPChip" : "TestChip");
 	PHYDM_DBG(dm, ODM_COMP_INIT,
 		  "support_platform: 0x%X, support_interface: 0x%X, board_type: 0x%X\n",
 		  dm->support_platform, dm->support_interface, dm->board_type);

@@ -2409,9 +2409,6 @@ void phydm_basic_profile(void *dm_void, u32 *_used, char *output, u32 *_out_len)
 		release_ver = RELEASE_VERSION_8812F;
 	}
 #endif
-	PDM_SNPF(out_len, used, output + used, out_len - used,
-		 "  %-35s: %s (MP Chip: %s)\n", "IC type", ic_type,
-		 dm->is_mp_chip ? "Yes" : "No");
 
 	if (dm->cut_version == ODM_CUT_A)
 		cut = "A";

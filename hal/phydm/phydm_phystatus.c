@@ -1228,10 +1228,7 @@ void phydm_rx_physts_1st_type(struct dm_struct *dm,
 	/* @== [PWDB] ========================================================*/
 
 		/*@(Avg PWDB calculated by hardware*/
-		if (!dm->is_mp_chip) /*@8812, 8821*/
-			val = phy_sts->pwdb_all;
-		else
-			val = phy_sts->pwdb_all >> 1; /*old fomula*/
+		val = phy_sts->pwdb_all >> 1; /*old fomula*/
 
 		rx_pwr_db = (val & 0x7f) - 110;
 		phy_info->rx_pwdb_all = phydm_pwr_2_percent(rx_pwr_db);
