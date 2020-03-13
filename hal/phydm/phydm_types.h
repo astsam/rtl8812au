@@ -139,6 +139,7 @@ enum rt_spinlock_type {
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	#define sta_info 	_RT_WLAN_STA
 	#define	__func__		__FUNCTION__
+	#define	PHYDM_TESTCHIP_SUPPORT	TESTCHIP_SUPPORT
 	#define MASKH3BYTES			0xffffff00
 	#define SUCCESS	0
 	#define FAIL	(-1)
@@ -169,6 +170,12 @@ enum rt_spinlock_type {
 	#endif
 	#endif
 
+	#if (defined(TESTCHIP_SUPPORT))
+		#define	PHYDM_TESTCHIP_SUPPORT 1
+	#else
+		#define	PHYDM_TESTCHIP_SUPPORT 0
+	#endif
+
 	#define	sta_info stat_info
 	#define	boolean	bool
 
@@ -193,6 +200,8 @@ enum rt_spinlock_type {
 	#define	FOR_BRAZIL_PRETEST 0
 	#define	FPGA_TWO_MAC_VERIFICATION	0
 	#define	RTL8881A_SUPPORT	0
+	#define	PHYDM_TESTCHIP_SUPPORT 0
+
 
 	#define RATE_ADAPTIVE_SUPPORT			0
 	#define POWER_TRAINING_ACTIVE			0
@@ -216,9 +225,9 @@ enum rt_spinlock_type {
 	#endif
 
 
-	#if defined(__LITTLE_ENDIAN)
+	#if defined(CONFIG_LITTLE_ENDIAN)
 		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_LITTLE
-	#else
+	#elif defined(CONFIG_BIG_ENDIAN)
 		#define	ODM_ENDIAN_TYPE			ODM_ENDIAN_BIG
 	#endif
 
@@ -233,6 +242,12 @@ enum rt_spinlock_type {
 	#define	FOR_BRAZIL_PRETEST 0
 	#define	FPGA_TWO_MAC_VERIFICATION	0
 	#define	RTL8881A_SUPPORT	0
+
+	#if (defined(TESTCHIP_SUPPORT))
+		#define	PHYDM_TESTCHIP_SUPPORT 1
+	#else
+		#define	PHYDM_TESTCHIP_SUPPORT 0
+	#endif
 
 	#define	phydm_timer_list	rtw_timer_list
 

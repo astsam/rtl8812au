@@ -126,7 +126,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 		rtl8812a_fill_txdesc_sectype(pattrib, ptxdesc);
 #if defined(CONFIG_CONCURRENT_MODE)
 		if (bmcst)
-			fill_txdesc_force_bmc_camid(pattrib, ptxdesc);
+			rtl8812a_fill_txdesc_force_bmc_camid(pattrib, ptxdesc);
 #endif
 
 		/* offset 20 */
@@ -214,7 +214,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 				SET_TX_DESC_TX_RATE_8812(ptxdesc, (pHalData->INIDATA_RATE[pattrib->mac_id] & 0x7F));
 			}
 			if (bmcst)
-				fill_txdesc_bmc_tx_rate(pattrib, ptxdesc);
+				rtl8812a_fill_txdesc_bmc_tx_rate(pattrib, ptxdesc);
 
 			if (padapter->fix_rate != 0xFF) { /* modify data rate by iwpriv */
 				SET_TX_DESC_USE_RATE_8812(ptxdesc, 1);
@@ -304,7 +304,7 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz , u8 ba
 			if (pattrib->retry_ctrl == _TRUE)
 				SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 6);
 			else
-				SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 12);
+				SET_TX_DESC_DATA_RETRY_LIMIT_8812(ptxdesc, 0);
 		}
 
 #ifdef CONFIG_XMIT_ACK
@@ -430,7 +430,7 @@ u32 upload_txpktbuf_8812au(_adapter *adapter, u8 *buf, u32 buflen)
 		}
 		rtw_write32(adapter, REG_PKTBUF_DBG_CTRL, 0xff800000+(beacon_head<<6) + qw_addr);
 		loop_cnt = 0;
-		while ((rtw_read32(adapter, REG_PKTBUF_DBG_CTRL) & BIT23) != 0) {
+		while ((rtw_read32(adapter, REG_PKTBUF_DBG_CTRL) & BIT23) == false) {
 			rtw_udelay_os(10);
 			if (loop_cnt++ == 100)
 				return _FALSE;

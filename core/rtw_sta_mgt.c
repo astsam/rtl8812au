@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2017 Realtek Corporation.
+ * Copyright(c) 2007 - 2019 Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -230,12 +230,15 @@ u32	_rtw_init_sta_priv(struct	sta_priv *pstapriv)
 
 	pstapriv->padapter = adapter;
 
-	pstapriv->pallocated_stainfo_buf = rtw_zvmalloc(sizeof(struct sta_info) * NUM_STA + 4);
+	pstapriv->pallocated_stainfo_buf = rtw_zvmalloc(
+		sizeof(struct sta_info) * NUM_STA + MEM_ALIGNMENT_OFFSET);
 	if (!pstapriv->pallocated_stainfo_buf)
 		goto exit;
 
-	pstapriv->pstainfo_buf = pstapriv->pallocated_stainfo_buf + 4 -
-			 ((SIZE_PTR)(pstapriv->pallocated_stainfo_buf) & 3);
+	pstapriv->pstainfo_buf = pstapriv->pallocated_stainfo_buf;
+	if ((SIZE_PTR)pstapriv->pstainfo_buf & MEM_ALIGNMENT_PADDING)
+		pstapriv->pstainfo_buf += MEM_ALIGNMENT_OFFSET -
+			((SIZE_PTR)pstapriv->pstainfo_buf & MEM_ALIGNMENT_PADDING);
 
 	_rtw_init_queue(&pstapriv->free_sta_queue);
 
@@ -308,12 +311,21 @@ u32	_rtw_init_sta_priv(struct	sta_priv *pstapriv)
 	rtw_pre_link_sta_ctl_init(pstapriv);
 #endif
 
+#if defined(DBG_ROAMING_TEST) || defined(CONFIG_RTW_REPEATER_SON)
+	rtw_set_rx_chk_limit(adapter,1);
+#elif defined(CONFIG_ACTIVE_KEEP_ALIVE_CHECK) && !defined(CONFIG_LPS_LCLK_WD_TIMER)
+	rtw_set_rx_chk_limit(adapter,4);
+#else
+	rtw_set_rx_chk_limit(adapter,8);
+#endif
+
 	ret = _SUCCESS;
 
 exit:
 	if (ret != _SUCCESS) {
 		if (pstapriv->pallocated_stainfo_buf)
-			rtw_vmfree(pstapriv->pallocated_stainfo_buf, sizeof(struct sta_info) * NUM_STA + 4);
+			rtw_vmfree(pstapriv->pallocated_stainfo_buf,
+				sizeof(struct sta_info) * NUM_STA + MEM_ALIGNMENT_OFFSET);
 		#ifdef CONFIG_AP_MODE
 		if (pstapriv->sta_aid)
 			rtw_mfree(pstapriv->sta_aid, pstapriv->max_aid * sizeof(struct sta_info *));
@@ -362,6 +374,7 @@ static void	_rtw_free_sta_recv_priv_lock(struct sta_recv_priv *psta_recvpriv)
 
 	_rtw_spinlock_free(&(psta_recvpriv->defrag_q.lock));
 
+
 }
 
 void rtw_mfree_stainfo(struct sta_info *psta);
@@ -376,6 +389,7 @@ void rtw_mfree_stainfo(struct sta_info *psta)
 
 }
 
+
 /* this function is used to free the memory of lock || sema for all stainfos */
 void rtw_mfree_all_stainfo(struct sta_priv *pstapriv);
 void rtw_mfree_all_stainfo(struct sta_priv *pstapriv)
@@ -383,6 +397,7 @@ void rtw_mfree_all_stainfo(struct sta_priv *pstapriv)
 	_irqL	 irqL;
 	_list	*plist, *phead;
 	struct sta_info *psta = NULL;
+
 
 	_enter_critical_bh(&pstapriv->sta_hash_lock, &irqL);
 
@@ -397,6 +412,7 @@ void rtw_mfree_all_stainfo(struct sta_priv *pstapriv)
 	}
 
 	_exit_critical_bh(&pstapriv->sta_hash_lock, &irqL);
+
 
 }
 
@@ -460,7 +476,8 @@ u32	_rtw_free_sta_priv(struct	sta_priv *pstapriv)
 #endif
 
 		if (pstapriv->pallocated_stainfo_buf)
-			rtw_vmfree(pstapriv->pallocated_stainfo_buf, sizeof(struct sta_info) * NUM_STA + 4);
+			rtw_vmfree(pstapriv->pallocated_stainfo_buf,
+				sizeof(struct sta_info) * NUM_STA + MEM_ALIGNMENT_OFFSET);
 		#ifdef CONFIG_AP_MODE
 		if (pstapriv->sta_aid)
 			rtw_mfree(pstapriv->sta_aid, pstapriv->max_aid * sizeof(struct sta_info *));
@@ -473,6 +490,7 @@ u32	_rtw_free_sta_priv(struct	sta_priv *pstapriv)
 
 	return _SUCCESS;
 }
+
 
 static void rtw_init_recv_timer(struct recv_reorder_ctrl *preorder_ctrl)
 {
@@ -495,11 +513,14 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 	int i = 0;
 	u16  wRxSeqInitialValue = 0xffff;
 
+
 	pfree_sta_queue = &pstapriv->free_sta_queue;
 
 	/* _enter_critical_bh(&(pfree_sta_queue->lock), &irqL); */
 	_enter_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
-	if (!pstapriv->padapter->pnetdev || _rtw_queue_empty(pfree_sta_queue) == _TRUE) {
+	if (_rtw_queue_empty(pfree_sta_queue) == _TRUE) {
+		/* _exit_critical_bh(&(pfree_sta_queue->lock), &irqL); */
+		_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
 		psta = NULL;
 	} else {
 		psta = LIST_CONTAINOR(get_next(&pfree_sta_queue->queue), struct sta_info, list);
@@ -514,6 +535,7 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 		_rtw_memcpy(psta->cmn.mac_addr, hwaddr, ETH_ALEN);
 
 		index = wifi_mac_hash(hwaddr);
+
 
 		if (index >= NUM_STA) {
 			psta = NULL;
@@ -567,7 +589,10 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 			_rtw_init_queue(&preorder_ctrl->pending_recvframe_queue);
 
 			rtw_init_recv_timer(preorder_ctrl);
+			rtw_clear_bit(RTW_RECV_ACK_OR_TIMEOUT, &preorder_ctrl->rec_abba_rsp_ack);
+
 		}
+
 
 		/* init for DM */
 		psta->cmn.rssi_stat.rssi = (-1);
@@ -582,17 +607,22 @@ struct	sta_info *rtw_alloc_stainfo(struct	sta_priv *pstapriv, const u8 *hwaddr)
 
 		rtw_alloc_macid(pstapriv->padapter, psta);
 
+		psta->tx_q_enable = 0;
+		_rtw_init_queue(&psta->tx_queue);
+		_init_workitem(&psta->tx_q_work, rtw_xmit_dequeue_callback, NULL);
 	}
 
 exit:
 
 	_exit_critical_bh(&(pstapriv->sta_hash_lock), &irqL2);
 
+
 	if (psta)
 		rtw_mi_update_iface_status(&(pstapriv->padapter->mlmepriv), 0);
 
 	return psta;
 }
+
 
 /* using pstapriv->sta_hash_lock to protect */
 u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
@@ -638,11 +668,15 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 
 	pfree_sta_queue = &pstapriv->free_sta_queue;
 
+
 	pstaxmitpriv = &psta->sta_xmitpriv;
 
 	/* rtw_list_delete(&psta->sleep_list); */
 
 	/* rtw_list_delete(&psta->wakeup_list); */
+
+	rtw_free_xmitframe_queue(pxmitpriv, &psta->tx_queue);
+	_rtw_deinit_queue(&psta->tx_queue);
 
 	_enter_critical_bh(&pxmitpriv->lock, &irqL0);
 
@@ -693,6 +727,7 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 
 	_exit_critical_bh(&pxmitpriv->lock, &irqL0);
 
+
 	/* re-init sta_info; 20061114 */ /* will be init in alloc_stainfo */
 	/* _rtw_init_sta_xmit_priv(&psta->sta_xmitpriv); */
 	/* _rtw_init_sta_recv_priv(&psta->sta_recvpriv); */
@@ -714,7 +749,8 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 		_queue *pfree_recv_queue = &padapter->recvpriv.free_recv_queue;
 
 		preorder_ctrl = &psta->recvreorder_ctrl[i];
-
+		rtw_clear_bit(RTW_RECV_ACK_OR_TIMEOUT, &preorder_ctrl->rec_abba_rsp_ack);
+		
 		_cancel_timer_ex(&preorder_ctrl->reordering_ctrl_timer);
 
 
@@ -777,11 +813,6 @@ u32	rtw_free_stainfo(_adapter *padapter , struct sta_info *psta)
 	psta->has_legacy_ac = 0;
 
 #ifdef CONFIG_NATIVEAP_MLME
-
-	if (psta->cmn.aid > 31) {
-		pr_err("***** psta->aid (%d) out of bounds\n", psta->cmn.aid);
-		return _FAIL;
-	}
 
 	if (pmlmeinfo->state == _HW_STATE_AP_) {
 		rtw_tim_map_clear(padapter, pstapriv->sta_dz_bitmap, psta->cmn.aid);

@@ -52,6 +52,7 @@
 #define SET_VHT_CAPABILITY_ELE_MCS_TX_MAP(_pEleStart, _val)				SET_BITS_TO_LE_2BYTE((_pEleStart)+8, 0, 16, _val)   /* B0~B15 indicate Tx MCS MAP, we write 0 to indicate MCS0~7. by page */
 #define SET_VHT_CAPABILITY_ELE_MCS_TX_HIGHEST_RATE(_pEleStart, _val)				SET_BITS_TO_LE_2BYTE((_pEleStart)+10, 0, 13, _val)
 
+
 #define GET_VHT_CAPABILITY_ELE_MAX_MPDU_LENGTH(_pEleStart)			LE_BITS_TO_1BYTE(_pEleStart, 0, 2)
 #define GET_VHT_CAPABILITY_ELE_CHL_WIDTH(_pEleStart)				LE_BITS_TO_1BYTE(_pEleStart, 2, 2)
 #define GET_VHT_CAPABILITY_ELE_RX_LDPC(_pEleStart)			LE_BITS_TO_1BYTE(_pEleStart, 4, 1)
@@ -72,6 +73,7 @@
 #define GET_VHT_CAPABILITY_ELE_MCS_RX_HIGHEST_RATE(_pEleStart)			LE_BITS_TO_2BYTE((_pEleStart)+6, 0, 13)
 #define GET_VHT_CAPABILITY_ELE_TX_MCS(_pEleStart)					       ((_pEleStart)+8)
 #define GET_VHT_CAPABILITY_ELE_MCS_TX_HIGHEST_RATE(_pEleStart)			LE_BITS_TO_2BYTE((_pEleStart)+10, 0, 13)
+
 
 /* VHT Operation Information Element */
 #define SET_VHT_OPERATION_ELE_CHL_WIDTH(_pEleStart, _val)			SET_BITS_TO_LE_1BYTE(_pEleStart, 0, 8, _val)
@@ -156,14 +158,14 @@ void	rtw_vht_use_default_setting(_adapter *padapter);
 u32	rtw_build_vht_operation_ie(_adapter *padapter, u8 *pbuf, u8 channel);
 u32	rtw_build_vht_op_mode_notify_ie(_adapter *padapter, u8 *pbuf, u8 bw);
 u32	rtw_build_vht_cap_ie(_adapter *padapter, u8 *pbuf);
-void	update_sta_vht_info_apmode(_adapter *padapter, PVOID psta);
+void	update_sta_vht_info_apmode(_adapter *padapter, void *psta);
 void	update_hw_vht_param(_adapter *padapter);
 void	VHT_caps_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
 #ifdef ROKU_PRIVATE
 void	VHT_caps_handler_infra_ap(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
 #endif /* ROKU_PRIVATE */
 void	VHT_operation_handler(_adapter *padapter, PNDIS_802_11_VARIABLE_IEs pIE);
-void	rtw_process_vht_op_mode_notify(_adapter *padapter, u8 *pframe, PVOID sta);
+void	rtw_process_vht_op_mode_notify(_adapter *padapter, u8 *pframe, void *sta);
 u32	rtw_restructure_vht_ie(_adapter *padapter, u8 *in_ie, u8 *out_ie, uint in_len, uint *pout_len);
 void	VHTOnAssocRsp(_adapter *padapter);
 u8	rtw_vht_mcsmap_to_nss(u8 *pvht_mcs_map);

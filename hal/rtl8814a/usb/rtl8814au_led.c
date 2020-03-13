@@ -1,7 +1,7 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
- *                                        
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
  * published by the Free Software Foundation.
@@ -11,38 +11,34 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
+ *****************************************************************************/
 #define _RTL8814AU_LED_C_
 
-//#include <drv_types.h>
+/* #include <drv_types.h> */
 #include <rtl8814a_hal.h>
 #ifdef CONFIG_RTW_SW_LED
-//================================================================================
-// LED object.
-//================================================================================
+
+/* ********************************************************************************
+ * LED object.
+ * ******************************************************************************** */
 
 
-//================================================================================
-//	Prototype of protected function.
-//================================================================================
+/* ********************************************************************************
+ *	Prototype of protected function.
+ * ******************************************************************************** */
 
 
-//================================================================================
-// LED_819xUsb routines. 
-//================================================================================
+/* ********************************************************************************
+ * LED_819xUsb routines.
+ * ******************************************************************************** */
 
-//
-//	Description:
-//		Turn on LED according to LedPin specified.
-//
+/*
+ *	Description:
+ *		Turn on LED according to LedPin specified.
+ *   */
 static void
 SwLedOn_8814AU(
-	PADAPTER		padapter, 
+	PADAPTER		padapter,
 	PLED_USB		pLed
 )
 {
@@ -67,13 +63,13 @@ SwLedOn_8814AU(
 }
 
 
-//
-//	Description:
-//		Turn off LED according to LedPin specified.
-//
+/*
+ *	Description:
+ *		Turn off LED according to LedPin specified.
+ *   */
 static void
 SwLedOff_8814AU(
-	PADAPTER		padapter, 
+	PADAPTER		padapter,
 	PLED_USB		pLed
 )
 {
@@ -96,23 +92,23 @@ SwLedOff_8814AU(
 	pLed->bLedOn = _FALSE;
 }
 
-//================================================================================
-// Interface to manipulate LED objects.
-//================================================================================
+/* ********************************************************************************
+ * Interface to manipulate LED objects.
+ * ******************************************************************************** */
 
 
-//================================================================================
-// Default LED behavior.
-//================================================================================
+/* ********************************************************************************
+ * Default LED behavior.
+ * ******************************************************************************** */
 
-//
-//	Description:
-//		Initialize all LED_871x objects.
-//
+/*
+ *	Description:
+ *		Initialize all LED_871x objects.
+ *   */
 void
 rtl8814au_InitSwLeds(
 	_adapter	*padapter
-	)
+)
 {
 	struct led_priv *pledpriv = adapter_to_led(padapter);
 
@@ -129,19 +125,19 @@ rtl8814au_InitSwLeds(
 }
 
 
-//
-//	Description:
-//		DeInitialize all LED_819xUsb objects.
-//
+/*
+ *	Description:
+ *		DeInitialize all LED_819xUsb objects.
+ *   */
 void
 rtl8814au_DeInitSwLeds(
 	_adapter	*padapter
-	)
+)
 {
 	struct led_priv	*ledpriv = adapter_to_led(padapter);
 
-	DeInitLed( &(ledpriv->SwLed0) );
-	DeInitLed( &(ledpriv->SwLed1) );
-	DeInitLed( &(ledpriv->SwLed2) );
+	DeInitLed(&(ledpriv->SwLed0));
+	DeInitLed(&(ledpriv->SwLed1));
+	DeInitLed(&(ledpriv->SwLed2));
 }
 #endif

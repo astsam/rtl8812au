@@ -27,10 +27,6 @@ atomic_t _malloc_size = ATOMIC_INIT(0);
 #endif
 #endif /* DBG_MEMORY_LEAK */
 
-/* This is to fix get_ds() type mismatch on kernels above 5.1.x */
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0))
-	#define get_ds() KERNEL_DS
-#endif
 
 #if defined(PLATFORM_LINUX)
 /*
@@ -447,9 +443,6 @@ void rtw_mstat_dump(void *sel)
 #ifdef RTW_MEM_FUNC_STAT
 	int value_f[4][mstat_ff_idx(MSTAT_FUNC_MAX)];
 #endif
-
-	int vir_alloc, vir_peak, vir_alloc_err, phy_alloc, phy_peak, phy_alloc_err;
-	int tx_alloc, tx_peak, tx_alloc_err, rx_alloc, rx_peak, rx_alloc_err;
 
 	for (i = 0; i < mstat_tf_idx(MSTAT_TYPE_MAX); i++) {
 		value_t[0][i] = ATOMIC_READ(&(rtw_mem_type_stat[i].alloc));
@@ -1629,8 +1622,7 @@ void rtw_sleep_schedulable(int ms)
 		delta = 1;/* 1 ms */
 	}
 	set_current_state(TASK_INTERRUPTIBLE);
-	if (schedule_timeout(delta) != 0)
-		return ;
+        schedule_timeout(delta);
 	return;
 
 #endif
@@ -2101,6 +2093,254 @@ inline bool ATOMIC_INC_UNLESS(ATOMIC_T *v, int u)
 #endif
 }
 
+#ifdef PLATFORM_LINUX
+/*
+* Open a file with the specific @param path, @param flag, @param mode
+* @param fpp the pointer of struct file pointer to get struct file pointer while file opening is success
+* @param path the path of the file to open
+* @param flag file operation flags, please refer to linux document
+* @param mode please refer to linux document
+* @return Linux specific error code
+*/
+static int openFile(struct file **fpp, const char *path, int flag, int mode)
+{
+	struct file *fp;
+
+	fp = filp_open(path, flag, mode);
+	if (IS_ERR(fp)) {
+		*fpp = NULL;
+		return PTR_ERR(fp);
+	} else {
+		*fpp = fp;
+		return 0;
+	}
+}
+
+/*
+* Close the file with the specific @param fp
+* @param fp the pointer of struct file to close
+* @return always 0
+*/
+static int closeFile(struct file *fp)
+{
+	filp_close(fp, NULL);
+	return 0;
+}
+
+static int readFile(struct file *fp, char *buf, int len)
+{
+	int rlen = 0, sum = 0;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+	if (!(fp->f_mode & FMODE_CAN_READ))
+#else
+	if (!fp->f_op || !fp->f_op->read)
+#endif
+		return -EPERM;
+
+	while (sum < len) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		rlen = kernel_read(fp, buf + sum, len - sum, &fp->f_pos);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+		rlen = __vfs_read(fp, buf + sum, len - sum, &fp->f_pos);
+#else
+		rlen = fp->f_op->read(fp, buf + sum, len - sum, &fp->f_pos);
+#endif
+		if (rlen > 0)
+			sum += rlen;
+		else if (0 != rlen)
+			return rlen;
+		else
+			break;
+	}
+
+	return  sum;
+
+}
+
+static int writeFile(struct file *fp, char *buf, int len)
+{
+	int wlen = 0, sum = 0;
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+	if (!(fp->f_mode & FMODE_CAN_WRITE))
+#else
+	if (!fp->f_op || !fp->f_op->write)
+#endif
+		return -EPERM;
+
+	while (sum < len) {
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
+		wlen = kernel_write(fp, buf + sum, len - sum, &fp->f_pos);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 1, 0))
+		wlen = __vfs_write(fp, buf + sum, len - sum, &fp->f_pos);
+#else
+		wlen = fp->f_op->write(fp, buf + sum, len - sum, &fp->f_pos);
+#endif
+		if (wlen > 0)
+			sum += wlen;
+		else if (0 != wlen)
+			return wlen;
+		else
+			break;
+	}
+
+	return sum;
+
+}
+
+/*
+* Test if the specifi @param pathname is a direct and readable
+* If readable, @param sz is not used
+* @param pathname the name of the path to test
+* @return Linux specific error code
+*/
+static int isDirReadable(const char *pathname, u32 *sz)
+{
+	struct path path;
+	int error = 0;
+
+	return kern_path(pathname, LOOKUP_FOLLOW, &path);
+}
+
+/*
+* Test if the specifi @param path is a file and readable
+* If readable, @param sz is got
+* @param path the path of the file to test
+* @return Linux specific error code
+*/
+static int isFileReadable(const char *path, u32 *sz)
+{
+	struct file *fp;
+	int ret = 0;
+	mm_segment_t oldfs;
+	char buf;
+
+	fp = filp_open(path, O_RDONLY, 0);
+	if (IS_ERR(fp))
+		ret = PTR_ERR(fp);
+	else {
+		oldfs = get_fs();
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0))//jimmy
+		set_fs(KERNEL_DS);
+		#else
+		set_fs(get_ds());
+		#endif
+
+		if (1 != readFile(fp, &buf, 1))
+			ret = PTR_ERR(fp);
+
+		if (ret == 0 && sz) {
+			#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 19, 0))
+			*sz = i_size_read(fp->f_path.dentry->d_inode);
+			#else
+			*sz = i_size_read(fp->f_dentry->d_inode);
+			#endif
+		}
+
+		set_fs(oldfs);
+		filp_close(fp, NULL);
+	}
+	return ret;
+}
+
+/*
+* Open the file with @param path and retrive the file content into memory starting from @param buf for @param sz at most
+* @param path the path of the file to open and read
+* @param buf the starting address of the buffer to store file content
+* @param sz how many bytes to read at most
+* @return the byte we've read, or Linux specific error code
+*/
+static int retriveFromFile(const char *path, u8 *buf, u32 sz)
+{
+	int ret = -1;
+	mm_segment_t oldfs;
+	struct file *fp;
+
+	if (path && buf) {
+		ret = openFile(&fp, path, O_RDONLY, 0);
+		if (0 == ret) {
+			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
+
+			oldfs = get_fs();
+			#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0))//jimmy
+			set_fs(KERNEL_DS);
+			#else
+			set_fs(get_ds());
+			#endif
+			ret = readFile(fp, buf, sz);
+			set_fs(oldfs);
+			closeFile(fp);
+
+			RTW_INFO("%s readFile, ret:%d\n", __FUNCTION__, ret);
+
+		} else
+			RTW_INFO("%s openFile path:%s Fail, ret:%d\n", __FUNCTION__, path, ret);
+	} else {
+		RTW_INFO("%s NULL pointer\n", __FUNCTION__);
+		ret =  -EINVAL;
+	}
+	return ret;
+}
+
+/*
+* Open the file with @param path and wirte @param sz byte of data starting from @param buf into the file
+* @param path the path of the file to open and write
+* @param buf the starting address of the data to write into file
+* @param sz how many bytes to write at most
+* @return the byte we've written, or Linux specific error code
+*/
+static int storeToFile(const char *path, u8 *buf, u32 sz)
+{
+	int ret = 0;
+	mm_segment_t oldfs;
+	struct file *fp;
+
+	if (path && buf) {
+		ret = openFile(&fp, path, O_CREAT | O_WRONLY, 0666);
+		if (0 == ret) {
+			RTW_INFO("%s openFile path:%s fp=%p\n", __FUNCTION__, path , fp);
+
+			oldfs = get_fs();
+			#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 1, 0))//jimmy
+			set_fs(KERNEL_DS);
+			#else
+			set_fs(get_ds());
+			#endif
+			ret = writeFile(fp, buf, sz);
+			set_fs(oldfs);
+			closeFile(fp);
+
+			RTW_INFO("%s writeFile, ret:%d\n", __FUNCTION__, ret);
+
+		} else
+			RTW_INFO("%s openFile path:%s Fail, ret:%d\n", __FUNCTION__, path, ret);
+	} else {
+		RTW_INFO("%s NULL pointer\n", __FUNCTION__);
+		ret =  -EINVAL;
+	}
+	return ret;
+}
+#endif /* PLATFORM_LINUX */
+
+/*
+* Test if the specifi @param path is a direct and readable
+* @param path the path of the direct to test
+* @return _TRUE or _FALSE
+*/
+int rtw_is_dir_readable(const char *path)
+{
+#ifdef PLATFORM_LINUX
+	if (isDirReadable(path, NULL) == 0)
+		return _TRUE;
+	else
+		return _FALSE;
+#else
+	/* Todo... */
+	return _FALSE;
+#endif
+}
+
 /*
 * Test if the specifi @param path is a file and readable
 * @param path the path of the file to test
@@ -2108,8 +2348,15 @@ inline bool ATOMIC_INC_UNLESS(ATOMIC_T *v, int u)
 */
 int rtw_is_file_readable(const char *path)
 {
+#ifdef PLATFORM_LINUX
+	if (isFileReadable(path, NULL) == 0)
+		return _TRUE;
+	else
+		return _FALSE;
+#else
 	/* Todo... */
 	return _FALSE;
+#endif
 }
 
 /*
@@ -2120,8 +2367,34 @@ int rtw_is_file_readable(const char *path)
 */
 int rtw_is_file_readable_with_size(const char *path, u32 *sz)
 {
+#ifdef PLATFORM_LINUX
+	if (isFileReadable(path, sz) == 0)
+		return _TRUE;
+	else
+		return _FALSE;
+#else
 	/* Todo... */
 	return _FALSE;
+#endif
+}
+
+/*
+* Test if the specifi @param path is a readable file with valid size.
+* If readable, @param sz is got
+* @param path the path of the file to test
+* @return _TRUE or _FALSE
+*/
+int rtw_readable_file_sz_chk(const char *path, u32 sz)
+{
+	u32 fsz;
+
+	if (rtw_is_file_readable_with_size(path, &fsz) == _FALSE)
+		return _FALSE;
+
+	if (fsz > sz)
+		return _FALSE;
+	
+	return _TRUE;
 }
 
 /*
@@ -2133,8 +2406,13 @@ int rtw_is_file_readable_with_size(const char *path, u32 *sz)
 */
 int rtw_retrieve_from_file(const char *path, u8 *buf, u32 sz)
 {
+#ifdef PLATFORM_LINUX
+	int ret = retriveFromFile(path, buf, sz);
+	return ret >= 0 ? ret : 0;
+#else
 	/* Todo... */
 	return 0;
+#endif
 }
 
 /*
@@ -2146,8 +2424,13 @@ int rtw_retrieve_from_file(const char *path, u8 *buf, u32 sz)
 */
 int rtw_store_to_file(const char *path, u8 *buf, u32 sz)
 {
+#ifdef PLATFORM_LINUX
+	int ret = storeToFile(path, buf, sz);
+	return ret >= 0 ? ret : 0;
+#else
 	/* Todo... */
 	return 0;
+#endif
 }
 
 #ifdef PLATFORM_LINUX
@@ -2671,7 +2954,6 @@ int rtw_blacklist_add(_queue *blist, const u8 *addr, u32 timeout_ms)
 
 	exit_critical_bh(&blist->lock);
 
-exit:
 	return (exist == _TRUE && timeout == _FALSE) ? RTW_ALREADY : (ent ? _SUCCESS : _FAIL);
 }
 
@@ -2703,7 +2985,6 @@ int rtw_blacklist_del(_queue *blist, const u8 *addr)
 
 	exit_critical_bh(&blist->lock);
 
-exit:
 	return exist == _TRUE ? _SUCCESS : RTW_ALREADY;
 }
 
@@ -2737,7 +3018,6 @@ int rtw_blacklist_search(_queue *blist, const u8 *addr)
 
 	exit_critical_bh(&blist->lock);
 
-exit:
 	return exist;
 }
 

@@ -19,28 +19,32 @@
 #define RTW_RX_MSDU_ACT_INDICATE	BIT0
 #define RTW_RX_MSDU_ACT_FORWARD		BIT1
 
-#include <linux/interrupt.h>
-
-#ifdef PLATFORM_LINUX
-	#ifdef CONFIG_SINGLE_RECV_BUF
-		#define NR_RECVBUFF (1)
+#ifdef CONFIG_SINGLE_RECV_BUF
+	#define NR_RECVBUFF (1)
+#else
+	#if defined(CONFIG_GSPI_HCI)
+		#define NR_RECVBUFF (32)
+	#elif defined(CONFIG_SDIO_HCI)
+		#define NR_RECVBUFF (8)
 	#else
-		#if defined(CONFIG_GSPI_HCI)
-			#define NR_RECVBUFF (32)
-		#elif defined(CONFIG_SDIO_HCI)
-			#define NR_RECVBUFF (8)
-		#else
-			#define NR_RECVBUFF (8)
-		#endif
-	#endif /* CONFIG_SINGLE_RECV_BUF */
-	#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
-		#define NR_PREALLOC_RECV_SKB (rtw_rtkm_get_nr_recv_skb()>>1)
-	#else /*!CONFIG_PREALLOC_RX_SKB_BUFFER */
-		#define NR_PREALLOC_RECV_SKB 8
-	#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
+		#define NR_RECVBUFF (8)
+	#endif
+#endif /* CONFIG_SINGLE_RECV_BUF */
+#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
+	#define NR_PREALLOC_RECV_SKB (rtw_rtkm_get_nr_recv_skb()>>1)
+#else /*!CONFIG_PREALLOC_RX_SKB_BUFFER */
+	#define NR_PREALLOC_RECV_SKB 8
+#endif /* CONFIG_PREALLOC_RX_SKB_BUFFER */
 
-	#ifdef CONFIG_RTW_NAPI
-		#define RTL_NAPI_WEIGHT (32)
+#ifdef CONFIG_RTW_NAPI
+	#define RTL_NAPI_WEIGHT (32)
+#endif
+
+
+#if defined(CONFIG_RTL8821C) && defined(CONFIG_SDIO_HCI) && defined(CONFIG_RECV_THREAD_MODE)
+	#ifdef NR_RECVBUFF
+	#undef NR_RECVBUFF
+	#define NR_RECVBUFF (32)
 	#endif
 #endif
 
@@ -59,6 +63,7 @@
 #define PHY_RSSI_SLID_WIN_MAX				100
 #define PHY_LINKQUALITY_SLID_WIN_MAX		20
 
+
 #define SNAP_SIZE sizeof(struct ieee80211_snap_hdr)
 
 #define RX_MPDU_QUEUE				0
@@ -69,6 +74,10 @@
 /* Bridge-Tunnel header (for EtherTypes ETH_P_AARP and ETH_P_IPX) */
 extern u8 rtw_bridge_tunnel_header[];
 extern u8 rtw_rfc1042_header[];
+
+enum addba_rsp_ack_state {
+	RTW_RECV_ACK_OR_TIMEOUT,
+};
 
 /* for Rx reordering buffer control */
 struct recv_reorder_ctrl {
@@ -82,6 +91,7 @@ struct recv_reorder_ctrl {
 	_queue pending_recvframe_queue;
 	_timer reordering_ctrl_timer;
 	u8 bReorderWaiting;
+	unsigned long rec_abba_rsp_ack;
 };
 
 struct	stainfo_rxcache	{
@@ -108,6 +118,7 @@ struct	stainfo_rxcache	{
 #endif
 };
 
+
 struct smooth_rssi_data {
 	u32	elements[100];	/* array to store values */
 	u32	index;			/* index to current array to store */
@@ -133,6 +144,7 @@ struct rx_raw_rssi {
 	s8 ofdm_pwr[4];
 	u8 ofdm_snr[4];
 };
+
 
 #include "cmn_info/rtw_sta_info.h"
 
@@ -245,7 +257,7 @@ struct recv_stat {
 
 	unsigned int rxdw1;
 
-#if !((defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C)) && defined(CONFIG_PCI_HCI))  /* exclude 8192ee, 8814ae, 8822be, 8821ce */
+#if !((defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8822C)) && defined(CONFIG_PCI_HCI))  /* exclude 8192ee, 8814ae, 8822be, 8821ce */
 	unsigned int rxdw2;
 
 	unsigned int rxdw3;
@@ -286,6 +298,8 @@ struct rtw_rx_ring {
 };
 #endif
 
+
+
 /*
 accesser of recv_priv: rtw_recv_entry(dispatch / passive level); recv_thread(passive) ; returnpkt(dispatch)
 ; halt(passive) ;
@@ -309,6 +323,7 @@ struct recv_priv {
 	_queue	free_recv_queue;
 	_queue	recv_pending_queue;
 	_queue	uc_swdec_pending_queue;
+
 
 	u8 *pallocated_frame_buf;
 	u8 *precv_frame_buf;
@@ -362,21 +377,21 @@ struct recv_priv {
 #endif /* CONFIG_USB_INTERRUPT_IN_PIPE */
 
 #endif
-#if defined(PLATFORM_LINUX)
-	struct tasklet_struct irq_prepare_beacon_tasklet;
-	struct tasklet_struct recv_tasklet;
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_FREEBSD)
+	_tasklet irq_prepare_beacon_tasklet;
+	_tasklet recv_tasklet;
 
 	struct sk_buff_head free_recv_skb_queue;
 	struct sk_buff_head rx_skb_queue;
 #ifdef CONFIG_RTW_NAPI
 		struct sk_buff_head rx_napi_skb_queue;
-#endif
+#endif 
 #ifdef CONFIG_RX_INDICATE_QUEUE
-	struct task rx_indicate_tasklet;
+	_tasklet rx_indicate_tasklet;
 	struct ifqueue rx_indicate_queue;
 #endif /* CONFIG_RX_INDICATE_QUEUE */
 
-#endif /* defined(PLATFORM_LINUX) */
+#endif /* defined(PLATFORM_LINUX) || defined(PLATFORM_FREEBSD) */
 
 	u8 *pallocated_recv_buf;
 	u8 *precv_buf;    /* 4 alignment */
@@ -391,7 +406,7 @@ struct recv_priv {
 	/* Rx */
 	struct rtw_rx_ring	rx_ring[PCI_MAX_RX_QUEUE];
 	int rxringcount;	/* size should be PCI_MAX_RX_QUEUE */
-	u16	rxbuffersize;
+	u32	rxbuffersize;
 #endif
 
 	/* For display the phy informatiom */
@@ -406,6 +421,7 @@ struct recv_priv {
 	/* int RxSNRdB[2]; */
 	/* s8 RxRssi[2]; */
 	/* int FalseAlmCnt_all; */
+
 
 #ifdef CONFIG_NEW_SIGNAL_STAT_PROCESS
 	_timer signal_stat_timer;
@@ -469,6 +485,7 @@ struct sta_recv_priv {
 
 };
 
+
 struct recv_buf {
 	_list list;
 
@@ -488,28 +505,32 @@ struct recv_buf {
 	u8	*pend;
 
 #ifdef CONFIG_USB_HCI
-
-#if defined(PLATFORM_LINUX)
 	PURB	purb;
 	dma_addr_t dma_transfer_addr;	/* (in) dma addr for transfer_buffer */
 	u32 alloc_sz;
-#endif
 
 	u8  irp_pending;
 	int  transfer_len;
-
 #endif
 
 #if defined(PLATFORM_LINUX)
 	_pkt *pskb;
+#elif defined(PLATFORM_FREEBSD) /* skb solution */
+	struct sk_buff *pskb;
 #endif
 };
 
+
 /*
 	head  ----->
+
 		data  ----->
+
 			payload
+
 		tail  ----->
+
+
 	end   ----->
 
 	len = (unsigned int )(tail - data);
@@ -535,6 +556,7 @@ struct recv_frame_hdr {
 
 	void *precvbuf;
 
+
 	/*  */
 	struct sta_info *psta;
 
@@ -550,6 +572,7 @@ struct recv_frame_hdr {
 #endif
 
 };
+
 
 union recv_frame {
 
@@ -641,6 +664,7 @@ __inline static u8 *recvframe_push(union recv_frame *precvframe, sint sz)
 	if (precvframe == NULL)
 		return NULL;
 
+
 	precvframe->u.hdr.rx_data -= sz ;
 	if (precvframe->u.hdr.rx_data < precvframe->u.hdr.rx_head) {
 		precvframe->u.hdr.rx_data += sz ;
@@ -653,14 +677,17 @@ __inline static u8 *recvframe_push(union recv_frame *precvframe, sint sz)
 
 }
 
+
 __inline static u8 *recvframe_pull(union recv_frame *precvframe, sint sz)
 {
 	/* rx_data += sz; move rx_data sz bytes  hereafter */
 
 	/* used for extract sz bytes from rx_data, update rx_data and return the updated rx_data to the caller */
 
+
 	if (precvframe == NULL)
 		return NULL;
+
 
 	precvframe->u.hdr.rx_data += sz;
 
@@ -703,6 +730,8 @@ __inline static u8 *recvframe_put(union recv_frame *precvframe, sint sz)
 
 }
 
+
+
 __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 {
 	/* rmv data from rx_tail (by yitsen) */
@@ -726,16 +755,6 @@ __inline static u8 *recvframe_pull_tail(union recv_frame *precvframe, sint sz)
 
 }
 
-__inline static _buffer *get_rxbuf_desc(union recv_frame *precvframe)
-{
-	_buffer *buf_desc;
-
-	if (precvframe == NULL)
-		return NULL;
-
-	return buf_desc;
-}
-
 __inline static union recv_frame *rxmem_to_recvframe(u8 *rxmem)
 {
 	/* due to the design of 2048 bytes alignment of recv_frame, we can reference the union recv_frame */
@@ -751,7 +770,6 @@ __inline static union recv_frame *pkt_to_recvframe(_pkt *pkt)
 
 	u8 *buf_star;
 	union recv_frame *precv_frame;
-
 	precv_frame = rxmem_to_recvframe((unsigned char *)buf_star);
 
 	return precv_frame;
@@ -777,10 +795,12 @@ __inline static u8 *pkt_to_recvdata(_pkt *pkt)
 
 }
 
+
 __inline static sint get_recvframe_len(union recv_frame *precvframe)
 {
 	return precvframe->u.hdr.len;
 }
+
 
 __inline static s32 translate_percentage_to_dbm(u32 SignalStrengthIndex)
 {

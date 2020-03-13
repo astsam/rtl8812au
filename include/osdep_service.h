@@ -15,10 +15,6 @@
 #ifndef __OSDEP_SERVICE_H_
 #define __OSDEP_SERVICE_H_
 
-#include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
-#include <linux/sched/signal.h>
-#endif
 
 #define _FAIL					0
 #define _SUCCESS				1
@@ -31,6 +27,9 @@
 #define RTW_ALREADY				8
 #define RTW_RA_RESOLVING		9
 #define RTW_BMC_NO_NEED			10
+#define RTW_XBUF_UNAVAIL		11
+#define RTW_TX_BALANCE			12
+#define RTW_TX_WAIT_MORE_FRAME	13
 
 /* #define RTW_STATUS_TIMEDOUT -110 */
 
@@ -40,6 +39,11 @@
 #undef _FALSE
 #define _FALSE		0
 
+
+#ifdef PLATFORM_FREEBSD
+	#include <osdep_service_bsd.h>
+#endif
+
 #ifdef PLATFORM_LINUX
 	#include <linux/version.h>
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0))
@@ -47,6 +51,17 @@
 	#include <linux/sched/types.h>
 #endif
 	#include <osdep_service_linux.h>
+	#include <drv_types_linux.h>
+#endif
+
+#ifdef PLATFORM_OS_XP
+	#include <osdep_service_xp.h>
+	#include <drv_types_xp.h>
+#endif
+
+#ifdef PLATFORM_OS_CE
+	#include <osdep_service_ce.h>
+	#include <drv_types_ce.h>
 #endif
 
 /* #include <rtw_byteorder.h> */
@@ -94,6 +109,11 @@
 #define BIT34	0x0400000000
 #define BIT35	0x0800000000
 #define BIT36	0x1000000000
+
+#ifndef GENMASK
+#define GENMASK(h, l) \
+	(((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
+#endif
 
 extern int RTW_STATUS_CODE(int error_code);
 
@@ -299,7 +319,9 @@ void rtw_list_splice(_list *list, _list *head);
 void rtw_list_splice_init(_list *list, _list *head);
 void rtw_list_splice_tail(_list *list, _list *head);
 
+#ifndef PLATFORM_FREEBSD
 extern void	rtw_list_delete(_list *plist);
+#endif /* PLATFORM_FREEBSD */
 
 void rtw_hlist_head_init(rtw_hlist_head *h);
 void rtw_hlist_add_head(rtw_hlist_node *n, rtw_hlist_head *h);
@@ -313,7 +335,9 @@ extern void	_rtw_up_sema(_sema	*sema);
 extern u32	_rtw_down_sema(_sema *sema);
 extern void	_rtw_mutex_init(_mutex *pmutex);
 extern void	_rtw_mutex_free(_mutex *pmutex);
+#ifndef PLATFORM_FREEBSD
 extern void	_rtw_spinlock_init(_lock *plock);
+#endif /* PLATFORM_FREEBSD */
 extern void	_rtw_spinlock_free(_lock *plock);
 extern void	_rtw_spinlock(_lock	*plock);
 extern void	_rtw_spinunlock(_lock	*plock);
@@ -375,7 +399,9 @@ extern void	rtw_udelay_os(int us);
 
 extern void rtw_yield_os(void);
 
+
 extern void rtw_init_timer(_timer *ptimer, void *padapter, void *pfunc, void *ctx);
+
 
 __inline static unsigned char _cancel_timer_ex(_timer *ptimer)
 {
@@ -388,6 +414,12 @@ __inline static unsigned char _cancel_timer_ex(_timer *ptimer)
 
 static __inline void thread_enter(char *name)
 {
+#ifdef PLATFORM_LINUX
+	allow_signal(SIGTERM);
+#endif
+#ifdef PLATFORM_FREEBSD
+	printf("%s", "RTKTHREAD_enter");
+#endif
 }
 void thread_exit(_completion *comp);
 void _rtw_init_completion(_completion *comp);
@@ -420,14 +452,25 @@ static inline void rtw_thread_wait_stop(void)
 __inline static void flush_signals_thread(void)
 {
 #ifdef PLATFORM_LINUX
+	if (signal_pending(current))
+		flush_signals(current);
 #endif
 }
 
 __inline static _OS_STATUS res_to_status(sint res)
 {
 
-#if defined(PLATFORM_LINUX) || defined (PLATFORM_MPIXEL)
+#if defined(PLATFORM_LINUX) || defined (PLATFORM_MPIXEL) || defined (PLATFORM_FREEBSD)
 	return res;
+#endif
+
+#ifdef PLATFORM_WINDOWS
+
+	if (res == _SUCCESS)
+		return NDIS_STATUS_SUCCESS;
+	else
+		return NDIS_STATUS_FAILURE;
+
 #endif
 
 }
@@ -448,6 +491,17 @@ __inline static void rtw_dump_stack(void)
 __inline static int rtw_bug_check(void *parg1, void *parg2, void *parg3, void *parg4)
 {
 	int ret = _TRUE;
+
+#ifdef PLATFORM_WINDOWS
+	if (((uint)parg1) <= 0x7fffffff ||
+	    ((uint)parg2) <= 0x7fffffff ||
+	    ((uint)parg3) <= 0x7fffffff ||
+	    ((uint)parg4) <= 0x7fffffff) {
+		ret = _FALSE;
+		KeBugCheckEx(0x87110000, (ULONG_PTR)parg1, (ULONG_PTR)parg2, (ULONG_PTR)parg3, (ULONG_PTR)parg4);
+	}
+#endif
+
 	return ret;
 
 }
@@ -537,6 +591,17 @@ static inline int largest_bit(u32 bitmask)
 	return i;
 }
 
+static inline int largest_bit_64(u64 bitmask)
+{
+	int i;
+
+	for (i = 63; i >= 0; i--)
+		if (bitmask & BIT(i))
+			break;
+
+	return i;
+}
+
 #define rtw_abs(a) (a < 0 ? -a : a)
 #define rtw_min(a, b) ((a > b) ? b : a)
 #define rtw_is_range_a_in_b(hi_a, lo_a, hi_b, lo_b) (((hi_a) <= (hi_b)) && ((lo_a) >= (lo_b)))
@@ -581,12 +646,18 @@ extern int ATOMIC_DEC_RETURN(ATOMIC_T *v);
 extern bool ATOMIC_INC_UNLESS(ATOMIC_T *v, int u);
 
 /* File operation APIs, just for linux now */
+extern int rtw_is_dir_readable(const char *path);
 extern int rtw_is_file_readable(const char *path);
 extern int rtw_is_file_readable_with_size(const char *path, u32 *sz);
+extern int rtw_readable_file_sz_chk(const char *path, u32 sz);
 extern int rtw_retrieve_from_file(const char *path, u8 *buf, u32 sz);
 extern int rtw_store_to_file(const char *path, u8 *buf, u32 sz);
 
+
+#ifndef PLATFORM_FREEBSD
 extern void rtw_free_netdev(struct net_device *netdev);
+#endif /* PLATFORM_FREEBSD */
+
 
 extern u64 rtw_modular64(u64 x, u64 y);
 extern u64 rtw_division64(u64 x, u64 y);

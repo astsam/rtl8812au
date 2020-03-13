@@ -37,15 +37,19 @@
 #define _IO_SYNC_		BIT(13)
 #define _IO_CMDMASK_	(0x1F80)
 
+
 /*
 	For prompt mode accessing, caller shall free io_req
 	Otherwise, io_handler will free io_req
 */
 
+
+
 /* IO STATUS TYPE */
 #define _IO_ERR_		BIT(2)
 #define _IO_SUCCESS_	BIT(1)
 #define _IO_DONE_		BIT(0)
+
 
 #define IO_RD32			(_IO_SYNC_ | _IO_WORD_)
 #define IO_RD16			(_IO_SYNC_ | _IO_HW_)
@@ -64,11 +68,15 @@
 #define IO_WR8_ASYNC	(_IO_WRITE_ | _IO_BYTE_)
 
 /*
+
 	Only Sync. burst accessing is provided.
+
 */
 
 #define IO_WR_BURST(x)		(_IO_WRITE_ | _IO_SYNC_ | _IO_BURST_ | ((x) & _IOSZ_MASK_))
 #define IO_RD_BURST(x)		(_IO_SYNC_ | _IO_BURST_ | ((x) & _IOSZ_MASK_))
+
+
 
 /* below is for the intf_option bit defition... */
 
@@ -129,45 +137,19 @@ struct io_req {
 	u32	status;
 	u8	*pbuf;
 	_sema	sema;
-
 	void (*_async_io_callback)(_adapter *padater, struct io_req *pio_req, u8 *cnxt);
 	u8 *cnxt;
-
-#ifdef CONFIG_SDIO_HCI
-	PSDBUS_REQUEST_PACKET sdrp;
-#endif
-
 };
 
 struct	intf_hdl {
-
-#if 0
-	u32	intf_option;
-	u32	bus_status;
-	u32	do_flush;
-	u8	*adapter;
-	u8	*intf_dev;
-	struct intf_priv	*pintfpriv;
-	u8	cnt;
-	void (*intf_hdl_init)(u8 *priv);
-	void (*intf_hdl_unload)(u8 *priv);
-	void (*intf_hdl_open)(u8 *priv);
-	void (*intf_hdl_close)(u8 *priv);
-	struct	_io_ops	io_ops;
-	/* u8 intf_status;//moved to struct intf_priv */
-	u16 len;
-	u16 done_len;
-#endif
 	_adapter *padapter;
 	struct dvobj_priv *pintf_dev;/*	pointer to &(padapter->dvobjpriv); */
-
 	struct _io_ops	io_ops;
-
 };
 
 struct reg_protocol_rd {
 
-#ifdef __LITTLE_ENDIAN
+#ifdef CONFIG_LITTLE_ENDIAN
 
 	/* DW1 */
 	u32		NumOfTrans:4;
@@ -189,6 +171,7 @@ struct reg_protocol_rd {
 	/* u32		Value; */
 #else
 
+
 	/* DW1 */
 	u32 Reserved1:4;
 	u32 NumOfTrans:4;
@@ -198,6 +181,7 @@ struct reg_protocol_rd {
 	/* DW2 */
 	u32 WriteEnable:1;
 	u32 ByteCount:7;
+
 
 	u32 Reserved3:3;
 	u32 Byte4Access:1;
@@ -219,9 +203,11 @@ struct reg_protocol_rd {
 
 };
 
+
 struct reg_protocol_wt {
 
-#ifdef __LITTLE_ENDIAN
+
+#ifdef CONFIG_LITTLE_ENDIAN
 
 	/* DW1 */
 	u32		NumOfTrans:4;
@@ -290,11 +276,13 @@ struct reg_protocol_wt {
 #define MAX_CONTINUAL_IO_ERR SD_IO_TRY_CNT
 #endif
 
+
 int rtw_inc_and_chk_continual_io_error(struct dvobj_priv *dvobj);
 void rtw_reset_continual_io_error(struct dvobj_priv *dvobj);
 
 /*
 Below is the data structure used by _io_handler
+
 */
 
 struct io_queue {
@@ -319,6 +307,7 @@ extern uint ioreq_flush(_adapter *adapter, struct io_queue *ioqueue);
 extern void sync_ioreq_enqueue(struct io_req *preq, struct io_queue *ioqueue);
 extern uint sync_ioreq_flush(_adapter *adapter, struct io_queue *ioqueue);
 
+
 extern uint free_ioreq(struct io_req *preq, struct io_queue *pio_queue);
 extern struct io_req *alloc_ioreq(struct io_queue *pio_q);
 
@@ -334,6 +323,7 @@ extern u32 _rtw_read32(_adapter *adapter, u32 addr);
 extern void _rtw_read_mem(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 extern void _rtw_read_port(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 extern void _rtw_read_port_cancel(_adapter *adapter);
+
 
 extern int _rtw_write8(_adapter *adapter, u32 addr, u8 val);
 extern int _rtw_write16(_adapter *adapter, u32 addr, u16 val);
@@ -362,12 +352,13 @@ u32 _rtw_write_port_and_wait(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem, int
 extern void _rtw_write_port_cancel(_adapter *adapter);
 
 #ifdef DBG_IO
-struct rtw_io_sniff_ent;
-const char *rtw_io_sniff_ent_get_tag(const struct rtw_io_sniff_ent *ent);
-const struct rtw_io_sniff_ent *match_read_sniff(_adapter *adapter, u32 addr, u16 len, u32 val);
-const struct rtw_io_sniff_ent *match_write_sniff(_adapter *adapter, u32 addr, u16 len, u32 val);
+u32 match_read_sniff(_adapter *adapter, u32 addr, u16 len, u32 val);
+u32 match_write_sniff(_adapter *adapter, u32 addr, u16 len, u32 val);
 bool match_rf_read_sniff_ranges(_adapter *adapter, u8 path, u32 addr, u32 mask);
 bool match_rf_write_sniff_ranges(_adapter *adapter, u8 path, u32 addr, u32 mask);
+
+void dbg_rtw_reg_read_monitor(_adapter *adapter, u32 addr, u32 len, u32 val, const char *caller, const int line);
+void dbg_rtw_reg_write_monitor(_adapter *adapter, u32 addr, u32 len, u32 val, const char *caller, const int line);
 
 extern u8 dbg_rtw_read8(_adapter *adapter, u32 addr, const char *caller, const int line);
 extern u16 dbg_rtw_read16(_adapter *adapter, u32 addr, const char *caller, const int line);
@@ -469,6 +460,7 @@ extern void ioreq_write8(_adapter *adapter, u32 addr, u8 val);
 extern void ioreq_write16(_adapter *adapter, u32 addr, u16 val);
 extern void ioreq_write32(_adapter *adapter, u32 addr, u32 val);
 
+
 extern uint async_read8(_adapter *adapter, u32 addr, u8 *pbuff,
 	void (*_async_io_callback)(_adapter *padater, struct io_req *pio_req, u8 *cnxt), u8 *cnxt);
 extern uint async_read16(_adapter *adapter, u32 addr,  u8 *pbuff,
@@ -489,14 +481,15 @@ extern void async_write32(_adapter *adapter, u32 addr, u32 val,
 extern void async_write_mem(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 extern void async_write_port(_adapter *adapter, u32 addr, u32 cnt, u8 *pmem);
 
+
 int rtw_init_io_priv(_adapter *padapter, void (*set_intf_ops)(_adapter *padapter, struct _io_ops *pops));
+
 
 extern uint alloc_io_queue(_adapter *adapter);
 extern void free_io_queue(_adapter *adapter);
 extern void async_bus_io(struct io_queue *pio_q);
 extern void bus_sync_io(struct io_queue *pio_q);
 extern u32 _ioreq2rwmem(struct io_queue *pio_q);
-extern void dev_power_down(_adapter *Adapter, u8 bpwrup);
 
 /*
 #define RTL_R8(reg)		rtw_read8(padapter, reg)

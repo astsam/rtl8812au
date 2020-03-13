@@ -34,11 +34,14 @@
 #define WPA_KEY_MGMT_IEEE8021X_NO_WPA BIT(3)
 #define WPA_KEY_MGMT_WPA_NONE BIT(4)
 
+
 #define WPA_CAPABILITY_PREAUTH BIT(0)
 #define WPA_CAPABILITY_MGMT_FRAME_PROTECTION BIT(6)
 #define WPA_CAPABILITY_PEERKEY_ENABLED BIT(9)
 
+
 #define PMKID_LEN 16
+
 
 #ifdef PLATFORM_LINUX
 struct wpa_ie_hdr {
@@ -55,7 +58,7 @@ struct rsn_ie_hdr {
 } __attribute__((packed));
 
 struct wme_ac_parameter {
-#if defined(__LITTLE_ENDIAN)
+#if defined(CONFIG_LITTLE_ENDIAN)
 	/* byte 1 */
 	u8	aifsn:4,
 	     acm:1,
@@ -65,7 +68,7 @@ struct wme_ac_parameter {
 	/* byte 2 */
 	u8	eCWmin:4,
 	     eCWmax:4;
-#else
+#elif defined(CONFIG_BIG_ENDIAN)
 	/* byte 1 */
 	u8	reserved:1,
 	     aci:2,
@@ -75,6 +78,8 @@ struct wme_ac_parameter {
 	/* byte 2 */
 	u8	eCWmax:4,
 	     eCWmin:4;
+#else
+#error	"Please fix <endian.h>"
 #endif
 
 	/* bytes 3 & 4 */
@@ -119,6 +124,8 @@ struct wme_parameter_element {
 
 #define RSN_SELECTOR_PUT(a, val) WPA_PUT_BE32((u8 *) (a), (val))
 /* #define RSN_SELECTOR_PUT(a, val) WPA_PUT_LE32((u8 *) (a), (val)) */
+
+
 
 /* Action category code */
 enum ieee80211_category {
@@ -299,5 +306,7 @@ struct ieee80211_mgmt {
 
 /* mgmt header + 1 byte category code */
 #define IEEE80211_MIN_ACTION_SIZE FIELD_OFFSET(struct ieee80211_mgmt, u.action.u)
+
+
 
 #endif

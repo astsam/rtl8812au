@@ -16,8 +16,8 @@
 
 #include <drv_types.h>
 
-#define RTW_DOMAIN_MAP_VER	"37e"
-#define RTW_COUNTRY_MAP_VER	"22"
+#define RTW_DOMAIN_MAP_VER	"41e"
+#define RTW_COUNTRY_MAP_VER	"24"
 
 #ifdef LEGACY_CHANNEL_PLAN_REF
 /********************************************************
@@ -125,6 +125,12 @@ enum rtw_rd_5g {
 	RTW_RD_5G_WORLD1 = 55,	/* 5G Worldwide Band1&2 */
 	RTW_RD_5G_CHILE2 = 56,	/* Chile (Band2,Band3) */
 	RTW_RD_5G_KCC2 = 57,	/* Korea (New standard) */
+	RTW_RD_5G_KCC3 = 58,	/* Korea (2018 Dec 05 New standard, include ch144) */
+	RTW_RD_5G_MKK6 = 59,	/* Japan */
+	RTW_RD_5G_MKK7 = 60,	/* Japan */
+	RTW_RD_5G_MKK8 = 61,	/* Japan */
+	RTW_RD_5G_MEX1 = 62,	/* Mexico */
+	RTW_RD_5G_ETSI22 = 63,	/* Europe */
 
 	/* === Below are driver defined for legacy channel plan compatible, DON'T assign index ==== */
 	RTW_RD_5G_OLD_FCC1,
@@ -234,6 +240,12 @@ static struct ch_list_t RTW_ChannelPlan5G[] = {
 	/* 55, RTW_RD_5G_WORLD1 */	CH_LIST_ENT(8, 36, 40, 44, 48, 52, 56, 60, 64),
 	/* 56, RTW_RD_5G_CHILE2 */	CH_LIST_ENT(16, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144),
 	/* 57, RTW_RD_5G_KCC2 */	CH_LIST_ENT(24, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 149, 153, 157, 161, 165),
+	/* 58, RTW_RD_5G_KCC3 */	CH_LIST_ENT(25, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 144, 149, 153, 157, 161, 165),
+	/* 59, RTW_RD_5G_MKK6 */	CH_LIST_ENT(21, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 149, 153, 157, 161, 165),
+	/* 60, RTW_RD_5G_MKK7 */	CH_LIST_ENT(21, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 132, 136, 140, 149, 153, 157, 161, 165),
+	/* 61, RTW_RD_5G_MKK8 */	CH_LIST_ENT(23, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 136, 140, 149, 153, 157, 161, 165),
+	/* 62, RTW_RD_5G_MEX1 */	CH_LIST_ENT(21, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 132, 136, 140, 149, 153, 157, 161, 165),
+	/* 63, RTW_RD_5G_ETSI22 */	CH_LIST_ENT(24, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 120, 124, 128, 132, 136, 140, 149, 153, 157, 161, 165),
 
 	/* === Below are driver defined for legacy channel plan compatible, NO static index assigned ==== */
 	/* RTW_RD_5G_OLD_FCC1 */	CH_LIST_ENT(20, 36, 40, 44, 48, 52, 56, 60, 64, 100, 104, 108, 112, 116, 136, 140, 149, 153, 157, 161, 165),
@@ -321,10 +333,10 @@ static struct chplan_ent_t RTW_ChannelPlanMap[RTW_CHPLAN_MAX] = {
 	CHPLAN_ENT(RTW_RD_2G_WORLD,		RTW_RD_5G_ETSI7,	TXPWR_LMT_ETSI),	/* 0x48, RTW_CHPLAN_WORLD_ETSI7 */
 	CHPLAN_ENT(RTW_RD_2G_WORLD,		RTW_RD_5G_ETSI8,	TXPWR_LMT_ETSI),	/* 0x49, RTW_CHPLAN_WORLD_ETSI8 */
 	CHPLAN_ENT(RTW_RD_2G_IC2,		RTW_RD_5G_IC2,		TXPWR_LMT_IC),		/* 0x4A, RTW_CHPLAN_IC2_IC2 */
-	CHPLAN_ENT(RTW_RD_2G_NULL,		RTW_RD_5G_NULL,		TXPWR_LMT_WW),		/* 0x4B, */
-	CHPLAN_ENT(RTW_RD_2G_NULL,		RTW_RD_5G_NULL,		TXPWR_LMT_WW),		/* 0x4C, */
-	CHPLAN_ENT(RTW_RD_2G_NULL,		RTW_RD_5G_NULL,		TXPWR_LMT_WW),		/* 0x4D, */
-	CHPLAN_ENT(RTW_RD_2G_NULL,		RTW_RD_5G_NULL,		TXPWR_LMT_WW),		/* 0x4E, */
+	CHPLAN_ENT(RTW_RD_2G_KCC1,		RTW_RD_5G_KCC3,		TXPWR_LMT_KCC),		/* 0x4B, RTW_CHPLAN_KCC1_KCC3 */
+	CHPLAN_ENT(RTW_RD_2G_FCC1,		RTW_RD_5G_FCC15,	TXPWR_LMT_FCC),		/* 0x4C, RTW_CHPLAN_FCC1_FCC15 */
+	CHPLAN_ENT(RTW_RD_2G_FCC2,		RTW_RD_5G_MEX1,		TXPWR_LMT_MEXICO),	/* 0x4D, RTW_CHPLAN_FCC2_MEX1 */
+	CHPLAN_ENT(RTW_RD_2G_ETSI1,		RTW_RD_5G_ETSI22,	TXPWR_LMT_ETSI),	/* 0x4E, RTW_CHPLAN_ETSI1_ETSI22 */
 	CHPLAN_ENT(RTW_RD_2G_NULL,		RTW_RD_5G_NULL,		TXPWR_LMT_WW),		/* 0x4F, */
 	CHPLAN_ENT(RTW_RD_2G_WORLD,		RTW_RD_5G_ETSI9,	TXPWR_LMT_ETSI),	/* 0x50, RTW_CHPLAN_WORLD_ETSI9 */
 	CHPLAN_ENT(RTW_RD_2G_WORLD,		RTW_RD_5G_ETSI10,	TXPWR_LMT_ETSI),	/* 0x51, RTW_CHPLAN_WORLD_ETSI10 */
@@ -428,6 +440,9 @@ inline static u8 rtw_rd_5g_band1_passive(u8 rtw_rd_5g)
 	case RTW_RD_5G_ETSI19:
 	case RTW_RD_5G_WORLD:
 	case RTW_RD_5G_WORLD1:
+	case RTW_RD_5G_MKK6:
+	case RTW_RD_5G_MKK7:
+	case RTW_RD_5G_ETSI22:
 		passive = 1;
 	};
 
@@ -444,6 +459,8 @@ inline static u8 rtw_rd_5g_band4_passive(u8 rtw_rd_5g)
 	case RTW_RD_5G_ETSI18:
 	case RTW_RD_5G_ETSI19:
 	case RTW_RD_5G_WORLD:
+	case RTW_RD_5G_MKK8:
+	case RTW_RD_5G_ETSI22:
 		passive = 1;
 	};
 
@@ -944,7 +961,7 @@ static const struct country_chplan country_chplan_map[] = {
 	COUNTRY_CHPLAN_ENT("KI", 0x26, 1, 0x000), /* Kiribati */
 	COUNTRY_CHPLAN_ENT("KM", 0x26, 1, 0x000), /* Comoros */
 	COUNTRY_CHPLAN_ENT("KN", 0x76, 1, 0x000), /* Saint Kitts and Nevis */
-	COUNTRY_CHPLAN_ENT("KR", 0x3E, 1, 0x7FB), /* South Korea */
+	COUNTRY_CHPLAN_ENT("KR", 0x4B, 1, 0x7FB), /* South Korea */
 	COUNTRY_CHPLAN_ENT("KW", 0x47, 1, 0x7FB), /* Kuwait */
 	COUNTRY_CHPLAN_ENT("KY", 0x76, 1, 0x000), /* Cayman Islands (UK) */
 	COUNTRY_CHPLAN_ENT("KZ", 0x26, 1, 0x700), /* Kazakhstan */
@@ -979,7 +996,7 @@ static const struct country_chplan country_chplan_map[] = {
 	COUNTRY_CHPLAN_ENT("MU", 0x26, 1, 0x6B0), /* Mauritius */
 	COUNTRY_CHPLAN_ENT("MV", 0x47, 1, 0x000), /* Maldives */
 	COUNTRY_CHPLAN_ENT("MW", 0x26, 1, 0x6B0), /* Malawi */
-	COUNTRY_CHPLAN_ENT("MX", 0x61, 1, 0x7F1), /* Mexico */
+	COUNTRY_CHPLAN_ENT("MX", 0x4D, 1, 0x7F1), /* Mexico */
 	COUNTRY_CHPLAN_ENT("MY", 0x63, 1, 0x7F1), /* Malaysia */
 	COUNTRY_CHPLAN_ENT("MZ", 0x26, 1, 0x7F1), /* Mozambique */
 	COUNTRY_CHPLAN_ENT("NA", 0x26, 1, 0x700), /* Namibia */

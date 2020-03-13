@@ -61,10 +61,6 @@ typedef struct _ADAPTER _adapter, ADAPTER, *PADAPTER;
 	#include <rtw_vht.h>
 #endif
 
-#ifdef CONFIG_INTEL_WIDI
-	#include <rtw_intel_widi.h>
-#endif
-
 #include <rtw_cmd.h>
 #include <cmd_osdep.h>
 #include <rtw_security.h>
@@ -188,7 +184,17 @@ struct registry_priv {
 	u8	power_mgnt;
 	u8	ips_mode;
 	u8	lps_level;
+#ifdef CONFIG_LPS_1T1R
+	u8	lps_1t1r;
+#endif
 	u8	lps_chk_by_tp;
+#ifdef CONFIG_WOWLAN
+	u8	wow_power_mgnt;
+	u8	wow_lps_level;
+	#ifdef CONFIG_LPS_1T1R
+	u8	wow_lps_1t1r;
+	#endif
+#endif /* CONFIG_WOWLAN */
 	u8	smart_ps;
 #ifdef CONFIG_WMMPS_STA
 	u8	wmm_smart_ps;
@@ -210,7 +216,10 @@ struct registry_priv {
 #ifdef CONFIG_TX_EARLY_MODE
 	u8   early_mode;
 #endif
-#ifdef CONFIG_SW_LED
+#ifdef CONFIG_NARROWBAND_SUPPORTING
+	u8	rtw_nb_config;
+#endif
+#ifdef CONFIG_RTW_SW_LED
 	u8   led_ctrl;
 #endif
 	u8	acm_method;
@@ -224,6 +233,11 @@ struct registry_priv {
 #endif /* CONFIG_WMMPS_STA */
 
 	WLAN_BSSID_EX    dev_network;
+
+#if CONFIG_TX_AC_LIFETIME
+	u8 tx_aclt_flags;
+	struct tx_aclt_conf_t tx_aclt_confs[TX_ACLT_CONF_NUM];
+#endif
 
 	u8 tx_bw_mode;
 #ifdef CONFIG_AP_MODE
@@ -250,6 +264,12 @@ struct registry_priv {
 	u8	ldpc_cap;
 	/* BIT0: Enable VHT STBC Rx, BIT1: Enable VHT STBC Tx, BIT4: Enable HT STBC Rx, BIT5: Enable HT STBC Tx */
 	u8	stbc_cap;
+	#if defined(CONFIG_RTW_TX_NPATH_EN)
+	u8	tx_npath;
+	#endif
+	#if defined(CONFIG_RTW_PATH_DIV)
+	u8 path_div;
+	#endif
 	/*
 	 * BIT0: Enable VHT SU Beamformer
 	 * BIT1: Enable VHT SU Beamformee
@@ -271,11 +291,14 @@ struct registry_priv {
 
 	u8	lowrate_two_xmit;
 
-	u8	rf_config ;
 	u8	low_power ;
 
 	u8	wifi_spec;/* !turbo_mode */
-	u8	special_rf_path; /* 0: 2T2R ,1: only turn on path A 1T1R */
+
+	u8 rf_path; /*rf_config*/
+	u8 tx_nss;
+	u8 rx_nss;
+
 	char alpha2[2];
 	u8	channel_plan;
 	u8	excl_chs[MAX_CHANNEL_NUM];
@@ -353,6 +376,10 @@ struct registry_priv {
 	u8  check_fw_ps;
 	u8	RegPwrTrimEnable;
 
+#ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
+	u8	load_phy_file;
+	u8	RegDecryptCustomFile;
+#endif
 #ifdef CONFIG_CONCURRENT_MODE
 	u8 virtual_iface_num;
 #endif
@@ -366,6 +393,7 @@ struct registry_priv {
 
 	u8 boffefusemask;
 	BOOLEAN bFileMaskEfuse;
+	BOOLEAN bBTFileMaskEfuse;
 #ifdef CONFIG_RTW_ACS
 	u8 acs_auto_scan;
 	u8 acs_mode;
@@ -395,6 +423,7 @@ struct registry_priv {
 	s8 rtw_mcc_policy_table_idx;
 	u8 rtw_mcc_duration;
 	u8 rtw_mcc_enable_runtime_duration;
+	u8 rtw_mcc_phydm_offload;
 #endif /* CONFIG_MCC_MODE */
 
 #ifdef CONFIG_RTW_NAPI
@@ -417,7 +446,11 @@ struct registry_priv {
 #endif
 	u8 check_hw_status;
 	u8 wowlan_sta_mix_mode;
+
+#ifdef CONFIG_PCI_HCI
 	u32 pci_aspm_config;
+	u32 pci_dynamic_aspm_linkctrl;
+#endif
 
 	u8 iqk_fw_offload;
 	u8 ch_switch_offload;
@@ -447,15 +480,20 @@ struct registry_priv {
 #ifdef DBG_LA_MODE
 	u8 la_mode_en;
 #endif
+	u32 phydm_ability;
+	u32 halrf_ability;
 #ifdef CONFIG_TDMADIG
 	u8 tdmadig_en;
 	u8 tdmadig_mode;
 	u8 tdmadig_dynamic;
 #endif/*CONFIG_TDMADIG*/
+#ifdef CONFIG_RTW_MESH
+	u8 peer_alive_based_preq;
+#endif
 };
 
 /* For registry parameters */
-#define RGTRY_OFT(field) ((ULONG)FIELD_OFFSET(struct registry_priv, field))
+#define RGTRY_OFT(field) ((u32)FIELD_OFFSET(struct registry_priv, field))
 #define RGTRY_SZ(field)   sizeof(((struct registry_priv *) 0)->field)
 
 #define GetRegAmplifierType2G(_Adapter)	(_Adapter->registrypriv.AmplifierType_2G)
@@ -470,7 +508,7 @@ struct registry_priv {
 #define GetRegPowerTrackingType(_Adapter)	(_Adapter->registrypriv.PowerTracking_Type)
 
 #define WOWLAN_IS_STA_MIX_MODE(_Adapter)	(_Adapter->registrypriv.wowlan_sta_mix_mode)
-#define BSSID_OFT(field) ((ULONG)FIELD_OFFSET(WLAN_BSSID_EX, field))
+#define BSSID_OFT(field) ((u32)FIELD_OFFSET(WLAN_BSSID_EX, field))
 #define BSSID_SZ(field)   sizeof(((PWLAN_BSSID_EX) 0)->field)
 
 #define BW_MODE_2G(bw_mode) ((bw_mode) & 0x0F)
@@ -506,14 +544,14 @@ typedef struct rtw_if_operations {
 	#include <drv_types_pci.h>
 #endif
 
+#define get_hw_port(adapter) (adapter->hw_port)
+
 #ifdef CONFIG_CONCURRENT_MODE
 	#define is_primary_adapter(adapter) (adapter->adapter_type == PRIMARY_ADAPTER)
 	#define is_vir_adapter(adapter) (adapter->adapter_type == VIRTUAL_ADAPTER)
-	#define get_hw_port(adapter) (adapter->hw_port)
 #else
 	#define is_primary_adapter(adapter) (1)
 	#define is_vir_adapter(adapter) (0)
-	#define get_hw_port(adapter) (HW_PORT0)
 #endif
 #define GET_PRIMARY_ADAPTER(padapter) (((_adapter *)padapter)->dvobj->padapters[IFACE_ID0])
 #define GET_IFACE_NUMS(padapter) (((_adapter *)padapter)->dvobj->iface_nums)
@@ -675,7 +713,7 @@ struct debug_priv {
 	u32 dbg_carddisable_cnt;
 	u32 dbg_carddisable_error_cnt;
 	u32 dbg_ps_insuspend_cnt;
-	u32 dbg_dev_unload_inIPS_cnt;
+	u32	dbg_dev_unload_inIPS_cnt;
 	u32 dbg_wow_leave_ps_fail_cnt;
 	u32 dbg_scan_pwr_state_cnt;
 	u32 dbg_downloadfw_pwr_state_cnt;
@@ -793,10 +831,15 @@ struct macid_ctl_t {
 	u8 vht_en[MACID_NUM_SW_LIMIT];
 	u32 rate_bmp0[MACID_NUM_SW_LIMIT];
 	u32 rate_bmp1[MACID_NUM_SW_LIMIT];
+	u8 op_num[H2C_MSR_ROLE_MAX]; /* number of macid having h2c_msr's OPMODE = 1 for specific ROLE */
 
 	struct sta_info *sta[MACID_NUM_SW_LIMIT]; /* corresponding stainfo when macid is not shared */
 
 	/* macid sleep registers */
+#ifdef CONFIG_PROTSEL_MACSLEEP
+	u16 reg_sleep_ctrl;
+	u16 reg_sleep_info;
+#else
 	u16 reg_sleep_m0;
 #if (MACID_NUM_SW_LIMIT > 32)
 	u16 reg_sleep_m1;
@@ -806,6 +849,7 @@ struct macid_ctl_t {
 #endif
 #if (MACID_NUM_SW_LIMIT > 96)
 	u16 reg_sleep_m3;
+#endif
 #endif
 };
 
@@ -832,15 +876,18 @@ struct macid_ctl_t {
 #define RATE_BMP_GET_HT_4SS(_bmp_ht)		((_bmp_ht & RATE_BMP_HT_4SS) >> 24)
 
 /* used for rf_ctl_t.rate_bmp_vht_by_bw */
-#define RATE_BMP_VHT_1SS	0x000003FF
-#define RATE_BMP_VHT_2SS	0x000FFC00
-#define RATE_BMP_VHT_3SS	0x3FF00000
+#define RATE_BMP_VHT_1SS	0x00000003FF
+#define RATE_BMP_VHT_2SS	0x00000FFC00
+#define RATE_BMP_VHT_3SS	0x003FF00000
+#define RATE_BMP_VHT_4SS	0xFFC0000000
 #define RATE_BMP_HAS_VHT_1SS(_bmp_vht)		(_bmp_vht & RATE_BMP_VHT_1SS)
 #define RATE_BMP_HAS_VHT_2SS(_bmp_vht)		(_bmp_vht & RATE_BMP_VHT_2SS)
 #define RATE_BMP_HAS_VHT_3SS(_bmp_vht)		(_bmp_vht & RATE_BMP_VHT_3SS)
-#define RATE_BMP_GET_VHT_1SS(_bmp_vht)		(_bmp_vht & RATE_BMP_VHT_1SS)
-#define RATE_BMP_GET_VHT_2SS(_bmp_vht)		((_bmp_vht & RATE_BMP_VHT_2SS) >> 10)
-#define RATE_BMP_GET_VHT_3SS(_bmp_vht)		((_bmp_vht & RATE_BMP_VHT_3SS) >> 20)
+#define RATE_BMP_HAS_VHT_4SS(_bmp_vht)		(_bmp_vht & RATE_BMP_VHT_4SS)
+#define RATE_BMP_GET_VHT_1SS(_bmp_vht)		((u16)(_bmp_vht & RATE_BMP_VHT_1SS))
+#define RATE_BMP_GET_VHT_2SS(_bmp_vht)		((u16)((_bmp_vht & RATE_BMP_VHT_2SS) >> 10))
+#define RATE_BMP_GET_VHT_3SS(_bmp_vht)		((u16)((_bmp_vht & RATE_BMP_VHT_3SS) >> 20))
+#define RATE_BMP_GET_VHT_4SS(_bmp_vht)		((u16)((_bmp_vht & RATE_BMP_VHT_4SS) >> 30))
 
 #define TXPWR_LMT_REF_VHT_FROM_HT	BIT0
 #define TXPWR_LMT_REF_HT_FROM_VHT	BIT1
@@ -872,13 +919,12 @@ struct rf_ctl_t {
 	/* used for debug or by tx power limit */
 	u16 rate_bmp_cck_ofdm;		/* 20MHz */
 	u32 rate_bmp_ht_by_bw[2];	/* 20MHz, 40MHz. 4SS supported */
-	u32 rate_bmp_vht_by_bw[4];	/* 20MHz, 40MHz, 80MHz, 160MHz. up to 3SS supported */
+	u64 rate_bmp_vht_by_bw[4];	/* 20MHz, 40MHz, 80MHz, 160MHz. 4SS supported */
 
-	/* used by tx power limit */
+#if CONFIG_TXPWR_LIMIT
 	u8 highest_ht_rate_bw_bmp;
 	u8 highest_vht_rate_bw_bmp;
 
-#if CONFIG_TXPWR_LIMIT
 	_mutex txpwr_lmt_mutex;
 	_list reg_exc_list;
 	u8 regd_exc_num;
@@ -996,6 +1042,24 @@ struct tsf_info {
 };
 #endif
 
+struct protsel {
+	_mutex mutex;		/* protect this structure */
+	ATOMIC_T refcnt;	/* reference count */
+	u32 sel;		/* save the last sel port */
+};
+
+#ifdef CONFIG_RTL8814B
+#define MAX_BULKOUT_NUM 7
+#ifdef CONFIG_USB_HCI
+#define MAX_ENDPOINT_NUM 8
+#endif
+#else
+#define MAX_BULKOUT_NUM 4
+#ifdef CONFIG_USB_HCI
+#define MAX_ENDPOINT_NUM 6
+#endif
+#endif
+
 struct dvobj_priv {
 	/*-------- below is common data --------*/
 	u8	chip_type;
@@ -1011,6 +1075,8 @@ struct dvobj_priv {
 
 	_mutex hw_init_mutex;
 	_mutex h2c_fwcmd_mutex;
+
+	_mutex ioctrl_mutex;
 
 #ifdef CONFIG_RTW_CUSTOMER_STR
 	_mutex customer_str_mutex;
@@ -1073,13 +1139,15 @@ struct dvobj_priv {
 
 	struct rf_ctl_t rf_ctl;
 
-	/* For 92D, DMDP have 2 interface. */
-	u8	InterfaceNumber;
-	u8	NumInterfaces;
+#if CONFIG_TX_AC_LIFETIME
+	struct tx_aclt_conf_t tx_aclt_force_val;
+	u8 tx_aclt_flags;
+	struct tx_aclt_conf_t tx_aclt_confs[TX_ACLT_CONF_NUM];
+#endif
 
 	/* In /Out Pipe information */
 	int	RtInPipe[2];
-	int	RtOutPipe[4];
+	int	RtOutPipe[MAX_BULKOUT_NUM];
 	u8	Queue2Pipe[HW_QUEUE_ENTRY];/* for out pipe mapping */
 
 	u8	irq_alloc;
@@ -1106,7 +1174,7 @@ struct dvobj_priv {
 	_timer txbcn_timer;
 #endif
 	_timer dynamic_chk_timer; /* dynamic/periodic check timer */
-
+	
 #ifdef CONFIG_RTW_NAPI_DYNAMIC
 	u8 en_napi_dynamic;
 #endif /* CONFIG_RTW_NAPI_DYNAMIC */
@@ -1142,7 +1210,7 @@ struct dvobj_priv {
 	u8	nr_endpoint;
 	u8	RtNumInPipes;
 	u8	RtNumOutPipes;
-	int	ep_num[6]; /* endpoint number */
+	int	ep_num[MAX_ENDPOINT_NUM]; /* endpoint number */
 
 	int	RegUsbSS;
 
@@ -1161,6 +1229,11 @@ struct dvobj_priv {
 	struct usb_interface *pusbintf;
 	struct usb_device *pusbdev;
 #endif/* PLATFORM_LINUX */
+
+#ifdef PLATFORM_FREEBSD
+	struct usb_interface *pusbintf;
+	struct usb_device *pusbdev;
+#endif/* PLATFORM_FREEBSD */
 
 #endif/* CONFIG_USB_HCI */
 
@@ -1198,17 +1271,6 @@ struct dvobj_priv {
 	RT_ISR_CONTENT	isr_content;
 	_lock	irq_th_lock;
 
-	/* ASPM */
-	u8	const_pci_aspm;
-	u8	const_amdpci_aspm;
-	u8	const_hwsw_rfoff_d3;
-	u8	const_support_pciaspm;
-	/* pci-e bridge */
-	u8	const_hostpci_aspm_setting;
-	/* pci-e device */
-	u8	const_devicepci_aspm_setting;
-	u8	b_support_aspm; /* If it supports ASPM, Offset[560h] = 0x40, otherwise Offset[560h] = 0x00. */
-	u8	b_support_backdoor;
 	u8	bdma64;
 #endif/* PLATFORM_LINUX */
 
@@ -1222,10 +1284,20 @@ struct dvobj_priv {
 	u8 tpt_mode; /* RTK T/P Testing Mode, 0:default mode */
 	u32 edca_be_ul;
 	u32 edca_be_dl;
-#endif
-	/* also for RTK T/P Testing Mode */
+#endif 
+	/* also for RTK T/P Testing Mode */ 
 	u8 scan_deny;
 
+	/* protect sel to safely access */
+#ifdef CONFIG_PROTSEL_PORT
+	struct protsel protsel_port;
+#endif
+#ifdef CONFIG_PROTSEL_ATIMDTIM
+	struct protsel protsel_atimdtim;
+#endif
+#ifdef CONFIG_PROTSEL_MACSLEEP
+	struct protsel protsel_macsleep;
+#endif
 };
 
 #define DEV_STA_NUM(_dvobj)			MSTATE_STA_NUM(&((_dvobj)->iface_state))
@@ -1348,18 +1420,6 @@ enum _NAPI_STATE {
 };
 #endif
 
-#ifdef CONFIG_INTEL_PROXIM
-struct proxim {
-	bool proxim_support;
-	bool proxim_on;
-
-	void *proximity_priv;
-	int (*proxim_rx)(_adapter *padapter,
-			 union recv_frame *precv_frame);
-	u8(*proxim_get_var)(_adapter *padapter, u8 type);
-};
-#endif /* CONFIG_INTEL_PROXIM */
-
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
 typedef struct loopbackdata {
 	_sema	sema;
@@ -1454,7 +1514,7 @@ struct _ADAPTER {
 
 	ERROR_CODE		LastError; /* <20130613, Kordan> Only the functions associated with MP records the error code by now. */
 
-	PVOID			HalData;
+	void *HalData;
 	u32 hal_data_sz;
 	struct hal_ops	hal_func;
 
@@ -1484,10 +1544,6 @@ struct _ADAPTER {
 	_thread_hdl_ recvThread;
 #endif
 	u8 registered;
-#ifndef PLATFORM_LINUX
-	NDIS_STATUS(*dvobj_init)(struct dvobj_priv *dvobj);
-	void (*dvobj_deinit)(struct dvobj_priv *dvobj);
-#endif
 
 	void (*intf_start)(_adapter *adapter);
 	void (*intf_stop)(_adapter *adapter);
@@ -1527,6 +1583,11 @@ struct _ADAPTER {
 
 #endif /* PLATFORM_LINUX */
 
+#ifdef PLATFORM_FREEBSD
+	_nic_hdl pifp;
+	int bup;
+	_lock glock;
+#endif /* PLATFORM_FREEBSD */
 	u8 mac_addr[ETH_ALEN];
 	int net_closed;
 
@@ -1577,13 +1638,6 @@ struct _ADAPTER {
 
 	struct br_ext_info		ethBrExtInfo;
 #endif /* CONFIG_BR_EXT */
-
-#ifdef CONFIG_INTEL_PROXIM
-	/* intel Proximity, should be alloc mem
-	 * in intel Proximity module and can only
-	 * be used in intel Proximity mode */
-	struct proxim proximity;
-#endif /* CONFIG_INTEL_PROXIM */
 
 #ifdef CONFIG_MAC_LOOPBACK_DRIVER
 	PLOOPBACKDATA ploopback;
@@ -1697,8 +1751,7 @@ static inline void rtw_clr_drv_stopped(_adapter *padapter)
 
 /*
  * Function disabled.
- *
-*/
+ *   */
 #define DF_TX_BIT		BIT0			/*write_port_cancel*/
 #define DF_RX_BIT		BIT1			/*read_port_cancel*/
 #define DF_IO_BIT		BIT2

@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of version 2 of the GNU General Public License as
@@ -11,102 +11,71 @@
  * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
  * more details.
  *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
- *
- *
- ******************************************************************************/
+ *****************************************************************************/
 
-#ifndef __HAL_PHY_RF_8814A_H__
-#define __HAL_PHY_RF_8814A_H__
+#ifndef __HALRF_8814A_H__
+#define __HALRF_8814A_H__
 
 /*--------------------------Define Parameters-------------------------------*/
-#define AVG_THERMAL_NUM_8814A	4
-#define RF_T_METER_8814A		0x42
+#define AVG_THERMAL_NUM_8814A 4
+#define RF_T_METER_8814A 0x42
 
 #include "../halphyrf_ce.h"
 
-void configure_txpower_track_8814a(
-	struct txpwrtrack_cfg	*pConfig
-	);
+void configure_txpower_track_8814a(struct txpwrtrack_cfg *config);
 
-VOID
-GetDeltaSwingTable_8814A(
-	IN	PVOID		pDM_VOID,
-	u8* 			*TemperatureUP_A,
-	u8* 			*TemperatureDOWN_A,
-	u8* 			*TemperatureUP_B,
-	u8* 			*TemperatureDOWN_B	
-	);
+void get_delta_swing_table_8814a(void *dm_void, u8 **temperature_up_a,
+				 u8 **temperature_down_a, u8 **temperature_up_b,
+				 u8 **temperature_down_b);
 
-VOID
-GetDeltaSwingTable_8814A_PathCD(
-	IN	PVOID		pDM_VOID,
-	u8* 			*TemperatureUP_C,
-	u8* 			*TemperatureDOWN_C,
-	u8* 			*TemperatureUP_D,
-	u8* 			*TemperatureDOWN_D	
-	);
+void get_delta_swing_table_8814a_path_cd(void *dm_void, u8 **temperature_up_c,
+					 u8 **temperature_down_c,
+					 u8 **temperature_up_d,
+					 u8 **temperature_down_d);
 
-VOID 
-ODM_TxPwrTrackSetPwr8814A(
-	IN	PVOID		pDM_VOID,
-	enum pwrtrack_method 	Method,
-	u8 				RFPath,
-	u8 				ChannelMappedIndex
-	);
+void odm_tx_pwr_track_set_pwr8814a(void *dm_void, enum pwrtrack_method method,
+				   u8 rf_path, u8 channel_mapped_index);
 
+#if 0
 u8
-CheckRFGainOffset(
-	struct dm_struct	*pDM_Odm,
-	enum pwrtrack_method 	Method,
-	u8				RFPath
-	);
-
-VOID
-phy_iq_calibrate_8814a(
-	IN	PVOID		pDM_VOID,
-	boolean		bReCovery
-	);
-
-//
-// LC calibrate
-//
-void	
-phy_lc_calibrate_8814a(
-	IN	PVOID		pDM_VOID
-	);
-
-//
-// AP calibrate
-//
-void	
-PHY_APCalibrate_8814A(		
-#if (DM_ODM_SUPPORT_TYPE & ODM_AP)
-	struct dm_struct	*		pDM_Odm,
-#else
-	IN	PADAPTER	pAdapter,
+check_rf_gain_offset(
+	struct dm_struct			*dm,
+	enum pwrtrack_method			method,
+	u8				rf_path
+);
 #endif
-	IN 	s1Byte		delta
-	);
 
+u8 get_tssivalue(struct dm_struct *dm, enum pwrtrack_method method, u8 rf_path);
 
-VOID	                                                 
-PHY_DPCalibrate_8814A(                                   
-	struct dm_struct	*	pDM_Odm                             
-	);
+boolean
+get_tssi_mode_tx_agc_bb_swing_offset(struct dm_struct *dm,
+				     enum pwrtrack_method method, u8 rf_path,
+				     u32 offset_vaule,
+				     u8 tx_power_index_offest);
 
+boolean
+get_mix_mode_tx_agc_bb_swing_offset(struct dm_struct *dm,
+				    enum pwrtrack_method method, u8 rf_path,
+				    u8 tx_power_index_offest);
 
-VOID phy_set_rf_path_switch_8814a(
+void power_tracking_by_mix_mode(struct dm_struct *dm,
+				enum pwrtrack_method method, u8 rf_path);
+
+void power_tracking_by_tssi_mode(struct dm_struct *dm,
+				 enum pwrtrack_method method, u8 rf_path);
+
+/*
+ * LC calibrate
+ *
+ */
+void phy_lc_calibrate_8814a(void *dm_void);
+
+void phy_set_rf_path_switch_8814a(
 #if ((DM_ODM_SUPPORT_TYPE & ODM_AP) || (DM_ODM_SUPPORT_TYPE == ODM_CE))
-	struct dm_struct	*		pDM_Odm,
+				  struct dm_struct *dm,
 #else
-	IN	PADAPTER	pAdapter,
+				  void *adapter,
 #endif
-	boolean		bMain
-	);
+				  boolean is_main);
 
-								
-#endif	// #ifndef __HAL_PHY_RF_8188E_H__								
-
+#endif /*#ifndef __HALRF_8814A_H__*/
