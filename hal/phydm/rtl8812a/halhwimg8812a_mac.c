@@ -110,6 +110,8 @@ check_positive(
 	} else
 		return false;
 }
+
+/*
 static boolean
 check_negative(
 	struct dm_struct *dm,
@@ -119,6 +121,7 @@ check_negative(
 {
 	return true;
 }
+*/
 
 /******************************************************************************
 *                           mac_reg.TXT

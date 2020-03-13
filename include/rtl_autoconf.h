@@ -34,7 +34,7 @@
 #define PLATFORM_LINUX
 
 
-#define CONFIG_IOCTL_CFG80211 1 //jimmy
+#define CONFIG_IOCTL_CFG80211 1
 
 #ifdef CONFIG_IOCTL_CFG80211
 	/* #define RTW_USE_CFG80211_STA_EVENT */ /* Indecate new sta asoc through cfg80211_new_sta */
@@ -78,7 +78,7 @@
 #define CONFIG_RF_POWER_TRIM
 
 //#define CONFIG_DFS	1
-#define CONFIG_DFS	0 //jimmy
+#define CONFIG_DFS	0
 
  /* #define CONFIG_SUPPORT_USB_INT */
  #ifdef CONFIG_SUPPORT_USB_INT
@@ -93,7 +93,7 @@
 	#endif
 	/* #define SUPPORT_HW_RFOFF_DETECTED	1 */
 
-	#define CONFIG_LPS	1
+	#define CONFIG_LPS	0
 	#if defined(CONFIG_LPS) && defined(CONFIG_SUPPORT_USB_INT)
 	/* #define CONFIG_LPS_LCLK	1 */
 	#endif
@@ -103,8 +103,6 @@
 	#endif
 #endif /*CONFIG_POWER_SAVING*/
 	/*#define CONFIG_ANTENNA_DIVERSITY*/
-
-
 
 	/* #define CONFIG_CONCURRENT_MODE 1 */
 	#ifdef CONFIG_CONCURRENT_MODE
@@ -325,8 +323,6 @@
 /* #define DBG_RX_SEQ */
 /* #define DBG_RX_SIGNAL_DISPLAY_PROCESSING */
 /* #define DBG_RX_SIGNAL_DISPLAY_SSID_MONITORED "jeff-ap" */
-
-
 
 /* #define DBG_SHOW_MCUFWDL_BEFORE_51_ENABLE */
 /* #define DBG_ROAMING_TEST */
