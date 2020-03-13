@@ -128,7 +128,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 
 
 #ifdef CONFIG_USB_RX_AGGREGATION
-	if (pdvobj->chip_type == RTL8812)
+	if (pdvobj->chip_type == RTL8812 || pdvobj->chip_type == RTL8821)
 		pkt_cnt = GET_RX_STATUS_DESC_USB_AGG_PKTNUM_8812(pbuf);
 	else if (pdvobj->chip_type == RTL8814A)
 		pkt_cnt = GET_RX_STATUS_DESC_DMA_AGG_NUM_8814A(pbuf);
@@ -145,7 +145,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 		precvframe->u.hdr.precvbuf = NULL;	/* can't access the precvbuf for new arch. */
 		precvframe->u.hdr.len = 0;
 
-		if (pdvobj->chip_type == RTL8812)
+		if (pdvobj->chip_type == RTL8812 || pdvobj->chip_type == RTL8821)
 			rtl8812_query_rx_desc_status(precvframe, pbuf);
 		else if (pdvobj->chip_type == RTL8814A)
 			rtl8814_query_rx_desc_status(precvframe, pbuf);
@@ -191,7 +191,7 @@ int recvbuf2recvframe(PADAPTER padapter, void *ptr)
 			} else if (pattrib->pkt_rpt_type == HIS_REPORT) {
 				/*RTW_INFO("%s rx USB HISR\n", __func__);*/
 #ifdef CONFIG_SUPPORT_USB_INT
-				if (pdvobj->chip_type == RTL8812)
+				if (pdvobj->chip_type == RTL8812 || pdvobj->chip_type == RTL8821)
 					interrupt_handler_8812au(padapter, pattrib->pkt_len, precvframe->u.hdr.rx_data);
 #endif
 			}
