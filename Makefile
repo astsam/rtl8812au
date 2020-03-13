@@ -103,7 +103,7 @@ CONFIG_PLATFORM_I386_PC = y
 CONFIG_PLATFORM_ANDROID_ARM64 = n
 CONFIG_PLATFORM_ARM_RPI = n
 CONFIG_PLATFORM_ARM64_RPI = n
-CONFIG_PLATFORM_ARM_JET_NANO = n
+CONFIG_PLATFORM_ARM_NV_NANO = n
 CONFIG_PLATFORM_ANDROID_X86 = n
 CONFIG_PLATFORM_ANDROID_INTEL_X86 = n
 CONFIG_PLATFORM_JB_X86 = n
@@ -1237,15 +1237,15 @@ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
 INSTALL_PREFIX :=
 endif
 
-# NVidia Jetson Nano
-ifeq ($(CONFIG_PLATFORM_ARM_JET_NANO), y)
+ifeq ($(CONFIG_PLATFORM_ARM_NV_NANO), y)
 EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
-EXTRA_CFLAGS += -DCONFIG_CONCURRENT_MODE
 EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
 ARCH := arm64
-KVER ?= $(shell uname -r)
-KSRC := /usr/src/linux-headers-$(KVER)-ubuntu18.04_aarch64/kernel-4.9
-MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/realtek/rtl8812au/
+KVER := $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+INSTALL_PREFIX :=
+STAGINGMODDIR := /lib/modules/$(KVER)/kernel/drivers/staging
 endif
 
 ifeq ($(CONFIG_PLATFORM_ARM_ODROIDC2), y)
