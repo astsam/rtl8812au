@@ -1083,7 +1083,7 @@ void *wifi_get_country_code(char *ccode)
 	RTW_INFO("%s\n", __FUNCTION__);
 	if (!ccode)
 		return NULL;
-	if (wifi_control_data && wifi_control_data->get_country_code)
+	if (wifi_control_data && wifi_control_data->get_country_code, 0)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0))
 		return wifi_control_data->get_country_code(ccode, flags);
 #else /* Linux kernel < 3.18 */
