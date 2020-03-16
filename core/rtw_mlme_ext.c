@@ -11332,7 +11332,6 @@ void start_clnt_auth(_adapter *padapter)
 {
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
-	struct wifidirect_info *pwdinfo = &(padapter->wdinfo);
 
 	_cancel_timer_ex(&pmlmeext->link_timer);
 
@@ -16111,7 +16110,7 @@ void rtw_join_done_chk_ch(_adapter *adapter, int join_res)
 
 						rtw_cfg80211_ch_switch_notify(iface
 							, mlmeext->cur_channel, mlmeext->cur_bwmode, mlmeext->cur_ch_offset
-							, ht_option, 0);
+							, ht_option);
 						#endif
 					}
 				}
@@ -16329,7 +16328,7 @@ exit:
 				the bss freq is updated by channel switch event.
 			*/
 			rtw_cfg80211_ch_switch_notify(adapter,
-				cur_ch, cur_bw, cur_ch_offset, ht_option, 1);
+				cur_ch, cur_bw, cur_ch_offset, ht_option);
 		}
 #endif
 	}
