@@ -136,7 +136,6 @@
 	#define CONFIG_FIND_BEST_CHANNEL	1
 #endif
 
-#define CONFIG_P2P	1
 #ifdef CONFIG_P2P
 	/* The CONFIG_WFD is for supporting the Wi-Fi display */
 	#define CONFIG_WFD
