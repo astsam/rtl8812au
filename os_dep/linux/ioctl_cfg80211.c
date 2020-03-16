@@ -3535,6 +3535,18 @@ static int rtw_cfg80211_set_wpa_ie(_adapter *padapter, u8 *pie, size_t ielen)
 			_clr_fwstate_(&padapter->mlmepriv, WIFI_UNDER_WPS);
 	}
 
+	{/* handle owe_ie */
+		uint owe_ielen;
+		u8 *owe_ie;
+
+		owe_ie = rtw_get_owe_ie(buf, ielen, NULL, &owe_ielen);
+		if (owe_ie && owe_ielen > 0) {
+			RTW_INFO("got owe_ie, owe_ielen:%u\n", owe_ielen);
+			padapter->securitypriv.owe_ie_len = owe_ielen < MAX_OWE_IE_LEN ? owe_ielen : MAX_OWE_IE_LEN;
+			_rtw_memcpy(padapter->securitypriv.owe_ie, owe_ie, padapter->securitypriv.owe_ie_len);
+		}
+	}
+
 	#ifdef CONFIG_P2P
 	{/* check p2p_ie for assoc req; */
 		uint p2p_ielen = 0;

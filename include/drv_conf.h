@@ -128,6 +128,9 @@
 	#ifndef CONFIG_WIFI_MONITOR
 		#define CONFIG_WIFI_MONITOR
 	#endif
+	#ifndef CONFIG_MONITOR_MODE_XMIT
+		#define CONFIG_MONITOR_MODE_XMIT
+	#endif
 	#ifdef CONFIG_POWER_SAVING
 		#undef CONFIG_POWER_SAVING
 	#endif
@@ -278,9 +281,9 @@
 	#define CONFIG_TXPWR_BY_RATE_EN 1
 	#define CONFIG_RTW_CUSTOMIZE_BEEDCA		0x0000431C
 	#define CONFIG_RTW_CUSTOMIZE_BWMODE		0x00
-	#define CONFIG_RTW_CUSTOMIZE_RLSTA		0x30
+	#define CONFIG_RTW_CUSTOMIZE_RLSTA		0x7
 #if defined(CONFIG_RTL8192E) || defined(CONFIG_RTL8192F) || defined(CONFIG_RTL8822B)
-	#define CONFIG_RTW_TX_NPATH_EN		/*	mutually incompatible with STBC_TX & Beamformer	*/
+	#define CONFIG_RTW_TX_2PATH_EN		/*	mutually incompatible with STBC_TX & Beamformer	*/
 #endif
 #endif
 /*#define CONFIG_EXTEND_LOWRATE_TXOP			*/
@@ -443,7 +446,7 @@ defined(CONFIG_RTL8723B) || defined(CONFIG_RTL8703B) || defined(CONFIG_RTL8723D)
 	#define CONFIG_IEEE80211_BAND_5GHZ
 #endif
 
-#if defined(CONFIG_WOWLAN) && (defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8822C) || defined(CONFIG_RTL8814B))
+#if defined(CONFIG_WOWLAN) && (defined(CONFIG_RTL8822B) || defined(CONFIG_RTL8821C) || defined(CONFIG_RTL8814A))
 	#define CONFIG_WOW_PATTERN_HW_CAM
 #endif
 
