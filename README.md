@@ -150,6 +150,25 @@ For setting TX power
 ```
 $ sudo iw wlan0 set txpower fixed 3000
 ```
+#### For OpenWrt
+Build as OpenWrt package
+  1. Prepare toolchain, download OpenWrt SDK or full build system. *Additional steps might be needed to make the toolchain ready to use.
+  2. Edit `feeds.conf` if exists or `feeds.conf.default`, append `src-link localfeed $(FULLPATH_TO_THIS_REPO)/openwrt`.
+  3. Update feeds `./scripts/feeds update localfeed` or `./scripts/feeds update -a`.
+  4. Install package `./scripts/feeds install kmod-rtl8812au-ac`.
+  5. Update config `make menuconfig`, navigate to `Kernel Modules -> Wireless Drivers ->`, toggle `kmod-rtl8812au-ac` to `M` or `*`.
+  6. Make.
+
+Please be aware that this will build againt HEAD commit of current branch, not current working directory.
+
+Build as out-of-tree kernel module
+  1. Prepare toolchain.
+  2. Edit `Makefile` to fit your platform. Append `NOSTDINC_FLAGS` from `openwrt/rtl8812au-ac/Makefile` to `EXTRA_CFLAGS`.
+  3. Config environment variable. Add toolchain to `PATH`, set `STAGING_DIR`, etc.
+  4. Make.
+
+Please be aware that currently this driver do not cooperate well with OpenWrt's netifd which delete and then add interface while initializing, thus it will probably not work with OpenWrt's built-in wireless config.
+It is recommended to disable the radio in OpenWrt's config.
 
 ### LED control
 
