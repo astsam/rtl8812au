@@ -167,9 +167,6 @@ Build as out-of-tree kernel module
   3. Config environment variable. Add toolchain to `PATH`, set `STAGING_DIR`, etc.
   4. Make.
 
-Please be aware that currently this driver do not cooperate well with OpenWrt's netifd which delete and then add interface while initializing, thus it will probably not work with OpenWrt's built-in wireless config.
-It is recommended to disable the radio in OpenWrt's config.
-
 ### LED control
 
 #### statically by module parameter in /etc/modprobe.d/8812au.conf or wherever, for example:
