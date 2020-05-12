@@ -186,14 +186,14 @@ HCI_NAME = usb
 endif
 
 ifeq ($(CONFIG_RTL8812A)_$(CONFIG_RTL8821A)_$(CONFIG_RTL8814A), y_y_y)
-
-EXTRA_CFLAGS += -DDRV_NAME=\"88XXau\"
+USER_DRV_NAME ?= 88XXau
 ifeq ($(CONFIG_USB_HCI), y)
-USER_MODULE_NAME = 88XXau
+USER_MODULE_NAME ?= 88XXau
 endif
 else
-EXTRA_CFLAGS += -DDRV_NAME=\"rtl8812au\"
+USER_DRV_NAME ?= rtl8812au
 endif
+EXTRA_CFLAGS += -DDRV_NAME=\"$(USER_DRV_NAME)\"
 
 _OS_INTFS_FILES :=	os_dep/osdep_service.o \
 			os_dep/linux/os_intfs.o \
