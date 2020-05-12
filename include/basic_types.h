@@ -15,7 +15,6 @@
 #ifndef __BASIC_TYPES_H__
 #define __BASIC_TYPES_H__
 
-
 #define SUCCESS	0
 #define FAIL	(-1)
 
@@ -30,45 +29,6 @@
 #else
 	#define _FALSE	FALSE
 #endif
-
-#ifdef PLATFORM_WINDOWS
-
-	typedef signed char s8;
-	typedef unsigned char u8;
-
-	typedef signed short s16;
-	typedef unsigned short u16;
-
-	typedef signed long s32;
-	typedef unsigned long u32;
-
-	typedef unsigned int	uint;
-	typedef	signed int		sint;
-
-
-	typedef signed long long s64;
-	typedef unsigned long long u64;
-
-	#ifdef NDIS50_MINIPORT
-
-		#define NDIS_MAJOR_VERSION       5
-		#define NDIS_MINOR_VERSION       0
-
-	#endif
-
-	#ifdef NDIS51_MINIPORT
-
-		#define NDIS_MAJOR_VERSION       5
-		#define NDIS_MINOR_VERSION       1
-
-	#endif
-
-	typedef NDIS_PROC proc_t;
-
-	typedef LONG atomic_t;
-
-#endif
-
 
 #ifdef PLATFORM_LINUX
 	#include <linux/version.h>
@@ -101,7 +61,6 @@ enum {
 
 #define NDIS_OID uint
 #endif /*PLATFORM_LINUX*/
-
 
 #ifdef PLATFORM_FREEBSD
 

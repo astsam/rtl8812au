@@ -32,7 +32,6 @@
 	typedef unsigned long long	__u64;
 #endif
 
-
 __inline static __u16  ___swab16(__u16 x)
 {
 	__u16 __x = x;
@@ -94,7 +93,6 @@ __inline static __u64 __arch__swab64(__u64 x)
 	__u64 __tmp = (x) ;
 	return ___swab64(__tmp);
 }
-
 
 #endif
 
