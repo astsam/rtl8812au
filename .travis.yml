@@ -4,9 +4,9 @@ dist: bionic
 os: linux
 
 before_install:
-  - export KERNEL_URL_DETAILS=$(wget --quiet -O - ${KERNEL_URL}v${KVER}/ | grep -A8 'Build for amd64')
+  - export KERNEL_URL_DETAILS=$(wget --quiet -O - ${KERNEL_URL}v${KVER}/ | grep -A8 'Build for amd64\|Test amd64')
   - export ALL_DEB=$(echo "$KERNEL_URL_DETAILS" |  grep -m1 'all.deb' | cut -d '"' -f 2)
-  - export KVER_BUILD=$(echo $ALL_DEB | cut -d '_' -f 1 | cut -c15-)
+  - export KVER_BUILD=$(echo $ALL_DEB | cut -d '_' -f 2 | rev | cut -c14- | rev)
   - wget ${KERNEL_URL}v${KVER}/$(echo "$KERNEL_URL_DETAILS" | grep -m1 'amd64.deb' | cut -d '"' -f 2)
   - wget ${KERNEL_URL}v${KVER}/$ALL_DEB
   - sudo dpkg -i *.deb
