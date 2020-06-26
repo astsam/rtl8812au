@@ -76,6 +76,10 @@ int rtw_monitor_overwrite_seqnum = 0;
 module_param(rtw_monitor_overwrite_seqnum, int, 0644);
 MODULE_PARM_DESC(rtw_monitor_overwrite_seqnum, "Overwrite the sequence number of injected frames");
 
+int rtw_monitor_retransmit = 0;
+module_param(rtw_monitor_retransmit, int, 0644);
+MODULE_PARM_DESC(rtw_monitor_retransmit, "Retransmit injected frames");
+
 int rtw_monitor_disable_1m = 0;
 module_param(rtw_monitor_disable_1m, int, 0644);
 MODULE_PARM_DESC(rtw_monitor_disable_1m, "Disable default 1Mbps rate for monitor injected frames");
@@ -1228,6 +1232,7 @@ uint loadparam(_adapter *padapter)
 #endif
 
 	registry_par->monitor_overwrite_seqnum = (u8)rtw_monitor_overwrite_seqnum;
+	registry_par->monitor_retransmit = (u8)rtw_monitor_retransmit;
 	registry_par->monitor_disable_1m = (u8)rtw_monitor_disable_1m;
 
 	return status;

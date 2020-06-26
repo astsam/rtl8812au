@@ -4485,7 +4485,11 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 		pattrib->stbc = 0;
 
 	}
-	pattrib->retry_ctrl = _FALSE;
+
+	if (pregpriv->monitor_retransmit)
+		pattrib->retry_ctrl = _TRUE;
+	else
+		pattrib->retry_ctrl = _FALSE;
 	pattrib->pktlen = len;
 	pmlmeext->mgnt_seq = GetSequence(pwlanhdr);
 	pattrib->seqnum = pmlmeext->mgnt_seq;
