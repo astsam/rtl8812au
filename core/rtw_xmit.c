@@ -4460,6 +4460,7 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 	/* Check DATA/MGNT frames */
 	pwlanhdr = (struct rtw_ieee80211_hdr *)pframe;
 	pattrib = &pmgntframe->attrib;
+	pattrib->injected = _TRUE;
 
 	if (pregpriv->monitor_disable_1m) {
 
