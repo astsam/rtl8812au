@@ -458,6 +458,8 @@ struct registry_priv {
 	u8 tdmadig_dynamic;
 #endif/*CONFIG_TDMADIG*/
 
+	u8 monitor_overwrite_seqnum;
+	u8 monitor_retransmit;
 	u8 monitor_disable_1m;
 };
 
