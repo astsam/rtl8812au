@@ -43,7 +43,6 @@ jobs:
 
     - env: COMPILER=gcc-7 KVER=$(curl -s https://www.kernel.org/releases.json | grep 'mainline' -B1 | head -1 | cut -d'"' -f4)
     - env: COMPILER=gcc-7 KVER=$(curl -s https://www.kernel.org/releases.json | grep -A1 'latest_stable' | tail -1 | cut -d'"' -f4)
-    - env: COMPILER=gcc-7 KVER=5.5.18
  #Kernels 5.4 with minor versions > 28 are failing on amd64. Not upgrade the minor version without check https://kernel.ubuntu.com/~kernel-ppa/mainline/
     - env: COMPILER=gcc-7 KVER=5.4.28
     - env: COMPILER=gcc-7 KVER=4.19.116
