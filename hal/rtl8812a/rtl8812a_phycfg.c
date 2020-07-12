@@ -590,7 +590,12 @@ PHY_GetTxPowerIndex_8812A(
 	}
 
 	by_rate_diff = by_rate_diff > limit ? limit : by_rate_diff;
-	power_idx = base_idx + by_rate_diff + tpt_offset + extra_bias;
+	power_idx = base_idx + by_rate_diff + tpt_offset + extra_bias + transmit_power_boost;
+
+	if (transmit_power_override != 0)
+		power_idx = transmit_power_override;
+	if (power_idx < 1)
+		power_idx = 1;
 
 	if (power_idx < 0)
 		power_idx = 0;
