@@ -33,6 +33,9 @@ jobs:
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
           packages:
+	    - gcc-10
+      env: COMPILER=gcc-10 KVER=$(curl -s https://www.kernel.org/releases.json | grep 'mainline' -B1 | head -1 | cut -d'"' -f4)
+          packages:
             - gcc-9
       env: COMPILER=gcc-9 KVER=$(curl -s https://www.kernel.org/releases.json | grep 'mainline' -B1 | head -1 | cut -d'"' -f4)
     - addons:
