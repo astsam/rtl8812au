@@ -1084,4 +1084,22 @@ void macstr2num(u8 *dst, u8 *src);
 void autosuspend_enter(_adapter* padapter);
 #endif
 
+/*
+#ifdef CONFIG_RESUME_IN_WORKQUEUE || CONFIG_HAS_EARLYSUSPEND
+int rtw_resume_process(_adapter *padapter);
+#endif
+#ifdef CONFIG_ANDROID_POWER
+#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
+int rtw_resume_process(PADAPTER padapter);
+#endif
+#ifdef CONFIG_AUTOSUSPEND
+void autosuspend_enter(_adapter* padapter);
+int autoresume_enter(_adapter* padapter);
+#endif
+#ifdef SUPPORT_HW_RFOFF_DETECTED
+int rtw_hw_suspend(_adapter *padapter );
+int rtw_hw_resume(_adapter *padapter);
+#endif
+*/
+
 #endif /* __HAL_DATA_H__ */

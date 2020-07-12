@@ -223,8 +223,16 @@ enum h2c_cmd {
 #endif /* CONFIG_WOWLAN */
 
 /* _RSVDPAGE_LOC_CMD_0x00 */
-#define SET_H2CCMD_RSVDPAGE_LOC_PROBE_RSP(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE(__pH2CCmd, 0, 8, __Value)
-#define SET_H2CCMD_RSVDPAGE_LOC_PSPOLL(__pH2CCmd, __Value)			SET_BITS_TO_LE_1BYTE((__pH2CCmd)+1, 0, 8, __Value)
+static inline void SET_H2CCMD_RSVDPAGE_LOC_PROBE_RSP(u8 *__pH2CCmd, u8 __Value)
+{
+	*__pH2CCmd = __Value;
+}
+
+static inline void SET_H2CCMD_RSVDPAGE_LOC_PSPOLL(u8 *__pH2CCmd, u8 __Value)
+{
+	*(__pH2CCmd + 1) = __Value;
+}
+
 #define SET_H2CCMD_RSVDPAGE_LOC_NULL_DATA(__pH2CCmd, __Value)		SET_BITS_TO_LE_1BYTE((__pH2CCmd)+2, 0, 8, __Value)
 #define SET_H2CCMD_RSVDPAGE_LOC_QOS_NULL_DATA(__pH2CCmd, __Value)	SET_BITS_TO_LE_1BYTE((__pH2CCmd)+3, 0, 8, __Value)
 #define SET_H2CCMD_RSVDPAGE_LOC_BT_QOS_NULL_DATA(__pH2CCmd, __Value)SET_BITS_TO_LE_1BYTE((__pH2CCmd)+4, 0, 8, __Value)
