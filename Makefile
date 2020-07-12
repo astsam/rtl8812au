@@ -2252,7 +2252,11 @@ strip:
 
 install:
 	install -p -m 644 $(MODULE_NAME).ko  $(MODDESTDIR)
+ifeq ($(INSTALL_MOD_PATH),)
+	$(DEPMOD) -a ${KVER}
+else
 	/sbin/depmod -a ${KVER}
+endif
 
 uninstall:
 	rm -f $(MODDESTDIR)/$(MODULE_NAME).ko
