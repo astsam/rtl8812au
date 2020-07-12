@@ -40,22 +40,23 @@ void	rtl8814au_free_xmit_priv(_adapter *padapter)
 }
 
 static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bagg_pkt)
-{	
+{
       int	pull=0;
 	uint	qsel;
 	u8 data_rate,pwr_status,offset;
 	_adapter			*padapter = pxmitframe->padapter;
-	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;		
+	struct mlme_priv	*pmlmepriv = &padapter->mlmepriv;
 	struct pkt_attrib	*pattrib = &pxmitframe->attrib;
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
 	u8	*ptxdesc =  pmem;
 	struct mlme_ext_priv	*pmlmeext = &padapter->mlmeextpriv;
 	struct mlme_ext_info	*pmlmeinfo = &(pmlmeext->mlmext_info);
 	sint	bmcst = IS_MCAST(pattrib->ra);
-	u16				SWDefineContent = 0x0;	
+	u16				SWDefineContent = 0x0;
 	u8				DriverFixedRate = 0x0;
+	struct registry_priv	*pregpriv = &(padapter->registrypriv);
 
-#ifndef CONFIG_USE_USB_BUFFER_ALLOC_TX 
+#ifndef CONFIG_USE_USB_BUFFER_ALLOC_TX
 	if (padapter->registrypriv.mp_mode == 0)
 	{
 		if((PACKET_OFFSET_SZ != 0) && (!bagg_pkt) &&(rtw_usb_bulk_size_boundary(padapter,TXDESC_SIZE+sz)==_FALSE))
@@ -68,20 +69,20 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 #endif	// CONFIG_USE_USB_BUFFER_ALLOC_TX
 
 	_rtw_memset(ptxdesc, 0, TXDESC_SIZE);
-	
+
         //4 offset 0
 	//SET_TX_DESC_FIRST_SEG_8812(ptxdesc, 1);
 	SET_TX_DESC_LAST_SEG_8814A(ptxdesc, 1);
 	//SET_TX_DESC_OWN_8812(ptxdesc, 1);
-		
+
 	//RTW_INFO("%s==> pkt_len=%d,bagg_pkt=%02x\n",__FUNCTION__,sz,bagg_pkt);
 	SET_TX_DESC_PKT_SIZE_8814A(ptxdesc, sz);
-	
-	offset = TXDESC_SIZE + OFFSET_SZ;		
 
-#ifdef CONFIG_TX_EARLY_MODE	
-	if(bagg_pkt){		
-		offset += EARLY_MODE_INFO_SIZE ;//0x28			
+	offset = TXDESC_SIZE + OFFSET_SZ;
+
+#ifdef CONFIG_TX_EARLY_MODE
+	if(bagg_pkt){
+		offset += EARLY_MODE_INFO_SIZE ;//0x28
 	}
 #endif
 	//RTW_INFO("%s==>offset(0x%02x)  \n",__FUNCTION__,offset);
@@ -115,7 +116,12 @@ static s32 update_txdesc(struct xmit_frame *pxmitframe, u8 *pmem, s32 sz ,u8 bag
 
 	//offset 12
 
-	if (!pattrib->qos_en) {
+	if (pattrib->injected == _TRUE && !pregpriv->monitor_overwrite_seqnum) {
+		/* Prevent sequence number from being overwritten */
+		SET_TX_DESC_HWSEQ_EN_8814A(ptxdesc, 0); /* Hw do not set sequence number */
+		SET_TX_DESC_SEQ_8814A(ptxdesc, pattrib->seqnum); /* Copy inject sequence number to TxDesc */
+	}
+	else if (!pattrib->qos_en) {
 		/* HW sequence, to fix to use 0 queue. todo: 4AC packets to use auto queue select */
 		SET_TX_DESC_HWSEQ_EN_8814A(ptxdesc, 1); // Hw set sequence number
 		SET_TX_DESC_EN_HWEXSEQ_8814A(ptxdesc, 0);
