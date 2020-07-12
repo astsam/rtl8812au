@@ -1057,21 +1057,4 @@ int rtw_halmac_deinit_adapter(struct dvobj_priv *);
 
 #define RX_SMOOTH_FACTOR	Rx_Smooth_Factor
 
-#ifdef CONFIG_RESUME_IN_WORKQUEUE || CONFIG_HAS_EARLYSUSPEND
-int rtw_resume_process(_adapter *padapter);
-#endif
-#ifdef CONFIG_ANDROID_POWER
-#if defined(CONFIG_USB_HCI) || defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
-int rtw_resume_process(PADAPTER padapter);
-#endif
-#ifdef CONFIG_AUTOSUSPEND
-void autosuspend_enter(_adapter* padapter);	
-int autoresume_enter(_adapter* padapter);
-#endif
-
-#ifdef SUPPORT_HW_RFOFF_DETECTED
-int rtw_hw_suspend(_adapter *padapter );
-int rtw_hw_resume(_adapter *padapter);
-#endif
-
 #endif /* __HAL_DATA_H__ */
