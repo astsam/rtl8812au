@@ -96,12 +96,12 @@ cd rtl*
 Package / Build dependencies (Kali)
 ```
 $ sudo apt-get update
-$ sudo apt-get install build-essential bc libelf-dev linux-headers-`uname -r`
+$ sudo apt-get install build-essential libelf-dev linux-headers-`uname -r`
 ```
 #### For Raspberry (RPI)
 
 ```
-$ sudo apt-get install bc raspberrypi-kernel-headers
+$ sudo apt-get install raspberrypi-kernel-headers
 ```
 
 Then run this step to change platform in Makefile, For RPI 1/2/3/ & 0/Zero:
