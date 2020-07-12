@@ -7721,7 +7721,7 @@ static int rtw_hostapd_ioctl(struct net_device *dev, struct iw_point *p)
 	if (!rtw_is_hw_init_completed(padapter))
 		return -EPERM;
 
-	if (!p->pointer || p->length != sizeof(struct ieee_param))
+	if (!p->pointer || p->length != (sizeof(struct ieee_param) + 100))
 		return -EINVAL;
 
 	param = (struct ieee_param *)rtw_malloc(p->length);
