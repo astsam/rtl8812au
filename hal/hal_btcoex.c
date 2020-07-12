@@ -721,8 +721,11 @@ struct btc_wifi_link_info halbtcoutsrc_getwifilinkinfo(PBTC_COEXIST pBtCoexist)
 	return wifi_link_info;
 }
 
-
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
 static void _btmpoper_timer_hdl(void *p)
+#else
+static void _btmpoper_timer_hdl(struct timer_list *t)
+#endif
 {
 	if (GLBtcBtMpRptWait == _TRUE) {
 		GLBtcBtMpRptWait = _FALSE;
@@ -2838,7 +2841,11 @@ u8 EXhalbtcoutsrc_InitlizeVariables(void *padapter)
 	/* BT Control H2C/C2H*/
 	GLBtcBtMpOperSeq = 0;
 	_rtw_mutex_init(&GLBtcBtMpOperLock);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
 	rtw_init_timer(&GLBtcBtMpOperTimer, padapter, _btmpoper_timer_hdl, pBtCoexist);
+#else
+	timer_setup(&GLBtcBtMpOperTimer, _btmpoper_timer_hdl, 0);
+#endif
 	_rtw_init_sema(&GLBtcBtMpRptSema, 0);
 	GLBtcBtMpRptSeq = 0;
 	GLBtcBtMpRptStatus = 0;
