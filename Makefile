@@ -1,5 +1,5 @@
 EXTRA_CFLAGS += $(USER_EXTRA_CFLAGS) -fno-pie
-EXTRA_CFLAGS += -O3 -mtune=native
+EXTRA_CFLAGS += -O3
 EXTRA_CFLAGS += -Wno-unused-variable
 #EXTRA_CFLAGS += -Wno-unused-value
 EXTRA_CFLAGS += -Wno-unused-label
