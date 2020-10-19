@@ -1,4 +1,4 @@
-## RTL8812AU/21AU and RTL8814AU drivers
+## RTL8812AU/21AU Wireless drivers
 Only for use with Linux & Android
 
 [![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
@@ -19,6 +19,10 @@ Only for use with Linux & Android
 
 
 ### Important!
+
+<b>8814au chipset support is turned off. 8814au got itself a new, standalone driver in link below.</b>
+https://github.com/aircrack-ng/rtl8814au
+
 ```
 * Use "ip" and "iw" instead of "ifconfig" and "iwconfig"
      It's described further down, READ THE README!
