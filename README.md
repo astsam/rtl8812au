@@ -20,7 +20,10 @@ Only for use with Linux & Android
 
 ### Important!
 
-<b>8814au chipset support is turned off. 8814au got itself a new, standalone driver in this link below</b><br>
+<b>8814au chipset support is turned off. 8814au got itself a new, standalone driver in this link below<br></br>
+You should update this driver and compile/install one more time to ensure the 8814au chipset kernel module
+collides with the newer driver. If your planning to use them both in the same time.
+
 https://github.com/aircrack-ng/rtl8814au
 
 ```
