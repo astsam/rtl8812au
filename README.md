@@ -22,9 +22,6 @@ Only for use with Linux & Android
 ```
 * Use "ip" and "iw" instead of "ifconfig" and "iwconfig"
      It's described further down, READ THE README!
-
-* v5.3.4 is the stable branch, not this, but this does have
-  better range then branches below + more fixes from Realtek
 ```
 
 ### IPERF3 benchmark
@@ -72,13 +69,13 @@ $ sudo apt-get install dkms
 ### Installation of Driver
 In order to install the driver open a terminal in the directory with the source code and execute the following command:
 ```
-$ sudo ./dkms-install.sh
+$ sudo make dkms_install
 ```
 
 ### Removal of Driver
 In order to remove the driver from your system open a terminal in the directory with the source code and execute the following command:
 ```
-$ sudo ./dkms-remove.sh
+$ sudo make dkms_remove
 ```
 
 ### Make
