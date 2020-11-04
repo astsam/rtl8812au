@@ -914,7 +914,7 @@ mpt_SetSingleTone_8814A(
 
 		phy_set_bb_reg(pAdapter, rCCAonSec_Jaguar, BIT1, 0x1); /*/ Disable CCA*/
 
-		for (StartPath; StartPath <= EndPath; StartPath++) {
+		for (; StartPath <= EndPath; StartPath++) {
 			phy_set_rf_reg(pAdapter, StartPath, RF_AC_Jaguar, 0xF0000, 0x2); /*/ Tx mode: RF0x00[19:16]=4'b0010 */
 			phy_set_rf_reg(pAdapter, StartPath, RF_AC_Jaguar, 0x1F, 0x0); /*/ Lowest RF gain index: RF_0x0[4:0] = 0*/
 
@@ -952,7 +952,7 @@ mpt_SetSingleTone_8814A(
 			EndPath = RF_PATH_D;
 			break;
 		}
-		for (StartPath; StartPath <= EndPath; StartPath++)
+		for (; StartPath <= EndPath; StartPath++)
 			phy_set_rf_reg(pAdapter, StartPath, lna_low_gain_3, BIT1, 0x0); /* RF LO disabled */
 
 		phy_set_bb_reg(pAdapter, rCCAonSec_Jaguar, BIT1, 0x0); /* Enable CCA*/
