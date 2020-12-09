@@ -120,9 +120,9 @@ $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
 ```
 
-In addition, if you receive an error message about `unrecognized command line option ‘-mgeneral-regs-only’` (i.e., Raspbian Buster), you will need to run the following commands:
+In addition, if you receive an error message about `unrecognized command line option ‘-mgeneral-regs-only’` (i.e., Raspbian Buster), you will need to run the following commands, then retry building and installing:
 ```
-$ sed -i 's/^dkms build/ARCH=arm dkms build/' dkms-install.sh
+$ export ARCH=arm
 $ sed -i 's/^MAKE="/MAKE="ARCH=arm\ /' dkms.conf
 ```
 
