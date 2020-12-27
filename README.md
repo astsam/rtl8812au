@@ -177,7 +177,7 @@ $ cat /proc/net/rtl8812au/$(your interface name)/led_ctrl
 0: doesn't switch, 1: switch from usb2.0 to usb 3.0 2: switch from usb3.0 to usb 2.0
 ```sh
 $ rmmod 88XXau
-$ modprobe 88XXau rtw_switch_usb_mode:int (0: no switch 1: switch from usb2 to usb3 2: switch from usb3 to usb2)
+$ modprobe 88XXau rtw_switch_usb_mode=int (0: no switch 1: switch from usb2 to usb3 2: switch from usb3 to usb2)
 ```
 
 ### NetworkManager
