@@ -20,7 +20,8 @@ Only for use with Linux & Android
 
 ### Important!
 
-<b>8814au chipset support is turned off. 8814au got itself a new, standalone driver in this link below<br></br>
+**8814au chipset support is turned off. 8814au got itself a new, standalone driver in this link below**
+
 You should update this driver and compile/install one more time to ensure the 8814au chipset kernel module
 collides with the newer driver. If your planning to use them both in the same time.
 
@@ -32,10 +33,12 @@ https://github.com/aircrack-ng/rtl8814au
 ```
 
 ### IPERF3 benchmark
-<b>[Device]</b> Alfa Networks AWUS036ACH<br>
-<b>[Chipset]</b> 88XXau (rtl8812au)<br>
-<b>[Branch]</b> v5.6.4.1<br>
-<b>[Distance]</b> 10m free sight
+
+**[Device]** Alfa Networks AWUS036ACH<br>
+**[Chipset]** 88XXau (rtl8812au)<br>
+**[Branch]** v5.6.4.1<br>
+**[Distance]** 10m free sight
+
 ```
 [ ID] Interval           Transfer     Bitrate         Retr  Cwnd
 [  5]   0.00-1.00   sec  11.6 MBytes  97.4 Mbits/sec    0   96.2 KBytes
