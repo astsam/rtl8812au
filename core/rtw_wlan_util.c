@@ -4795,8 +4795,8 @@ int rtw_dev_nlo_info_set(struct pno_nlo_info *nlo_info, pno_ssid_t *ssid,
 	}
 #ifdef set_fs
 	set_fs(fs);
-	filp_close(fp, NULL);
 #endif
+	filp_close(fp, NULL);
 	RTW_INFO("-%s-\n", __func__);
 	return 0;
 }
