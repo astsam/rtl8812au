@@ -2130,14 +2130,6 @@ EXTRA_CFLAGS += -DMARK_KERNEL_PFU
 else ifeq ($(ARCH), x86_64)
 EXTRA_CFLAGS += -mhard-float
 EXTRA_CFLAGS += -DMARK_KERNEL_PFU
-else ifeq ($(ARCH), arm)
-# Raspbian kernel is with soft-float.
-# 'softfp' allows FP instructions, but no FP on function call interfaces
-ifeq ($(CONFIG_PLATFORM_ARM_RPI), y)
-EXTRA_CFLAGS += -mfloat-abi=softfp
-else
-EXTRA_CFLAGS += -mfloat-abi=hard
-endif
 endif
 
 ########### CUSTOMER ################################
