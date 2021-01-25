@@ -58,6 +58,8 @@ u8 center_ch_5g_all[CENTER_CH_5G_ALL_NUM] = {
 /* G02 */52, 54, 56,
 	58,
 /* G03 */60, 62, 64,
+	68, 72, 76, 80,
+	84, 88, 92, 96, 
 /* G04 */100, 102, 104,
 	106,
 /* G05 */108, 110, 112,
@@ -82,6 +84,8 @@ u8 center_ch_5g_20m[CENTER_CH_5G_20M_NUM] = {
 /* G01 */44, 48,
 /* G02 */52, 56,
 /* G03 */60, 64,
+	68, 72, 76, 80,
+	84, 88, 92, 96,
 /* G04 */100, 104,
 /* G05 */108, 112,
 /* G06 */116, 120,
@@ -111,6 +115,7 @@ u8 center_ch_5g_40m[CENTER_CH_5G_40M_NUM] = {
 /* G13 */175
 };
 
+#if 0
 u8 center_ch_5g_20m_40m[CENTER_CH_5G_20M_NUM + CENTER_CH_5G_40M_NUM] = {
 /* G00 */36, 38, 40,
 /* G01 */44, 46, 48,
@@ -127,6 +132,7 @@ u8 center_ch_5g_20m_40m[CENTER_CH_5G_20M_NUM + CENTER_CH_5G_40M_NUM] = {
 /* G12 */165, 167, 169,
 /* G13 */173, 175, 177
 };
+#endif
 
 u8 op_chs_of_cch_5g_40m[CENTER_CH_5G_40M_NUM][2] = {
 	{36, 40}, /* 38 */
@@ -382,9 +388,9 @@ u8 rtw_get_ch_group(u8 ch, u8 *group, u8 *cck_group)
 			gp = 1;
 		else if (50   <= ch && ch <=  58)
 			gp = 2;
-		else if (60   <= ch && ch <=  64)
+		else if (60   <= ch && ch <=  80)
 			gp = 3;
-		else if (100  <= ch && ch <= 106)
+		else if (82  <= ch && ch <= 106)
 			gp = 4;
 		else if (108  <= ch && ch <= 114)
 			gp = 5;
