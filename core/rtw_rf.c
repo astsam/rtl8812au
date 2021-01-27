@@ -51,6 +51,8 @@ u8 op_chs_of_cch_2g_40m[CENTER_CH_2G_40M_NUM][2] = {
 };
 
 u8 center_ch_5g_all[CENTER_CH_5G_ALL_NUM] = {
+	15, 16, 17, 18,
+	20, 24, 28, 32,
 /* G00 */36, 38, 40,
 	42,
 /* G01 */44, 46, 48,
@@ -80,6 +82,8 @@ u8 center_ch_5g_all[CENTER_CH_5G_ALL_NUM] = {
 };
 
 u8 center_ch_5g_20m[CENTER_CH_5G_20M_NUM] = {
+	15, 16, 17, 18,
+	20, 24,	28, 32,
 /* G00 */36, 40,
 /* G01 */44, 48,
 /* G02 */52, 56,
@@ -382,7 +386,7 @@ u8 rtw_get_ch_group(u8 ch, u8 *group, u8 *cck_group)
 	} else {
 		band = BAND_ON_5G;
 
-		if (36 <= ch && ch <= 42)
+		if (15 <= ch && ch <= 42)
 			gp = 0;
 		else if (44   <= ch && ch <=  48)
 			gp = 1;
