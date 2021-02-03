@@ -25,7 +25,7 @@
 
 #define CENTER_CH_2G_40M_NUM	9
 #define CENTER_CH_2G_NUM		14
-#define CENTER_CH_5G_20M_NUM	28	/* 20M center channels */
+#define CENTER_CH_5G_20M_NUM	(28+16)	/* 20M center channels */
 #define CENTER_CH_5G_40M_NUM	14	/* 40M center channels */
 #define CENTER_CH_5G_80M_NUM	7	/* 80M center channels */
 #define CENTER_CH_5G_160M_NUM	3	/* 160M center channels */
@@ -43,7 +43,9 @@ u8 center_chs_2g(u8 bw, u8 id);
 
 extern u8 center_ch_5g_20m[CENTER_CH_5G_20M_NUM];
 extern u8 center_ch_5g_40m[CENTER_CH_5G_40M_NUM];
+#if 0
 extern u8 center_ch_5g_20m_40m[CENTER_CH_5G_20M_NUM + CENTER_CH_5G_40M_NUM];
+#endif
 extern u8 center_ch_5g_80m[CENTER_CH_5G_80M_NUM];
 extern u8 center_ch_5g_all[CENTER_CH_5G_ALL_NUM];
 

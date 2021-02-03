@@ -595,7 +595,6 @@ void set_channel_bwmode(_adapter *padapter, unsigned char channel, unsigned char
 		RTW_INFO("[%s] ch = %d, offset = %d, bwmode = %d\n", __func__, channel, channel_offset, bwmode);
 
 	center_ch = rtw_get_center_ch(channel, bwmode, channel_offset);
-
 	if (bwmode == CHANNEL_WIDTH_80) {
 		if (center_ch > channel)
 			chnl_offset80 = HAL_PRIME_CHNL_OFFSET_LOWER;

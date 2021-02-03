@@ -201,9 +201,14 @@ static struct ieee80211_channel rtw_2ghz_channels[MAX_CHANNEL_NUM_2G] = {
 
 /* from center_ch_5g_20m */
 static struct ieee80211_channel rtw_5ghz_a_channels[MAX_CHANNEL_NUM_5G] = {
+	CHAN5G(15, 0),  CHAN5G(16, 0),  CHAN5G(17, 0),  CHAN5G(18, 0),
+	CHAN5G(20, 0),  CHAN5G(24, 0),  CHAN5G(28, 0),  CHAN5G(32, 0),
+
 	CHAN5G(36, 0),	CHAN5G(40, 0),	CHAN5G(44, 0),	CHAN5G(48, 0),
 
 	CHAN5G(52, 0),	CHAN5G(56, 0),	CHAN5G(60, 0),	CHAN5G(64, 0),
+	CHAN5G(68, 0),  CHAN5G(72, 0),  CHAN5G(76, 0),  CHAN5G(80, 0),
+	CHAN5G(84, 0),  CHAN5G(88, 0),  CHAN5G(92, 0),  CHAN5G(96, 0),
 
 	CHAN5G(100, 0),	CHAN5G(104, 0),	CHAN5G(108, 0),	CHAN5G(112, 0),
 	CHAN5G(116, 0),	CHAN5G(120, 0),	CHAN5G(124, 0),	CHAN5G(128, 0),
@@ -6085,6 +6090,132 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	return 0;
 }
 
+static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev, struct cfg80211_chan_def *chandef){
+	_adapter *padapter= wiphy_to_adapter(wiphy);
+	int channel;
+	int control_freq;
+	int center_freq;
+	int center_freq2=0;
+	int width;
+	int band;
+	int bandWidth;
+	int offset;
+  
+	struct dvobj_priv *dvobj;
+	struct net_device *ndev = wdev->netdev;
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(padapter);
+
+	if (!ndev)
+  		return -ENODEV;
+  	offset = rtw_get_oper_choffset(padapter);
+  	//channel = adapter_to_dvobj(padapter)->oper_channel;
+	channel = pHalData->current_channel;
+	if(channel >= 1){
+		if(channel <= 14)
+			band = NL80211_BAND_2GHZ;
+		else
+			band =  NL80211_BAND_5GHZ;
+#if 0		
+	    	switch(pHalData->current_band_type){
+    			case 0:
+				band = NL80211_BAND_2GHZ;
+				break;
+			case 1:
+				band = NL80211_BAND_5GHZ;
+				break;
+			default:
+				return -EINVAL;
+		}
+#endif
+		control_freq =  ieee80211_channel_to_frequency(channel, band);
+
+		dvobj = adapter_to_dvobj(padapter);
+    		if(dvobj != NULL){
+			bandWidth = adapter_to_dvobj(padapter)->oper_bwmode;
+			RTW_INFO("%s bw %d\n", __func__, adapter_to_dvobj(padapter)->oper_bwmode);
+    		}else{
+			bandWidth = pHalData->current_channel_bw;
+			RTW_INFO("%s dvobj null\n", __func__);
+    		}
+	    	switch(pHalData->current_channel_bw){
+		case CHANNEL_WIDTH_5:
+                       width = NL80211_CHAN_WIDTH_5;
+                       center_freq = control_freq;
+                       break;
+		case CHANNEL_WIDTH_10:
+		       width = NL80211_CHAN_WIDTH_10;
+                       center_freq = control_freq;
+                       break;
+		case CHANNEL_WIDTH_20:
+			RTW_INFO("%s width 20\n", __func__);
+			width = NL80211_CHAN_WIDTH_20;
+			center_freq = control_freq;
+			break;
+		case CHANNEL_WIDTH_40:
+			RTW_INFO("%s width 40\n", __func__);
+			width = NL80211_CHAN_WIDTH_40;
+			if(offset == HAL_PRIME_CHNL_OFFSET_LOWER){
+				center_freq = control_freq +10;
+			}else{
+				center_freq = control_freq -10;
+			}
+			break;
+		case CHANNEL_WIDTH_80:
+			RTW_INFO("%s width 80\n", __func__);
+			width = NL80211_CHAN_WIDTH_80;
+			if(offset==HAL_PRIME_CHNL_OFFSET_LOWER){
+				center_freq = control_freq +30;
+			}else{
+				center_freq = control_freq -30;
+			}
+			break;
+		case CHANNEL_WIDTH_160:
+			RTW_INFO("%s width 160\n", __func__);
+			width = NL80211_CHAN_WIDTH_160;
+			if(offset == HAL_PRIME_CHNL_OFFSET_LOWER){
+				center_freq = control_freq +50;
+			}else{
+				center_freq = control_freq -50;
+			}
+			break;
+    		case CHANNEL_WIDTH_80_80:
+			RTW_INFO("%s width 80x80\n", __func__);
+			width = NL80211_CHAN_WIDTH_80P80;
+			if(offset==HAL_PRIME_CHNL_OFFSET_LOWER){
+				center_freq = control_freq +30;
+				center_freq2=center_freq+80;
+			}else{
+				center_freq = control_freq -30;
+				center_freq2=center_freq-80;
+			}
+			break;
+    		case CHANNEL_WIDTH_MAX:
+			RTW_INFO("%s width max\n", __func__);
+			width = NL80211_CHAN_WIDTH_160;
+			break;
+		}
+		chandef->chan = ieee80211_get_channel(wiphy, control_freq);
+		if(chandef->chan == NULL) {
+			chandef->chan = ieee80211_get_channel(wiphy, ieee80211_channel_to_frequency(channel, band));
+			RTW_INFO("%s chan null\n", __func__);
+			if(chandef->chan == NULL) {
+				RTW_INFO("%s chan null\n", __func__);
+				return -EINVAL;
+			}
+		}
+		chandef->width = width;
+		chandef->center_freq1 = center_freq;
+		chandef->center_freq2 = center_freq2;  
+		RTW_INFO("%s : channel %d width %d freq1 %d freq2 %d center_freq %d offset %d\n", __func__, 
+			channel, width, chandef->center_freq1, chandef->center_freq2, chandef->chan->center_freq,
+			rtw_get_oper_choffset(padapter)
+		);
+	}else{
+		return -EINVAL;
+	}
+	return 0;
+}
+
 static int cfg80211_rtw_set_monitor_channel(struct wiphy *wiphy
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0))
 	, struct cfg80211_chan_def *chandef
@@ -10083,6 +10214,7 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 #if (KERNEL_VERSION(4, 17, 0) <= LINUX_VERSION_CODE)
 	.external_auth = cfg80211_rtw_external_auth,
 #endif
+	.get_channel = cfg80211_rtw_get_channel,
 };
 
 struct wiphy *rtw_wiphy_alloc(_adapter *padapter, struct device *dev)

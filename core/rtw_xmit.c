@@ -4452,14 +4452,6 @@ s32 rtw_monitor_xmit_entry(struct sk_buff *skb, struct net_device *ndev)
 	// so we can directly apply overrides rather than cache all the values into
 	// variables and apply them later.
 
-	// In just a bit we will attempt to take a pointer to the wlan hdr.  If the remaining bytes
-	// are less than a full header, we will technically be reading random bytes.  So this is a
-	// guard check to ensure there is a full minimum frame to read before we alloc and proceed
-	// to read.
-	if (unlikely(len < sizeof(struct rtw_ieee80211_hdr))) {
-		goto fail;
-	}
-
 	// Process rest of frame
 	alloc_delay = 100;
 	for (alloc_tries=3; alloc_tries > 0; alloc_tries--) {

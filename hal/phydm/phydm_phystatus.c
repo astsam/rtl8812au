@@ -1071,7 +1071,6 @@ void phydm_phy_sts_n_parsing(struct dm_struct *dm,
 #endif
 
 #if ODM_IC_11AC_SERIES_SUPPORT
-
 void phydm_rx_physts_bw_parsing(struct phydm_phyinfo_struct *phy_info,
 				struct phydm_perpkt_info_struct *
 				pktinfo,
@@ -1189,6 +1188,16 @@ void phydm_rx_physts_1st_type(struct dm_struct *dm,
 
 		phy_info->rx_pwdb_all = rssi;
 		phy_info->rx_mimo_signal_strength[0] = rssi;
+
+		// fill per path rx power info 
+                for (i = RF_PATH_A; i < dm->num_rf_path; i++) {
+                        if (i < RF_PATH_C)
+                                val = phy_sts->gain_trsw[i];
+                        else
+                                val = phy_sts->gain_trsw_cd[i - 2];
+
+                        phy_info->rx_pwr[i] = (val & 0x7F) - 110;			
+		}
 	} else {
 	/* @== [OFDM rate] ===================================================*/
 		for (i = RF_PATH_A; i < dm->num_rf_path; i++) {
