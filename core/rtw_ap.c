@@ -4507,12 +4507,14 @@ static u8 rtw_ap_ch_specific_chk(_adapter *adapter, u8 ch, u8 *bw, u8 *offset, c
 	RT_CHANNEL_INFO *chset = adapter_to_chset(adapter);
 	u8 ret = _SUCCESS;
 
+	// ignore reg domain check
+#if 0
 	if (rtw_chset_search_ch(chset, ch) < 0) {
 		RTW_WARN("%s ch:%u doesn't fit in chplan\n", caller, ch);
 		ret = _FAIL;
 		goto exit;
 	}
-
+#endif
 	rtw_adjust_chbw(adapter, ch, bw, offset);
 
 	if (!rtw_get_offset_by_chbw(ch, *bw, offset)) {
