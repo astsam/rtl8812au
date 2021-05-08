@@ -360,7 +360,7 @@ static int napi_recv(_adapter *padapter, int budget)
 				rx_ok = _TRUE;
 #else
 			rtw_napi_gro_receive(&padapter->napi, pskb);
-            rx_ok = _TRUE;
+                        rx_ok = _TRUE;
 #endif
 			goto next;
 		}
