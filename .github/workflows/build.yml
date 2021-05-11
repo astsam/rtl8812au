@@ -34,7 +34,7 @@ jobs:
         include:
           #Version 4.15.x requested to test Ubuntu 18.04 LTS version
           - os: ubuntu-18.04
-            version: 4.15.0-20-generic
+            version: $(uname -r)
             use_apt: true
 
     steps:
@@ -51,12 +51,13 @@ jobs:
         [  -z "$AMD64_DEB" ] && exit 2
         wget -nv ${KERNEL_URL}v${VERSION}/$AMD64_DEB
         wget -nv ${KERNEL_URL}v${VERSION}/$ALL_DEB
+        wget -nv http://mirrors.kernel.org/ubuntu/pool/main/g/glibc/libc6_2.33-0ubuntu5_amd64.deb
         sudo dpkg --force-all -i *.deb
         echo "KVER=$(echo $ALL_DEB | cut -d '_' -f 2 | rev | cut -c14- | rev)-generic" >> $GITHUB_ENV
     - name: apt-linux-headers
       if: ${{ matrix.use_apt }}
       run: |
-        sudo apt-get install linux-headers-${{matrix.version }}
+        sudo apt-get install linux-headers-$(uname -r)
         echo "KVER=${{matrix.version }}" >> $GITHUB_ENV
     - uses: actions/checkout@v2
     - name: build
