@@ -608,6 +608,7 @@ VOID mpt_ToggleIG_8814A(PADAPTER	pAdapter)
 	u1Byte Path = 0;
 	u4Byte IGReg = rA_IGI_Jaguar, IGvalue = 0;
 
+	/* // kimocoder: Disable below as it's not in use.
 	for (Path; Path <= RF_PATH_D; Path++) {
 		switch (Path) {
 		case RF_PATH_B:
@@ -623,11 +624,12 @@ VOID mpt_ToggleIG_8814A(PADAPTER	pAdapter)
 			IGReg = rA_IGI_Jaguar;
 			break;
 		}
+	*/
 
-		IGvalue = phy_query_bb_reg(pAdapter, IGReg, bMaskByte0);
-		phy_set_bb_reg(pAdapter, IGReg, bMaskByte0, IGvalue + 2);
-		phy_set_bb_reg(pAdapter, IGReg, bMaskByte0, IGvalue);
-	}
+	IGvalue = phy_query_bb_reg(pAdapter, IGReg, bMaskByte0);
+	phy_set_bb_reg(pAdapter, IGReg, bMaskByte0, IGvalue + 2);
+	phy_set_bb_reg(pAdapter, IGReg, bMaskByte0, IGvalue);
+
 }
 
 VOID mpt_SetRFPath_8814A(PADAPTER	pAdapter)
