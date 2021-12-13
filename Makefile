@@ -2301,7 +2301,7 @@ dkms_install:
 	mkdir -p /usr/src/8812au-$(DRIVER_VERSION)
 	cp -r * /usr/src/8812au-$(DRIVER_VERSION)
 	dkms add -m 8812au -v $(DRIVER_VERSION)
-	dkms build -m 8812au -v $(DRIVER_VERSION)
+	+ dkms build -m 8812au -v $(DRIVER_VERSION)
 	dkms install -m 8812au -v $(DRIVER_VERSION)
 	dkms status
 
