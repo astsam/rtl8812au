@@ -2298,12 +2298,12 @@ config_r:
 DRIVER_VERSION = $(shell grep "\#define DRIVERVERSION" include/rtw_version.h | awk '{print $$3}' | tr -d v\")
 
 dkms_install:
-	mkdir -p /usr/src/8812au-$(DRIVER_VERSION)
+	@mkdir -vp /usr/src/8812au-$(DRIVER_VERSION)
 	cp -r * /usr/src/8812au-$(DRIVER_VERSION)
 	dkms add -m 8812au -v $(DRIVER_VERSION)
-	dkms build -m 8812au -v $(DRIVER_VERSION)
+	+ dkms build -m 8812au -v $(DRIVER_VERSION)
 	dkms install -m 8812au -v $(DRIVER_VERSION)
-	dkms status
+	dkms status -m 8812au
 
 dkms_remove:
 	dkms remove 8812au/$(DRIVER_VERSION) --all
