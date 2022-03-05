@@ -67,7 +67,6 @@ int rtw_os_alloc_recvframe(_adapter *padapter, union recv_frame *precvframe, u8 
 		return res;
 	}
 
-
 	/*	Modified by Albert 20101213 */
 	/*	For 8 bytes IP header alignment. */
 	shift_sz = pattrib->qos ? 6 : 0; /*	Qos data, wireless lan header length is 26 */
@@ -174,7 +173,6 @@ int rtw_os_recv_resource_init(struct recv_priv *precvpriv, _adapter *padapter)
 #ifdef CONFIG_RTW_NAPI
 	skb_queue_head_init(&precvpriv->rx_napi_skb_queue);
 #endif /* CONFIG_RTW_NAPI */
-
 	return res;
 }
 
@@ -182,9 +180,7 @@ int rtw_os_recv_resource_init(struct recv_priv *precvpriv, _adapter *padapter)
 int rtw_os_recv_resource_alloc(_adapter *padapter, union recv_frame *precvframe)
 {
 	int	res = _SUCCESS;
-
 	precvframe->u.hdr.pkt = NULL;
-
 	return res;
 }
 
@@ -194,14 +190,11 @@ void rtw_os_recv_resource_free(struct recv_priv *precvpriv)
 	sint i;
 	union recv_frame *precvframe;
 	precvframe = (union recv_frame *) precvpriv->precv_frame_buf;
-
-
 #ifdef CONFIG_RTW_NAPI
 	if (skb_queue_len(&precvpriv->rx_napi_skb_queue))
 		RTW_WARN("rx_napi_skb_queue not empty\n");
 	rtw_skb_queue_purge(&precvpriv->rx_napi_skb_queue);
 #endif /* CONFIG_RTW_NAPI */
-
 	for (i = 0; i < NR_RECVFRAME; i++) {
 		rtw_os_free_recvframe(precvframe);
 		precvframe++;
@@ -240,9 +233,7 @@ int rtw_os_recvbuf_resource_alloc(_adapter *padapter, struct recv_buf *precvbuf)
 	if (precvbuf->pallocated_buf == NULL)
 		return _FAIL;
 #endif /* CONFIG_USE_USB_BUFFER_ALLOC_RX */
-
 #endif /* CONFIG_USB_HCI */
-
 	return res;
 }
 
@@ -252,7 +243,6 @@ int rtw_os_recvbuf_resource_free(_adapter *padapter, struct recv_buf *precvbuf)
 	int ret = _SUCCESS;
 
 #ifdef CONFIG_USB_HCI
-
 #ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
 
 	struct dvobj_priv	*pdvobjpriv = adapter_to_dvobj(padapter);
@@ -279,7 +269,6 @@ int rtw_os_recvbuf_resource_free(_adapter *padapter, struct recv_buf *precvbuf)
 			rtw_skb_free(precvbuf->pskb);
 	}
 	return ret;
-
 }
 
 _pkt *rtw_os_alloc_msdu_pkt(union recv_frame *prframe, const u8 *da, const u8 *sa, u8 *msdu ,u16 msdu_len)
@@ -409,7 +398,6 @@ void dynamic_napi_th_chk (_adapter *adapter)
 	if (adapter->registrypriv.en_napi) {
 		struct dvobj_priv *dvobj;
 		struct registry_priv *registry;
-	
 		dvobj = adapter_to_dvobj(adapter);
 		registry = &adapter->registrypriv;
 		if (dvobj->traffic_stat.cur_rx_tp > registry->napi_threshold)
@@ -525,8 +513,7 @@ void rtw_os_recv_indicate_pkt(_adapter *padapter, _pkt *pkt, union recv_frame *r
 #ifdef CONFIG_RTW_NAPI
 #ifdef CONFIG_RTW_NAPI_DYNAMIC
 		if (!skb_queue_empty(&precvpriv->rx_napi_skb_queue)
-			&& !adapter_to_dvobj(padapter)->en_napi_dynamic			
-			)
+			&& !adapter_to_dvobj(padapter)->en_napi_dynamic)
 			napi_recv(padapter, RTL_NAPI_WEIGHT);
 #endif
 
@@ -734,11 +721,9 @@ void rtw_os_read_port(_adapter *padapter, struct recv_buf *precvbuf)
 	if (precvbuf->irp_pending == _FALSE)
 		rtw_read_port(padapter, precvpriv->ff_hwaddr, 0, (unsigned char *)precvbuf);
 
-
 #endif
 #if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
 	precvbuf->pskb = NULL;
 #endif
 
 }
-
