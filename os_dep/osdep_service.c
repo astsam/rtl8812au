@@ -2516,7 +2516,7 @@ int rtw_change_ifname(_adapter *padapter, const char *ifname)
 
 	rtw_init_netdev_name(pnetdev, ifname);
 
-	_rtw_memcpy(pnetdev->dev_addr, adapter_mac_addr(padapter), ETH_ALEN);
+	dev_addr_set(pnetdev, adapter_mac_addr(padapter));
 
 	if (rtnl_lock_needed)
 		ret = register_netdev(pnetdev);
