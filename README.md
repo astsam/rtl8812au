@@ -111,23 +111,32 @@ $ sudo apt-get install build-essential libelf-dev linux-headers-`uname -r`
 $ sudo apt-get install raspberrypi-kernel-headers
 ```
 
-Then run this step to change platform in Makefile, For RPI 1/2/3/ & 0/Zero:
+Then change the platform in Makefile to 32-bit `ARM` architecture (RPi 1/2/3/ & 0/Zero):
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefile
 ```
 
-But for RPI 3B+ & 4B you will need to run those below which builds the ARM64 arch driver:
+Or, for `ARM64` (RPI 3B+, 4B and Zero2) you will need to run:
 ```
 $ sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
 $ sed -i 's/CONFIG_PLATFORM_ARM64_RPI = n/CONFIG_PLATFORM_ARM64_RPI = y/g' Makefile
 ```
 
-In addition, if you receive an error message about `unrecognized command line option ‘-mgeneral-regs-only’` (i.e., Raspbian Buster), you will need to run the following commands, then retry building and installing:
+In addition, if you receive an error message about `unrecognized command line option ‘-mgeneral-regs-only’` (i.e., Raspbian Buster), you will need to run the following commands for `ARM` architecture, then retry building and installing:
 ```
 $ export ARCH=arm
 $ sed -i 's/^MAKE="/MAKE="ARCH=arm\ /' dkms.conf
 ```
+
+Or, for `ARM64` run the following before re-building:
+
+```
+$ export ARCH=arm64
+$ sed -i 's/^MAKE="/MAKE="ARCH=arm64\ /' dkms.conf
+```
+
+Building the driver may exceed RAM on some RPi's resulting in a `gcc: fatal error: Killed signal terminated program cc1` error.  Swap space can be increased in `/etc/dphys-swapfile` e.g. to `2000` megabytes, followed by `/etc/init.d/dphys-swapfile restart`. Building on swap is very slow, however.
 
 For setting monitor mode
   1. Fix problematic interference in monitor mode.
