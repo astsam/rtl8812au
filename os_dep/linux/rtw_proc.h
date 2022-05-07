@@ -17,6 +17,9 @@
 
 #include <linux/proc_fs.h>
 #include <linux/seq_file.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 17, 0)
+#define PDE_DATA pde_data
+#endif
 
 #define RTW_PROC_HDL_TYPE_SEQ	0
 #define RTW_PROC_HDL_TYPE_SSEQ	1
