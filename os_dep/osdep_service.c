@@ -1212,11 +1212,6 @@ void _rtw_init_sema(_sema	*sema, int init_val)
 #ifdef PLATFORM_FREEBSD
 	sema_init(sema, init_val, "rtw_drv");
 #endif
-#ifdef PLATFORM_OS_XP
-
-	KeInitializeSemaphore(sema, init_val,  SEMA_UPBND); /* count=0; */
-
-#endif
 
 #ifdef PLATFORM_OS_CE
 	if (*sema == NULL)
@@ -1247,11 +1242,6 @@ void _rtw_up_sema(_sema	*sema)
 #ifdef PLATFORM_FREEBSD
 	sema_post(sema);
 #endif
-#ifdef PLATFORM_OS_XP
-
-	KeReleaseSemaphore(sema, IO_NETWORK_INCREMENT, 1,  FALSE);
-
-#endif
 
 #ifdef PLATFORM_OS_CE
 	ReleaseSemaphore(*sema,  1,  NULL);
@@ -1272,13 +1262,6 @@ u32 _rtw_down_sema(_sema *sema)
 #ifdef PLATFORM_FREEBSD
 	sema_wait(sema);
 	return  _SUCCESS;
-#endif
-#ifdef PLATFORM_OS_XP
-
-	if (STATUS_SUCCESS == KeWaitForSingleObject(sema, Executive, KernelMode, TRUE, NULL))
-		return  _SUCCESS;
-	else
-		return _FAIL;
 #endif
 
 #ifdef PLATFORM_OS_CE
@@ -1309,10 +1292,6 @@ inline void kthread_thread_exit(_completion *comp)
 
 #ifdef PLATFORM_OS_CE
 	ExitThread(STATUS_SUCCESS);
-#endif
-
-#ifdef PLATFORM_OS_XP
-	PsTerminateSystemThread(STATUS_SUCCESS);
 #endif
 }
 
@@ -1349,11 +1328,6 @@ void	_rtw_mutex_init(_mutex *pmutex)
 #ifdef PLATFORM_FREEBSD
 	mtx_init(pmutex, "", NULL, MTX_DEF | MTX_RECURSE);
 #endif
-#ifdef PLATFORM_OS_XP
-
-	KeInitializeMutex(pmutex, 0);
-
-#endif
 
 #ifdef PLATFORM_OS_CE
 	*pmutex =  CreateMutex(NULL, _FALSE, NULL);
@@ -1376,10 +1350,6 @@ void	_rtw_mutex_free(_mutex *pmutex)
 
 #endif
 
-#ifdef PLATFORM_OS_XP
-
-#endif
-
 #ifdef PLATFORM_OS_CE
 
 #endif
@@ -1396,11 +1366,6 @@ void	_rtw_spinlock_init(_lock *plock)
 #ifdef PLATFORM_FREEBSD
 	mtx_init(plock, "", NULL, MTX_DEF | MTX_RECURSE);
 #endif
-#ifdef PLATFORM_WINDOWS
-
-	NdisAllocateSpinLock(plock);
-
-#endif
 
 }
 
@@ -1408,12 +1373,6 @@ void	_rtw_spinlock_free(_lock *plock)
 {
 #ifdef PLATFORM_FREEBSD
 	mtx_destroy(plock);
-#endif
-
-#ifdef PLATFORM_WINDOWS
-
-	NdisFreeSpinLock(plock);
-
 #endif
 
 }
@@ -1449,11 +1408,6 @@ void	_rtw_spinlock(_lock	*plock)
 #ifdef PLATFORM_FREEBSD
 	mtx_lock(plock);
 #endif
-#ifdef PLATFORM_WINDOWS
-
-	NdisAcquireSpinLock(plock);
-
-#endif
 
 }
 
@@ -1468,11 +1422,6 @@ void	_rtw_spinunlock(_lock *plock)
 #ifdef PLATFORM_FREEBSD
 	mtx_unlock(plock);
 #endif
-#ifdef PLATFORM_WINDOWS
-
-	NdisReleaseSpinLock(plock);
-
-#endif
 }
 
 
@@ -1486,11 +1435,6 @@ void	_rtw_spinlock_ex(_lock	*plock)
 #endif
 #ifdef PLATFORM_FREEBSD
 	mtx_lock(plock);
-#endif
-#ifdef PLATFORM_WINDOWS
-
-	NdisDprAcquireSpinLock(plock);
-
 #endif
 
 }
