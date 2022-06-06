@@ -1,4 +1,4 @@
-## RTL8812AU/21AU Wireless drivers
+## RTL8812AU/21AU and RTL8814AU Wireless drivers
 Only for use with Linux & Android
 
 [![Monitor mode](https://img.shields.io/badge/monitor%20mode-working-brightgreen.svg)](#)
@@ -103,7 +103,7 @@ cd rtl*
 Package / Build dependencies (Kali)
 ```
 $ sudo apt-get update
-$ sudo apt-get install build-essential libelf-dev linux-headers-`uname -r`
+$ sudo apt-get install bc mokutil build-essential libelf-dev linux-headers-`uname -r`
 ```
 #### For Raspberry (RPI)
 
