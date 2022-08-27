@@ -48,7 +48,7 @@ Hal_InitEfuseVars_8814A(
 	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
 	PEFUSE_HAL		pEfuseHal = &(pHalData->EfuseHal);
 	pu2Byte		ptr;
-	
+
 	#define INIT_EFUSE(var,value)	ptr = (pu2Byte)&var; *ptr = value
 
 	RTW_INFO("====> %s \n", __func__);
@@ -4833,7 +4833,7 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8* val)
 			rtw_write8(Adapter,REG_BCN_CTRL_1, 0x11);//disable atim wnd and disable beacon function
 			//rtw_write8(Adapter,REG_BCN_CTRL_1, 0x18);
 		}
-		else if((mode == _HW_STATE_ADHOC_) /*|| (mode == _HW_STATE_AP_)*/)
+		else if (mode == _HW_STATE_ADHOC_) /*|| (mode == _HW_STATE_AP_)*/
 		{
 #ifdef RTL8814AE_SW_BCN
 			/*Beacon is polled to TXBUF*/
@@ -4957,7 +4957,7 @@ static void hw_var_set_opmode(PADAPTER Adapter, u8 variable, u8* val)
 			rtw_write8(Adapter,REG_BCN_CTRL, 0x19);//disable atim wnd
 			//rtw_write8(Adapter,REG_BCN_CTRL, 0x18);
 		}
-		else if((mode == _HW_STATE_ADHOC_) /*|| (mode == _HW_STATE_AP_)*/)
+		else if (mode == _HW_STATE_ADHOC_) /*|| (mode == _HW_STATE_AP_)*/
 		{
 #ifdef RTL8814AE_SW_BCN
 			rtw_write16(Adapter, REG_CR, rtw_read16(Adapter, REG_CR)|BIT(8));

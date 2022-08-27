@@ -472,7 +472,7 @@ u8 rtw_cfg80211_ch_switch_notify(_adapter *adapter, u8 ch, u8 bw, u8 offset,
 	if (!rtw_cfg80211_allow_ch_switch_notify(adapter))
 		goto exit;
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,19, 2))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
 	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef, 0);
 #else
 	cfg80211_ch_switch_notify(adapter->pnetdev, &chdef);
@@ -5227,7 +5227,7 @@ static int cfg80211_rtw_change_beacon(struct wiphy *wiphy, struct net_device *nd
 	return ret;
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,19, 2))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
 static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev, unsigned int link_id)
 #else
 static int cfg80211_rtw_stop_ap(struct wiphy *wiphy, struct net_device *ndev)
@@ -6104,7 +6104,7 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 	return 0;
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,19, 2))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
 static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev, unsigned int link_id, struct cfg80211_chan_def *chandef){
 #else
 static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wdev, struct cfg80211_chan_def *chandef){
@@ -10413,7 +10413,7 @@ void rtw_wdev_unregister(struct wireless_dev *wdev)
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0)) || defined(COMPAT_KERNEL_RELEASE)
 	#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 0, 0))
 	if (wdev->links[0].client.current_bss) {
-	#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5,19, 2))
+	#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 19, 2))
 	if (wdev->connected) {
 	#else
 	if (wdev->current_bss) {
