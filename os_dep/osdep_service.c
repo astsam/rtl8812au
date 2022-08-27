@@ -26,6 +26,10 @@ atomic_t _malloc_size = ATOMIC_INIT(0);
 #endif
 #endif /* DBG_MEMORY_LEAK */
 
+#if defined(MODULE_IMPORT_NS)
+MODULE_IMPORT_NS(VFS_internal_I_am_really_a_filesystem_and_am_NOT_a_driver);
+#endif
+
 #if defined(PLATFORM_LINUX)
 /*
 * Translate the OS dependent @param error_code to OS independent RTW_STATUS_CODE
