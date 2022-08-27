@@ -1,0 +1,103 @@
+name: Raspberry Pi Build
+
+on:
+  create:
+    tags:
+      - '/^v[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+[A-Za-z0-9]*$/'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    name: Build RTL8812AU driver for Raspberry Pi
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt update > /dev/null
+        sudo apt install -y wget gnupg2 > /dev/null
+        sudo apt-get -y install qemu-system-arm qemu-user-static binfmt-support  > /dev/null
+        sudo apt install -y gcc-arm-linux-gnueabihf crossbuild-essential-arm64 make > /dev/null
+    - name: Build Pi kernel drivers
+      id: build_raspberry
+      run: |
+        echo "deb http://archive.raspberrypi.org/debian/ bullseye main" | sudo tee /etc/apt/sources.list.d/raspbian.list
+        wget -O - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key | sudo apt-key add -
+        sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
+        sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefile
+        for arch in "armhf" "arm64"; do
+          echo "Adding arch" "$arch"
+          sudo dpkg --add-architecture "$arch" > /dev/null
+          sudo apt update > /dev/null || true
+          sudo apt download -y raspberrypi-kernel-headers:"$arch" > /dev/null
+          sudo dpkg --force-all -i raspberrypi-kernel-headers* > /dev/null
+          sudo rm -f raspberrypi-kernel-headers*.deb
+          if [ "$arch" = "arm64" ]; then
+            target_arch="arm64"
+            cross="aarch64-linux-gnu-"
+            sudo ln -fs /usr/aarch64-linux-gnu/lib/libc.so.6 /lib/libc.so.6
+            sudo ln -fs /usr/aarch64-linux-gnu/lib/ld-linux-aarch64.so.1 /lib/ld-linux-aarch64.so.1
+          else
+            target_arch="arm"
+            cross="arm-linux-gnueabihf-"
+            sudo ln -fs /usr/arm-linux-gnueabihf/lib/libc.so.6 /lib/libc.so.6
+            sudo ln -fs /usr/arm-linux-gnueabihf/lib/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+            sudo ln -fs /usr/arm-linux-gnueabihf/lib/ld-linux.so.3 /lib/ld-linux.so.3
+          fi
+          for kernel_folder in /lib/modules/*+; do
+            kver=`basename "$kernel_folder"`
+            echo "Cross compiling" "$kver" "for arch" "$target_arch"
+            sed -i '1156s/ARCH ?=.*/ARCH ?= '$target_arch'/g' Makefile
+            sed -i '1157s/CROSS_COMPILE ?=.*/CROSS_COMPILE ?= '$cross'/g' Makefile
+            sed -i '1158s/KVER ?=.*/KVER ?= '$kver'/g' Makefile
+            make clean > log.txt
+            make -j$(nproc) > log.txt && mkdir -p build/raspberrypi/$kver/ && cp 88XXau.ko build/raspberrypi/$kver/
+            echo ::set-output name=kernel_ver::"$(echo $kver | cut -f 1 -d -)"
+          done
+          sudo apt purge -y raspberrypi-kernel-headers:"$arch" > /dev/null
+        done
+    - name: Build Re4son kernel drivers
+      id: build_kali
+      run: |
+        echo "deb http://http.re4son-kernel.com/re4son/ kali-pi main" | sudo tee /etc/apt/sources.list.d/re4son.list
+        wget -O - https://re4son-kernel.com/keys/http/archive-key.asc | sudo apt-key add -
+        sed -i 's/CONFIG_PLATFORM_I386_PC = y/CONFIG_PLATFORM_I386_PC = n/g' Makefile
+        sed -i 's/CONFIG_PLATFORM_ARM_RPI = n/CONFIG_PLATFORM_ARM_RPI = y/g' Makefile
+        for arch in "armel" "armhf" "arm64"; do
+          echo "Adding arch" "$arch"
+          sudo dpkg --add-architecture "$arch" > /dev/null
+          sudo apt update > /dev/null || true
+          sudo apt install -y kalipi-kernel-headers:"$arch" > /dev/null
+          if [ "$arch" = "arm64" ]; then
+            target_arch="arm64"
+            cross="aarch64-linux-gnu-"
+            sudo ln -fs /usr/aarch64-linux-gnu/lib/libc.so.6 /lib/libc.so.6
+            sudo ln -fs /usr/aarch64-linux-gnu/lib/ld-linux-aarch64.so.1 /lib/ld-linux-aarch64.so.1
+          else
+            target_arch="arm"
+            cross="arm-linux-gnueabihf-"
+            sudo ln -fs /usr/arm-linux-gnueabihf/lib/libc.so.6 /lib/libc.so.6
+            sudo ln -fs /usr/arm-linux-gnueabihf/lib/ld-linux-armhf.so.3 /lib/ld-linux-armhf.so.3
+            sudo ln -fs /usr/arm-linux-gnueabihf/lib/ld-linux.so.3 /lib/ld-linux.so.3
+          fi
+          for kernel_folder in /lib/modules/*Re4son*; do
+            kver=`basename "$kernel_folder"`
+            echo "Cross compiling" "$kver" "for arch" "$target_arch"
+            sed -i '1156s/ARCH ?=.*/ARCH ?= '$target_arch'/g' Makefile
+            sed -i '1157s/CROSS_COMPILE ?=.*/CROSS_COMPILE ?= '$cross'/g' Makefile
+            sed -i '1158s/KVER ?=.*/KVER ?= '$kver'/g' Makefile
+            make clean > log.txt
+            make -j$(nproc) > log.txt && mkdir -p build/kalipi/$kver/ && cp 88XXau.ko build/kalipi/$kver/
+            echo ::set-output name=kernel_ver::"$(echo $kver | cut -f 1 -d -)"
+          done
+        done
+    - name: Compress artifacts
+      run: |
+        tar czvf rtl8812au-kalipi-${{ steps.build_kali.outputs.kernel_ver }}.tar.gz -C build/kalipi/ .
+        tar czvf rtl8812au-raspberrypi-${{ steps.build_raspberry.outputs.kernel_ver }}.tar.gz -C build/raspberrypi/ .
+    - name: Publish release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          rtl8812au-*.tar.gz
