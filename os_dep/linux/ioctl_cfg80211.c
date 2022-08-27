@@ -4844,6 +4844,7 @@ out:
 	return ret;
 }
 
+#ifdef RTW_VIRTUAL_INT
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 6, 0))
 static struct wireless_dev *
 #elif (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38)) || defined(COMPAT_KERNEL_RELEASE)
@@ -4999,6 +5000,7 @@ exit:
 	rtw_set_rtnl_lock_holder(dvobj, NULL);
 	return ret;
 }
+#endif /* RTW_VIRTUAL_INT */
 
 static int rtw_add_beacon(_adapter *adapter, const u8 *head, size_t head_len, const u8 *tail, size_t tail_len)
 {
@@ -10136,8 +10138,10 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	.flush_pmksa = cfg80211_rtw_flush_pmksa,
 
 #ifdef CONFIG_AP_MODE
+#ifdef RTW_VIRTUAL_INT
 	.add_virtual_intf = cfg80211_rtw_add_virtual_intf,
 	.del_virtual_intf = cfg80211_rtw_del_virtual_intf,
+#endif
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 4, 0)) && !defined(COMPAT_KERNEL_RELEASE)
 	.add_beacon = cfg80211_rtw_add_beacon,
