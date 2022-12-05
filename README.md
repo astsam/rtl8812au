@@ -69,6 +69,12 @@ This driver can be installed using [DKMS]. This is a system which will automatic
 $ sudo apt-get install dkms
 ```
 
+### Download
+```
+$ git clone -b v5.6.4.2 https://github.com/aircrack-ng/rtl8812au.git
+cd rtl*
+```
+
 ### Installation of Driver
 In order to install the driver open a terminal in the directory with the source code and execute the following command:
 ```
@@ -87,12 +93,6 @@ For building & installing the driver with 'make' use
 $ make && make install
 ```
 
-### Notes
-Download
-```
-$ git clone -b v5.6.4.2 https://github.com/aircrack-ng/rtl8812au.git
-cd rtl*
-```
 Package / Build dependencies (Kali)
 ```
 $ sudo apt-get update
