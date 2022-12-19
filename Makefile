@@ -21,6 +21,7 @@ EXTRA_CFLAGS += -Wno-vla -g
 #endif
 
 EXTRA_CFLAGS += -I$(srctee)/$(src)/include
+EXTRA_CFLAGS += -I$(srctree)/$(src)/hal/phydm
 EXTRA_LDFLAGS += --strip-all -O3
 
 ########################## WIFI IC ############################
@@ -234,7 +235,6 @@ EXTRA_CFLAGS += -I$(srctee)/$(src)/platform
 _PLATFORM_FILES := platform/platform_ops.o
 
 EXTRA_CFLAGS += -I$(srctree)/$(src)/hal/btc
-EXTRA_CFLAGS += -I$(srctree)/$(src)/hal/phydm
 
 ########### HAL_RTL8188E #################################
 ifeq ($(CONFIG_RTL8188E), y)
