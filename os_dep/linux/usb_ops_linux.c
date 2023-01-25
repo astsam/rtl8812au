@@ -724,7 +724,7 @@ void usb_init_recvbuf(_adapter *padapter, struct recv_buf *precvbuf)
 int recvbuf2recvframe(PADAPTER padapter, void *ptr);
 
 #ifdef CONFIG_USE_USB_BUFFER_ALLOC_RX
-void usb_recv_tasklet(void *priv)
+void usb_recv_tasklet(unsigned long priv)
 {
 	struct recv_buf *precvbuf = NULL;
 	_adapter	*padapter = (_adapter *)priv;
@@ -862,7 +862,7 @@ u32 usb_read_port(struct intf_hdl *pintfhdl, u32 addr, u32 cnt, u8 *rmem)
 }
 #else	/* CONFIG_USE_USB_BUFFER_ALLOC_RX */
 
-void usb_recv_tasklet(void *priv)
+void usb_recv_tasklet(unsigned long priv)
 {
 	_pkt			*pskb;
 	_adapter		*padapter = (_adapter *)priv;
