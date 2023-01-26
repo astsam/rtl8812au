@@ -444,7 +444,7 @@ int rtw_mlcst2unicst(_adapter *padapter, struct sk_buff *skb)
 #endif /* CONFIG_TX_MCAST2UNI */
 
 
-int _rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
+netdev_tx_t _rtw_xmit_entry(struct sk_buff *pkt, struct net_device *pnetdev)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
 	struct xmit_priv *pxmitpriv = &padapter->xmitpriv;
@@ -544,11 +544,11 @@ exit:
 	return 0;
 }
 
-int rtw_xmit_entry(_pkt *pkt, _nic_hdl pnetdev)
+netdev_tx_t rtw_xmit_entry(struct sk_buff *pkt, struct net_device *pnetdev)
 {
 	_adapter *padapter = (_adapter *)rtw_netdev_priv(pnetdev);
 	struct	mlme_priv	*pmlmepriv = &(padapter->mlmepriv);
-	int ret = 0;
+	netdev_tx_t ret = NETDEV_TX_OK;
 
 	if (pkt) {
 		if (check_fwstate(pmlmepriv, WIFI_MONITOR_STATE) == _TRUE) {
