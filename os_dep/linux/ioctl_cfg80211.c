@@ -6100,7 +6100,6 @@ static int	cfg80211_rtw_set_channel(struct wiphy *wiphy
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35))
 	RTW_INFO(FUNC_NDEV_FMT"\n", FUNC_NDEV_ARG(ndev));
 #endif
-
 	switch (channel_type) {
 	case NL80211_CHAN_NO_HT:
 	case NL80211_CHAN_HT20:
@@ -6150,37 +6149,18 @@ static int cfg80211_rtw_get_channel(struct wiphy *wiphy, struct wireless_dev *wd
 
 	if (!ndev)
   		return -ENODEV;
-  	offset = rtw_get_oper_choffset(padapter);
-  	//channel = adapter_to_dvobj(padapter)->oper_channel;
-	channel = pHalData->current_channel;
+	offset = rtw_get_oper_choffset(padapter);
+	bandWidth = rtw_get_oper_bw(padapter);
+	channel = rtw_get_oper_ch(padapter);
 	if(channel >= 1){
 		if(channel <= 14)
 			band = NL80211_BAND_2GHZ;
 		else
 			band =  NL80211_BAND_5GHZ;
-#if 0		
-	    	switch(pHalData->current_band_type){
-    			case 0:
-				band = NL80211_BAND_2GHZ;
-				break;
-			case 1:
-				band = NL80211_BAND_5GHZ;
-				break;
-			default:
-				return -EINVAL;
-		}
-#endif
+
 		control_freq =  ieee80211_channel_to_frequency(channel, band);
 
-		dvobj = adapter_to_dvobj(padapter);
-    		if(dvobj != NULL){
-			bandWidth = adapter_to_dvobj(padapter)->oper_bwmode;
-			RTW_INFO("%s bw %d\n", __func__, adapter_to_dvobj(padapter)->oper_bwmode);
-    		}else{
-			bandWidth = pHalData->current_channel_bw;
-			RTW_INFO("%s dvobj null\n", __func__);
-    		}
-	    	switch(pHalData->current_channel_bw){
+		switch(bandWidth){
 		case CHANNEL_WIDTH_5:
                        width = NL80211_CHAN_WIDTH_5;
                        center_freq = control_freq;
