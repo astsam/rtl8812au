@@ -8,6 +8,9 @@ on:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        version: ["buster", "bullseye"]
     runs-on: ubuntu-22.04
     name: Build RTL8812AU driver for Raspberry Pi
     steps:
@@ -18,7 +21,7 @@ jobs:
         sudo apt-get install -y curl gnupg2 curl
         sudo apt-get install -y gcc-arm-linux-gnueabihf crossbuild-essential-arm64 make
         sudo curl -fsSL http://archive.raspberrypi.org/debian/raspberrypi.gpg.key --output /usr/share/keyrings/raspberrypi.gpg.key
-        echo "deb [arch=amd64, signed-by=/usr/share/keyrings/raspberrypi.gpg.key] http://archive.raspberrypi.org/debian/ bullseye main" | sudo tee /etc/apt/sources.list.d/raspberrypi.list > /dev/null
+        echo "deb [arch=amd64, signed-by=/usr/share/keyrings/raspberrypi.gpg.key] http://archive.raspberrypi.org/debian/ ${{ matrix.version }} main" | sudo tee /etc/apt/sources.list.d/raspberrypi.list > /dev/null
         sudo apt-get update
         sudo apt-get install -y raspberrypi-kernel-headers
     - name: Build Pi kernel drivers
@@ -40,6 +43,26 @@ jobs:
           make ARCH=$target_arch CROSS_COMPILE=$cross KVER=$kver -j$(nproc) > log.txt && mkdir -p build/raspberrypi/$kver/ && cp 88XXau.ko build/raspberrypi/$kver/
           echo kernel_ver="$(echo $kver | cut -f 1 -d -)" >> $GITHUB_OUTPUT
         done
+    - name: Compress artifacts
+      run: |
+        tar czvf rtl8812au-raspberrypi-${{ steps.build_raspberry.outputs.kernel_ver }}.tar.gz -C build/raspberrypi/ .
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: RPi ${{ matrix.version }} kernel drivers
+        path: rtl8812au*.tar.gz
+        
+  
+  kalibuild:
+    runs-on: ubuntu-22.04
+    name: Build Nexmon driver for Raspberry Pi (re4son)
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl gnupg2 curl
+        sudo apt-get install -y gcc-arm-linux-gnueabihf crossbuild-essential-arm64 make
     - name: Build Re4son kernel drivers
       id: build_kali
       run: |
@@ -77,15 +100,8 @@ jobs:
     - name: Compress artifacts
       run: |
         tar czvf rtl8812au-kalipi-${{ steps.build_kali.outputs.kernel_ver }}.tar.gz -C build/kalipi/ .
-        tar czvf rtl8812au-raspberrypi-${{ steps.build_raspberry.outputs.kernel_ver }}.tar.gz -C build/raspberrypi/ .
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: RPi kernel drivers
+        name: RPi re4son kernel drivers
         path: rtl8812au*.tar.gz
-    - name: Publish release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        files: |
-          rtl8812au-*.tar.gz
