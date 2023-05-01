@@ -4851,7 +4851,7 @@ void rx_query_phy_status(
 	wlanhdr = get_recvframe_data(precvframe);
 
 	ta = get_ta(wlanhdr);
-	ra = get_ra(wlanhdr);
+	ra = wifi_get_ra(wlanhdr);
 	is_ra_bmc = IS_MCAST(ra);
 
 	if (_rtw_memcmp(adapter_mac_addr(padapter), ta, ETH_ALEN) == _TRUE) {
@@ -4991,7 +4991,7 @@ s32 pre_recv_entry(union recv_frame *precvframe, u8 *pphy_status)
 {
 	s32 ret = _SUCCESS;
 	u8 *pbuf = precvframe->u.hdr.rx_data;
-	u8 *pda = get_ra(pbuf);
+	u8 *pda = wifi_get_ra(pbuf);
 	u8 ra_is_bmc = IS_MCAST(pda);
 	_adapter *primary_padapter = precvframe->u.hdr.adapter;
 #ifdef CONFIG_CONCURRENT_MODE
