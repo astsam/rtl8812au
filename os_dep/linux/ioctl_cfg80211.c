@@ -10374,7 +10374,6 @@ int rtw_wdev_alloc(_adapter *padapter, struct wiphy *wiphy)
         pwdev_priv->rssi_monitor_min = 0;
 #endif
 
-
 exit:
 	return ret;
 }
