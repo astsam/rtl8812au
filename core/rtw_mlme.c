@@ -2841,10 +2841,8 @@ void rtw_sta_mstatus_report(_adapter *adapter)
 		psta = rtw_get_stainfo(&adapter->stapriv, tgt_network->network.MacAddress);
 		if (psta)
 			rtw_sta_mstatus_disc_rpt(adapter, psta->cmn.mac_id);
-		else {
+		else
 			RTW_INFO("%s "ADPT_FMT" - mac_addr: "MAC_FMT" psta == NULL\n", __func__, ADPT_ARG(adapter), MAC_ARG(tgt_network->network.MacAddress));
-			rtw_warn_on(1);
-		}
 	}
 }
 
