@@ -1189,12 +1189,9 @@ VOID
 #define		DP_DPK_NUM			3
 #define		DP_DPK_VALUE_NUM	2
 
-
-
-
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 //digital predistortion
-VOID	
+VOID
 	phy_DigitalPredistortion_8814A(
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 			IN	PADAPTER	pAdapter,
@@ -1213,9 +1210,9 @@ VOID
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc;
 #endif
-#endif	
+#endif
 
-	u32			tmpReg, tmpReg2, index,  i;		
+	u32			tmpReg, tmpReg2, index,  i;
 	u8			path, pathbound = PATH_NUM;
 	u32			AFE_backup[IQK_ADDA_REG_NUM];
 	u32			AFE_REG[IQK_ADDA_REG_NUM] = {	

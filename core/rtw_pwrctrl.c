@@ -2090,10 +2090,6 @@ void rtw_init_pwrctrl_priv(PADAPTER padapter)
 		return;
 #endif
 
-#ifdef PLATFORM_WINDOWS
-	pwrctrlpriv->pnp_current_pwr_state = NdisDeviceStateD0;
-#endif
-
 	_init_pwrlock(&pwrctrlpriv->lock);
 	_init_pwrlock(&pwrctrlpriv->check_32k_lock);
 	pwrctrlpriv->rf_pwrstate = rf_on;

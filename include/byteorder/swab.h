@@ -121,7 +121,7 @@ __inline static __u64 __arch__swab64(__u64 x)
 	return __arch__swab32(x);
 }
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_WINDOWS)
+#if defined(PLATFORM_LINUX)
 	#define swab16 __swab16
 	#define swab32 __swab32
 	#define swab64 __swab64

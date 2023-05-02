@@ -1190,11 +1190,9 @@ VOID
 #define		DP_DPK_VALUE_NUM	2
 
 
-
-
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 //digital predistortion
-VOID	
+VOID
 	phy_DigitalPredistortion_8814A(
 #if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
 			IN	PADAPTER	pAdapter,
@@ -1213,19 +1211,19 @@ VOID
 #if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
 	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc;
 #endif
-#endif	
+#endif
 
-	u4Byte			tmpReg, tmpReg2, index,  i;		
+	u4Byte			tmpReg, tmpReg2, index,  i;
 	u1Byte			path, pathbound = PATH_NUM;
 	u4Byte			AFE_backup[IQK_ADDA_REG_NUM];
-	u4Byte			AFE_REG[IQK_ADDA_REG_NUM] = {	
-		rFPGA0_XCD_SwitchControl, 	rBlue_Tooth, 	
+	u4Byte			AFE_REG[IQK_ADDA_REG_NUM] = {
+		rFPGA0_XCD_SwitchControl, 	rBlue_Tooth,
 		rRx_Wait_CCA, 		rTx_CCK_RFON,
-		rTx_CCK_BBON, 	rTx_OFDM_RFON, 	
+		rTx_CCK_BBON, 	rTx_OFDM_RFON,
 		rTx_OFDM_BBON, 	rTx_To_Rx,
-		rTx_To_Tx, 		rRx_CCK, 	
+		rTx_To_Tx, 		rRx_CCK,
 		rRx_OFDM, 		rRx_Wait_RIFS,
-		rRx_TO_Rx, 		rStandby, 	
+		rRx_TO_Rx, 		rStandby,
 		rSleep, 			rPMPD_ANAEN };
 
 	u4Byte			BB_backup[DP_BB_REG_NUM];	

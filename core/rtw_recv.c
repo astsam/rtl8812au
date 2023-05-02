@@ -2572,21 +2572,7 @@ sint wlanhdr_to_ethhdr(union recv_frame *precvframe)
 		/* ptr -= 16; */
 		/* _rtw_memcpy(ptr, get_rxmem(precvframe), 16); */
 	} else {
-#ifdef PLATFORM_OS_XP
-		NDIS_PACKET_8021Q_INFO VlanPriInfo;
-		UINT32 UserPriority = precvframe->u.hdr.attrib.priority;
-		UINT32 VlanID = (pvlan != NULL ? get_vlan_id(pvlan) : 0);
 
-		VlanPriInfo.Value =          /* Get current value. */
-			NDIS_PER_PACKET_INFO_FROM_PACKET(precvframe->u.hdr.pkt, Ieee8021QInfo);
-
-		VlanPriInfo.TagHeader.UserPriority = UserPriority;
-		VlanPriInfo.TagHeader.VlanId =  VlanID ;
-
-		VlanPriInfo.TagHeader.CanonicalFormatId = 0; /* Should be zero. */
-		VlanPriInfo.TagHeader.Reserved = 0; /* Should be zero. */
-		NDIS_PER_PACKET_INFO_FROM_PACKET(precvframe->u.hdr.pkt, Ieee8021QInfo) = VlanPriInfo.Value;
-#endif
 	}
 
 	if (eth_type == 0x8712) { /* append rx status for mp test packets */
@@ -2603,8 +2589,6 @@ sint wlanhdr_to_ethhdr(union recv_frame *precvframe)
 	_rtw_memcpy(ptr + 12, &eth_type, 2);
 
 exit:
-
-
 	return ret;
 }
 #endif
