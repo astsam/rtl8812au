@@ -55,7 +55,7 @@ jobs:
   
   kalibuild:
     runs-on: ubuntu-22.04
-    name: Build Nexmon driver for Raspberry Pi (re4son)
+    name: Build RTL8812AU driver for Raspberry Pi (re4son)
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
