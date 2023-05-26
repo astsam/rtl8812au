@@ -18,9 +18,6 @@
 #if defined(CONFIG_USB_HCI)
 
 	#ifndef MAX_RECVBUF_SZ
-		#ifdef PLATFORM_OS_CE
-			#define MAX_RECVBUF_SZ (8192+1024) /* 8K+1k */
-		#else
 			#ifndef CONFIG_MINIMAL_MEMORY_USAGE
 				#ifdef CONFIG_PREALLOC_RX_SKB_BUFFER
 					#define MAX_RECVBUF_SZ (rtw_rtkm_get_buff_size()) /*depend rtkm*/
@@ -39,7 +36,6 @@
 			#else
 				#define MAX_RECVBUF_SZ (4000) /* about 4K */
 			#endif
-		#endif
 	#endif /* !MAX_RECVBUF_SZ */
 
 #elif defined(CONFIG_PCI_HCI)

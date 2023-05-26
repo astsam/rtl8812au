@@ -21,38 +21,11 @@
 #ifdef RTW_HALMAC
 	#include <hal_data.h>		/* struct HAL_DATA_TYPE, RF register definition and etc. */
 #else /* !RTW_HALMAC */
-	#ifdef CONFIG_RTL8188E
-		#include <rtl8188e_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8723B
-		#include <rtl8723b_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8192E
-		#include <rtl8192e_hal.h>
-	#endif
 	#if defined(CONFIG_RTL8814A) || defined(CONFIG_RTL8812A)
 		#include <rtl8814a_hal.h>
 	#endif
 	#if defined(CONFIG_RTL8812A) || defined(CONFIG_RTL8821A)
 		#include <rtl8812a_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8703B
-		#include <rtl8703b_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8723D
-		#include <rtl8723d_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8710B
-		#include <rtl8710b_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8188F
-		#include <rtl8188f_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8188GTV
-		#include <rtl8188gtv_hal.h>
-	#endif
-	#ifdef CONFIG_RTL8192F
-		#include <rtl8192f_hal.h>
 	#endif
 #endif /* !RTW_HALMAC */
 

@@ -1202,16 +1202,6 @@ VOID
 			IN	BOOLEAN		is2T
 			)
 {
-#if (RT_PLATFORM == PLATFORM_WINDOWS)
-#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
-#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
-	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
-#endif
-#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
-	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc;
-#endif
-#endif
 
 	u4Byte			tmpReg, tmpReg2, index,  i;
 	u1Byte			path, pathbound = PATH_NUM;
@@ -1226,12 +1216,12 @@ VOID
 		rRx_TO_Rx, 		rStandby,
 		rSleep, 			rPMPD_ANAEN };
 
-	u4Byte			BB_backup[DP_BB_REG_NUM];	
+	u4Byte			BB_backup[DP_BB_REG_NUM];
 	u4Byte			BB_REG[DP_BB_REG_NUM] = {
-		rOFDM0_TRxPathEnable, rFPGA0_RFMOD, 
+		rOFDM0_TRxPathEnable, rFPGA0_RFMOD,
 		rOFDM0_TRMuxPar, 	rFPGA0_XCD_RFInterfaceSW,
-		rFPGA0_XAB_RFInterfaceSW, rFPGA0_XA_RFInterfaceOE, 
-		rFPGA0_XB_RFInterfaceOE};						
+		rFPGA0_XAB_RFInterfaceSW, rFPGA0_XA_RFInterfaceOE,
+		rFPGA0_XB_RFInterfaceOE};
 	u4Byte			BB_settings[DP_BB_REG_NUM] = {
 		0x00a05430, 0x02040000, 0x000800e4, 0x22208000, 
 		0x0, 0x0, 0x0};	

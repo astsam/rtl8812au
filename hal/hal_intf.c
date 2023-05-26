@@ -20,20 +20,9 @@
 
 const u32 _chip_type_to_odm_ic_type[] = {
 	0,
-	ODM_RTL8188E,
-	ODM_RTL8192E,
 	ODM_RTL8812,
 	ODM_RTL8821,
-	ODM_RTL8723B,
 	ODM_RTL8814A,
-	ODM_RTL8703B,
-	ODM_RTL8188F,
-	ODM_RTL8188F,
-	ODM_RTL8822B,
-	ODM_RTL8723D,
-	ODM_RTL8821C,
-	ODM_RTL8710B,
-	ODM_RTL8192F,
 	0,
 };
 
@@ -1413,7 +1402,6 @@ bool rtw_hal_rfkill_poll(_adapter *adapter, u8 *valid)
 u8 rtw_hal_ops_check(_adapter *padapter)
 {
 	u8 ret = _SUCCESS;
-#if 1
 	/*** initialize section ***/
 	if (NULL == padapter->hal_func.read_chip_version) {
 		rtw_hal_error_msg("read_chip_version");
@@ -1603,12 +1591,6 @@ u8 rtw_hal_ops_check(_adapter *padapter)
 		rtw_hal_error_msg("hal_mac_c2h_handler");
 		ret = _FAIL;
 	}
-#elif !defined(CONFIG_RTL8188E)
-	if (NULL == padapter->hal_func.c2h_handler) {
-		rtw_hal_error_msg("c2h_handler");
-		ret = _FAIL;
-	}
-#endif
 
 #if defined(CONFIG_LPS) || defined(CONFIG_WOWLAN) || defined(CONFIG_AP_WOWLAN)
 	if (NULL == padapter->hal_func.fill_fake_txdesc) {

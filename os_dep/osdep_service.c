@@ -1135,20 +1135,12 @@ void _rtw_init_sema(_sema	*sema, int init_val)
 	sema_init(sema, init_val, "rtw_drv");
 #endif
 
-#ifdef PLATFORM_OS_CE
-	if (*sema == NULL)
-		*sema = CreateSemaphore(NULL, init_val, SEMA_UPBND, NULL);
-#endif
-
 }
 
 void _rtw_free_sema(_sema	*sema)
 {
 #ifdef PLATFORM_FREEBSD
 	sema_destroy(sema);
-#endif
-#ifdef PLATFORM_OS_CE
-	CloseHandle(*sema);
 #endif
 
 }
@@ -1163,10 +1155,6 @@ void _rtw_up_sema(_sema	*sema)
 #endif
 #ifdef PLATFORM_FREEBSD
 	sema_post(sema);
-#endif
-
-#ifdef PLATFORM_OS_CE
-	ReleaseSemaphore(*sema,  1,  NULL);
 #endif
 }
 
@@ -1184,13 +1172,6 @@ u32 _rtw_down_sema(_sema *sema)
 #ifdef PLATFORM_FREEBSD
 	sema_wait(sema);
 	return  _SUCCESS;
-#endif
-
-#ifdef PLATFORM_OS_CE
-	if (WAIT_OBJECT_0 == WaitForSingleObject(*sema, INFINITE))
-		return _SUCCESS;
-	else
-		return _FAIL;
 #endif
 }
 
@@ -1210,10 +1191,6 @@ inline void kthread_thread_exit(_completion *comp)
 
 #ifdef PLATFORM_FREEBSD
 	printf("%s", "RTKTHREAD_exit");
-#endif
-
-#ifdef PLATFORM_OS_CE
-	ExitThread(STATUS_SUCCESS);
 #endif
 }
 
@@ -1250,10 +1227,6 @@ void	_rtw_mutex_init(_mutex *pmutex)
 #ifdef PLATFORM_FREEBSD
 	mtx_init(pmutex, "", NULL, MTX_DEF | MTX_RECURSE);
 #endif
-
-#ifdef PLATFORM_OS_CE
-	*pmutex =  CreateMutex(NULL, _FALSE, NULL);
-#endif
 }
 
 void	_rtw_mutex_free(_mutex *pmutex);
@@ -1269,10 +1242,6 @@ void	_rtw_mutex_free(_mutex *pmutex)
 #ifdef PLATFORM_FREEBSD
 	sema_destroy(pmutex);
 #endif
-
-#endif
-
-#ifdef PLATFORM_OS_CE
 
 #endif
 }
