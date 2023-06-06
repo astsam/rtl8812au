@@ -60,6 +60,10 @@
 #endif
 	#define NR_XMITBUFF	(128)
 #endif
+
+#ifdef PLATFORM_OS_CE
+	#define XMITBUF_ALIGN_SZ 4
+#else
 	#ifdef CONFIG_PCI_HCI
 		#define XMITBUF_ALIGN_SZ 4
 	#else
@@ -68,6 +72,7 @@
 		#else
 			#define XMITBUF_ALIGN_SZ 512
 		#endif
+	#endif
 #endif
 
 /* xmit extension buff defination */

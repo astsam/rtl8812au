@@ -1201,29 +1201,39 @@ VOID
 			IN	BOOLEAN		is2T
 			)
 {
+#if (RT_PLATFORM == PLATFORM_WINDOWS)
+#if !(DM_ODM_SUPPORT_TYPE & ODM_AP)
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(pAdapter);
+#if (DM_ODM_SUPPORT_TYPE == ODM_CE)
+	PDM_ODM_T		pDM_Odm = &pHalData->odmpriv;
+#endif
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+	PDM_ODM_T		pDM_Odm = &pHalData->DM_OutSrc;
+#endif
+#endif
 
 	u32			tmpReg, tmpReg2, index,  i;
 	u8			path, pathbound = PATH_NUM;
 	u32			AFE_backup[IQK_ADDA_REG_NUM];
-	u32			AFE_REG[IQK_ADDA_REG_NUM] = {
-		rFPGA0_XCD_SwitchControl, 	rBlue_Tooth,
+	u32			AFE_REG[IQK_ADDA_REG_NUM] = {	
+		rFPGA0_XCD_SwitchControl, 	rBlue_Tooth, 	
 		rRx_Wait_CCA, 		rTx_CCK_RFON,
-		rTx_CCK_BBON, 	rTx_OFDM_RFON,
+		rTx_CCK_BBON, 	rTx_OFDM_RFON, 	
 		rTx_OFDM_BBON, 	rTx_To_Rx,
-		rTx_To_Tx, 		rRx_CCK,
+		rTx_To_Tx, 		rRx_CCK, 	
 		rRx_OFDM, 		rRx_Wait_RIFS,
-		rRx_TO_Rx, 		rStandby,
+		rRx_TO_Rx, 		rStandby, 	
 		rSleep, 			rPMPD_ANAEN };
 
-	u32			BB_backup[DP_BB_REG_NUM];
+	u32			BB_backup[DP_BB_REG_NUM];	
 	u32			BB_REG[DP_BB_REG_NUM] = {
-		rOFDM0_TRxPathEnable, rFPGA0_RFMOD,
+		rOFDM0_TRxPathEnable, rFPGA0_RFMOD, 
 		rOFDM0_TRMuxPar, 	rFPGA0_XCD_RFInterfaceSW,
 		rFPGA0_XAB_RFInterfaceSW, rFPGA0_XA_RFInterfaceOE, 
-		rFPGA0_XB_RFInterfaceOE};
+		rFPGA0_XB_RFInterfaceOE};						
 	u32			BB_settings[DP_BB_REG_NUM] = {
 		0x00a05430, 0x02040000, 0x000800e4, 0x22208000, 
-		0x0, 0x0, 0x0};
+		0x0, 0x0, 0x0};	
 
 	u32			RF_backup[DP_PATH_NUM][DP_RF_REG_NUM];
 	u32			RF_REG[DP_RF_REG_NUM] = {

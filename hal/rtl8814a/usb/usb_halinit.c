@@ -1585,9 +1585,9 @@ HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_INIT_HAL_DM);
 	// Reset USB mode switch setting
 	rtw_write8(Adapter, REG_SDIO_CTRL_8814A, 0x0);
 	rtw_write8(Adapter, REG_ACLK_MON, 0x0);
-
+	
 	//RT_TRACE(COMP_INIT, DBG_TRACE, ("InitializeAdapter8188EUsb() <====\n"));
-
+	
 HAL_INIT_PROFILE_TAG(HAL_INIT_STAGES_IQK);
 	// 2010/08/26 MH Merge from 8192CE.
 	if(pwrctrlpriv->rf_pwrstate == rf_on)
@@ -2048,19 +2048,19 @@ InitAdapterVariablesByPROM_8814AU(
 	hal_ReadTxPowerInfo8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
 	hal_ReadBoardType8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
 	hal_Read_TRX_antenna_8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
-
+	
 	//
 	// Read Bluetooth co-exist and initialize
 	//
 	hal_EfuseParseBTCoexistInfo8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
-
+	
 	hal_ReadChannelPlan8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
 	hal_EfuseParseXtal_8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);	
 	hal_ReadThermalMeter_8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
 	hal_ReadRemoteWakeup_8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
 	hal_ReadAntennaDiversity8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
 	hal_ReadRFEType_8814A(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
-
+	
 	ReadLEDSetting_8814AU(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
 
 	hal_ReadUsbModeSwitch_8814AU(Adapter, pHalData->efuse_eeprom_data, pHalData->bautoload_fail_flag);
@@ -2074,7 +2074,7 @@ InitAdapterVariablesByPROM_8814AU(
 static void hal_ReadPROMContent_8814A(
 	IN PADAPTER 		Adapter
 	)
-{
+{	
 	PHAL_DATA_TYPE pHalData = GET_HAL_DATA(Adapter);
 	u8			eeValue;
 
@@ -2097,7 +2097,7 @@ ReadAdapterInfo8814AU(
 	)
 {
 	Hal_InitEfuseVars_8814A(Adapter);
-
+	
 	/* Read all content in Efuse/EEPROM. */
 	hal_ReadPROMContent_8814A(Adapter);
 
@@ -2118,17 +2118,17 @@ void UpdateInterruptMask8814AU(PADAPTER padapter,u8 bHIMR0 ,u32 AddMSR, u32 Remo
 		himr = &(pHalData->IntrMask[0]);
 	else
 		himr = &(pHalData->IntrMask[1]);
-
+	
 	if (AddMSR)
 		*himr |= AddMSR;
 
 	if (RemoveMSR)
 		*himr &= (~RemoveMSR);
 
-	if(bHIMR0)
+	if(bHIMR0)	
 		rtw_write32(padapter, REG_HIMR0_8814A, *himr);
 	else
-		rtw_write32(padapter, REG_HIMR1_8814A, *himr);
+		rtw_write32(padapter, REG_HIMR1_8814A, *himr);	
 
 }
 
@@ -2223,7 +2223,7 @@ u8 SetHwReg8814AU(PADAPTER Adapter, u8 variable, u8* val)
 
 void GetHwReg8814AU(PADAPTER Adapter, u8 variable, u8* val)
 {
-	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);
+	HAL_DATA_TYPE	*pHalData = GET_HAL_DATA(Adapter);	
 
 	switch(variable)
 	{
@@ -2340,7 +2340,7 @@ static void rtl8814au_init_default_value(_adapter * padapter)
 }
 
 static u8 rtl8814au_ps_func(PADAPTER Adapter,HAL_INTF_PS_FUNC efunc_id, u8 *val)
-{
+{	
 	u8 bResult = _TRUE;
 	switch(efunc_id){
 
@@ -2365,7 +2365,7 @@ void rtl8814au_set_hal_ops(_adapter * padapter)
 
 	pHalFunc->hal_power_on = _InitPowerOn_8814AU;
 	pHalFunc->hal_power_off = hal_carddisable_8814;
-
+	
 	pHalFunc->hal_init = &rtl8814au_hal_init;
 	pHalFunc->hal_deinit = &rtl8814au_hal_deinit;
 
@@ -2384,11 +2384,11 @@ void rtl8814au_set_hal_ops(_adapter * padapter)
 //	pHalFunc->InitSwLeds = NULL;
 //	pHalFunc->DeInitSwLeds = NULL;
 #endif//CONFIG_RTW_LED
-
+	
 	pHalFunc->init_default_value = &rtl8814au_init_default_value;
 	pHalFunc->intf_chip_configure = &rtl8814au_interface_configure;
 	pHalFunc->read_adapter_info = &ReadAdapterInfo8814AU;
-
+ 
 	pHalFunc->set_hw_reg_handler = &SetHwReg8814AU;
 	pHalFunc->GetHwRegHandler = &GetHwReg8814AU;
   	pHalFunc->get_hal_def_var_handler = &GetHalDefVar8814AUsb;

@@ -26,7 +26,11 @@
 #define MAX_RSPSZ	512
 #define MAX_EVTSZ	1024
 
-#define CMDBUFF_ALIGN_SZ 512
+#ifdef PLATFORM_OS_CE
+	#define CMDBUFF_ALIGN_SZ 4
+#else
+	#define CMDBUFF_ALIGN_SZ 512
+#endif
 
 struct cmd_obj {
 	_adapter *padapter;
@@ -110,6 +114,9 @@ struct	evt_priv {
 #if defined(CONFIG_SDIO_HCI) || defined(CONFIG_GSPI_HCI)
 	u8	*c2h_mem;
 	u8	*allocated_c2h_mem;
+#ifdef PLATFORM_OS_XP
+	PMDL	pc2h_mdl;
+#endif
 #endif
 
 };
