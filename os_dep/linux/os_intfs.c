@@ -1285,7 +1285,7 @@ static int rtw_net_set_mac_address(struct net_device *pnetdev, void *addr)
 	}
 
 	_rtw_memcpy(adapter_mac_addr(padapter), sa->sa_data, ETH_ALEN); /* set mac addr to adapter */
-	dev_addr_set(pnetdev, sa->sa_data); /* set mac addr to net_device */
+	eth_hw_addr_set(pnetdev, sa->sa_data); /* set mac addr to net_device */
 
 #if 0
 	if (rtw_is_hw_init_completed(padapter)) {
@@ -1754,7 +1754,7 @@ int rtw_os_ndev_register(_adapter *adapter, const char *name)
 	/* alloc netdev name */
 	rtw_init_netdev_name(ndev, name);
 
-	dev_addr_set(ndev, adapter_mac_addr(adapter));
+	eth_hw_addr_set(ndev, adapter_mac_addr(adapter));
 #if defined(CONFIG_NET_NS)
     dev_net_set(ndev, wiphy_net(adapter_to_wiphy(adapter)));
 #endif //defined(CONFIG_NET_NS)
