@@ -1193,7 +1193,7 @@ check_bss:
                         struct cfg80211_bss *bss;
                         bss = cfg80211_get_bss(pwdev->wiphy, NULL, cur_network->network.MacAddress, NULL, 0,
                                 IEEE80211_BSS_TYPE_ANY, IEEE80211_PRIVACY_ANY);
-		#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0)
+		#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 10, 0) || defined(CONFIG_CFG80211_CONNECT_BSS_ANDROID))
                         cfg80211_connect_bss(wdev_to_ndev(pwdev), cur_network->network.MacAddress, bss
                                 , pmlmepriv->assoc_req + sizeof(struct rtw_ieee80211_hdr_3addr) + 2
                                 , pmlmepriv->assoc_req_len - sizeof(struct rtw_ieee80211_hdr_3addr) - 2
