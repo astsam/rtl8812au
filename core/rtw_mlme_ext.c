@@ -1971,6 +1971,12 @@ unsigned int OnBeacon(_adapter *padapter, union recv_frame *precv_frame)
 #if 0 /* move to validate_recv_mgnt_frame */
 				psta->sta_stats.rx_mgnt_pkts++;
 #endif
+
+#if defined(CONFIG_IOCTL_CFG80211)
+				rtw_cfg80211_cqm_rssi_update(
+					padapter,
+					pmlmepriv->cur_network_scanned->network.Rssi);
+#endif
 			}
 
 		} else if ((pmlmeinfo->state & 0x03) == WIFI_FW_ADHOC_STATE) {

@@ -4476,6 +4476,47 @@ static int cfg80211_rtw_flush_pmksa(struct wiphy *wiphy,
 	return 0;
 }
 
+static int cfg80211_rtw_set_cqm_rssi_config(struct wiphy *wiphy,
+					    struct net_device *ndev,
+					    s32 rssi_thold, u32 rssi_hyst)
+{
+	_adapter *padapter = (_adapter *)rtw_netdev_priv(ndev);
+	struct rtw_wdev_priv *priv = adapter_wdev_data(padapter);
+
+	priv->cqm_rssi_thold = rssi_thold;
+	priv->cqm_rssi_hyst = rssi_hyst;
+	priv->cqm_rssi_last = 0;
+
+	return 0;
+}
+
+void rtw_cfg80211_cqm_rssi_update(_adapter *padapter, s32 rssi)
+{
+	struct rtw_wdev_priv *priv = adapter_wdev_data(padapter);
+	enum nl80211_cqm_rssi_threshold_event event;
+
+	if (priv->cqm_rssi_thold == 0)
+		return;
+
+	if (rssi < priv->cqm_rssi_thold &&
+	    (priv->cqm_rssi_last == 0 ||
+	     rssi < priv->cqm_rssi_last - priv->cqm_rssi_hyst))
+                event = NL80211_CQM_RSSI_THRESHOLD_EVENT_LOW;
+        else if (rssi > priv->cqm_rssi_thold &&
+		 (priv->cqm_rssi_last == 0 ||
+		  rssi > priv->cqm_rssi_last + priv->cqm_rssi_hyst))
+                event = NL80211_CQM_RSSI_THRESHOLD_EVENT_HIGH;
+        else
+                return;
+
+        priv->cqm_rssi_last = rssi;
+        cfg80211_cqm_rssi_notify(padapter->pnetdev, event,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
+				 rssi,
+#endif
+				 GFP_ATOMIC);
+}
+
 #ifdef CONFIG_AP_MODE
 void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint frame_len)
 {
@@ -10157,6 +10198,7 @@ static struct cfg80211_ops rtw_cfg80211_ops = {
 	.set_pmksa = cfg80211_rtw_set_pmksa,
 	.del_pmksa = cfg80211_rtw_del_pmksa,
 	.flush_pmksa = cfg80211_rtw_flush_pmksa,
+	.set_cqm_rssi_config = cfg80211_rtw_set_cqm_rssi_config,
 
 #ifdef RTW_VIRTUAL_INT
 	.add_virtual_intf = cfg80211_rtw_add_virtual_intf,
