@@ -185,6 +185,11 @@ struct rtw_wdev_priv {
 	u16 pno_scan_seq_num;
 #endif
 
+	/* Standard RSSI notification parameters */
+	s32 cqm_rssi_thold;
+	u32 cqm_rssi_hyst;
+	s32 cqm_rssi_last;
+
 #ifdef CONFIG_RTW_CFGVEDNOR_RSSIMONITOR
         s8 rssi_monitor_max;
         s8 rssi_monitor_min;
@@ -350,6 +355,8 @@ void rtw_cfg80211_rx_rrm_action(_adapter *adapter, union recv_frame *rframe);
 void rtw_cfg80211_init_rfkill(struct wiphy *wiphy);
 void rtw_cfg80211_deinit_rfkill(struct wiphy *wiphy);
 #endif
+
+void rtw_cfg80211_cqm_rssi_update(_adapter *padapter, s32 rssi);
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3, 4, 0))  && !defined(COMPAT_KERNEL_RELEASE)
 #define rtw_cfg80211_rx_mgmt(wdev, freq, sig_dbm, buf, len, gfp) cfg80211_rx_mgmt(wdev_to_ndev(wdev), freq, buf, len, gfp)
