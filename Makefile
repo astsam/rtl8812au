@@ -11,7 +11,7 @@ EXTRA_CFLAGS += -Wno-missing-declarations
 EXTRA_CFLAGS += -Wno-missing-prototypes
 #EXTRA_CFLAGS += -Wno-error=cast-function-type
 #EXTRA_CFLAGS += -Wno-parentheses-equality
-EXTRA_CFLAGS += -Wno-error=incompatible-pointer-types
+#EXTRA_CFLAGS += -Wno-error=incompatible-pointer-types
 EXTRA_CFLAGS += -Wno-stringop-overread
 #EXTRA_CFLAGS += -Wno-pointer-bool-conversion
 EXTRA_CFLAGS += -Wno-unknown-pragmas
